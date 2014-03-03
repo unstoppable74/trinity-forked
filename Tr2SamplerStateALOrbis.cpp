@@ -169,6 +169,7 @@ ALResult Tr2SamplerStateAL::Create(
 		m_sampler.setDepthCompareFunction( depthCompare );
 	}
 	m_isValid = true;
+	ChangeObjectId();
 	return S_OK;
 }
 

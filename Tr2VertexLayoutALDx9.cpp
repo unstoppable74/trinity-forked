@@ -82,7 +82,12 @@ ALResult Tr2VertexLayoutAL::Create( const Tr2VertexDefinition& definition, Tr2Re
 	D3DVERTEXELEMENT9 end = D3DDECL_END();
 	desc.push_back( end );
 
-	return renderContext.m_d3dDevice9->CreateVertexDeclaration( desc.data(), &m_layout );
+	HRESULT hr = renderContext.m_d3dDevice9->CreateVertexDeclaration( desc.data(), &m_layout );
+	if( SUCCEEDED( hr ) )
+	{
+		ChangeObjectId();
+	}
+	return hr;
 }
 
 void Tr2VertexLayoutAL::Destroy()

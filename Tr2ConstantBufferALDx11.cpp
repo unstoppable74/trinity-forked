@@ -80,6 +80,7 @@ ALResult Tr2ConstantBufferAL::Create( uint32_t size, Tr2RenderContextEnum::Buffe
 		m_size = size;
 		m_frameUse = FRAME_USE_NOT_USED_YET;
 		m_usage = usage;
+		ChangeObjectId();
 
 		return S_OK;
 	}
@@ -117,6 +118,7 @@ ALResult Tr2ConstantBufferAL::Create( uint32_t size, Tr2RenderContextEnum::Buffe
 		m_size = size;
 		m_frameUse = FRAME_USE_NOT_USED_YET;
 		m_usage = usage;
+		ChangeObjectId();
 
 		return S_OK;
 	}

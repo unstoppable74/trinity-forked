@@ -210,6 +210,7 @@ ALResult Tr2RenderTargetAL::CreateEx(
 		m_backingStore.m_view[0].Attach( view[0].Detach() );
 		m_backingStore.m_view[1].Attach( view[1].Detach() );
 	}
+	ChangeObjectId();
 	
 	return HR;
 }
@@ -267,6 +268,7 @@ ALResult Tr2RenderTargetAL::Attach( ID3D11Texture2D* texture, Tr2PrimaryRenderCo
 	bb.m_texture = texture;
 
 	m_isAttached = true;	// Don't try to auto-recreate on device lost
+	ChangeObjectId();
 
 	return S_OK;
 }

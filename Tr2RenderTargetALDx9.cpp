@@ -297,6 +297,7 @@ ALResult Tr2RenderTargetAL::CreateEx(
 		m_backingStore.m_texture	= m_mainRT;
 		m_backingStore.m_isAlias	= true;
 	}
+	ChangeObjectId();
 	
 	return S_OK;
 }
@@ -335,6 +336,7 @@ ALResult Tr2RenderTargetAL::Attach( IDirect3DSurface9* surface, Tr2RenderContext
 	m_msaaRT = surface;
 
 	m_isAttached = true;	// Don't try to auto-recreate on device lost
+	ChangeObjectId();
 
 	return S_OK;
 }

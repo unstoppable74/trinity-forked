@@ -149,6 +149,7 @@ ALResult Tr2GpuBufferAL::CreateImpl(
 	}
 
 	m_usage = usage;
+	ChangeObjectId();
 
 	return S_OK;
 }
@@ -199,6 +200,7 @@ ALResult Tr2GpuBufferAL::CreateAlias(
 	descSRV.Buffer.ElementWidth = m_elementSize;
 	descSRV.Buffer.NumElements = m_numElements;
 	CR_RETURN_HR( renderContext.m_d3dDevice11->CreateShaderResourceView( m_buffer, &descSRV, &m_srv ) );
+	ChangeObjectId();
 
 	return S_OK;
 }
@@ -239,6 +241,7 @@ ALResult Tr2GpuBufferAL::CreateVbView(
 		descUAV.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_RAW;
 		CR_RETURN_HR( renderContext.m_d3dDevice11->CreateUnorderedAccessView( m_buffer, &descUAV, &m_uav ) );
 	}
+	ChangeObjectId();
 	return S_OK;
 }
 

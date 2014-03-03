@@ -33,6 +33,7 @@ Tr2IndexBufferAL& Tr2IndexBufferAL::operator=( Tr2IndexBufferAL&& other )
 
 		m_numIndices	= other.m_numIndices;
 		m_is16Bit		= other.m_is16Bit;		
+		ChangeObjectId();
 	}
 
 	return *this;
@@ -98,6 +99,7 @@ ALResult Tr2IndexBufferAL::Create(
 	}
 
 	m_buffer = buffer;
+	ChangeObjectId();
 	return S_OK;
 }
 

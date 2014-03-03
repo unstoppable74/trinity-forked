@@ -169,6 +169,7 @@ Tr2TextureAL& Tr2TextureAL::operator=( Tr2TextureAL&& other )
 	other.m_textureSrgb.setBaseAddress( nullptr );
 	other.Tr2BitmapDimensions::Destroy();
 	other.m_usage = 0;
+	ChangeObjectId();
 
 	return *this;
 }
@@ -185,6 +186,7 @@ Tr2TextureAL& Tr2TextureAL::operator=( const Tr2TextureAL& other )
 	m_memory = other.m_memory;
 	m_texture = other.m_texture;
 	m_textureSrgb = other.m_textureSrgb;
+	ChangeObjectId();
 	return *this;
 }
 
@@ -299,6 +301,7 @@ ALResult Tr2TextureAL::Create2D(
 		InitializeTexture( m_texture, TEX_TYPE_2D, format, initialData );
 	}
 	m_usage = usage;
+	ChangeObjectId();
 
 	return S_OK;
 }
@@ -385,6 +388,7 @@ ALResult Tr2TextureAL::CreateCube(
 	m_volumeDepth = 1;
 	m_mipCount = mipLevelCount;
 	m_isAlias = false;
+	ChangeObjectId();
 
 	return S_OK;
 }
@@ -472,6 +476,7 @@ ALResult Tr2TextureAL::CreateVolume(
 	m_volumeDepth = depth;
 	m_mipCount = mipLevelCount;
 	m_isAlias = false;
+	ChangeObjectId();
 
 	return S_OK;
 }

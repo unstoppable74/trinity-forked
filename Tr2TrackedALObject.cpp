@@ -23,6 +23,34 @@ uint64_t g_trackCurrentFrame = 0;
 
 #endif
 
+#endif
+
+CcpAtomic<uint32_t> Tr2TrackedALObjectBase::s_nextObjectId( 1 );
+
+// --------------------------------------------------------------------------------------
+// Description:
+//   Fallback comparison operator for AL objects. Individual AL classes provide more
+//   sensible operators.
+// Arguments:
+//   other - AL resource to compare to
+// Return value:
+//   true If objects are the same
+//   false Otherwise
+// --------------------------------------------------------------------------------------
+bool Tr2TrackedALObjectBase::operator==( const Tr2TrackedALObjectBase& other ) const
+{
+	return this == &other;
+}
+
+
+#if TRACK_AL_RESOURCES == 0
+
+void Tr2TrackedALObjectBase::LogAllLiveResources( Tr2ALMemoryTypes flags )
+{
+}
+
+#else
+
 // --------------------------------------------------------------------------------------
 // Description:
 //   Logs all live AL resources.
@@ -47,21 +75,6 @@ void Tr2TrackedALObjectBase::LogAllLiveResources( Tr2ALMemoryTypes flags )
 		CCP_AL_LOGERR( "%s", message.c_str() );
 	};
 	GetAllObjectDescriptions( flags, logObject );
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Fallback comparison operator for AL objects. Individual AL classes provide more
-//   sensible operators.
-// Arguments:
-//   other - AL resource to compare to
-// Return value:
-//   true If objects are the same
-//   false Otherwise
-// --------------------------------------------------------------------------------------
-bool Tr2TrackedALObjectBase::operator==( const Tr2TrackedALObjectBase& other ) const
-{
-	return this == &other;
 }
 
 // --------------------------------------------------------------------------------------

@@ -103,6 +103,7 @@ ALResult Tr2DepthStencilAL::Create(
 		m_format = dsFormat;
 		m_msaaType = msaaType;
 		m_msaaQuality = msaaQuality;
+		ChangeObjectId();
 
 		return S_OK;
 	}
@@ -232,6 +233,7 @@ ALResult Tr2DepthStencilAL::Create(
 	m_format = dsFormat;
 	m_msaaType = msaaType;
 	m_msaaQuality = msaaQuality;
+	ChangeObjectId();
 
 	return S_OK;
 }

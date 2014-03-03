@@ -67,6 +67,7 @@ Tr2TextureAL& Tr2TextureAL::operator=( Tr2TextureAL&& other )
 		m_mipCount		= other.m_mipCount;
 		m_isAlias		= other.m_isAlias;
 		//m_overrideSrgb	= other.m_overrideSrgb;
+		ChangeObjectId();
 	}
 
 #if TRINITY_AL_CAPTURE_ENABLED
@@ -99,6 +100,7 @@ Tr2TextureAL& Tr2TextureAL::operator=( Tr2TextureAL& other )
 		m_texture		= other.m_texture;
 		m_view[0]		= other.m_view[0];
 		m_view[1]		= other.m_view[1];
+		ChangeObjectId();
 	}
 
 #if TRINITY_AL_CAPTURE_ENABLED
@@ -300,7 +302,8 @@ ALResult Tr2TextureAL::Create2DImpl(
 	m_volumeDepth	= 1;
 	m_mipCount		= mipLevelCount;
 	m_isAlias		= false;
-	
+	ChangeObjectId();
+
 	return S_OK;
 }
 
@@ -387,6 +390,7 @@ ALResult Tr2TextureAL::CreateVolume(
 	m_isAlias		= false;
 
 	m_type			= TEX_TYPE_3D;
+	ChangeObjectId();
 	
 	return S_OK;
 }

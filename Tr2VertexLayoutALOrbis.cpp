@@ -33,6 +33,7 @@ Tr2VertexLayoutAL& Tr2VertexLayoutAL::operator=( Tr2VertexLayoutAL&& other )
 
 	m_definition.release();
 	m_definition = std::move( other.m_definition );
+	ChangeObjectId();
 
 	return *this;
 }
@@ -54,6 +55,7 @@ ALResult Tr2VertexLayoutAL::Create( const Tr2VertexDefinition& definition, Tr2Re
 	}
 	m_isValid = true;
 	m_frameUsed = renderContext.InternalGetCurentFrameIndex() + renderContext.InternalGetMaxFrameLatency() + 1;
+	ChangeObjectId();
 
 	return S_OK;
 }

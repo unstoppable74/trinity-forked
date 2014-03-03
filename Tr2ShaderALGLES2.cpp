@@ -102,7 +102,7 @@ ALResult Tr2ShaderAL::Create(
 		memcpy( &m_bytecode[0], bytecode, bytecodeSize );
 	}
 	m_inputDefinition = inputDefinition;
-
+	ChangeObjectId();
 
 	return S_OK;
 }

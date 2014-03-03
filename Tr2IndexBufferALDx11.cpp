@@ -30,13 +30,18 @@ ALResult Tr2IndexBufferAL::Create(
 
 	m_numIndices = numberOfIndices;
 	m_is16Bit = bitCount == Tr2RenderContextEnum::IB_16BIT;
-	return	Tr2BufferImplAL::Create( 
+	HRESULT hr = Tr2BufferImplAL::Create( 
 					GetTotalSizeInBytes(), 
 					usage, 
 					D3D11_BIND_INDEX_BUFFER, 
 					0,
 					initialData, 
 					renderContext );
+	if( SUCCEEDED( hr ) )
+	{
+		ChangeObjectId();
+	}
+	return hr;
 }
 
 Tr2IndexBufferAL& Tr2IndexBufferAL::operator=( Tr2IndexBufferAL&& other )
@@ -44,6 +49,7 @@ Tr2IndexBufferAL& Tr2IndexBufferAL::operator=( Tr2IndexBufferAL&& other )
 	m_numIndices = other.m_numIndices;
 	m_is16Bit    = other.m_is16Bit;
 	Tr2BufferImplAL::operator=( std::move( other ) );
+	ChangeObjectId();
 	return *this;
 }
 

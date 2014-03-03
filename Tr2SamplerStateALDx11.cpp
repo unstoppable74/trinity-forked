@@ -72,7 +72,12 @@ ALResult Tr2SamplerStateAL::Create(
 	m_samplerDesc.MaxLOD = description.m_mipFilter == TF_NONE ? description.m_minLOD : description.m_maxLOD;
 
 	m_samplerState = nullptr;
-	return renderContext.m_d3dDevice11->CreateSamplerState( &m_samplerDesc, &m_samplerState );
+	HRESULT hr = renderContext.m_d3dDevice11->CreateSamplerState( &m_samplerDesc, &m_samplerState );
+	if( SUCCEEDED( hr ) )
+	{
+		ChangeObjectId();
+	}
+	return hr;
 }
 
 bool Tr2SamplerStateAL::operator==( const Tr2SamplerStateAL& sampler ) const

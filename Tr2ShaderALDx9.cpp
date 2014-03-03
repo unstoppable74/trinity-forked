@@ -62,6 +62,7 @@ ALResult Tr2ShaderAL::Create(
 		m_type = INVALID_SHADER;
 		return E_INVALIDARG;
 	}
+	ChangeObjectId();
 	return S_OK;
 }
 

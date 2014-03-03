@@ -62,6 +62,7 @@ ALResult Tr2VertexBufferAL::Create(
 
 	m_lengthInBytes = lengthInBytes;
 	m_usage = usage;
+	ChangeObjectId();
 	return S_OK;
 }
 

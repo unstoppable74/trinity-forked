@@ -104,6 +104,7 @@ ALResult Tr2SamplerStateAL::Create(
 	m_maxLod = description.m_maxLOD;
 #endif
     m_isValid = true;
+	ChangeObjectId();
 	return S_OK;
 }
 

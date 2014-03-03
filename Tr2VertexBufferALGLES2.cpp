@@ -32,6 +32,7 @@ Tr2VertexBufferAL& Tr2VertexBufferAL::operator=( Tr2VertexBufferAL&& other )
 		m_usage = other.m_usage;
 		m_buffer = other.m_buffer;
 		other.m_buffer = 0;
+		ChangeObjectId();
 	}
 
 	return *this;
@@ -91,6 +92,7 @@ ALResult Tr2VertexBufferAL::Create( uint32_t lengthInBytes,
 
 	GL_FAIL( glBufferData( GL_ARRAY_BUFFER, lengthInBytes, initialData, glUsage ) );
 
+	ChangeObjectId();
 	return S_OK;
 }
 

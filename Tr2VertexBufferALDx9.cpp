@@ -29,6 +29,7 @@ Tr2VertexBufferAL& Tr2VertexBufferAL::operator=( Tr2VertexBufferAL&& other )
 		m_usage = other.m_usage;
 		m_pool = other.m_pool;
 		m_buffer.Attach( other.m_buffer.Detach() );
+		ChangeObjectId();
 	}
 
 	return *this;
@@ -99,6 +100,7 @@ ALResult Tr2VertexBufferAL::Create( uint32_t lengthInBytes,
 	}
 
 	m_buffer = buffer;
+	ChangeObjectId();
 	return S_OK;
 }
 

@@ -187,6 +187,7 @@ ALResult Tr2ShaderAL::Create(
 	}
 	m_inputDefinition = inputDefinition;
 	m_frameUsed = renderContext.InternalGetCurentFrameIndex() + renderContext.InternalGetMaxFrameLatency() + 1;
+	ChangeObjectId();
 
 	return S_OK;
 }

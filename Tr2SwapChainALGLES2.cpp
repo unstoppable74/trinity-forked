@@ -148,6 +148,7 @@ ALResult Tr2SwapChainAL::Create( Tr2WindowHandle windowHandle, Tr2RenderContextA
 	SetPixelFormat( m_hDC, iFormat, &pfd );
 #endif
 	CreateFramebuffer( renderContext );
+	ChangeObjectId();
 	return S_OK;
 }
 

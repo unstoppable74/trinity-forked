@@ -24,6 +24,7 @@ Tr2VertexLayoutAL& Tr2VertexLayoutAL::operator=( Tr2VertexLayoutAL&& other )
 
 	m_definition.release();
 	m_definition = std::move( other.m_definition );
+	ChangeObjectId();
 
 	return *this;
 }
@@ -43,6 +44,7 @@ ALResult Tr2VertexLayoutAL::Create( const Tr2VertexDefinition& definition, Tr2Re
 	{
 		return E_FAIL;
 	}
+	ChangeObjectId();
 	return S_OK;
 }
 

@@ -128,6 +128,7 @@ ALResult Tr2VertexLayoutAL::Create( const Tr2VertexDefinition& definition, Tr2Re
 	m_writeLockCount = 0;
 #endif
 
+	ChangeObjectId();
 	return S_OK;
 }
 

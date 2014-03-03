@@ -197,6 +197,7 @@ ALResult Tr2DepthStencilAL::CreateEx(
 			m_backingStore.m_view[1]	= m_backingStore.m_view[0];
 		}
 	}
+	ChangeObjectId();
 	
 	// If we get here it always worked -- don't return an error code for the failed SRV, that's just optional
 	// (depthStencil that should be readable but isn't, returns S_OK -- up to client to look at IsReadable() and

@@ -28,12 +28,17 @@ ALResult Tr2VertexBufferAL::CreateEx( uint32_t lengthInBytes,
 {
 	AL_FUZZ( OT_VERTEX_BUFFER );
 
-	return Tr2BufferImplAL::Create( lengthInBytes,
+	HRESULT hr = Tr2BufferImplAL::Create( lengthInBytes,
 									usage,
 									D3D11_BIND_VERTEX_BUFFER,
 									0,
 									initialData,
 									renderContext );
+	if( SUCCEEDED( hr ) )
+	{
+		ChangeObjectId();
+	}
+	return hr;
 }
 
 // -------------------------------------------------------------
@@ -47,17 +52,23 @@ ALResult Tr2VertexBufferAL::Create( uint32_t length,
 {
 	AL_FUZZ( OT_VERTEX_BUFFER );
 
-	return Tr2BufferImplAL::Create( length,
+	HRESULT hr = Tr2BufferImplAL::Create( length,
 									USAGE_CPU_READ | USAGE_CPU_WRITE,
 									D3D11_BIND_VERTEX_BUFFER,
 									0,
 									nullptr,
 									renderContext );
+	if( SUCCEEDED( hr ) )
+	{
+		ChangeObjectId();
+	}
+	return hr;
 }
 
 Tr2VertexBufferAL& Tr2VertexBufferAL::operator=( Tr2VertexBufferAL&& other )
 {
 	Tr2BufferImplAL::operator=( std::move( other ) );
+	ChangeObjectId();
 	return *this;
 }
 

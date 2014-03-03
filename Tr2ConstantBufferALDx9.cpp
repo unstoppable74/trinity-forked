@@ -42,6 +42,7 @@ ALResult Tr2ConstantBufferAL::Create( uint32_t size, Tr2RenderContextEnum::Buffe
 		memcpy( m_shadowCopy.get(), initialData, size );
 	}
 	m_usage = usage;
+	ChangeObjectId();
 	
 	return S_OK;
 }

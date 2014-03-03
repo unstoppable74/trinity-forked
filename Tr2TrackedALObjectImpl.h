@@ -540,4 +540,11 @@ void Tr2TrackedALObject<Type>::EnumerateResources( Operation& operation )
 #endif
 }
 
+#else
+
+template<typename Operation> 
+void Tr2TrackedALObjectBase::GetAllObjectDescriptions( Tr2ALMemoryTypes flags, Operation& operation )
+{
+}
+
 #endif // ( TRACK_AL_RESOURCES == 1 )

@@ -35,6 +35,7 @@ Tr2IndexBufferAL& Tr2IndexBufferAL::operator=( Tr2IndexBufferAL&& other )
 
 		m_buffer		= other.m_buffer;
 		other.m_buffer = 0;
+		ChangeObjectId();
 	}
 
 	return *this;
@@ -86,6 +87,7 @@ ALResult Tr2IndexBufferAL::Create(
 	}
 
 	GL_FAIL( glBufferData( GL_ELEMENT_ARRAY_BUFFER, GetTotalSizeInBytes(), initialData, glUsage ) );
+	ChangeObjectId();
 	return S_OK;
 }
 

@@ -124,6 +124,7 @@ Tr2TextureAL& Tr2TextureAL::operator=( const Tr2TextureAL& other )
 		m_internalFormat = other.m_internalFormat;
 		m_targetFormat	= other.m_targetFormat;
 		m_targetType	= other.m_targetType;
+		ChangeObjectId();
 	}
 
 	return *this;
@@ -157,6 +158,7 @@ Tr2TextureAL& Tr2TextureAL::operator=( Tr2TextureAL&& other )
 		m_internalFormat = other.m_internalFormat;
 		m_targetFormat	= other.m_targetFormat;
 		m_targetType	= other.m_targetType;
+		ChangeObjectId();
 	}
 
 	return *this;
@@ -275,6 +277,7 @@ ALResult Tr2TextureAL::Create2D( uint32_t width,
 	m_volumeDepth = 1;
 	m_mipCount = mipLevelCount;
 	m_isAlias = false;
+	ChangeObjectId();
 
 	return S_OK;
 }
@@ -408,6 +411,7 @@ ALResult Tr2TextureAL::CreateCube( uint32_t width,
 	m_volumeDepth = 1;
 	m_mipCount = mipLevelCount;
 	m_isAlias = false;
+	ChangeObjectId();
 
 	return S_OK;
 }
@@ -535,6 +539,7 @@ ALResult Tr2TextureAL::CreateDepthTexture( uint32_t width,
 													1,
 													false ) );
 	m_currentSampler.Apply( GL_TEXTURE_2D, false );
+	ChangeObjectId();
 	return S_OK;
 }
 

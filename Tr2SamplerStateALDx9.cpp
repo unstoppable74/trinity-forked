@@ -51,6 +51,7 @@ ALResult Tr2SamplerStateAL::Create(
 		uint32_t( std::min( std::max( description.m_borderColor[2] * 255.f, 0.f ), 255.f ) );
 	m_states[D3DSAMP_SRGBTEXTURE] = description.m_isSRGBTexture ? 1 : 0;
 	m_isValid = true;
+	ChangeObjectId();
 	return S_OK;
 }
 

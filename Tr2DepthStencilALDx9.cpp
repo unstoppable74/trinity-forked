@@ -115,6 +115,10 @@ ALResult Tr2DepthStencilAL::CreateEx(
 			hr = renderContext.m_d3dDevice9->CreateDepthStencilSurface( width, height, format, sample, m_msaaQuality, /*Discard*/ TRUE, &m_depthStencil, &m_sharedHandle );
 		}
 	}
+	if( SUCCEEDED( hr ) )
+	{
+		ChangeObjectId();
+	}
 
 	return hr;
 }
@@ -136,6 +140,7 @@ ALResult Tr2DepthStencilAL::CreateReadableDepth( Tr2RenderContextAL& renderConte
 		m_backingStore.m_mipCount	= 1;
 		m_backingStore.m_texture	= m_depthStencilREADABLE;
 		m_backingStore.m_isAlias	= true;
+		ChangeObjectId();
 	}
 
 	return hr;

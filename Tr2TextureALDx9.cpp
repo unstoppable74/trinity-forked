@@ -76,6 +76,7 @@ Tr2TextureAL& Tr2TextureAL::operator=( Tr2TextureAL&& other )
 		m_format9		= other.m_format9;
 		m_pool9			= other.m_pool9;
 		m_isAlias		= other.m_isAlias;
+		ChangeObjectId();
 	}
 
 	return *this;
@@ -256,6 +257,7 @@ ALResult Tr2TextureAL::Create2D( uint32_t width,
 	}
 
 	m_texture.Attach( tex.Detach() );
+	ChangeObjectId();
 	return S_OK;
 }
 
@@ -397,6 +399,7 @@ ALResult Tr2TextureAL::CreateCube( uint32_t width,
 	m_volumeDepth = 1;
 	m_mipCount = mipLevelCount;
 	m_isAlias = false;
+	ChangeObjectId();
 
 	return S_OK;
 }
@@ -478,6 +481,7 @@ ALResult Tr2TextureAL::CreateVolume( uint32_t width,
 	m_isAlias = false;
 
 	m_texture.Attach( tex.Detach() );
+	ChangeObjectId();
 	return S_OK;
 }
 

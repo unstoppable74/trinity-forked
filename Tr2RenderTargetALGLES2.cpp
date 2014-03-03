@@ -158,6 +158,7 @@ ALResult Tr2RenderTargetAL::Create(
 
 	m_msaaType = msaaType;
 	m_msaaQuality = msaaQuality;
+	ChangeObjectId();
 	
 	return S_OK;
 }

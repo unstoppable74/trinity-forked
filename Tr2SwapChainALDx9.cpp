@@ -94,6 +94,7 @@ ALResult Tr2SwapChainAL::Create( Tr2WindowHandle windowHandle, Tr2RenderContextA
 		CComPtr<IDirect3DSurface9> backBuffer;
 		CR_RETURN_HR( m_swapChain->GetBackBuffer( 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer ) );
 		m_backBuffer.Attach( backBuffer, renderContext );
+		ChangeObjectId();
 	}
 	return S_OK;
 }

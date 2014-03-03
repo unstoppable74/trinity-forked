@@ -72,6 +72,7 @@ ALResult Tr2SwapChainAL::Create( Tr2WindowHandle windowHandle, Tr2PrimaryRenderC
 		CR_RETURN_HR( m_swapChain->GetBuffer( 0, __uuidof (ID3D11Texture2D), (LPVOID*)&pBackBuffer ) );
 
 		CR_RETURN_HR( m_backBuffer.Attach( pBackBuffer, renderContext ) );
+		ChangeObjectId();
 
 		return S_OK;
 	}
