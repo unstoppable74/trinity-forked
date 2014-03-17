@@ -63,5 +63,6 @@ const Be::ClassInfo* EveLensflare::ExposeToBlue()
 			m_curveSets, 
 			"List of curve sets", 
 			Be::READ | Be::PERSIST )
+		MAP_ATTRIBUTE( "mesh", m_mesh, "A mesh that is rendered as a flare", Be::READWRITE | Be::PERSIST )
 	EXPOSURE_END()
 }

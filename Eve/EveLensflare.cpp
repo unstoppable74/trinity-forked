@@ -215,6 +215,11 @@ void EveLensflare::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Re
 	{
 		(*it)->GetRenderables( frustum, renderables, m_transform );
 	}
+
+	if( m_mesh )
+	{
+		renderables.push_back( this );
+	}
 }
 
 // --------------------------------------------------------------------------------
@@ -282,18 +287,25 @@ void EveLensflare::RunBackgroundOcclusionQueries( Tr2RenderContext& renderContex
 	}
 }
 
+void EveLensflare::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData )
+{
+	if( m_mesh )
+	{
+		m_mesh->GetBatches( batches, m_mesh->GetAreas( batchType ), perObjectData );
+	}
+}
 
+bool EveLensflare::HasTransparentBatches()
+{
+	return false;
+}
 
+float EveLensflare::GetSortValue()
+{
+	return 1.f;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+Tr2PerObjectData* EveLensflare::GetPerObjectData( ITriRenderBatchAccumulator* accumulator )
+{
+	return nullptr;
+}

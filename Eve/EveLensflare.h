@@ -24,6 +24,7 @@ BLUE_DECLARE_INTERFACE( ITriFunction );
 BLUE_DECLARE_IVECTOR( ITriFunction );
 BLUE_DECLARE_INTERFACE( ITr2ValueBinding );
 BLUE_DECLARE_IVECTOR( ITr2ValueBinding );
+BLUE_DECLARE( Tr2Mesh );
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -36,7 +37,7 @@ BLUE_DECLARE_IVECTOR( ITr2ValueBinding );
 //   EveSpaceScene, EveOccluder, Tr2TransformModifier
 // --------------------------------------------------------------------------------
 class EveLensflare :
-	public IRoot
+	public ITr2Renderable
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -60,6 +61,12 @@ public:
 	void RunOcclusionQueries( Tr2RenderContext& renderContext, const TriFrustum& frustum );
 	// do the background occlusion rendering/querying
 	void RunBackgroundOcclusionQueries( Tr2RenderContext& renderContext, const TriFrustum& frustum );
+
+
+	virtual void GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData );
+    virtual bool HasTransparentBatches();
+    virtual float GetSortValue(); 
+	virtual Tr2PerObjectData* GetPerObjectData( ITriRenderBatchAccumulator* accumulator );
 
 private:
 	// name
@@ -111,6 +118,8 @@ private:
 	float m_backgroundOcclusionIntensity;
 
 	PTriCurveSetVector m_curveSets;
+
+	Tr2MeshPtr m_mesh;
 };
 
 TYPEDEF_BLUECLASS( EveLensflare );
