@@ -1959,6 +1959,16 @@ void EveSpaceObject2::AddDecal( EveSpaceObjectDecalPtr newDecal )
 	m_decals.Append( newDecal->GetRawRoot() );
 }
 
+// --------------------------------------------------------------------------------
+// Description:
+//   Set the shadow shader of this object from the outside
+// --------------------------------------------------------------------------------
+void EveSpaceObject2::SetShadowEffect( Tr2EffectPtr newShadowEffect )
+{
+	m_shadowEffect = newShadowEffect;
+}
+
+
 //GPU ship explosion test
 unsigned EveSpaceObject2::GetDamageLocatorCount() const 
 {

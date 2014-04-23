@@ -229,6 +229,9 @@ public:
 	void AddPlaneSet( EvePlaneSetPtr newPlaneSet );
 	void AddDecal( EveSpaceObjectDecalPtr newDecal );
 
+	// access to shadows
+	void SetShadowEffect( Tr2EffectPtr newShadowEffect );
+
 	uint32_t GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType shaderType ) const;
 	void UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType shaderType, uint32_t size, void* );
 
