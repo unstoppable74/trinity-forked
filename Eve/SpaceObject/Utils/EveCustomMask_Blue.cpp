@@ -18,6 +18,7 @@ const Be::ClassInfo* EveCustomMask::ExposeToBlue()
 		MAP_ATTRIBUTE( "isMirrored", m_isMirrored, "data\n", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "isForMaskMap", m_isForMaskMap, "data\n", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "isForSubmaskMap", m_isForSubmaskMap, "data\n", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "isAdditive", m_isAdditive, "data\n", Be::READWRITE | Be::PERSIST )
 
 	EXPOSURE_END()
 }

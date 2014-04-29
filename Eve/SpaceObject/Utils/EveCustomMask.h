@@ -42,6 +42,7 @@ private:
 	bool m_isMirrored;
 	bool m_isForMaskMap;
 	bool m_isForSubmaskMap;
+	bool m_isAdditive;
 };
 
 TYPEDEF_BLUECLASS( EveCustomMask );
