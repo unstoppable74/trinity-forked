@@ -14,10 +14,12 @@
 // -------------------------------------------------------------
 struct Tr2BitmapDimensions
 {	
-	Tr2BitmapDimensions( uint32_t width = 0,
-						 uint32_t height = 0,
-						 uint32_t mipCount = 0,
-						 Tr2RenderContextEnum::PixelFormat format = Tr2RenderContextEnum::PIXEL_FORMAT_UNKNOWN );
+	Tr2BitmapDimensions();
+
+	Tr2BitmapDimensions( uint32_t width,
+						 uint32_t height,
+						 uint32_t mipCount,
+						 Tr2RenderContextEnum::PixelFormat format );
 
 	Tr2BitmapDimensions( Tr2RenderContextEnum::TextureType type,
 						 Tr2RenderContextEnum::PixelFormat format,
@@ -63,6 +65,16 @@ protected:
 	}
 };
 
+inline Tr2BitmapDimensions::Tr2BitmapDimensions()
+:	m_width( 0 ),
+	m_height( 0 ),
+	m_volumeDepth( 0 ),
+	m_mipCount( 0 ),
+	m_type( Tr2RenderContextEnum::TEX_TYPE_INVALID ),
+	m_format( Tr2RenderContextEnum::PIXEL_FORMAT_UNKNOWN )
+{
+}
+
 inline Tr2BitmapDimensions::Tr2BitmapDimensions( 
 	uint32_t width,
 	uint32_t height,
@@ -70,9 +82,9 @@ inline Tr2BitmapDimensions::Tr2BitmapDimensions(
 	Tr2RenderContextEnum::PixelFormat format )
 :	m_width( width ),
 	m_height( height ),
-	m_volumeDepth( 0 ),
+	m_volumeDepth( 1 ),
 	m_mipCount( mipCount ),
-	m_type( Tr2RenderContextEnum::TEX_TYPE_INVALID ),
+	m_type( Tr2RenderContextEnum::TEX_TYPE_2D ),
 	m_format( format )
 {
 }
