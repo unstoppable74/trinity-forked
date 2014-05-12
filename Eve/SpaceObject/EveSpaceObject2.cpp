@@ -419,7 +419,22 @@ bool EveSpaceObject2::HasTransparentBatches()
 	{
 		return false;
 	}
-	return !(m_mesh->GetAreas( TRIBATCHTYPE_TRANSPARENT )->empty());
+	
+	if( !m_mesh->GetAreas( TRIBATCHTYPE_TRANSPARENT )->empty() )
+	{
+		return true;
+	}
+
+	for( auto it = m_overlayEffects.begin(); it != m_overlayEffects.end(); ++it )
+	{
+		if( !(*it)->m_transparentEffects.empty() )
+		{
+			return true;
+		}
+	}
+
+	return false;
+	
 }
 
 void EveSpaceObject2::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData )
