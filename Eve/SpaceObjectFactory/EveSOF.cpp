@@ -228,7 +228,18 @@ void EveSOF::FillMeshAreaVector( const std::vector<EveSOFDataMgr::HullAreas>* hu
 			{
 				skinnedName.insert( pos + 1, insertString );
 			}
-			newShader->SetEffectPathName( skinnedName.c_str() );
+			// To Steve/Pall: Leaving this comment here. Why not just save the full shader path
+			// with skinned rathere than going through all this file checking and
+			// name mangling. Doing it like this for now to unblock artists. 
+			//  - Logi
+			if( FileExists( skinnedName ) )
+			{
+				newShader->SetEffectPathName( skinnedName.c_str() );
+			}
+			else
+			{
+				newShader->SetEffectPathName( area->shaderPath.c_str() );
+			}
 		}
 		else
 		{
