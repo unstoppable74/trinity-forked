@@ -1998,6 +1998,7 @@
     <ClInclude Include="Tr2GPUParticleType.h"/>
     <ClInclude Include="Tr2GpuStructuredBuffer.h"/>
     <ClInclude Include="Tr2GrannyAnimation.h"/>
+    <ClInclude Include="Tr2GrannyAnimationLayer.h"/>
     <ClInclude Include="Tr2GrannyPrimitiveSet.h"/>
     <ClInclude Include="Tr2GRNMemoryPersist.h"/>
     <ClInclude Include="Tr2HideableMixin.h"/>
@@ -2469,6 +2470,7 @@
     <ClCompile Include="Tr2GpuStructuredBuffer.cpp"/>
     <ClCompile Include="Tr2GpuStructuredBuffer_Blue.cpp"/>
     <ClCompile Include="Tr2GrannyAnimation.cpp"/>
+    <ClCompile Include="Tr2GrannyAnimationLayer.cpp"/>
     <ClCompile Include="Tr2GrannyAnimation_Blue.cpp"/>
     <ClCompile Include="Tr2GrannyPrimitiveSet.cpp"/>
     <ClCompile Include="Tr2GrannyPrimitiveSet_Blue.cpp"/>

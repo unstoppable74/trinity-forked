@@ -193,6 +193,9 @@
     <ClInclude Include="Tr2GrannyAnimation.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Tr2GrannyAnimationLayer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="Tr2GrannyPrimitiveSet.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -1592,6 +1595,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2GrannyAnimation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tr2GrannyAnimationLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2GrannyAnimation_Blue.cpp">
