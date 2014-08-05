@@ -228,7 +228,7 @@ public:
 	};
 
 	// race data structs
-	struct BoosterData
+	struct RaceBoosterData
 	{
 		float glowScale, symHaloScale, haloScaleX, haloScaleY;
 		Color color, glowColor, haloColor, trailColor;
@@ -239,7 +239,7 @@ public:
 	struct RaceData
 	{
 		// boosters
-		BoosterData boosterData;
+		RaceBoosterData boosters;
 	};
 
 

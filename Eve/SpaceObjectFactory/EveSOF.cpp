@@ -5,6 +5,7 @@
 //
 #include "StdAfx.h"
 #include "EveSOF.h"
+#include "EveSOFDNA.h"
 #include "Eve/EveTransform.h"
 #include "Eve/SpaceObject/EveShip2.h"
 #include "Eve/SpaceObject/Attachments/EveSpriteSet.h"
@@ -67,7 +68,7 @@ EveSOF::~EveSOF()
 // Description:
 //   This is the old way of loading a ship via redfile
 // --------------------------------------------------------------------------------
-IRootPtr EveSOF::Load( const char* resFile, const char* hullName, const char* raceName )
+IRootPtr EveSOF::Load( const char* resFile, const char* hullName, const char* factionName, const char* raceName )
 {
 	// load it like we used to: blue res manager
 	IRootPtr p;
@@ -77,16 +78,22 @@ IRootPtr EveSOF::Load( const char* resFile, const char* hullName, const char* ra
 		return p;
 	}
 
-	// try to get hullinfo
-	const EveSOFDataMgr::HullData* hullData = m_dataMgr.GetHullData( hullName );
-	if( hullData == NULL )
+	// stop it here if no SOF info
+	if( ( hullName[0] == 0 ) || ( factionName[0] == 0 ) || ( raceName[0] == 0 ) )
 	{
 		return p;
 	}
 
-	// try to get raceinfo
-	const EveSOFDataMgr::RaceData* raceData = m_dataMgr.GetRaceData( raceName );
-	if( raceData == NULL )
+	// create a temporary(!) DNA object
+	EveSOFDNAPtr dna;
+	dna.CreateInstance();
+
+	// init it with given dna string
+	std::string dnaString = std::string( hullName ) + "." + std::string( factionName ) + "." + std::string( raceName );
+	dna->Setup( dnaString.c_str(), &m_dataMgr );
+
+	// if this dna is not correct, we are done here
+	if( !dna->isValid() )
 	{
 		return p;
 	}
@@ -95,7 +102,7 @@ IRootPtr EveSOF::Load( const char* resFile, const char* hullName, const char* ra
 	EveShip2Ptr newShip;
 	if( p->QueryInterface( BlueInterfaceIID<EveShip2>(), (void**)&newShip ) )
 	{
-		SetupBoosters( newShip, hullData, raceData );
+		SetupBoosters( newShip, dna );
 	}
 
 	return p;
@@ -105,61 +112,17 @@ IRootPtr EveSOF::Load( const char* resFile, const char* hullName, const char* ra
 // Description:
 //   Build a ship from a dna string
 // --------------------------------------------------------------------------------
-IRootPtr EveSOF::BuildFromDNA( const char* dna )
+IRootPtr EveSOF::BuildFromDNA( const char* dnaString )
 {
-	// split up dna string in all subparts
-	std::vector<std::string> dnaParts;
-	std::string originalDna( dna );
-	for( size_t i = 0; i < originalDna.size(); ++i )
-	{
-		size_t next = originalDna.find( '.', i );
-		if( next == std::string::npos )
-		{
-			next = originalDna.size();
-		}
+	// create a temporary(!) DNA object
+	EveSOFDNAPtr dna;
+	dna.CreateInstance();
 
-		dnaParts.push_back( originalDna.substr( i, next - i ) );
-
-		i = next;
-	}
-
-	// need three
-	if(dnaParts.size() != 3)
+	// init it with given dna string
+	dna->Setup( dnaString, &m_dataMgr );
+	if( !dna->isValid() )
 	{
 		return nullptr;
-	}
-
-	// pass it on to build function
-	return Build( dnaParts[0].c_str(), dnaParts[1].c_str(), dnaParts[2].c_str() );
-}
-
-// --------------------------------------------------------------------------------
-// Description:
-//   This is where it is all going to happen: building a ship with the three
-//   main infos
-// --------------------------------------------------------------------------------
-IRootPtr EveSOF::Build( const char* hullName, const char* factionName, const char* raceName )
-{
-	// make sure we find this hull
-	const EveSOFDataMgr::HullData* hullData = m_dataMgr.GetHullData( hullName );
-	if( hullData == NULL )
-	{
-		CCP_LOGERR( "Couldn't find the requested hull %s in the database", hullName );
-		return NULL;
-	}
-	// make sure we find this faction
-	const EveSOFDataMgr::FactionData* factionData = m_dataMgr.GetFactionData( factionName );
-	if( factionData == NULL )
-	{
-		CCP_LOGERR( "Couldn't find the requested faction %s in the database", factionName );
-		return NULL;
-	}
-	// make sure we find this race
-	const EveSOFDataMgr::RaceData* raceData = m_dataMgr.GetRaceData( raceName );
-	if( raceData == NULL )
-	{
-		CCP_LOGERR( "Couldn't find the requested race %s in the database", raceName );
-		return NULL;
 	}
 
 	// make an EveShip2 for now...
@@ -167,24 +130,24 @@ IRootPtr EveSOF::Build( const char* hullName, const char* factionName, const cha
 	newShip.CreateInstance();
 
 	// get us the base geometry
-	SetupMesh( newShip, hullData, factionData );
+	SetupMesh( newShip, dna );
 
 	// decals
-	SetupDecals( newShip, hullData, factionData );
+	SetupDecals( newShip, dna );
 
 	// effects on ships
-	SetupSpriteSets( newShip, hullData, factionData );
-	SetupSpotlightSets( newShip, hullData, factionData );
-	SetupPlaneSets( newShip, hullData, factionData );
+	SetupSpriteSets( newShip, dna );
+	SetupSpotlightSets( newShip, dna );
+	SetupPlaneSets( newShip, dna );
 
 	// attachments to ship
-	SetupBoosters( newShip, hullData, raceData );
+	SetupBoosters( newShip, dna );
 
 	// children, animations and particles
-	SetupChildrenAndAnimations( newShip, hullData );
+	SetupChildrenAndAnimations( newShip, dna );
 
 	// model curves
-	SetupModelCurves( newShip, hullData );
+	SetupModelCurves( newShip, dna );
 
 	// ships needs a final ::Initialize call
 	newShip->Initialize();
@@ -194,22 +157,36 @@ IRootPtr EveSOF::Build( const char* hullName, const char* factionName, const cha
 
 // --------------------------------------------------------------------------------
 // Description:
+//   This is where it is all going to happen: building a ship with the three
+//   main infos
+// --------------------------------------------------------------------------------
+IRootPtr EveSOF::Build( const char* hullName, const char* factionName, const char* raceName )
+{
+	// make a SOF ship dna string
+	std::string dnaString = std::string( hullName ) + "." + std::string( factionName ) + "." + std::string( raceName );
+
+	// pass on to real build function
+	return BuildFromDNA( dnaString.c_str() );
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   This is where it is all going to happen
 // --------------------------------------------------------------------------------
-void EveSOF::SetupMesh( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData, const EveSOFDataMgr::FactionData* factionData ) const
+void EveSOF::SetupMesh( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
 	// need a mesh
 	Tr2MeshPtr mesh;
 	mesh.CreateInstance();
 
 	// gr2 res path
-	mesh->SetMeshResPath( hullData->geometryResFilePath.c_str() );
+	mesh->SetMeshResPath( dna->GetHullGeometryResPath() );
 
 	// beoundingsphere comes from data, is faster
-	ship->SetBoundingSphereInformation( &hullData->boundingSphere );
+	ship->SetBoundingSphereInformation( dna->GetHullBoundingSphere() );
 
 	// shadow
-	if( hullData->isSkinned )
+	if( dna->IsHullAnimated() )
 	{
 		ship->SetShadowEffect( m_shadowEffectSkinned );
 	}
@@ -219,20 +196,11 @@ void EveSOF::SetupMesh( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullDat
 	}
 
 	// setup mesh areas
-	Tr2MeshAreaVector* opaqueMeshAreaVector = mesh->GetAreas( TRIBATCHTYPE_OPAQUE );
-	FillMeshAreaVector( &hullData->opaqueAreas, &factionData->opaqueAreaParameters, factionData, opaqueMeshAreaVector, hullData );
-	
-	Tr2MeshAreaVector* transparentMeshAreaVector = mesh->GetAreas( TRIBATCHTYPE_TRANSPARENT );
-	FillMeshAreaVector( &hullData->transparentAreas, &factionData->transparentAreaParameters, factionData, transparentMeshAreaVector, hullData );
-	
-	Tr2MeshAreaVector* additiveMeshAreaVector = mesh->GetAreas( TRIBATCHTYPE_ADDITIVE );
-	FillMeshAreaVector( &hullData->additiveAreas, nullptr, factionData, additiveMeshAreaVector, hullData );
-	
-	Tr2MeshAreaVector* depthMeshAreaVector = mesh->GetAreas( TRIBATCHTYPE_DEPTH );
-	FillMeshAreaVector( &hullData->depthAreas, nullptr, factionData, depthMeshAreaVector, hullData );
-	
-	Tr2MeshAreaVector* distortionMeshAreaVector = mesh->GetAreas( TRIBATCHTYPE_DISTORTION );
-	FillMeshAreaVector( &hullData->distortionAreas, nullptr, factionData, distortionMeshAreaVector, hullData );
+	FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_OPAQUE ), TRIBATCHTYPE_OPAQUE, dna );
+	FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_TRANSPARENT ), TRIBATCHTYPE_TRANSPARENT, dna );
+	FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_ADDITIVE ), TRIBATCHTYPE_ADDITIVE, dna );
+	FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_DEPTH ), TRIBATCHTYPE_DEPTH, dna );
+	FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_DISTORTION ), TRIBATCHTYPE_DISTORTION, dna );
 
 	// create lod levels
 	ship->SetHighDetailMesh( mesh );
@@ -244,15 +212,16 @@ void EveSOF::SetupMesh( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullDat
 // Description:
 //   Fill up mesh area vector given the hull and faction area data provided.
 // --------------------------------------------------------------------------------
-void EveSOF::FillMeshAreaVector( const std::vector<EveSOFDataMgr::HullAreas>* hullAreas, const FactionAreaMap* factionAreas, const EveSOFDataMgr::FactionData* factionData, Tr2MeshAreaVector* meshAreaVector, const EveSOFDataMgr::HullData* hullData ) const
+void EveSOF::FillMeshAreaVector( Tr2MeshAreaVector* meshAreaVector, TriBatchType areaType, const EveSOFDNAPtr dna ) const
 {
+	const std::vector<EveSOFDataMgr::HullAreas>* hullAreas = dna->GetHullMeshAreas( areaType );
 	for( auto area = hullAreas->begin(); area != hullAreas->end(); ++area )
 	{
 		// every area has it's own shader, nothing we can share here
 		Tr2EffectPtr newShader;
 		newShader.CreateInstance();
 		newShader->StartUpdate();
-		if( hullData->isSkinned )
+		if( dna->IsHullAnimated() )
 		{
 			std::string skinnedName = area->shaderPath;
 			std::string insertString = "skinned_";
@@ -268,34 +237,17 @@ void EveSOF::FillMeshAreaVector( const std::vector<EveSOFDataMgr::HullAreas>* hu
 			newShader->SetEffectPathName( area->shaderPath.c_str() );
 		}
 
-		const std::map<std::string, Vector4>* factionShaderParams = nullptr;
-		if( factionAreas )
-		{
-			// shader parameters all come from faction
-			auto shaderParameters = factionAreas->find( area->designation );
-			if( shaderParameters != factionAreas->end() )
-			{
-				factionShaderParams = &(shaderParameters->second.parameters);
-			}
-		}
 		// parameters
 		for( auto hullAreaParamsIt = area->parameters.begin(); hullAreaParamsIt != area->parameters.end(); ++hullAreaParamsIt )
 		{
-			if( !factionShaderParams )
+			const Vector4* factionParam = dna->GetFactionMeshAreaParameters( areaType, area->designation.c_str(), hullAreaParamsIt->first.c_str() );
+			if( factionParam )
 			{
-				newShader->AddParameterVector4( hullAreaParamsIt->first.c_str(), &hullAreaParamsIt->second );
+				newShader->AddParameterVector4( hullAreaParamsIt->first.c_str(), factionParam );
 			}
 			else
 			{
-				auto factionParam = factionShaderParams->find( hullAreaParamsIt->first );
-				if( factionParam != factionShaderParams->end() )
-				{
-					newShader->AddParameterVector4( hullAreaParamsIt->first.c_str(), &factionParam->second );
-				}
-				else
-				{
-					newShader->AddParameterVector4( hullAreaParamsIt->first.c_str(), &hullAreaParamsIt->second );
-				}
+				newShader->AddParameterVector4( hullAreaParamsIt->first.c_str(), &hullAreaParamsIt->second );
 			}
 		}
 
@@ -304,7 +256,7 @@ void EveSOF::FillMeshAreaVector( const std::vector<EveSOFDataMgr::HullAreas>* hu
 		{
 			// res path might be factional!!
 			std::string resPath = it->second.resFilePath.c_str();
-			ModifyTextureResPath( resPath, it->first.c_str(), factionData );
+			ModifyTextureResPath( resPath, it->first.c_str(), dna );
 			newShader->AddResourceTexture2D( it->first.c_str(), resPath.c_str() );
 		}
 
@@ -396,10 +348,11 @@ Tr2MeshPtr EveSOF::CreateMeshLOD( const Tr2Mesh* base, const char* lodInsert ) c
 // Description:
 //   This is where it is all going to happen
 // --------------------------------------------------------------------------------
-void EveSOF::SetupSpriteSets( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData, const EveSOFDataMgr::FactionData* factionData ) const
+void EveSOF::SetupSpriteSets( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
 	// cycle over all spritesets of this hull
-	for( auto ssit = hullData->spriteSets.begin(); ssit != hullData->spriteSets.end(); ++ssit )
+	const std::vector<EveSOFDataMgr::HullSpriteSetData>& hullSpriteSets = dna->GetHullSpriteSets();
+	for( auto ssit = hullSpriteSets.begin(); ssit != hullSpriteSets.end(); ++ssit )
 	{
 		const EveSOFDataMgr::HullSpriteSetData* spriteSetData = &(*ssit);
 
@@ -413,8 +366,9 @@ void EveSOF::SetupSpriteSets( EveShip2Ptr ship, const EveSOFDataMgr::HullData* h
 		{
 			const EveSOFDataMgr::HullSpriteSetItemData* itemData = &(*ssiit);
 
-			auto finder = factionData->spriteSetsColor.find( ssiit->groupIndex );
-			if( finder != factionData->spriteSetsColor.end() && !finder->second.isVisible )
+			// faction data?
+			const EveSOFDataMgr::FactionSpriteSetColorData* factionSpriteData = dna->GetFactionSpriteSetData( ssiit->groupIndex );
+			if( !factionSpriteData )
 			{
 				// This spriteset item is not used for this faction.
 				continue;
@@ -424,14 +378,14 @@ void EveSOF::SetupSpriteSets( EveShip2Ptr ship, const EveSOFDataMgr::HullData* h
 			EveSpriteSetItemPtr spriteSetItem;
 			spriteSetItem.CreateInstance();
 
-			if( finder == factionData->spriteSetsColor.end() )
+			if( factionSpriteData )
 			{
-				// sprite set doesn't exist for faction
-				spriteSetItem->m_color = Color( 1.f, 0.f, 0.f, 1.f );
+				spriteSetItem->m_color = factionSpriteData->color;
 			}
 			else
 			{
-				spriteSetItem->m_color = finder->second.color;
+				// sprite set doesn't exist for faction
+				spriteSetItem->m_color = Color( 1.f, 0.f, 0.f, 1.f );
 			}
 
 			// set it up, first with the per-hull data
@@ -457,10 +411,11 @@ void EveSOF::SetupSpriteSets( EveShip2Ptr ship, const EveSOFDataMgr::HullData* h
 // Description:
 //   This is where it is all going to happen
 // --------------------------------------------------------------------------------
-void EveSOF::SetupSpotlightSets( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData, const EveSOFDataMgr::FactionData* factionData ) const
+void EveSOF::SetupSpotlightSets( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
 	// cycle over all spritesets of this hull
-	for( auto ssit = hullData->spotlightSets.begin(); ssit != hullData->spotlightSets.end(); ++ssit )
+	const std::vector<EveSOFDataMgr::HullSpotlightSetData>& hullSpotlightSets = dna->GetHullSpotlightSets();
+	for( auto ssit = hullSpotlightSets.begin(); ssit != hullSpotlightSets.end(); ++ssit )
 	{
 		const EveSOFDataMgr::HullSpotlightSetData* spotlightSetData = &(*ssit);
 
@@ -517,25 +472,21 @@ void EveSOF::SetupSpotlightSets( EveShip2Ptr ship, const EveSOFDataMgr::HullData
 			spotlightSetItem->m_boneIndex = ssiit->boneIndex;
 			spotlightSetItem->m_boosterGainInfluence = ssiit->boosterGainInfluence;
 			
-			auto finder = factionData->spotlightSetsColors.find( ssiit->groupIndex );
-			if( finder == factionData->spotlightSetsColors.end() )
+			// faction data?
+			const EveSOFDataMgr::FactionSpotlightSetColorData* factionSpotlightData = dna->GetFactionSpotlightSetData( ssiit->groupIndex );
+			if( factionSpotlightData )
+			{
+				spotlightSetItem->m_coneColor = ssiit->coneIntensity * factionSpotlightData->coneColor;
+				spotlightSetItem->m_flareColor = ssiit->flareIntensity * factionSpotlightData->flareColor;
+				spotlightSetItem->m_spriteColor = ssiit->spriteIntensity * factionSpotlightData->spriteColor;
+			}
+			else
 			{
 				spotlightSetItem->m_coneColor = Color( 1.f, 1.f, 1.f, 1.f );
 				spotlightSetItem->m_flareColor = Color( 1.f, 1.f, 1.f, 1.f );
 				spotlightSetItem->m_spriteColor = Color( 1.f, 1.f, 1.f, 1.f );
 			}
-			else
-			{
-				const EveSOFDataMgr::FactionSpotlightSetColorData& colors = finder->second;
-				spotlightSetItem->m_coneColor = colors.coneColor;
-				spotlightSetItem->m_coneColor *= ssiit->coneIntensity;
-				
-				spotlightSetItem->m_flareColor = colors.flareColor;
-				spotlightSetItem->m_flareColor *= ssiit->flareIntensity;
-				
-				spotlightSetItem->m_spriteColor = colors.spriteColor;
-				spotlightSetItem->m_spriteColor *= ssiit->spriteIntensity;
-			}
+
 			spotlightSetItem->m_spriteScale = ssiit->spriteScale;
 			spotlightSetItem->m_transform = ssiit->transform;
 			// add it
@@ -552,10 +503,11 @@ void EveSOF::SetupSpotlightSets( EveShip2Ptr ship, const EveSOFDataMgr::HullData
 // Description:
 //   This is where it is all going to happen
 // --------------------------------------------------------------------------------
-void EveSOF::SetupPlaneSets( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData, const EveSOFDataMgr::FactionData* factionData ) const
+void EveSOF::SetupPlaneSets( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
 	// cycle over all spritesets of this hull
-	for( auto psit = hullData->planeSets.begin(); psit != hullData->planeSets.end(); ++psit )
+	const std::vector<EveSOFDataMgr::HullPlaneSetData>& hullPlaneSets = dna->GetHullPlaneSets();
+	for( auto psit = hullPlaneSets.begin(); psit != hullPlaneSets.end(); ++psit )
 	{
 		const EveSOFDataMgr::HullPlaneSetData* planeSetData = &(*psit);
 
@@ -608,11 +560,10 @@ void EveSOF::SetupPlaneSets( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hu
 			planeSetItem->m_boneIndex = psiit->boneIndex;
 
 			// groupindex allows to overwrite color
-			auto finder = factionData->planeSetsColors.find( psiit->groupIndex );
-			if( finder != factionData->planeSetsColors.end() )
+			const EveSOFDataMgr::FactionPlaneSetColorData* factionalData = dna->GetFactionPlaneSetData( psiit->groupIndex );
+			if( factionalData )
 			{
-				const EveSOFDataMgr::FactionPlaneSetColorData& colors = finder->second;
-				planeSetItem->m_color = colors.color;
+				planeSetItem->m_color = factionalData->color;
 			}
 
 			// add it
@@ -628,45 +579,43 @@ void EveSOF::SetupPlaneSets( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hu
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Load Model Curves
+//   Load Model Curves for rotation and translation, if there are any
 // --------------------------------------------------------------------------------
-void EveSOF::SetupModelCurves( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData ) const
+void EveSOF::SetupModelCurves( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
 	// Model rotation curve
-	IRootPtr p1;
-	IRoot* tmp1 = BeResMan->LoadObject( hullData->modelRotationCurvePath.c_str() );
-	if( !tmp1 )
+	const char* rotationCurvePath = dna->GetModelRotationCurvePath();
+	if( rotationCurvePath )
 	{
-		CCP_LOGERR( "resource file %s is invalid!", hullData->modelRotationCurvePath.c_str() );
-		return;
+		IRootPtr p;
+		IRoot* tmp = BeResMan->LoadObject( rotationCurvePath );
+		if( tmp )
+		{
+			p.Attach( tmp );
+			ITriQuaternionFunctionPtr rotationCurve;
+			if( p->QueryInterface( BlueInterfaceIID<ITriQuaternionFunction>(), (void**)&rotationCurve ) )
+			{
+				ship->SetModelRotationCurve( rotationCurve );
+			}
+		}
 	}
-	p1.Attach( tmp1 );
-
-	ITriQuaternionFunctionPtr rotationCurve;
-	if( !p1->QueryInterface( BlueInterfaceIID<ITriQuaternionFunction>(), (void**)&rotationCurve ) )
-	{
-		CCP_LOGERR( "resource file %s is not of correct type!", hullData->modelRotationCurvePath.c_str() );
-		return;
-	}
-	ship->SetModelRotationCurve( rotationCurve );
 
 	// Model translation curve
-	IRootPtr p2;
-	IRoot* tmp2 = BeResMan->LoadObject( hullData->modelTranslationCurvePath.c_str() );
-	if( !tmp2 )
+	const char* translationCurvePath = dna->GetModelTranslationCurvePath();
+	if( translationCurvePath )
 	{
-		CCP_LOGERR( "resource file %s is invalid!", hullData->modelTranslationCurvePath.c_str() );
-		return;
+		IRootPtr p;
+		IRoot* tmp = BeResMan->LoadObject( translationCurvePath );
+		if( tmp )
+		{
+			p.Attach( tmp );
+			ITriVectorFunctionPtr translationCurve;
+			if( p->QueryInterface( BlueInterfaceIID<ITriVectorFunction>(), (void**)&translationCurve ) )
+			{
+				ship->SetModelTranslationCurve( translationCurve );
+			}
+		}
 	}
-	p2.Attach( tmp2 );
-
-	ITriVectorFunctionPtr translationCurve;
-	if( !p2->QueryInterface( BlueInterfaceIID<ITriVectorFunction>(), (void**)&translationCurve ) )
-	{
-		CCP_LOGERR( "resource file %s is not of correct type!", hullData->modelTranslationCurvePath.c_str() );
-		return;
-	}
-	ship->SetModelTranslationCurve( translationCurve );
 }
 
 void RecursiveBindParticleEmitters( EveTransformPtr transform, TriCurveSetPtr curveSet, Tr2ScalarCurvePtr curve )
@@ -703,12 +652,12 @@ void RecursiveBindParticleEmitters( EveTransformPtr transform, TriCurveSetPtr cu
 //   Add Children and Animations to the ship
 //   
 // --------------------------------------------------------------------------------
-
-void EveSOF::SetupChildrenAndAnimations( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData ) const
+void EveSOF::SetupChildrenAndAnimations( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
 	std::map<int, std::vector<EveTransformPtr>> childrenToBindTo;
 
-	for( auto childIt = hullData->children.begin(); childIt != hullData->children.end(); ++childIt )
+	const std::vector<EveSOFDataMgr::HullChild>& hullChildren = dna->GetHullChildren();
+	for( auto childIt = hullChildren.begin(); childIt != hullChildren.end(); ++childIt )
 	{
 		IRootPtr p;
 		IRoot* tmp = BeResMan->LoadObject( childIt->redFilePath.c_str() );
@@ -738,7 +687,8 @@ void EveSOF::SetupChildrenAndAnimations( EveShip2Ptr ship, const EveSOFDataMgr::
 	}
 
 
-	for( auto animIt = hullData->animations.begin(); animIt != hullData->animations.end(); ++animIt )
+	const std::vector<EveSOFDataMgr::HullAnimation>& hullAnimations = dna->GetHullAnimations();
+	for( auto animIt = hullAnimations.begin(); animIt != hullAnimations.end(); ++animIt )
 	{
 		TriCurveSetPtr curveSet;
 		curveSet.CreateInstance();
@@ -809,10 +759,15 @@ void EveSOF::SetupChildrenAndAnimations( EveShip2Ptr ship, const EveSOFDataMgr::
 // Description:
 //   add the booster to the new ship
 // --------------------------------------------------------------------------------
-void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData, const EveSOFDataMgr::RaceData* raceData ) const
+void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
+	// per-race data
+	const EveSOFDataMgr::RaceBoosterData* rdata = dna->GetRaceBoosterData();
+	// pre-hull data
+	const EveSOFDataMgr::HullBoosterData* hdata = dna->GetHullBoosterData();
+
 	// does this hull have boosters at all?
-	if( hullData->boosters.items.empty() )
+	if( hdata->items.empty() )
 	{
 		return;
 	}
@@ -820,11 +775,6 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hul
 	// create
 	EveBoosterSet2Ptr set;
 	set.CreateInstance();
-
-	// per-race data
-	const EveSOFDataMgr::BoosterData* rdata = (const EveSOFDataMgr::BoosterData*)&raceData->boosterData;
-	// pre-hull data
-	const EveSOFDataMgr::HullBoosterData* hdata = (const EveSOFDataMgr::HullBoosterData*)&hullData->boosters;
 
 	// set the booster set's internal data
 	set->SetData( rdata->glowScale, &rdata->glowColor, rdata->symHaloScale, rdata->haloScaleX, rdata->haloScaleY, &rdata->haloColor, hdata->alwaysOn );
@@ -881,25 +831,19 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hul
 	set->PrepareResources();
 	ship->SetBoosterSet( set );
 }
+
 // --------------------------------------------------------------------------------
 // Description:
 //   add the hull decals to the new ship
 // --------------------------------------------------------------------------------
-void EveSOF::SetupDecals( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData, const EveSOFDataMgr::FactionData* factionData ) const
+void EveSOF::SetupDecals( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
 	// create and setup all hull decals
-	for( auto hdit = hullData->hullDecals.begin(); hdit != hullData->hullDecals.end(); ++hdit )
+	const std::vector<EveSOFDataMgr::HullDecalData>& hullDecals = dna->GetHullDecals();
+	for( auto hdit = hullDecals.begin(); hdit != hullDecals.end(); ++hdit )
 	{
 		// do we have faction data for this decal?
-		const EveSOFDataMgr::FactionDecalData* fdd = nullptr;
-		if( hdit->groupIndex != -1 )
-		{
-			auto finder = factionData->decalData.find( hdit->groupIndex );
-			if( finder != factionData->decalData.end() )
-			{
-				fdd = &finder->second;
-			}
-		}
+		const EveSOFDataMgr::FactionDecalData* fdd = dna->GetFactionDecalData( hdit->groupIndex );
 
 		// decal can be invisibe for this faction
 		if( fdd && !fdd->isVisible )
@@ -940,7 +884,7 @@ void EveSOF::SetupDecals( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullD
 		}
 
 		// then set the factional
-		if( fdd)
+		if( fdd )
 		{
 			for( auto fdpit = fdd->parameters.begin(); fdpit != fdd->parameters.end(); ++fdpit )
 			{
@@ -964,18 +908,19 @@ void EveSOF::SetupDecals( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullD
 // Description:
 //   Takes a texture resPath and checks if there is a factional version of this.
 // --------------------------------------------------------------------------------
-void EveSOF::ModifyTextureResPath( std::string& resPath, const char* name, const EveSOFDataMgr::FactionData* factionData ) const
+void EveSOF::ModifyTextureResPath( std::string& resPath, const char* name, const EveSOFDNAPtr dna ) const
 {
-	if( !strcmp( name, "PgsMap" ) && factionData->resPathInsert.size() )
+	if( !strcmp( name, "PgsMap" ) && dna->GetFactionResPathInsert() )
 	{
 		std::string resPathCopy = resPath;
 		size_t index = resPath.rfind("/");
 		if( index != std::string::npos )
 		{
-			resPathCopy.insert( index + 1, factionData->resPathInsert + std::string("/") );
+			resPathCopy.insert( index + 1, std::string( dna->GetFactionResPathInsert() ) + std::string("/") );
 		}
 
-		if( InsertStringStub( resPathCopy, "_pgs", ("_" + factionData->resPathInsert).c_str() ) && FileExists( resPathCopy ) )
+		std::string insertStr = "_" + std::string( dna->GetFactionResPathInsert() );
+		if( InsertStringStub( resPathCopy, "_pgs", insertStr.c_str() ) && FileExists( resPathCopy ) )
 		{
 			resPath = resPathCopy;
 		}

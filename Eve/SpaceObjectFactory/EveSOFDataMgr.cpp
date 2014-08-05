@@ -700,17 +700,17 @@ bool EveSOFDataMgr::LoadRaceData( EveSOFDataPtr srcData )
 void EveSOFDataMgr::GenerateRaceData( RaceData& rd, EveSOFDataRacePtr srcData ) const
 {
 	// booster data
-	rd.boosterData.color = srcData->m_booster->m_color;
-	rd.boosterData.scale = srcData->m_booster->m_scale;
-	rd.boosterData.textureResPath = srcData->m_booster->m_textureResPath;
-	rd.boosterData.glowScale = srcData->m_booster->m_glowScale;
-	rd.boosterData.glowColor = srcData->m_booster->m_glowColor;
-	rd.boosterData.haloColor = srcData->m_booster->m_haloColor;
-	rd.boosterData.haloScaleX = srcData->m_booster->m_haloScaleX;
-	rd.boosterData.haloScaleY = srcData->m_booster->m_haloScaleY;
-	rd.boosterData.symHaloScale = srcData->m_booster->m_symHaloScale;
-	rd.boosterData.trailColor = srcData->m_booster->m_trailColor;
-	rd.boosterData.trailSize = srcData->m_booster->m_trailSize;
+	rd.boosters.color = srcData->m_booster->m_color;
+	rd.boosters.scale = srcData->m_booster->m_scale;
+	rd.boosters.textureResPath = srcData->m_booster->m_textureResPath;
+	rd.boosters.glowScale = srcData->m_booster->m_glowScale;
+	rd.boosters.glowColor = srcData->m_booster->m_glowColor;
+	rd.boosters.haloColor = srcData->m_booster->m_haloColor;
+	rd.boosters.haloScaleX = srcData->m_booster->m_haloScaleX;
+	rd.boosters.haloScaleY = srcData->m_booster->m_haloScaleY;
+	rd.boosters.symHaloScale = srcData->m_booster->m_symHaloScale;
+	rd.boosters.trailColor = srcData->m_booster->m_trailColor;
+	rd.boosters.trailSize = srcData->m_booster->m_trailSize;
 }
 
 

@@ -13,9 +13,11 @@
 BLUE_DECLARE( Tr2Effect );
 BLUE_DECLARE( EveShip2 );
 BLUE_DECLARE( EveSOF );
+BLUE_DECLARE( EveSOFDNA );
 BLUE_DECLARE( Tr2Mesh );
 BLUE_DECLARE( Tr2MeshArea );
 BLUE_DECLARE_VECTOR( Tr2MeshArea );
+enum TriBatchType;
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -36,29 +38,29 @@ public:
 	// build a spaceship and return a EveShip2 object
 	IRootPtr Build( const char* hullName, const char* factionName, const char* raceName );
 	// build a spaceship from a dns string and return a EveShip2 object
-	IRootPtr BuildFromDNA( const char* dna );
+	IRootPtr BuildFromDNA( const char* dnaString );
 
 	// maintain the old style loading (with a bit of the new way...)
-	IRootPtr Load( const char* resFile, const char* hullName, const char* raceName );
+	IRootPtr Load( const char* resFile, const char* hullName, const char* factionName, const char* raceName );
 
 
 private:
 	typedef std::map<std::string, EveSOFDataMgr::FactionAreaData> FactionAreaMap;
 
 	// all setup functions for the to-be-created spaceship
-	void SetupMesh( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData, const EveSOFDataMgr::FactionData* factionData ) const;
-	void SetupSpriteSets( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData, const EveSOFDataMgr::FactionData* factionData ) const;
-	void SetupSpotlightSets( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData, const EveSOFDataMgr::FactionData* factionData ) const;
-	void SetupPlaneSets( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData, const EveSOFDataMgr::FactionData* factionData ) const;
-	void SetupChildrenAndAnimations( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData ) const;
-	void SetupBoosters( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData, const EveSOFDataMgr::RaceData* raceData ) const;
-	void SetupDecals( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData, const EveSOFDataMgr::FactionData* factionData ) const;
-	void SetupModelCurves( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData ) const;
+	void SetupMesh( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const;
+	void SetupSpriteSets( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const;
+	void SetupSpotlightSets( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const;
+	void SetupPlaneSets( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const;
+	void SetupChildrenAndAnimations( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const;
+	void SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const;
+	void SetupDecals( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const;
+	void SetupModelCurves( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const;
 
 	// helper functions
-	void ModifyTextureResPath( std::string& resPath, const char* name, const EveSOFDataMgr::FactionData* factionData ) const;
+	void ModifyTextureResPath( std::string& resPath, const char* name, const EveSOFDNAPtr dna ) const;
 	bool InsertStringStub( std::string& baseString, const char* beforeSubstr, const char* insertStr ) const;
-	void FillMeshAreaVector( const std::vector<EveSOFDataMgr::HullAreas>* hullAreas, const FactionAreaMap* factionAreas, const EveSOFDataMgr::FactionData* factionData, Tr2MeshAreaVector* meshAreaVector, const EveSOFDataMgr::HullData* hullData ) const;
+	void FillMeshAreaVector( Tr2MeshAreaVector* meshAreaVector, TriBatchType areaType, const EveSOFDNAPtr dna ) const;
 	void ModifyResourcePathsForLOD( const Tr2MeshAreaVector* areas, const char* lodInsert ) const;
 	Tr2MeshPtr CreateMeshLOD( const Tr2Mesh* base, const char* lodInsert ) const;
 
