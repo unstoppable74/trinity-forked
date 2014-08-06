@@ -59,6 +59,7 @@ public:
 
 	// get faction data
 	const char* GetFactionResPathInsert() const;
+	void ModifyTextureResPath( std::string& resPath, const char* resName ) const;
 	const Vector4* GetFactionMeshAreaParameters( TriBatchType type, const char* areaDesignation, const char* parameterName ) const;
 	const EveSOFDataMgr::FactionDecalData* GetFactionDecalData( int groupIndex ) const;
 	const EveSOFDataMgr::FactionPlaneSetColorData* GetFactionPlaneSetData( int groupIndex ) const;

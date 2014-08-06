@@ -4,9 +4,16 @@
 //    Copyright: CCP 2014
 //
 #include "StdAfx.h"
+#include "Utilities/StringUtils.h"
 #include "EveSOFDNA.h"
 
 #include "ITr2Renderable.h"
+
+bool FileExists( const std::string& path )
+{
+	std::wstring wstrCopy( path.begin(), path.end() );
+	return BePaths->FileExists( wstrCopy );
+}
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -242,6 +249,32 @@ const char* EveSOFDNA::GetFactionResPathInsert() const
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Changes the provided texture resource path, maybe modified depending on dna
+// --------------------------------------------------------------------------------
+void EveSOFDNA::ModifyTextureResPath( std::string& resPath, const char* resName ) const
+{
+	if( !strcmp( resName, "PgsMap" ) && !m_factionData->resPathInsert.empty() )
+	{
+		std::string resPathCopy = resPath;
+
+		// insert sub folder
+		size_t index = resPath.rfind("/");
+		if( index != std::string::npos )
+		{
+			resPathCopy.insert( index + 1, m_factionData->resPathInsert + "/" );
+		}
+
+		// insert part into filename
+		std::string insertStr = "_" + m_factionData->resPathInsert;
+		if( InsertStringStub( resPathCopy, "_pgs", insertStr.c_str() ) && FileExists( resPathCopy ) )
+		{
+			resPath = resPathCopy;
+		}
+	}
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Return the redfile path to the model's geometry (gr2)
 // --------------------------------------------------------------------------------
 const char* EveSOFDNA::GetHullGeometryResPath() const
@@ -401,8 +434,6 @@ const char* EveSOFDNA::GetRaceName() const
 {
 	return m_raceName.c_str();
 }
-
-
 
 
 

@@ -4,6 +4,7 @@
 //    Copyright: CCP 2013
 //
 #include "StdAfx.h"
+#include "Utilities/StringUtils.h"
 #include "EveSOF.h"
 #include "EveSOFDNA.h"
 #include "Eve/EveTransform.h"
@@ -28,11 +29,6 @@
 #include "TriValueBinding.h"
 #include "Particle/Tr2DynamicEmitter.h"
 
-bool FileExists( const std::string& path )
-{
-	std::wstring wstrCopy( path.begin(), path.end() );
-	return BePaths->FileExists( wstrCopy );
-}
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -256,7 +252,7 @@ void EveSOF::FillMeshAreaVector( Tr2MeshAreaVector* meshAreaVector, TriBatchType
 		{
 			// res path might be factional!!
 			std::string resPath = it->second.resFilePath.c_str();
-			ModifyTextureResPath( resPath, it->first.c_str(), dna );
+			dna->ModifyTextureResPath( resPath, it->first.c_str() );
 			newShader->AddResourceTexture2D( it->first.c_str(), resPath.c_str() );
 		}
 
@@ -272,22 +268,6 @@ void EveSOF::FillMeshAreaVector( Tr2MeshAreaVector* meshAreaVector, TriBatchType
 		newMeshArea->SetCount( area->count );
 		meshAreaVector->Append( newMeshArea );
 	}
-}
-
-// --------------------------------------------------------------------------------
-// Description:
-//   Inserts insertStr before the last instance of beforeSubstr in baseString.
-// --------------------------------------------------------------------------------
-bool EveSOF::InsertStringStub( std::string& baseString, const char* beforeSubstr, const char* insertStr ) const
-{
-	size_t index = baseString.rfind(beforeSubstr);
-	if( index == std::string::npos )
-	{
-		return false;
-	}
-
-	baseString.insert( index, insertStr );
-	return true;
 }
 
 // --------------------------------------------------------------------------------
@@ -901,29 +881,6 @@ void EveSOF::SetupDecals( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 		decal->SetEffect( shader );
 		decal->Initialize();
 		ship->AddDecal( decal );
-	}
-}
-
-// --------------------------------------------------------------------------------
-// Description:
-//   Takes a texture resPath and checks if there is a factional version of this.
-// --------------------------------------------------------------------------------
-void EveSOF::ModifyTextureResPath( std::string& resPath, const char* name, const EveSOFDNAPtr dna ) const
-{
-	if( !strcmp( name, "PgsMap" ) && dna->GetFactionResPathInsert() )
-	{
-		std::string resPathCopy = resPath;
-		size_t index = resPath.rfind("/");
-		if( index != std::string::npos )
-		{
-			resPathCopy.insert( index + 1, std::string( dna->GetFactionResPathInsert() ) + std::string("/") );
-		}
-
-		std::string insertStr = "_" + std::string( dna->GetFactionResPathInsert() );
-		if( InsertStringStub( resPathCopy, "_pgs", insertStr.c_str() ) && FileExists( resPathCopy ) )
-		{
-			resPath = resPathCopy;
-		}
 	}
 }
 

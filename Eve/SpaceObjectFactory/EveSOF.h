@@ -58,8 +58,6 @@ private:
 	void SetupModelCurves( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const;
 
 	// helper functions
-	void ModifyTextureResPath( std::string& resPath, const char* name, const EveSOFDNAPtr dna ) const;
-	bool InsertStringStub( std::string& baseString, const char* beforeSubstr, const char* insertStr ) const;
 	void FillMeshAreaVector( Tr2MeshAreaVector* meshAreaVector, TriBatchType areaType, const EveSOFDNAPtr dna ) const;
 	void ModifyResourcePathsForLOD( const Tr2MeshAreaVector* areas, const char* lodInsert ) const;
 	Tr2MeshPtr CreateMeshLOD( const Tr2Mesh* base, const char* lodInsert ) const;
