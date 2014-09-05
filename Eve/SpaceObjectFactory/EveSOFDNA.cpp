@@ -105,6 +105,8 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 		CCP_LOGERR( "Couldn't find the requested race: %s", dnaString );
 		return;
 	}
+	// generics
+	m_genericData = m_dataMgr->GetGenericData();
 
 	// additional dna subparts
 	for( size_t dnaSubpart = 3; dnaSubpart < dnaParts.size(); ++dnaSubpart )
@@ -124,6 +126,31 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 
 		// put into map, warning: this might overwrite a similar command!
 		m_commands[cmdAndArgs[0]] = commandList;
+	}
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Return the factional group-decal-data by a given groupindex
+// --------------------------------------------------------------------------------
+const char* EveSOFDNA::GetAreaShaderLocationResPath() const
+{
+	return m_genericData->areaShaderLocation.c_str();
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Return the prefix string for every shader
+// --------------------------------------------------------------------------------
+const char* EveSOFDNA::GetShaderPrefix( bool isAnimated ) const
+{
+	if( isAnimated )
+	{
+		return m_genericData->shaderPrefixAnimated.c_str();
+	}
+	else
+	{
+		return m_genericData->shaderPrefix.c_str();
 	}
 }
 

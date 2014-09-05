@@ -241,21 +241,10 @@ void EveSOF::FillMeshAreaVector( std::map<std::string, Tr2LodResourcePtr>& lodRe
 		Tr2EffectPtr newShader;
 		newShader.CreateInstance();
 		newShader->StartUpdate();
-		if( dna->IsHullAnimated() )
-		{
-			std::string skinnedName = area->shaderPath;
-			std::string insertString = "skinned_";
-			size_t pos = skinnedName.find_last_of( '/' );
-			if ( pos != std::string::npos )
-			{
-				skinnedName.insert( pos + 1, insertString );
-			}
-			newShader->SetEffectPathName( skinnedName.c_str() );
-		}
-		else
-		{
-			newShader->SetEffectPathName( area->shaderPath.c_str() );
-		}
+
+		// res path of the shader
+		std::string shaderPath = dna->GetAreaShaderLocationResPath() + std::string("/") + dna->GetShaderPrefix( dna->IsHullAnimated() ) + area->shader;
+		newShader->SetEffectPathName( shaderPath.c_str() );
 
 		// parameters
 		for( auto hullAreaParamsIt = area->parameters.begin(); hullAreaParamsIt != area->parameters.end(); ++hullAreaParamsIt )

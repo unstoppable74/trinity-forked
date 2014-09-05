@@ -12,6 +12,7 @@ BLUE_DECLARE( EveSOFData );
 BLUE_DECLARE( EveSOFDataHull );
 BLUE_DECLARE( EveSOFDataFaction );
 BLUE_DECLARE( EveSOFDataRace );
+BLUE_DECLARE( EveSOFDataGeneric );
 BLUE_DECLARE( EveSOFDataMaterial );
 BLUE_DECLARE( EveSOFDataHullArea );
 
@@ -115,7 +116,7 @@ public:
 		unsigned int index;
 		unsigned int count;
 		std::string designation;
-		std::string shaderPath;
+		std::string shader;
 		std::map<std::string, TextureData> textures;
 		std::map<std::string, Vector4> parameters;
 	};
@@ -257,6 +258,14 @@ public:
 		std::map<std::string, Vector4> parameters;
 	};
 
+	// generic data structs
+	struct GenericData
+	{
+		// shader locations
+		std::string shaderPrefix, shaderPrefixAnimated;
+		std::string areaShaderLocation;
+	};
+
 
 	EveSOFDataMgr( IRoot* lockobj = NULL );
 	~EveSOFDataMgr();
@@ -270,6 +279,8 @@ public:
 	bool UpdateFaction( const char* factionName, EveSOFDataFaction* factionData );
 	bool UpdateRace( const char* raceName, EveSOFDataRace* raceData );
 
+	// access to generic
+	const GenericData* GetGenericData() const;
 	// access to hull data
 	bool HasHullData( const char* hullName ) const;
 	const HullData* GetHullData( const char* hullName ) const;
@@ -288,6 +299,7 @@ private:
 	bool LoadHullData( EveSOFDataPtr srcData );
 	bool LoadFactionData( EveSOFDataPtr srcData );
 	bool LoadRaceData( EveSOFDataPtr srcData );
+	bool LoadGenericData( EveSOFDataPtr srcData );
 	bool LoadMaterialData( EveSOFDataPtr srcData );
 	HullAreas LoadHullAreaData( const EveSOFDataHullAreaPtr hullArea ) const;
 
@@ -305,6 +317,9 @@ private:
 	std::map<std::string, RaceData> m_raceData;
 	// keep all material data in a map
 	std::map<std::string, MaterialData> m_materialData;
+
+	// keep the generic data
+	GenericData m_genericData;
 };
 
 TYPEDEF_BLUECLASS( EveSOFDataMgr );

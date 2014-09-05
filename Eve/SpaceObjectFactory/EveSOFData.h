@@ -228,7 +228,7 @@ public:
 	unsigned int m_index;
 	unsigned int m_count;
 	std::string m_name;
-	std::string m_shaderPath;
+	std::string m_shader;
 	PEveSOFDataTextureVector m_textures;
 	PEveSOFDataParameterVector m_parameters;
 };
@@ -577,6 +577,27 @@ BLUE_DECLARE_VECTOR( EveSOFDataMaterial );
 
 
 
+// --------------------------------------------------------------------------------
+// All data storage classes for generic data
+// --------------------------------------------------------------------------------
+
+BLUE_CLASS( EveSOFDataGeneric ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataGeneric( IRoot* lockobj = NULL );
+	~EveSOFDataGeneric() {}
+
+	// shader locations
+	std::string m_shaderPrefix;
+	std::string m_shaderPrefixAnimated;
+	std::string m_areaShaderLocation;
+};
+TYPEDEF_BLUECLASS( EveSOFDataGeneric );
+
+
+
 BLUE_CLASS( EveSOFData ) :
 	public IRoot
 {
@@ -585,6 +606,8 @@ public:
 	EveSOFData( IRoot* lockobj = NULL );
 	~EveSOFData();
 
+	// global data
+	EveSOFDataGenericPtr m_generic;
 	// hull data
 	PEveSOFDataHullVector m_hull;
 	// faction data

@@ -108,7 +108,7 @@ bool EveSOFDataMgr::HasMaterialData( const char* materialName ) const
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Access to racedata, only const pointer!!
+//   Access to materialdata, only const pointer!!
 // --------------------------------------------------------------------------------
 const EveSOFDataMgr::MaterialData* EveSOFDataMgr::GetMaterialData( const char* materialName ) const
 {
@@ -118,6 +118,15 @@ const EveSOFDataMgr::MaterialData* EveSOFDataMgr::GetMaterialData( const char* m
 		return nullptr;
 	}
 	return &finder->second;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Access to genericdata, only const pointer!!
+// --------------------------------------------------------------------------------
+const EveSOFDataMgr::GenericData* EveSOFDataMgr::GetGenericData() const
+{
+	return &m_genericData;
 }
 
 // --------------------------------------------------------------------------------
@@ -234,6 +243,14 @@ bool EveSOFDataMgr::SetData( EveSOFData* dbData )
 	}
 	CCP_LOGNOTICE( "SOF: loaded %d materials", m_materialData.size() );
 
+	// load generic data
+	if(!LoadGenericData( dbData ) )
+	{
+		CCP_LOGERR( "Error loading generic data!" );
+		return false;
+	}
+	CCP_LOGNOTICE( "SOF: loaded generics" );
+
 	return true;
 }
 
@@ -282,7 +299,7 @@ EveSOFDataMgr::HullAreas EveSOFDataMgr::LoadHullAreaData( const EveSOFDataHullAr
 	ha.index = areaData->m_index;
 	ha.count = areaData->m_count;
 	ha.designation = areaData->m_name;
-	ha.shaderPath = areaData->m_shaderPath;
+	ha.shader = areaData->m_shader;
 	for( auto matit = areaData->m_textures.begin(); matit != areaData->m_textures.end(); ++matit )
 	{
 		EveSOFDataTexturePtr textureData = (*matit);
@@ -790,6 +807,20 @@ void EveSOFDataMgr::GenerateMaterialData( MaterialData& rd, EveSOFDataMaterialPt
 
 		rd.parameters[parameterData->m_name] = parameterData->m_value;
 	}
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Init generic data
+// --------------------------------------------------------------------------------
+bool EveSOFDataMgr::LoadGenericData( EveSOFDataPtr srcData )
+{
+	// shader locations
+	m_genericData.shaderPrefix = srcData->m_generic->m_shaderPrefix;
+	m_genericData.shaderPrefixAnimated = srcData->m_generic->m_shaderPrefixAnimated;
+	m_genericData.areaShaderLocation = srcData->m_generic->m_areaShaderLocation;
+
+	return true;
 }
 
 

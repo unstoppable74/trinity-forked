@@ -43,6 +43,10 @@ EveSOFDataTexture::EveSOFDataTexture( IRoot* lockobj )
 {}
 
 
+EveSOFDataGeneric::EveSOFDataGeneric( IRoot* lockobj )
+{}
+
+
 EveSOFDataFaction::EveSOFDataFaction( IRoot* lockobj ) :
 	PARENTLOCK( m_opaqueAreas ),
 	PARENTLOCK( m_transparentAreas ),

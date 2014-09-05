@@ -47,6 +47,10 @@ public:
 	const char* GetFactionName() const;
 	const char* GetRaceName() const;
 
+	// get generic data
+	const char* GetAreaShaderLocationResPath() const;
+	const char* GetShaderPrefix( bool isAnimated ) const;
+
 	// get racial data
 	const EveSOFDataMgr::RaceBoosterData* GetRaceBoosterData() const;
 
@@ -91,6 +95,7 @@ private:
 	const EveSOFDataMgr::HullData* m_hullData;
 	const EveSOFDataMgr::FactionData* m_factionData;
 	const EveSOFDataMgr::RaceData* m_raceData;
+	const EveSOFDataMgr::GenericData* m_genericData;
 
 	// decoded data
 	std::string m_hullName;

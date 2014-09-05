@@ -235,7 +235,7 @@ const Be::ClassInfo* EveSOFDataHullArea::ExposeToBlue()
 		MAP_ATTRIBUTE( "index", m_index, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "count", m_count, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "shaderPath", m_shaderPath, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "shader", m_shader, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "textures", m_textures, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "parameters", m_parameters, "", Be::READWRITE | Be::PERSIST )
     EXPOSURE_END()
@@ -462,12 +462,27 @@ const Be::ClassInfo* EveSOFDataMaterial::ExposeToBlue()
 
 
 
+BLUE_DEFINE( EveSOFDataGeneric );
+const Be::ClassInfo* EveSOFDataGeneric::ExposeToBlue()
+{
+    EXPOSURE_BEGIN( EveSOFDataGeneric, "" )
+        MAP_INTERFACE( EveSOFDataGeneric )
+
+		MAP_ATTRIBUTE( "areaShaderLocation", m_areaShaderLocation, "The location of all the area shaders", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "shaderPrefix", m_shaderPrefix, "A prefix for all shaders", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "shaderPrefixAnimated", m_shaderPrefixAnimated, "A prefix for all skinned shaders", Be::READWRITE | Be::PERSIST )
+    EXPOSURE_END()
+}
+
+
+
 BLUE_DEFINE( EveSOFData );
 const Be::ClassInfo* EveSOFData::ExposeToBlue()
 {
     EXPOSURE_BEGIN( EveSOFData, "" )
         MAP_INTERFACE( EveSOFData )
 
+		MAP_ATTRIBUTE( "generic", m_generic, "All the generic data we have in EVE", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "hull", m_hull, "All the hull data we have in EVE", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "faction", m_faction, "All the factions data we have in EVE", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "race", m_race, "All the racial data we have in EVE", Be::READWRITE | Be::PERSIST )
