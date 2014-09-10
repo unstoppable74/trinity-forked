@@ -49,6 +49,7 @@ public:
 
 	// get generic data
 	const char* GetAreaShaderLocationResPath() const;
+	const char* GetDecalShaderLocationResPath() const;
 	const char* GetShaderPrefix( bool isAnimated ) const;
 
 	// get racial data

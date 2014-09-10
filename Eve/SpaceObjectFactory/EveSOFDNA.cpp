@@ -131,11 +131,20 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Return the factional group-decal-data by a given groupindex
+//   Return area shader res path folder
 // --------------------------------------------------------------------------------
 const char* EveSOFDNA::GetAreaShaderLocationResPath() const
 {
 	return m_genericData->areaShaderLocation.c_str();
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Return decal shader res path folder
+// --------------------------------------------------------------------------------
+const char* EveSOFDNA::GetDecalShaderLocationResPath() const
+{
+	return m_genericData->decalShaderLocation.c_str();
 }
 
 // --------------------------------------------------------------------------------

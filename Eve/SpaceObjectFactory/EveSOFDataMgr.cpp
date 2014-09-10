@@ -477,7 +477,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 		hdd.scaling = hullDecal->m_scaling;
 		hdd.groupIndex = hullDecal->m_groupIndex;
 		hdd.boneIndex = hullDecal->m_boneIndex;
-		hdd.shaderPath = hullDecal->m_shaderPath;
+		hdd.shader = hullDecal->m_shader;
 		for( auto hdtit = hullDecal->m_textures.begin(); hdtit != hullDecal->m_textures.end(); ++hdtit )
 		{
 			EveSOFDataTexturePtr textureData = (*hdtit);
@@ -669,7 +669,7 @@ void EveSOFDataMgr::GenerateFactionData( FactionData& fd, EveSOFDataFactionPtr s
 
 		FactionDecalData fdd;
 		fdd.isVisible = decalData->m_isVisible;
-		fdd.shaderPath = decalData->m_shaderPath;
+		fdd.shader = decalData->m_shader;
 		for( auto ddpit = decalData->m_parameters.begin(); ddpit != decalData->m_parameters.end(); ++ddpit )
 		{
 			EveSOFDataParameterPtr parameterData = (*ddpit);
@@ -819,6 +819,7 @@ bool EveSOFDataMgr::LoadGenericData( EveSOFDataPtr srcData )
 	m_genericData.shaderPrefix = srcData->m_generic->m_shaderPrefix;
 	m_genericData.shaderPrefixAnimated = srcData->m_generic->m_shaderPrefixAnimated;
 	m_genericData.areaShaderLocation = srcData->m_generic->m_areaShaderLocation;
+	m_genericData.decalShaderLocation = srcData->m_generic->m_decalShaderLocation;
 
 	return true;
 }

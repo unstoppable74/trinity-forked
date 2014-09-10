@@ -861,14 +861,17 @@ void EveSOF::SetupDecals( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 		shader.CreateInstance();
 		shader->StartUpdate();
 
-		if( fdd && !fdd->shaderPath.empty() )
+		// construct shader path
+		std::string shaderPath;
+		if( fdd && !fdd->shader.empty() )
 		{
-			shader->SetEffectPathName( fdd->shaderPath.c_str() );
+			shaderPath = dna->GetDecalShaderLocationResPath() + std::string("/") + dna->GetShaderPrefix( false ) + fdd->shader;
 		}
 		else
 		{
-			shader->SetEffectPathName( hdit->shaderPath.c_str() );
+			shaderPath = dna->GetDecalShaderLocationResPath() + std::string("/") + dna->GetShaderPrefix( false ) + hdit->shader;
 		}
+		shader->SetEffectPathName( shaderPath.c_str() );
 
 		// always set hull parameters & textures for this decal
 		for( auto hdpit = hdit->parameters.begin(); hdpit != hdit->parameters.end(); ++hdpit )

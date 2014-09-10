@@ -128,7 +128,7 @@ public:
 		Vector3 scaling;
 		int groupIndex;
 		int boneIndex;
-		std::string shaderPath;
+		std::string shader;
 		std::map<std::string, TextureData> textures;
 		std::map<std::string, Vector4> parameters;
 	};
@@ -213,7 +213,7 @@ public:
 	{
 		int groupIndex;
 		bool isVisible;
-		std::string shaderPath;
+		std::string shader;
 		std::map<std::string, TextureData> textures;
 		std::map<std::string, Vector4> parameters;
 	};
@@ -264,6 +264,7 @@ public:
 		// shader locations
 		std::string shaderPrefix, shaderPrefixAnimated;
 		std::string areaShaderLocation;
+		std::string decalShaderLocation;
 	};
 
 

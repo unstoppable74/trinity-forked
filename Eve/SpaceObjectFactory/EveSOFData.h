@@ -316,7 +316,7 @@ public:
 	std::string m_name;
 	Vector3 m_position, m_scaling;
 	Quaternion m_rotation;
-	std::string m_shaderPath;
+	std::string m_shader;
 	int m_groupIndex, m_boneIndex;
 	PEveSOFDataTextureVector m_textures;
 	PEveSOFDataParameterVector m_parameters;
@@ -451,7 +451,7 @@ public:
 	int m_groupIndex;
 	bool m_isVisible;
 	std::string m_name;
-	std::string m_shaderPath;
+	std::string m_shader;
 	PEveSOFDataParameterVector m_parameters;
 	PEveSOFDataTextureVector m_textures;
 };
@@ -593,6 +593,7 @@ public:
 	std::string m_shaderPrefix;
 	std::string m_shaderPrefixAnimated;
 	std::string m_areaShaderLocation;
+	std::string m_decalShaderLocation;
 };
 TYPEDEF_BLUECLASS( EveSOFDataGeneric );
 
