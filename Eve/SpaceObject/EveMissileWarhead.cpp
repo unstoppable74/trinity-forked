@@ -351,6 +351,10 @@ EveMissileWarhead::StateChangeEvent EveMissileWarhead::UpdateState( float deltaT
 // --------------------------------------------------------------------------------
 void EveMissileWarhead::UpdateWarhead( float deltaT, float estimatedTotalAliveTime, const Vector3* currentBallVelocity, const Vector3* currentInheritedVelocity, const Matrix* invBallRotation )
 {
+	// Per object data
+	m_perObjectDataVs.InvalidateBufferData();
+	m_perObjectDataPs.InvalidateBufferData();
+
 	// calculate eject velocity vector
 	Vector3 ejectVelocityDir( 0.f, 0.f, m_currentEjectVelocity );
 	Matrix rotMatrix;
@@ -467,10 +471,48 @@ Tr2PerObjectData* EveMissileWarhead::GetPerObjectData( ITriRenderBatchAccumulato
 	{
 		return NULL;
 	}
-
-	// column_major for shaders
-	D3DXMatrixTranspose( &data->m_world, &m_worldTransform );
+	data->Initialize( this, &m_perObjectDataVs, &m_perObjectDataPs );
 
 	return data;
 }
 
+uint32_t EveMissileWarhead::GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType shaderType ) const
+{
+	if( shaderType == Tr2RenderContextEnum::PIXEL_SHADER )
+	{
+		uint32_t sz = 16 + 16 + 16; // m_spaceObjectMiscData + m_spaceObjectClipData + m_spaceObjectClipDataEx
+		return sz;
+	}
+	else
+	{
+		return
+			64 +				// m_vsWorldMatrix
+			16 +				// m_vsSpaceObjectData
+			16; 				// m_spaceObjectClipData
+	}
+}
+
+void EveMissileWarhead::UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType shaderType, uint32_t size, void* data )
+{
+	if( shaderType == Tr2RenderContextEnum::PIXEL_SHADER )
+	{
+		uint8_t* perObjectPS = (uint8_t*)data;
+		memset( perObjectPS, 0, sizeof( Vector4 ) * 3 );
+	}
+	else
+	{
+		uint8_t* perObjectVS = (uint8_t*)data;
+		D3DXMatrixTranspose( (Matrix*)perObjectVS, &m_worldTransform );
+		perObjectVS += sizeof(Matrix);
+		memset( perObjectVS, 0, sizeof( Vector4 ) * 2 );
+	}
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Copy all the matrices to HW
+// --------------------------------------------------------------------------------
+void EveMissileWarheadPerObjectData::SetPerObjectDataToDevice( Tr2ConstantBufferAL** buffers, unsigned constantTypeMask, Tr2RenderContext& renderContext ) const
+{
+	Tr2PerObjectDataWithPersistentBuffers<EveMissileWarhead>::SetPerObjectDataToDevice( buffers, constantTypeMask, renderContext );
+}

@@ -7,26 +7,10 @@
 #ifndef EveMissileWarhead_H
 #define EveMissileWarhead_H
 
-
+#include "../../Tr2PersistentPerObjectData.h"
 #include "Eve/EveTransform.h"
 #include "include/ITriTargetable.h"
 
-// --------------------------------------------------------------------------------
-// Description:
-//   This class holds the per-object data of an Eve missile warhead.
-// --------------------------------------------------------------------------------
-class EveMissileWarheadPerObjectData : public Tr2PerObjectData
-{
-public:
-	virtual void SetPerObjectDataToDevice( Tr2ConstantBufferAL** buffers, unsigned constantTypeMask, Tr2RenderContext& renderContext ) const
-	{
-		FillAndSetConstants( *buffers[ Tr2RenderContextEnum::VERTEX_SHADER ], 
-										  m_world, Tr2RenderContextEnum::VERTEX_SHADER, 
-										  Tr2Renderer::GetPerObjectVSStartRegister(), renderContext );		
-	}
-
-	Matrix m_world;
-};
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -102,6 +86,14 @@ public:
 	// this warhead's unique ID
 	int GetWarheadID() const { return m_id; }
 
+	uint32_t GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType shaderType ) const;
+	void UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType shaderType, uint32_t size, void* data );
+
+protected:
+	// per-object data
+	Tr2PersistentPerObjectData<EveMissileWarhead> m_perObjectDataVs;
+	Tr2PersistentPerObjectData<EveMissileWarhead> m_perObjectDataPs;
+
 private:
 	// timing
 	float m_flyingTime;
@@ -158,5 +150,15 @@ private:
 };
 
 TYPEDEF_BLUECLASS( EveMissileWarhead );
+
+// --------------------------------------------------------------------------------
+// Description:
+//   This class holds the per-object data of an Eve missile warhead.
+// --------------------------------------------------------------------------------
+class EveMissileWarheadPerObjectData : public Tr2PerObjectDataWithPersistentBuffers<EveMissileWarhead>
+{
+public:
+	virtual void SetPerObjectDataToDevice( Tr2ConstantBufferAL** buffers, unsigned constantTypeMask, Tr2RenderContext& renderContext ) const;
+};
 
 #endif // EveMissileWarhead_H
