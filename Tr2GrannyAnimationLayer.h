@@ -9,6 +9,17 @@
 
 class Tr2GrannyAnimation;
 
+struct TextEventTrack
+{
+	TextEventTrack( granny_text_track* grannyTrack ) : m_grannyTrack( grannyTrack ), m_lastIndex(-1), m_lastLoop(-1) {}
+
+	const char* SampleTrack( float time, int loop );
+
+private:
+	int m_lastIndex;
+	int m_lastLoop;
+	granny_text_track* m_grannyTrack;
+};
 
 class Tr2GrannyAnimationLayer
 {
@@ -26,8 +37,8 @@ public:
 	void ConsumeAnimationQueue( const Tr2GrannyAnimation* grannyAnimation );
 	void Cleanup();
 	
-	void SampleAnimation( float animationTime, granny_local_pose* resultPose );
-	void SampleAnimation( float animationTime, granny_local_pose* compositePose, granny_local_pose* resultPose );
+	void SampleAnimation( float animationTime, granny_local_pose* resultPose, IBlueEventListener* listener );
+	void SampleAnimation( float animationTime, granny_local_pose* compositePose, granny_local_pose* resultPose, IBlueEventListener* listener );
 	void AddBone( const Tr2GrannyAnimation* grannyAnimation, const char* name );
 	void RemoveBone( const Tr2GrannyAnimation* grannyAnimation, const char* name );
 	void ExtractTrackMask( const Tr2GrannyAnimation* grannyAnimation, const char* name );
@@ -35,6 +46,7 @@ public:
 	std::string m_name;
 	
 	granny_model_instance* m_modelInstance;
+	
 private:
 	struct AnimationRequest
 	{
@@ -46,10 +58,14 @@ private:
 		float m_speed;
 	};
 	std::vector<AnimationRequest> m_animationQueue;
+	std::map<granny_control*, std::vector<TextEventTrack>> m_controlTextTracks;
+	void ClearTextTracks( granny_control* control );
+	void RegisterTextTracks( granny_control* control, const granny_animation* animation );
+	void SampleTextTracks( IBlueEventListener* listener);
 
+	void FreeCompletedControls();
 	granny_track_mask* m_trackMask;
 	std::vector<std::string> m_bones;
-	granny_control* m_activeControl;
 
 	int m_boneCount;
 	float m_defaultBoneWeight;

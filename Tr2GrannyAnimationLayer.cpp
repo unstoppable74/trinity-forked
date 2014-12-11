@@ -133,8 +133,20 @@ bool Tr2GrannyAnimationLayer::PlayAnimation( const Tr2GrannyAnimation* grannyAni
 	}
 
 	GrannySetControlClock( control, Tr2Renderer::GetAnimationTime() );
+	RegisterTextTracks( control, animation );
 
 	return true;
+}
+
+void Tr2GrannyAnimationLayer::RegisterTextTracks( granny_control* control, const granny_animation* anim )
+{
+	for( int groupIdx = 0; groupIdx < anim->TrackGroupCount; groupIdx++ )
+	{
+		for( int trackIdx = 0; trackIdx < anim->TrackGroups[groupIdx]->TextTrackCount; trackIdx++ )
+		{
+			m_controlTextTracks[control].push_back( TextEventTrack( &anim->TrackGroups[groupIdx]->TextTracks[trackIdx] ) );
+		}
+	}
 }
 
 void Tr2GrannyAnimationLayer::EndAnimation()
@@ -158,6 +170,11 @@ void Tr2GrannyAnimationLayer::EndAnimation()
 	GrannyFreeCompletedModelControls( m_modelInstance );
 }
 
+void Tr2GrannyAnimationLayer::ClearTextTracks( granny_control* control )
+{
+	m_controlTextTracks.erase( control );
+}
+
 void Tr2GrannyAnimationLayer::ClearAnimations()
 {	
 	m_animationQueue.clear();
@@ -171,23 +188,87 @@ void Tr2GrannyAnimationLayer::ClearAnimations()
 	{
 		granny_control *control = GrannyGetControlFromBinding( binding );
 		binding = GrannyModelControlsNext( binding );
+		ClearTextTracks( control );
 		GrannyFreeControl( control );
 	}
 }
 
-void Tr2GrannyAnimationLayer::SampleAnimation( float animationTime, granny_local_pose* resultPose )
+const char* TextEventTrack::SampleTrack( float time, int loop )
+{
+	int entryIndex = -1;
+	for( int entryIdx = 0; entryIdx < m_grannyTrack->EntryCount; entryIdx++ )
+	{
+		if( m_grannyTrack->Entries[entryIdx].TimeStamp > time )
+		{
+			break;
+		}
+		entryIndex = entryIdx;
+	}
+	// Currently only the last event will be triggered
+	if( entryIndex >= 0 && ( entryIndex > m_lastIndex || loop > m_lastLoop )  )
+	{
+		m_lastIndex = entryIndex;
+		m_lastLoop = loop;
+		return m_grannyTrack->Entries[entryIndex].Text;
+	}
+	return nullptr;
+}
+
+void Tr2GrannyAnimationLayer::SampleTextTracks( IBlueEventListener* listener )
+{
+	if( !listener )
+	{
+		return;
+	}
+	for( auto it = m_controlTextTracks.begin(); it != m_controlTextTracks.end(); it++ )
+	{
+		granny_control* control = it->first;
+		int currentLoop = GrannyGetControlLoopIndex( control );
+		granny_real32 t = GrannyGetControlRawLocalClock( control );
+		if( t < 0 )
+		{
+			continue; // Animation hasn't started yet
+		}
+
+		for( auto trackIt = it->second.begin(); trackIt != it->second.end(); trackIt++ )
+		{
+			const char* evt = trackIt->SampleTrack( t, currentLoop );
+			if( evt )
+			{
+				listener->HandleEvent( CA2W( evt ) );
+			}
+		}
+	}
+}
+
+void Tr2GrannyAnimationLayer::SampleAnimation( float animationTime, granny_local_pose* resultPose, IBlueEventListener* listener )
 {
 	GrannySetModelClock( m_modelInstance, animationTime );
-	GrannyFreeCompletedModelControls( m_modelInstance );
+	SampleTextTracks( listener );
+	FreeCompletedControls();
 	GrannySampleModelAnimations( m_modelInstance, 0, m_boneCount, resultPose );
 }
 
-void Tr2GrannyAnimationLayer::SampleAnimation( float animationTime, granny_local_pose* compositePose, granny_local_pose* resultPose )
+void Tr2GrannyAnimationLayer::SampleAnimation( float animationTime, granny_local_pose* compositePose, granny_local_pose* resultPose, IBlueEventListener* listener )
 {
 	GrannySetModelClock( m_modelInstance, animationTime );
-	GrannyFreeCompletedModelControls( m_modelInstance );
+	SampleTextTracks( listener );
+	FreeCompletedControls();
 	GrannySampleModelAnimations( m_modelInstance, 0, m_boneCount, compositePose );
 	GrannyModulationCompositeLocalPose( resultPose, 0, 1, m_trackMask, compositePose );
+}
+
+void Tr2GrannyAnimationLayer::FreeCompletedControls()
+{
+	for( granny_model_control_binding *binding = GrannyModelControlsBegin( m_modelInstance ); binding != GrannyModelControlsEnd( m_modelInstance ); )
+	{
+		granny_control *control = GrannyGetControlFromBinding( binding );
+		binding = GrannyModelControlsNext( binding );
+		if( GrannyFreeControlIfComplete( control ) )
+		{
+			ClearTextTracks( control );
+		}
+	}
 }
 
 float Tr2GrannyAnimationLayer::GetAnimationChainCompleteTime()

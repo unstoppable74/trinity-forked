@@ -358,10 +358,10 @@ void Tr2GrannyAnimation::PrePhysicsAnimation( Be::Time time, const Matrix &model
 
 		// TODO: Should this be done here? Seems wasteful to sample animations and build the pose
 		// for objects that are off-screen.
-		m_baseLayer.SampleAnimation( animationTime, m_localPose );
+		m_baseLayer.SampleAnimation( animationTime, m_localPose, m_eventListener );
 		for( auto it = m_animationLayers.begin(); it != m_animationLayers.end(); it++ )
 		{
-			it->second.SampleAnimation( animationTime, m_compositePose, m_localPose );
+			it->second.SampleAnimation( animationTime, m_compositePose, m_localPose, m_eventListener );
 		}
 
 		if( m_boneOffset.NeedRebind( m_skeleton->BoneCount ) && m_skeleton->BoneCount )

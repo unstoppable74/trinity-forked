@@ -103,6 +103,8 @@ private:
 
 	granny_file_info* GetFileInfo() const;
 	Tr2GrannyAnimationLayer* GetAnimationLayer( const char* name );
+	
+	IBlueEventListenerPtr m_eventListener;
 };
 
 TYPEDEF_BLUECLASS( Tr2GrannyAnimation );

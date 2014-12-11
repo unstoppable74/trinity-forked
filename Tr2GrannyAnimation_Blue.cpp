@@ -112,5 +112,12 @@ const Be::ClassInfo* Tr2GrannyAnimation::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "boneOffset", m_boneOffset, "Per-bone post animation offsets.", Be::READWRITE )
 
+		MAP_ATTRIBUTE
+		(
+			"eventListener",
+			m_eventListener,
+			"An event listener that's triggered by granny text track events.",
+			Be::READWRITE
+		)
 	EXPOSURE_END()
 }
