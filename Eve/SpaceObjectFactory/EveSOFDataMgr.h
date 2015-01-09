@@ -270,6 +270,8 @@ public:
 		std::string shaderPrefix, shaderPrefixAnimated;
 		std::string areaShaderLocation;
 		std::string decalShaderLocation;
+		// hull area parameter overloads
+		std::map<BlueSharedString, FactionAreaData> hullAreaParameters;
 	};
 
 

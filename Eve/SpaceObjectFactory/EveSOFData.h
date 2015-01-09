@@ -598,6 +598,9 @@ public:
 	std::string m_shaderPrefixAnimated;
 	std::string m_areaShaderLocation;
 	std::string m_decalShaderLocation;
+
+	// hull area data
+	PEveSOFDataFactionHullAreaVector m_hullAreas;
 };
 TYPEDEF_BLUECLASS( EveSOFDataGeneric );
 

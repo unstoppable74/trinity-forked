@@ -842,6 +842,21 @@ bool EveSOFDataMgr::LoadGenericData( EveSOFDataPtr srcData )
 	m_genericData.areaShaderLocation = srcData->m_generic->m_areaShaderLocation;
 	m_genericData.decalShaderLocation = srcData->m_generic->m_decalShaderLocation;
 
+	// hull area parameters
+	for( auto hait = srcData->m_generic->m_hullAreas.begin(); hait != srcData->m_generic->m_hullAreas.end(); ++hait )
+	{
+		EveSOFDataFactionHullAreaPtr hullAreaData = (*hait);
+
+		FactionAreaData ad;
+		for( auto hapit = hullAreaData->m_parameters.begin(); hapit != hullAreaData->m_parameters.end(); ++hapit )
+		{
+			EveSOFDataParameterPtr parameterData = (*hapit);
+			ad.parameters[parameterData->m_name] = parameterData->m_value;
+		}
+		m_genericData.hullAreaParameters[hullAreaData->m_name] = ad;
+	}
+
+
 	return true;
 }
 

@@ -485,11 +485,16 @@ const Vector4* EveSOFDNA::GetFactionMeshAreaParameters( const BlueSharedString& 
 		}
 	}
 
-	// find the area, by designation string
-	auto parameterListIt = m_factionData->areaParameters.find( areaDesignation );
-	if( parameterListIt == m_factionData->areaParameters.end() )
+	// try finding the area in the generic data first...
+	auto parameterListIt = m_genericData->hullAreaParameters.find( areaDesignation );
+	if( parameterListIt == m_genericData->hullAreaParameters.end() )
 	{
-		return nullptr;
+		// ok, not in the generic data, but then in the faction data?
+		parameterListIt = m_factionData->areaParameters.find( areaDesignation );
+		if( parameterListIt == m_factionData->areaParameters.end() )
+		{
+			return nullptr;
+		}
 	}
 
 	// find the parameter by parameter name
