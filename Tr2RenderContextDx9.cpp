@@ -284,7 +284,7 @@ Tr2RenderContextAL::Tr2RenderContextAL()
 	, m_adapter( 0 )
 {
 	CCP_ASSERT( GetPrimaryRenderContextPointer() == nullptr );
-	GetPrimaryRenderContextPointer() = this;
+	::GetPrimaryRenderContextPointer() = this;
 
 	for( unsigned i = 0; i != MAX_RENDER_TARGET; ++i )
 	{
@@ -300,7 +300,7 @@ Tr2RenderContextAL::~Tr2RenderContextAL()
 
 void Tr2RenderContextAL::SetPrimaryRenderContext( Tr2PrimaryRenderContextAL* renderContext )
 {
-	GetPrimaryRenderContextPointer() = renderContext;
+	::GetPrimaryRenderContextPointer() = renderContext;
 }
 
 Tr2PrimaryRenderContextAL& Tr2RenderContextAL::GetPrimaryRenderContext()
@@ -309,8 +309,14 @@ Tr2PrimaryRenderContextAL& Tr2RenderContextAL::GetPrimaryRenderContext()
 	return *GetPrimaryRenderContextPointer();
 }
 
+Tr2PrimaryRenderContextAL* Tr2RenderContextAL::GetPrimaryRenderContextPointer()
+{
+	return ::GetPrimaryRenderContextPointer();
+}
+
 void Tr2RenderContextAL::Destroy()
 {
+	Tr2GpuTelemetryDeviceReset();
 	ReleaseDeviceResources();
 
 	m_topology = D3DPT_TRIANGLELIST;
@@ -861,6 +867,8 @@ ALResult Tr2RenderContextAL::CreateDevice(
 	CR( GetAFRGroupCount(numSLIGroups) );
 	CCP_STATS_SET(numAFRGroups, numSLIGroups);
 
+	Tr2GpuTelemetryDeviceCreated();
+
 	return hr;
 }
 
@@ -977,6 +985,7 @@ ALResult Tr2RenderContextAL::Present()
 		if( chain )
 		{
 			hr = chain->Present( nullptr, nullptr, nullptr, nullptr, 0 );
+			Tr2GpuTelemetryTick();
 	
 			if( FAILED( hr ) )
 			{

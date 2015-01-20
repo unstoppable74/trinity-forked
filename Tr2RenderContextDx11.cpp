@@ -13,16 +13,16 @@ CCP_STATS_DECLARE( sceneDrawcallCount	, "Trinity/AL/sceneDrawcallCount"	, true, 
 CCP_STATS_DECLARE( cbCacheHit	, "Trinity/AL/cbCacheHit"	, true, CST_COUNTER_HIGH, "Number of cache hits for dynamic constant buffers." );
 CCP_STATS_DECLARE( cbCacheMiss	, "Trinity/AL/cbCacheMiss"	, true, CST_COUNTER_HIGH, "Number of cache misses for dynamic constant buffers." );
 
+
+using namespace Tr2RenderContextEnum;
+
+namespace {
+
 Tr2PrimaryRenderContextAL*& GetPrimaryRenderContextPointer()
 {
 	static Tr2PrimaryRenderContextAL* primaryRenderContext = nullptr;
 	return primaryRenderContext;
 }
-
-
-using namespace Tr2RenderContextEnum;
-
-namespace {
 
 	const uint32_t D3D9_MAPSAMPLER = 256;
 	const uint32_t D3D9_VERTEXTEXTURESAMPLER0 = D3DDMAPSAMPLER+1;
@@ -578,13 +578,18 @@ Tr2RenderContextAL::~Tr2RenderContextAL()
 
 void Tr2RenderContextAL::SetPrimaryRenderContext( Tr2PrimaryRenderContextAL* renderContext )
 {
-	GetPrimaryRenderContextPointer() = renderContext;
+	::GetPrimaryRenderContextPointer() = renderContext;
 }
 
 Tr2PrimaryRenderContextAL& Tr2RenderContextAL::GetPrimaryRenderContext()
 {
 	CCP_ASSERT( GetPrimaryRenderContextPointer() );
 	return *GetPrimaryRenderContextPointer();
+}
+
+Tr2PrimaryRenderContextAL* Tr2RenderContextAL::GetPrimaryRenderContextPointer()
+{
+	return ::GetPrimaryRenderContextPointer();
 }
 
 ALResult Tr2RenderContextAL::CreateSecondaryContext()

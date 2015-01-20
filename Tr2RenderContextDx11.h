@@ -32,6 +32,7 @@ public:
 
 	static void SetPrimaryRenderContext( Tr2PrimaryRenderContextAL* );
 	static Tr2PrimaryRenderContextAL& GetPrimaryRenderContext();
+	static Tr2PrimaryRenderContextAL* GetPrimaryRenderContextPointer();
 
 	ALResult BeginScene() throw();
 	ALResult EndScene()   { return S_OK; }

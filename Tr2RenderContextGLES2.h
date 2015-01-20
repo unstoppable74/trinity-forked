@@ -37,6 +37,7 @@ public:
 
 	static void SetPrimaryRenderContext( Tr2PrimaryRenderContextAL* );
 	static Tr2PrimaryRenderContextAL& GetPrimaryRenderContext();
+	static Tr2PrimaryRenderContextAL* GetPrimaryRenderContextPointer();
 
 	ALResult CreateDevice(
 		uint32_t Adapter, 

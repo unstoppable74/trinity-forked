@@ -48,6 +48,7 @@ Tr2PrimaryRenderContextAL::~Tr2PrimaryRenderContextAL()
 
 void Tr2PrimaryRenderContextAL::Destroy()
 {
+	Tr2GpuTelemetryDeviceReset();
 	// People say we need to switch to windowed mode before destroying a device
 	if( m_swapChain )
 	{
@@ -334,6 +335,7 @@ ALResult Tr2PrimaryRenderContextAL::CreateDevice(	uint32_t  adapter,
 	{
 		m_events->OnContextCreated( *this );
 	}
+	Tr2GpuTelemetryDeviceCreated();
 
 	return S_OK;
 }
@@ -555,6 +557,8 @@ ALResult Tr2PrimaryRenderContextAL::Present()
 	} else {
 		m_context->Flush();
 	}
+	Tr2GpuTelemetryTick();
+
 
 	CComQIPtr<ID3D11InfoQueue> queue( m_d3dDevice11 );
 	if( queue )

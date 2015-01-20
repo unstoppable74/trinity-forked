@@ -386,6 +386,11 @@ Tr2PrimaryRenderContextAL& Tr2RenderContextAL::GetPrimaryRenderContext()
 	return *::GetPrimaryRenderContext();
 }
 
+Tr2PrimaryRenderContextAL* Tr2RenderContextAL::GetPrimaryRenderContextPointer()
+{
+	return ::GetPrimaryRenderContext();
+}
+
 void Tr2RenderContextAL::Destroy()
 {
 	if( IsValid() )

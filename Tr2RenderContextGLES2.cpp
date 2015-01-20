@@ -312,7 +312,7 @@ Tr2RenderContextAL::Tr2RenderContextAL()
 #endif
 {
 	CCP_ASSERT( GetPrimaryRenderContextPointer() == nullptr );
-	GetPrimaryRenderContextPointer() = this;
+	::GetPrimaryRenderContextPointer() = this;
 
 	m_boundProgramObject = nullptr;
 
@@ -431,13 +431,18 @@ void Tr2RenderContextAL::ReleaseOpenGLContext()
 
 void Tr2RenderContextAL::SetPrimaryRenderContext( Tr2PrimaryRenderContextAL* renderContext )
 {
-	GetPrimaryRenderContextPointer() = renderContext;
+	::GetPrimaryRenderContextPointer() = renderContext;
 }
 
 Tr2PrimaryRenderContextAL& Tr2RenderContextAL::GetPrimaryRenderContext()
 {
 	CCP_ASSERT( GetPrimaryRenderContextPointer() );
 	return *GetPrimaryRenderContextPointer();
+}
+
+Tr2PrimaryRenderContextAL* Tr2RenderContextAL::GetPrimaryRenderContextPointer()
+{
+	return ::GetPrimaryRenderContextPointer();
 }
 
 void Tr2RenderContextAL::Destroy()

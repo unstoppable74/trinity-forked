@@ -27,7 +27,7 @@ Tr2RenderContextAL::Tr2RenderContextAL()
 	: m_isValid(false),
 	m_events( nullptr )
 {
-	GetPrimaryRenderContextPointer() = this;
+	::GetPrimaryRenderContextPointer() = this;
 	for( unsigned i = 0; i != MAX_RENDER_TARGET; ++i )
 	{
 		m_boundRenderTarget[i] = nullptr;
@@ -41,6 +41,18 @@ Tr2RenderContextAL::~Tr2RenderContextAL()
 
 void Tr2RenderContextAL::SetPrimaryRenderContext( Tr2PrimaryRenderContextAL* renderContext )
 {
+	::GetPrimaryRenderContextPointer() = renderContext;
+}
+
+Tr2PrimaryRenderContextAL& Tr2RenderContextAL::GetPrimaryRenderContext()
+{
+	CCP_ASSERT( GetPrimaryRenderContextPointer() );
+	return *GetPrimaryRenderContextPointer();
+}
+
+Tr2PrimaryRenderContextAL* Tr2RenderContextAL::GetPrimaryRenderContextPointer()
+{
+	return ::GetPrimaryRenderContextPointer();
 }
 
 Tr2PrimaryRenderContextAL& Tr2RenderContextAL::GetPrimaryRenderContext()

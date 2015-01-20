@@ -275,5 +275,7 @@ const float AL_TEXEL_OFFSET = 0.0f;
 #endif
 
 #include "Tr2TrackedALObjectImpl.h"
+#include "Tr2GpuTelemetry.h"
+
 
 #endif //Tr2Hal_h_
