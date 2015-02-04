@@ -40,7 +40,7 @@ bool Tr2VertexLayoutAL::IsValid() const
 
 void Tr2VertexLayoutAL::Destroy()
 {
-	m_definition.release();
+	m_definition.reset();
 }
 
 #endif // DX9?

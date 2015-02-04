@@ -27,7 +27,7 @@ ALResult Tr2VertexLayoutAL::Create( const Tr2VertexDefinition& definition, Tr2Re
 
 void Tr2VertexLayoutAL::Destroy()
 {
-	m_definition.release();
+	m_definition.reset();
 }
 
 ALResult Tr2VertexLayoutAL::SetLayout( const Tr2ShaderAL* /*vertexShader*/, Tr2RenderContextAL& renderContext )

@@ -31,7 +31,6 @@ Tr2VertexLayoutAL& Tr2VertexLayoutAL::operator=( Tr2VertexLayoutAL&& other )
 		return *this;
 	}
 
-	m_definition.release();
 	m_definition = std::move( other.m_definition );
 	ChangeObjectId();
 
