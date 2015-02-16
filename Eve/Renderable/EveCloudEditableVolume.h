@@ -92,7 +92,7 @@ private:
 		uint32_t width;
 		uint32_t height;
 		uint32_t depth;
-		std::unique_ptr<uint8_t> pixels;
+		std::unique_ptr<uint8_t[]> pixels;
 	};
 	static uint32_t ThreadProc( void* context );
 	static void RasterizeBalls( RasterizeParams& params );

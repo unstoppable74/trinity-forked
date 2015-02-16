@@ -170,13 +170,14 @@ void EveCloudEditableVolume::RasterizeBalls( RasterizeParams& params )
 	uint8_t* destPixel = params.pixels.get();
 	for( uint32_t i = 0; i < params.width * params.height * params.depth * 4; ++i )
 	{
-		destPixel[i] = uint8_t( std::min( std::max( srcPixel[i] * 255.f, 0.f ), 255.f ) );
+		destPixel[i] = uint8_t( std::min( std::max( TriLinearToGamma( srcPixel[i] ) * 255.f, 0.f ), 255.f ) );
 	}
 	params.status = DataReady;
 }
 
 void EveCloudEditableVolume::RasterizeBall( const EveCloudVolumeBall::BallData& ball, const RasterizeParams& params, float* pixels )
 {
+	auto selfIllumination = TriGammaToLinear( ball.m_selfIllumination );
 	int minX = std::max( int( ( ball.m_position.x + 0.5 - ball.m_radius ) * params.width ), 0 );
 	int minY = std::max( int( ( ball.m_position.y + 0.5 - ball.m_radius ) * params.height ), 0 );
 	int minZ = std::max( int( ( ball.m_position.z + 0.5 - ball.m_radius ) * params.depth ), 0 );
@@ -214,9 +215,9 @@ void EveCloudEditableVolume::RasterizeBall( const EveCloudVolumeBall::BallData& 
 				float destG = pixels[offset + 1];
 				float destB = pixels[offset + 0];
 
-				pixels[offset] = destB * ( 1.f - alpha ) + ball.m_selfIllumination.b * alpha;
-				pixels[offset + 1] = destG * ( 1.f - alpha ) + ball.m_selfIllumination.g * alpha;
-				pixels[offset + 2] = destR * ( 1.f - alpha ) + ball.m_selfIllumination.r * alpha;
+				pixels[offset] = destB * ( 1.f - alpha ) + selfIllumination.b * alpha;
+				pixels[offset + 1] = destG * ( 1.f - alpha ) + selfIllumination.g * alpha;
+				pixels[offset + 2] = destR * ( 1.f - alpha ) + selfIllumination.r * alpha;
 				pixels[offset + 3] += alpha * ball.m_opacity;
 			}
 		}
