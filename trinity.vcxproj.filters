@@ -682,6 +682,9 @@
     <ClInclude Include="Eve\EveSO2ModelCenterPos.h">
       <Filter>Source Files\Eve</Filter>
     </ClInclude>
+    <ClInclude Include="Eve\EveSO2ModelTargetPos.h">
+      <Filter>Source Files\Eve</Filter>
+    </ClInclude>
     <ClInclude Include="Eve\EveSpaceScene.h">
       <Filter>Source Files\Eve</Filter>
     </ClInclude>
@@ -2441,6 +2444,12 @@
       <Filter>Source Files\Eve</Filter>
     </ClCompile>
     <ClCompile Include="Eve\EveSO2ModelCenterPos_Blue.cpp">
+      <Filter>Source Files\Eve</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\EveSO2ModelTargetPos.cpp">
+      <Filter>Source Files\Eve</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\EveSO2ModelTargetPos_Blue.cpp">
       <Filter>Source Files\Eve</Filter>
     </ClCompile>
     <ClCompile Include="Eve\EveSpaceScene.cpp">

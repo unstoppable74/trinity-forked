@@ -2767,6 +2767,7 @@
     <ClInclude Include="Eve\EveRootTransform.h"/>
     <ClInclude Include="Eve\EveShip2Builder.h"/>
     <ClInclude Include="Eve\EveSO2ModelCenterPos.h"/>
+    <ClInclude Include="Eve\EveSO2ModelTargetPos.h"/>
     <ClInclude Include="Eve\EveSpaceScene.h"/>
     <ClInclude Include="Eve\EveSpaceSceneLightMgr.h"/>
     <ClInclude Include="Eve\EveSpherePin.h"/>
@@ -3358,6 +3359,8 @@
     <ClCompile Include="Eve\EveShip2Builder_Blue.cpp"/>
     <ClCompile Include="Eve\EveSO2ModelCenterPos.cpp"/>
     <ClCompile Include="Eve\EveSO2ModelCenterPos_Blue.cpp"/>
+    <ClCompile Include="Eve\EveSO2ModelTargetPos.cpp"/>
+    <ClCompile Include="Eve\EveSO2ModelTargetPos_Blue.cpp"/>
     <ClCompile Include="Eve\EveSpaceScene.cpp"/>
     <ClCompile Include="Eve\EveSpaceSceneLightMgr.cpp"/>
     <ClCompile Include="Eve\EveSpaceSceneLightMgr_Blue.cpp"/>
