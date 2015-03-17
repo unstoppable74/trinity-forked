@@ -146,7 +146,7 @@ float EveSOFDNA::GetDirtLevel() const
 		// has only one parameter: a float!
 		if( dirtLevelCommandArgs.size() == 1 )
 		{
-			return std::stof( dirtLevelCommandArgs[0] );
+			return atof( dirtLevelCommandArgs[0].c_str() );
 		}
 	}
 	return -10.f;
