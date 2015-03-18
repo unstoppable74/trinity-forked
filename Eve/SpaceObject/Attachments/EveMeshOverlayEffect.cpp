@@ -44,6 +44,30 @@ bool EveMeshOverlayEffect::Initialize()
 
 // --------------------------------------------------------------------------------------
 // Description:
+//   For each batch type we gove back the appropriate overlay type!
+// --------------------------------------------------------------------------------------
+EveMeshOverlayEffect::OverlayType EveMeshOverlayEffect::GetType( TriBatchType batchType ) const
+{
+	switch( batchType )
+	{
+	case TRIBATCHTYPE_OPAQUE:
+		return TYPE_OPAQUEONLY;
+	default:
+		return TYPE_ALL;
+	}
+}
+
+// --------------------------------------------------------------------------------------
+// Description:
+//   Tell if this overlay effect holds any effects for transparent areas
+// --------------------------------------------------------------------------------------
+bool EveMeshOverlayEffect::HasTransparentArea() const
+{
+	return !m_transparentEffects.empty();
+}
+
+// --------------------------------------------------------------------------------------
+// Description:
 //   GetEffect. 
 // Return Value:
 //   A Tr2EffectVector of effects.

@@ -15,7 +15,6 @@
 #include "Attachments/EveSpaceObjectDecal.h"
 #include "Eve/EveSpaceScene.h"
 #include "Utils/EveLocator2.h"
-#include "Attachments/EveMeshOverlayEffect.h"
 #include "Attachments/EveSpriteSet.h"
 #include "Attachments/EveSpotlightSet.h"
 #include "Attachments/EvePlaneSet.h"
@@ -399,7 +398,7 @@ bool EveSpaceObject2::HasTransparentBatches()
 
 	for( auto it = m_overlayEffects.begin(); it != m_overlayEffects.end(); ++it )
 	{
-		if( !(*it)->m_transparentEffects.empty() )
+		if( (*it)->HasTransparentArea() )
 		{
 			return true;
 		}
@@ -673,13 +672,13 @@ void EveSpaceObject2::GetBatchesFromOverlayVector( ITriRenderBatchAccumulator* b
 		const PTr2EffectVector& effects = overlay->GetEffects( batchType, success );
 		if ( success )
 		{
-		
+			EveMeshOverlayEffect::OverlayType overlayType = overlay->GetType( batchType );
 			for( auto eff = effects.begin(); eff != effects.end(); ++eff )
 			{
 				Tr2EffectPtr effect = *eff;
 
 				// add all mesh area blocks
-				for( auto areaBlock = m_overlayMeshAreaBlocks.begin(); areaBlock != m_overlayMeshAreaBlocks.end(); ++areaBlock )
+				for( auto areaBlock = m_overlayMeshAreaBlocks[overlayType].begin(); areaBlock != m_overlayMeshAreaBlocks[overlayType].end(); ++areaBlock )
 				{
 					TriGeometryBatch* batch = batches->Allocate<TriGeometryBatch>();
 					// Note that this can fail if the accumulator can't add more batches!
@@ -1168,7 +1167,10 @@ void EveSpaceObject2::ReleaseCachedData( BlueAsyncRes* p )
 	FreeAnimationData();
 
 	// no more overlay effects
-	m_overlayMeshAreaBlocks.clear();
+	for( int i = 0; i < EveMeshOverlayEffect::TYPE_COUNT; ++i )
+	{
+		m_overlayMeshAreaBlocks[i].clear();
+	}
 }
 
 void EveSpaceObject2::RebuildCachedData( BlueAsyncRes* p )
@@ -1222,11 +1224,15 @@ void EveSpaceObject2::RebuildCachedData( BlueAsyncRes* p )
 	// build list of block areas we need to render for overlay effects
 	if( m_mesh )
 	{
-		m_mesh->CollectAreaBlocks( m_overlayMeshAreaBlocks, TRIBATCHTYPE_OPAQUE );
-		m_mesh->CollectAreaBlocks( m_overlayMeshAreaBlocks, TRIBATCHTYPE_TRANSPARENT );
-		m_mesh->CollectAreaBlocks( m_overlayMeshAreaBlocks, TRIBATCHTYPE_DECAL );
+		m_mesh->CollectAreaBlocks( m_overlayMeshAreaBlocks[EveMeshOverlayEffect::TYPE_ALL], TRIBATCHTYPE_OPAQUE );
+		m_mesh->CollectAreaBlocks( m_overlayMeshAreaBlocks[EveMeshOverlayEffect::TYPE_ALL], TRIBATCHTYPE_TRANSPARENT );
+		m_mesh->CollectAreaBlocks( m_overlayMeshAreaBlocks[EveMeshOverlayEffect::TYPE_ALL], TRIBATCHTYPE_DECAL );
+		m_mesh->CollectAreaBlocks( m_overlayMeshAreaBlocks[EveMeshOverlayEffect::TYPE_OPAQUEONLY], TRIBATCHTYPE_OPAQUE );
 		// this list is too long will hold one element for each mesharea at least... Optimize!
-		TriRenderBatchAreaBlock::Optimize( m_overlayMeshAreaBlocks );
+		for( int i = 0; i < EveMeshOverlayEffect::TYPE_COUNT; ++i )
+		{
+			TriRenderBatchAreaBlock::Optimize( m_overlayMeshAreaBlocks[i] );
+		}
 	}
 }
 

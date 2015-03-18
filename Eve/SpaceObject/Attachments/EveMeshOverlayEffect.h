@@ -17,18 +17,22 @@ BLUE_DECLARE_VECTOR( Tr2Effect );
 // SeeAlso:
 //   Tr2SpaceObject2
 // --------------------------------------------------------------------------------
-class EveMeshOverlayEffect:
+BLUE_CLASS( EveMeshOverlayEffect ) :
 	public IInitialize
 {
 public:
 	EXPOSE_TO_BLUE();
 
+	enum OverlayType
+	{
+		TYPE_OPAQUEONLY = 0,
+		TYPE_ALL,
+
+		TYPE_COUNT,
+	};
+
 	EveMeshOverlayEffect(IRoot* lockobj = NULL);
 	~EveMeshOverlayEffect();
-
-	bool m_display;
-	bool m_update;
-	std::string m_name;
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// IInitialize
@@ -37,13 +41,26 @@ public:
 	const PTr2EffectVector& GetEffects( TriBatchType batchType, bool& success ) const;
 	void Update( Be::Time realTime, Be::Time simTime );
 
+	// type is given by a batchtype
+	OverlayType GetType( TriBatchType batchType ) const;
+
+	// do we have transparent areas?
+	bool HasTransparentArea() const;
+
+private:
+	// general data
+	bool m_display;
+	bool m_update;
+	std::string m_name;
+
+	// all the effects per area
 	PTr2EffectVector m_opaqueEffects;
 	PTr2EffectVector m_decalEffects;
 	PTr2EffectVector m_transparentEffects;
 	PTr2EffectVector m_additiveEffects;
 	PTr2EffectVector m_distortionEffects;
 
-private:
+	// animating this overlay effect
 	TriCurveSetPtr m_curveSet;
 
 };

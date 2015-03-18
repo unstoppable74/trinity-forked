@@ -20,6 +20,7 @@
 #include "Tr2PersistentPerObjectData.h"
 #include "Eve/Animation/EveAnimationData.h"
 #include "Tr2ShLightingManager.h"
+#include "Eve/SpaceObject/Attachments/EveMeshOverlayEffect.h"
 
 // forwards
 BLUE_DECLARE( EveSpaceObject2 );
@@ -31,8 +32,6 @@ BLUE_DECLARE( Tr2MeshArea );
 BLUE_DECLARE_VECTOR( Tr2MeshArea );
 BLUE_DECLARE( EveSpaceObjectDecal );
 BLUE_DECLARE_VECTOR( EveSpaceObjectDecal );
-BLUE_DECLARE( EveMeshOverlayEffect );
-BLUE_DECLARE_VECTOR( EveMeshOverlayEffect );
 BLUE_DECLARE( EveLocator2 );
 BLUE_DECLARE_VECTOR( EveLocator2 );
 BLUE_DECLARE( EveSpriteSet );
@@ -352,7 +351,7 @@ protected:
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// overlay effects
-	std::vector<TriRenderBatchAreaBlock> m_overlayMeshAreaBlocks;
+	std::vector<TriRenderBatchAreaBlock> m_overlayMeshAreaBlocks[EveMeshOverlayEffect::TYPE_COUNT];
 	PEveMeshOverlayEffectVector m_overlayEffects;
 
 	/////////////////////////////////////////////////////////////////////////////////////
