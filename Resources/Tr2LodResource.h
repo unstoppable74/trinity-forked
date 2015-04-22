@@ -10,13 +10,16 @@
 
 enum Tr2Lod {
 	TR2_LOD_UNSPECIFIED = -1,
-
-	TR2_LOD_HIGH = 0,
+	
+	TR2_LOD_LOW = 0,
 	TR2_LOD_MEDIUM,
-	TR2_LOD_LOW,
+	TR2_LOD_HIGH,
+	TR2_LOD_ULTRA,
 
 	TR2_LOD_COUNT
 };
+
+extern bool g_lodLevelUltraEnabled;
 
 BLUE_CLASS( Tr2LodResource ) : public IRoot
 {

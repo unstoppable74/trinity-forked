@@ -294,8 +294,8 @@ void EveSOF::FillMeshAreaVector( std::map<std::string, Tr2LodResourcePtr>& lodRe
 			// get's modified by the faction data
 			dna->ModifyTextureResPath( highResPath, it->first.c_str() );
 			// make three paths for the three LODs
-			std::string mediumResPath, lowResPath;
-			if( GenerateLodResourcePaths( mediumResPath, lowResPath, highResPath.c_str(), it->first.c_str() ) )
+			std::string mediumResPath, lowResPath, ultraResPath;
+			if( GenerateLodResourcePaths( mediumResPath, lowResPath, ultraResPath, highResPath.c_str(), it->first.c_str() ) )
 			{
 				// now we need a lod resource object, maybe we already have one?
 				auto finder = lodResCollector.find( highResPath );
@@ -316,6 +316,7 @@ void EveSOF::FillMeshAreaVector( std::map<std::string, Tr2LodResourcePtr>& lodRe
 					lodResource->SetResourcePath( TR2_LOD_LOW, lowResPath.c_str() );
 					lodResource->SetResourcePath( TR2_LOD_MEDIUM, mediumResPath.c_str() );
 					lodResource->SetResourcePath( TR2_LOD_HIGH, highResPath.c_str() );
+					lodResource->SetResourcePath( TR2_LOD_ULTRA, ultraResPath.c_str() );
 					newShader->AddResourceTexture2DLod( it->first, lodResource );
 					// also add it to the mesh for updating
 					lodResCollector[ highResPath ] = lodResource;
@@ -355,13 +356,15 @@ void EveSOF::FillMeshAreaVector( std::map<std::string, Tr2LodResourcePtr>& lodRe
 // Description:
 //   Helper function to build two med and low level texture res paths
 // --------------------------------------------------------------------------------
-bool EveSOF::GenerateLodResourcePaths( std::string& mediumResPath, std::string& lowResPath, const char* resPath, const char* usage ) const
+bool EveSOF::GenerateLodResourcePaths( std::string& mediumResPath, std::string& lowResPath, std::string& ultraResPath, const char* resPath, const char* usage ) const
 {
 	// only dds files will ever have lods
 	if( StringFind( resPath, ".dds" ) )
 	{
 		if( !strcmp( usage, "PgrMap" ) || !strcmp( usage, "PgsMap" ) || !strcmp( usage, "AlbedoMap" ) || !strcmp( usage, "NormalMap" ) || !strcmp( usage, "DiffuseMap" ) || !strcmp( usage, "AoMap" ) || !strcmp( usage, "PmdgMap" ) || !strcmp( usage, "ArMap" )|| !strcmp( usage, "NoMap" )  )
 		{
+			ultraResPath = resPath;
+			StringInsertStubBefore( ultraResPath, ".dds", "_ultraDetail" );
 			mediumResPath = resPath;
 			StringInsertStubBefore( mediumResPath, ".dds", "_mediumDetail" );
 			lowResPath = resPath;

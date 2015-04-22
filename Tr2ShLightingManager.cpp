@@ -303,7 +303,7 @@ void Tr2ShLightingManager::UpdateWithDirectionalLight( const Vector3& direction,
 //   lightingCoefficients - (out) SH lighting coefficients (8 for L2 and 4 for L1)
 // --------------------------------------------------------------------------------------
 template <int Order> 
-void Tr2ShLightingManager::CalculateSecondaryLighting( const Vector3& position, float intensity, Vector4* lightingCoefficients )
+void Tr2ShLightingManager::CalculateSecondaryLighting( const Vector3& position, float intensity, float cutoffRadius, Vector4* lightingCoefficients )
 {
 	XMVECTOR lightDirection = m_sunDirection;
 	XMVECTOR lightColor = m_sunColor;
@@ -319,6 +319,10 @@ void Tr2ShLightingManager::CalculateSecondaryLighting( const Vector3& position, 
 
 	for( size_t j = 0; j < m_sourceCount; ++j, ++source )
 	{
+		if( source->radius < cutoffRadius * source->cutoffMultiplier )
+		{
+			continue;
+		}
 		XMVECTOR sourcePos = XMLoadFloat4A( reinterpret_cast<const XMFLOAT4A*>( &source->position ) );
 		XMVECTOR toSource = XMVectorSubtract( sourcePos, receiver );
 		XMVECTOR distance = XMVector3LengthEst( toSource );
@@ -362,17 +366,17 @@ void Tr2ShLightingManager::CalculateSecondaryLighting( const Vector3& position, 
 //   intensity - Lighting intensity factor
 //   lightingCoefficients - (out) SH lighting coefficients (8 for L2 and 4 for L1)
 // --------------------------------------------------------------------------------------
-void Tr2ShLightingManager::GetLighting( const Vector3& position, float intensity, Vector4* lightingCoefficients )
+void Tr2ShLightingManager::GetLighting( const Vector3& position, float intensity, float cutoffRadius, Vector4* lightingCoefficients )
 {
 	CCP_STATS_INC( shLightingSamples );
 
 	if( m_quality == L2 )
 	{
-		CalculateSecondaryLighting<L2>( position, intensity, lightingCoefficients );
+		CalculateSecondaryLighting<L2>( position, intensity, cutoffRadius, lightingCoefficients );
 	}
 	else
 	{
-		CalculateSecondaryLighting<L1>( position, intensity, lightingCoefficients );
+		CalculateSecondaryLighting<L1>( position, intensity, cutoffRadius, lightingCoefficients );
 	}
 }
 
@@ -397,18 +401,23 @@ void Tr2ShLightingManager::UpdateSourceData()
 	SourceData* data = reinterpret_cast<SourceData*>( m_sourceData.get() );
 	for( auto it = m_sources.begin(); it != m_sources.end(); ++it )
 	{
-		data->position = *it->position;
-		data->radius = *it->radius;
-		data->albedo = *reinterpret_cast<const Vector4*>( it->albedo ) * m_secondaryIntensity;
-		data->emissive = *reinterpret_cast<const Vector4*>( it->emissive ) * m_secondaryIntensity;
-		++data;
-		++m_sourceCount;
+		if( it->radius > 0 )
+		{
+			data->position = *it->position;
+			data->radius = *it->radius;
+			data->albedo = *reinterpret_cast<const Vector4*>( it->albedo ) * m_secondaryIntensity;
+			data->cutoffMultiplier = 1;
+			data->emissive = *reinterpret_cast<const Vector4*>( it->emissive ) * m_secondaryIntensity;
+			++data;
+			++m_sourceCount;
+		}
 	}
 	for( auto it = m_lights.begin(); it != m_lights.end(); ++it )
 	{
 		data->position = ( *it )->m_position;
 		data->radius = ( *it )->m_radius;
-		data->albedo = Vector4( 0, 0, 0, 0 );
+		data->albedo = Vector3( 0, 0, 0 );
+		data->cutoffMultiplier = 0;
 		data->emissive = *reinterpret_cast<const Vector4*>( &( *it )->m_color ) * m_primaryIntensity;
 		++data;
 		++m_sourceCount;

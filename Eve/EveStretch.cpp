@@ -19,7 +19,7 @@ EveStretch::EveStretch( IRoot* lockobj ) :
 	m_sourcePosition( 0.0f, 0.0f, 0.0f ),
 	m_destinationPosition( 0.0f, 0.0f, 0.0f ),
         m_lastCurveUpdateTime( 0 ),
-	m_lodLevel( LOD_LOW )
+	m_lodLevel( TR2_LOD_LOW )
 {
 	m_length.CreateInstance();
 
@@ -121,7 +121,7 @@ void EveStretch::RenderDebugInfo( Tr2RenderContext& renderContext )
 
 void EveStretch::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
 {
-	m_lodLevel = LOD_LOW;
+	m_lodLevel = TR2_LOD_LOW;
 
 	if( !m_display )
 	{

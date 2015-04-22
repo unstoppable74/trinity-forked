@@ -26,6 +26,7 @@
 #include "Eve/Animation/EveAnimationSequencer.h"
 #include "Tr2Effect.h"
 #include "Utils/EveCustomMask.h"
+#include "TriSettingsRegistrar.h"
 
 #include <limits>
 
@@ -37,6 +38,9 @@ static const double UNINITIALIZED_POSITION = std::numeric_limits<double>::infini
 
 CCP_STATS_DECLARE( eveLowDetailObjects, "Trinity/EveSpaceObject2/lowDetailObjects", true, CST_COUNTER_LOW, "Number of objects rendered in low detail per frame.");
 CCP_STATS_DECLARE( eveHighDetailObjects, "Trinity/EveSpaceObject2/highDetailObjects", true, CST_COUNTER_LOW, "Number of objects rendered in high detail per frame.");
+
+float g_secondaryLightingRadiusCutoffFactor = 0.3;
+TRI_REGISTER_SETTING( "secondaryLightingRadiusCutoffFactor", g_secondaryLightingRadiusCutoffFactor );
 
 static BlueStructureDefinition EveDamageLocatorStructureDef[] =
 { 
@@ -82,9 +86,11 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	m_boundingSphereRadius( -1.f ),
 	m_boundingSphereWorld( 0.f, 0.f, 0.f, -1.f ),
 	m_dynamicBoundingSphere( 0.f, 0.f, 0.f, -1.f ),
+	m_albedoColor( 0.f, 0.f, 0.f, 1.f ),
+	m_secondaryLightingSphereRadius( 0.f ),
 	m_modelScale( 1.f ),
-	m_lodLevel( LOD_INVALID ),
-	m_lodLevelWithChildren( LOD_INVALID ),
+	m_lodLevel( TR2_LOD_UNSPECIFIED ),
+	m_lodLevelWithChildren( TR2_LOD_UNSPECIFIED ),
 	m_debugShowBoundingBox( true ),
 	m_debugShowMeshAreaBoundingBox( false ),
 	m_debugRenderDebugInfoForChildren( true ),
@@ -168,6 +174,17 @@ bool EveSpaceObject2::Initialize()
 	}
 
 	return true;
+}
+
+void EveSpaceObject2::RegisterSecondaryLightSource( Tr2ShLightingManager& manager )
+{
+	static const Color s_noEmissiveColor( 0.f, 0.f, 0.f, 0.f );
+	manager.RegisterSecondaryLightSource( &m_worldTransform.GetTranslation(), &m_secondaryLightingSphereRadius, &m_albedoColor, &s_noEmissiveColor );
+}
+
+void EveSpaceObject2::UnregisterSecondaryLightSource( Tr2ShLightingManager& manager )
+{
+	manager.UnregisterSecondaryLightSource( &m_worldTransform.GetTranslation() );
 }
 
 void EveSpaceObject2::UpdateSyncronous( EveUpdateContext& updateContext )
@@ -265,6 +282,23 @@ void EveSpaceObject2::UpdateAsyncronous( EveUpdateContext& updateContext )
 	if( !m_update )
 	{
 		return;
+	}
+
+	Tr2MeshBase* mesh = m_meshLod;
+	if( m_mesh )
+	{
+		mesh = m_mesh;
+	}
+	if( m_secondaryLightingSphereRadius <= 0 && mesh && mesh->GetGeometryResource() && mesh->GetGeometryResource()->IsGood() )
+	{
+		// to approximate space object as a secondary light emitter we take a sphere of the same volume as its bounding box
+		Vector3 aabbMin, aabbMax;
+		if( mesh->GetGeometryResource()->GetBoundingBox( mesh->GetMeshIndex(), aabbMin, aabbMax ) )
+		{
+			Vector3 aabbSize = aabbMax - aabbMin;
+			float boxVolume = aabbSize.x * aabbSize.y * aabbSize.z;
+			m_secondaryLightingSphereRadius = pow( boxVolume / 4.f * 3.f / TRI_PI, 1.0f / 3.0f );
+		}
 	}
 
 	Be::Time time = updateContext.GetTime();
@@ -831,7 +865,7 @@ void EveSpaceObject2::UpdateShLighting( Tr2ShLightingManager& manager )
 		float intensityFadeRadius = ( g_eveSpaceSceneMediumDetailThreshold - g_eveSpaceSceneLowDetailThreshold ) * 0.25f;
 		float intensity = ( m_estimatedPixelDiameterWithChildren - g_eveSpaceSceneLowDetailThreshold ) / intensityFadeRadius;
 		intensity = std::min( std::max( intensity, 0.f ), 1.f );
-		manager.GetLighting( m_worldPosition, intensity, m_shLightingCoefficients );
+		manager.GetLighting( m_worldPosition, intensity, m_boundingSphereRadius * g_secondaryLightingRadiusCutoffFactor, m_shLightingCoefficients );
 	}
 }
 
@@ -964,8 +998,8 @@ void EveSpaceObject2::GetRenderables( const TriFrustum& frustum, std::vector<ITr
 	{
 		return;
 	}
-	m_lodLevel = LOD_LOW;
-	m_lodLevelWithChildren = LOD_LOW;
+	m_lodLevel = TR2_LOD_LOW;
+	m_lodLevelWithChildren = TR2_LOD_LOW;
 
 	if( m_boundingSphereRadius > 0.0f )
 	{
@@ -989,30 +1023,38 @@ void EveSpaceObject2::GetRenderables( const TriFrustum& frustum, std::vector<ITr
 
 	if( m_isVisible )
 	{
-		if( m_estimatedPixelDiameter > g_eveSpaceSceneMediumDetailThreshold )
+		if( g_lodLevelUltraEnabled && m_estimatedPixelDiameter > g_eveSpaceSceneHighDetailThreshold )
 		{
-			m_lodLevel = LOD_HIGH;
+			m_lodLevel = TR2_LOD_ULTRA;
+		}
+		else if( m_estimatedPixelDiameter > g_eveSpaceSceneMediumDetailThreshold )
+		{
+			m_lodLevel = TR2_LOD_HIGH;
 		}
 		else if( m_estimatedPixelDiameter > g_eveSpaceSceneLowDetailThreshold )
 		{
-			m_lodLevel = LOD_MEDIUM;
+			m_lodLevel = TR2_LOD_MEDIUM;
 		}
 		else
 		{
-			m_lodLevel = LOD_LOW;
+			m_lodLevel = TR2_LOD_LOW;
 		}
 
-		if( m_estimatedPixelDiameterWithChildren > g_eveSpaceSceneMediumDetailThreshold )
+		if( g_lodLevelUltraEnabled && m_estimatedPixelDiameterWithChildren > g_eveSpaceSceneHighDetailThreshold )
 		{
-			m_lodLevelWithChildren = LOD_HIGH;
+			m_lodLevelWithChildren = TR2_LOD_ULTRA;
+		}
+		else if( m_estimatedPixelDiameterWithChildren > g_eveSpaceSceneMediumDetailThreshold )
+		{
+			m_lodLevelWithChildren = TR2_LOD_HIGH;
 		}
 		else if( m_estimatedPixelDiameterWithChildren > g_eveSpaceSceneLowDetailThreshold )
 		{
-			m_lodLevelWithChildren = LOD_MEDIUM;
+			m_lodLevelWithChildren = TR2_LOD_MEDIUM;
 		}
 		else
 		{
-			m_lodLevelWithChildren = LOD_LOW;
+			m_lodLevelWithChildren = TR2_LOD_LOW;
 		}
 
 		if( m_allowLodSelection && m_isMeshVisible )
@@ -1581,7 +1623,7 @@ void EveSpaceObject2::SelectMeshLevelOfDetail()
 	else
 	{
 		// still use the original mesh, which then acts as LOD_HIGH
-		m_lodLevel = LOD_HIGH;
+		m_lodLevel = TR2_LOD_HIGH;
 	}
 
 	if( m_mesh )
@@ -1726,7 +1768,7 @@ void EveSpaceObject2::FreezeHighDetailMesh()
 		m_meshLod->SelectLod( TR2_LOD_HIGH );
 
 		m_allowLodSelection = false;
-		m_lodLevel = LOD_HIGH;
+		m_lodLevel = TR2_LOD_HIGH;
 
 		PrepareForAnimation();
 	}
@@ -1763,7 +1805,7 @@ void EveSpaceObject2::PrepareForAnimation()
 // --------------------------------------------------------------------------------
 // Description:
 //   Determines if we render this object's decals or not. Usually we only
-//   render them when highest LOD is shown.
+//   render them when highest LODs are shown.
 // SeeAlso:
 //   EveSpaceObjectDecal
 // --------------------------------------------------------------------------------
@@ -1772,7 +1814,7 @@ bool EveSpaceObject2::DisplayDecals() const
 	// if LOD selection is deactivated, it's always highest so decals are on
 	if( !m_allowLodSelection )
 		return true;
-	return m_lodLevel == LOD_HIGH;
+	return m_lodLevel >= TR2_LOD_HIGH;
 }
 
 // --------------------------------------------------------------------------------

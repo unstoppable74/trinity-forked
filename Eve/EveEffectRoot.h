@@ -83,7 +83,7 @@ protected:
 	bool m_dynamicLODSelection;
 	bool m_playEffect;
 
-	LodLevel m_lodLevel;
+	Tr2Lod m_lodLevel;
 	
 	float GetBoundingSphereRadius() { return m_boundingSphere.w; }
 	float m_estimatedSize;

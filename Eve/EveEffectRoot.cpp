@@ -19,7 +19,7 @@ EveEffectRoot::EveEffectRoot( IRoot* lockobj ) :
 	m_dynamicLODSelection( false ),
 	m_display( true ),
 	m_playEffect( false ),
-	m_lodLevel( LOD_INVALID ),
+	m_lodLevel( TR2_LOD_UNSPECIFIED ),
 	m_startTime( 0 ),
 	m_effectDuration( -1 )
 {
@@ -35,15 +35,15 @@ void EveEffectRoot::AssignLOD()
 {
 	EveTransform* effectObject = nullptr;
 
-	if( m_lodLevel == LOD_HIGH )
+	if( m_lodLevel == TR2_LOD_HIGH )
 	{
 		effectObject = dynamic_cast<EveTransform*>( m_highDetail->GetObject() );
 	}
-	else if( m_lodLevel == LOD_MEDIUM )
+	else if( m_lodLevel == TR2_LOD_MEDIUM )
 	{
 		effectObject = dynamic_cast<EveTransform*>( m_mediumDetail->GetObject() );
 	}
-	else if( m_lodLevel == LOD_LOW )
+	else if( m_lodLevel == TR2_LOD_LOW )
 	{
 		effectObject = dynamic_cast<EveTransform*>( m_lowDetail->GetObject() );
 	}
@@ -203,17 +203,17 @@ void EveEffectRoot::GetRenderables( const TriFrustum& frustum, std::vector<ITr2R
 		GetBoundingSphere( boundingSphere );
 		BoundingSphereTransform( m_lastUpdateMatrix, boundingSphere );
 		
-		m_lodLevel = LOD_LOW;
+		m_lodLevel = TR2_LOD_LOW;
 		if( frustum.IsSphereVisible( &boundingSphere ) )
 		{
 			m_estimatedSize = frustum.GetPixelSizeAccross( &boundingSphere );
 			if( m_estimatedSize >= g_eveSpaceSceneMediumDetailThreshold )
 			{
-				m_lodLevel = LOD_HIGH;
+				m_lodLevel = TR2_LOD_HIGH;
 			}
 			else if( m_estimatedSize >= g_eveSpaceSceneLowDetailThreshold )
 			{
-				m_lodLevel = LOD_MEDIUM;
+				m_lodLevel = TR2_LOD_MEDIUM;
 			}
 		}
 	}
@@ -307,7 +307,7 @@ void EveEffectRoot::Start()
 {
 	m_playEffect = true;
 	m_effectObject = nullptr;
-	m_lodLevel = LOD_INVALID;
+	m_lodLevel = TR2_LOD_UNSPECIFIED;
 }
 
 // --------------------------------------------------------------------------------
@@ -318,7 +318,7 @@ void EveEffectRoot::Stop()
 {
 	m_playEffect = false;
 	m_effectObject = nullptr;
-	m_lodLevel = LOD_INVALID;
+	m_lodLevel = TR2_LOD_UNSPECIFIED;
 	m_startTime = 0;
 
 	if( m_highDetail )

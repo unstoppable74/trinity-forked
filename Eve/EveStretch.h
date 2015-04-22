@@ -44,7 +44,7 @@ public:
 	// IEveTranfrom
 	virtual void Update( EveUpdateContext& updateContext );
 	virtual void UpdateViewDependentData( const Matrix& parentTransform ) {};
-	virtual LodLevel GetLODLevel() const { return m_lodLevel; }
+	virtual Tr2Lod GetLODLevel() const { return m_lodLevel; }
 
 	unsigned int GetCurveSetCount() const { return (unsigned int)m_curveSets.size(); }
 	TriCurveSetPtr GetCurveSet( unsigned int n ) { return m_curveSets[n]; }
@@ -55,7 +55,7 @@ public:
 
 	void UpdateCurves( EveUpdateContext& updateContext );
 private:
-	LodLevel m_lodLevel;
+	Tr2Lod m_lodLevel;
 	Be::Time m_lastCurveUpdateTime;
 
 	std::string m_name;

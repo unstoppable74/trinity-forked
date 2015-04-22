@@ -109,7 +109,8 @@ class EveSpaceObject2 :
 	public ITriTargetable,
 	public IWorldPosition,
 	public ITr2ShLightingReceiver,
-	public INotify
+	public INotify,
+	public ITr2SecondaryLightSource
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -214,6 +215,11 @@ public:
 	virtual void UpdateShLighting( Tr2ShLightingManager& );
 	virtual void ClearShLighting();
 
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2SecondaryLightSource
+	void RegisterSecondaryLightSource( Tr2ShLightingManager& manager );
+	void UnregisterSecondaryLightSource( Tr2ShLightingManager& manager );
+
 	// For stateful GPU particles
 	ITriVectorFunctionPtr GetPositionFunction();
 
@@ -309,8 +315,8 @@ protected:
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// lod level
-	LodLevel m_lodLevel;
-	LodLevel m_lodLevelWithChildren;
+	Tr2Lod m_lodLevel;
+	Tr2Lod m_lodLevelWithChildren;
 
 	TriGeometryResPtr m_geometryResFromMesh;
 
@@ -398,6 +404,9 @@ protected:
 	XMVECTOR* m_transformedDamageLocators;
 	XMVECTOR* m_transformedImpactDirections;
 	bool m_impactDirectionsUpdatedThisFrame;
+
+	Color m_albedoColor;
+	float m_secondaryLightingSphereRadius;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// Shadow related things

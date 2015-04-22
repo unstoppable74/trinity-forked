@@ -83,7 +83,7 @@ public:
 	virtual float GetSortValue();
 	virtual Tr2PerObjectData* GetPerObjectData( ITriRenderBatchAccumulator* accumulator );
 	
-	LodLevel GetLODLevel() const { return LOD_HIGH; }
+	Tr2Lod GetLODLevel() const { return TR2_LOD_HIGH; }
 private:
 	// name
 	std::string m_name;

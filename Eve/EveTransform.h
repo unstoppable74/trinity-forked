@@ -88,7 +88,7 @@ public:
 	// GPU particles
 	PTr2GPUParticleEmitterVector m_particleEmittersGPU;
 	
-	LodLevel GetLODLevel() const;
+	Tr2Lod GetLODLevel() const;
 
 	void PlayCurveSets();
 protected:
@@ -97,7 +97,7 @@ protected:
 	bool m_isVisible;
 	bool m_useLodLevel;
 	bool m_hideOnLowQuality;
-	LodLevel m_lodLevel;
+	Tr2Lod m_lodLevel;
 	
 	float m_visibilityThreshold;
 

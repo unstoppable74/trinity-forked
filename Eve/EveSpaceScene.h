@@ -38,6 +38,7 @@ extern float g_eveSpaceSceneVisibilityThreshold;
 // turret firing effects, or light glows as they may be more noticeable from afar.
 extern float g_eveSpaceSceneLowDetailThreshold;
 extern float g_eveSpaceSceneMediumDetailThreshold;
+extern float g_eveSpaceSceneHighDetailThreshold;
 
 BLUE_DECLARE( EveSpaceSceneLightMgr );
 BLUE_DECLARE( TriFrustum );

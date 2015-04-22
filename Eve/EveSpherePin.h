@@ -78,7 +78,7 @@ public:
 	// IEveTransform
 	virtual void Update( EveUpdateContext& updateContext );
 	virtual void UpdateViewDependentData( const Matrix& parentTransform );
-	LodLevel GetLODLevel() const { return LOD_HIGH; }
+	Tr2Lod GetLODLevel() const { return TR2_LOD_HIGH; }
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// INotify

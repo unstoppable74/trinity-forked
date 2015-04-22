@@ -38,7 +38,7 @@ public:
 	// IEveTransform
 	void Update( EveUpdateContext& updateContext );
 	void UpdateViewDependentData( const Matrix& parentTransform );
-	LodLevel GetLODLevel() const { return LOD_HIGH; }
+	Tr2Lod GetLODLevel() const { return TR2_LOD_HIGH; }
 
 	// No sensible implementation?
 	void GetModelCenterWorldPosition( Vector3 &position, Be::Time t ) {}

@@ -34,7 +34,7 @@ EveTransform::EveTransform( IRoot* lockobj ) :
 	m_lastDeltaTime(0.f),
 	m_lastCurveUpdateDelta( g_eveSpaceSceneLowUpdateRate ),
 	m_useLodLevel( true ),
-	m_lodLevel( LOD_LOW )
+	m_lodLevel( TR2_LOD_LOW )
 {
 }
 
@@ -227,14 +227,14 @@ void EveTransform::RenderDebugInfo( Tr2RenderContext& renderContext )
 	}
 }
 
-LodLevel EveTransform::GetLODLevel() const
+Tr2Lod EveTransform::GetLODLevel() const
 {
 	return m_lodLevel;
 }
 
 void EveTransform::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
 {
-	m_lodLevel = LOD_LOW;
+	m_lodLevel = TR2_LOD_LOW;
 
 	// is this one here enabled?
 	if( m_hideOnLowQuality && Tr2Renderer::IsLowQuality() )
@@ -261,11 +261,11 @@ void EveTransform::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Re
 				float estimatedSize = frustum.GetPixelSizeAccross( &boundingSphere );
 				if( estimatedSize >= g_eveSpaceSceneMediumDetailThreshold )
 				{
-					m_lodLevel = LOD_HIGH;
+					m_lodLevel = TR2_LOD_HIGH;
 				}
 				else if( estimatedSize >= g_eveSpaceSceneLowDetailThreshold )
 				{
-					m_lodLevel = LOD_MEDIUM;
+					m_lodLevel = TR2_LOD_MEDIUM;
 				}
 
 				if( m_meshLod )
@@ -292,7 +292,7 @@ void EveTransform::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Re
 		// Because bounding info is currently unreliable for particle systems
 		// we use LOD high.
 		// This is hopefully a temporary measure. <6. september, 2012, Logi>
-		m_lodLevel = LOD_HIGH;
+		m_lodLevel = TR2_LOD_HIGH;
 	}
 
 	for( IEveTransformVector::const_iterator it = m_children.begin(); it != m_children.end(); ++it )

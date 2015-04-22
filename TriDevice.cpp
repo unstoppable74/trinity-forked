@@ -42,9 +42,7 @@ namespace {
 		NvAPI_Status status = NvAPI_Initialize();
 		if (status != NVAPI_OK)
 		{
-	        NvAPI_ShortString errorMessage;
-			NvAPI_GetErrorMessage( status, errorMessage );
-			CCP_LOGWARN( "Unable to initialize NVAPI: %s", errorMessage );
+			CCP_LOGWARN( "Unable to initialize NVAPI" );
 		}
 #endif
 	}

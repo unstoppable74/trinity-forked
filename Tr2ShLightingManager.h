@@ -46,7 +46,7 @@ public:
 		const Color* emissive );
 	void UnregisterSecondaryLightSource( const Vector3* position );
 
-	void GetLighting( const Vector3& position, float intensity, Vector4* result );
+	void GetLighting( const Vector3& position, float intensity, float cutoffRadius, Vector4* result );
 
 	void UpdateWithDirectionalLight( const Vector3& direction, const Vector3& color );
 
@@ -63,12 +63,13 @@ private:
 	{
 		Vector3 position;
 		float radius;
-		Vector4 albedo;
+		Vector3 albedo;
+		float cutoffMultiplier;
 		Vector4 emissive;
 	};
 
 	void UpdateSourceData();
-	template <int> void CalculateSecondaryLighting( const Vector3& position, float intensity, Vector4* lightingCoefficients );
+	template <int> void CalculateSecondaryLighting( const Vector3& position, float intensity, float cutoffRadius, Vector4* lightingCoefficients );
 
 	// Registered secondary light sources
 	TrackableStdVector<Source> m_sources;

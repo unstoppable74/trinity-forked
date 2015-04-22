@@ -20,6 +20,7 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 		MAP_INTERFACE( IWorldPosition )
 		MAP_INTERFACE( ITr2ShLightingReceiver )
 		MAP_INTERFACE( INotify )
+		MAP_INTERFACE( ITr2SecondaryLightSource )
 
 		MAP_ATTRIBUTE
 		( 
@@ -375,6 +376,22 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 			"positionDelta",
 			m_positionDelta,
 			"Change in global position of the object during the frame",
+			Be::READ
+		)
+
+		MAP_ATTRIBUTE
+		(
+			"albedoColor",
+			m_albedoColor,
+			"Space object overall albedo color. Used for secondary lighting. In linear RGB space.",
+			Be::READWRITE
+		)
+
+		MAP_ATTRIBUTE
+		(
+			"secondaryLightingSphereRadius",
+			m_secondaryLightingSphereRadius,
+			"Sphere radius used to approximate space object for secondary lighting.",
 			Be::READ
 		)
 

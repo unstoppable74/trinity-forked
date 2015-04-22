@@ -55,9 +55,11 @@ TRI_REGISTER_SETTING( "eveSpaceSceneVisibilityThreshold", g_eveSpaceSceneVisibil
 // turret firing effects, or light glows as they may be more noticeable from afar.
 float g_eveSpaceSceneLowDetailThreshold = 100.0f;
 float g_eveSpaceSceneMediumDetailThreshold = 400.0f;
+float g_eveSpaceSceneHighDetailThreshold = 800.0f;
 
 TRI_REGISTER_SETTING( "eveSpaceSceneLowDetailThreshold", g_eveSpaceSceneLowDetailThreshold );
 TRI_REGISTER_SETTING( "eveSpaceSceneMediumDetailThreshold", g_eveSpaceSceneMediumDetailThreshold );
+TRI_REGISTER_SETTING( "eveSpaceSceneHighDetailThreshold", g_eveSpaceSceneHighDetailThreshold );
 
 
 // These variables determine how frequently curve sets are updated for objects with low and medium LODs.
@@ -2080,6 +2082,11 @@ void EveSpaceScene::SetShLightingManager( Tr2ShLightingManager* manager )
 		}
 		for( auto it = m_objects.begin(); it != m_objects.end(); ++it )
 		{
+			ITr2SecondaryLightSourcePtr lightSource = BlueCastPtr( *it );
+			if( lightSource )
+			{
+				lightSource->UnregisterSecondaryLightSource( *m_shLightingManager );
+			}
 			ITr2ShLightingReceiverPtr receiver = BlueCastPtr( *it );
 			if( receiver )
 			{
@@ -2091,6 +2098,14 @@ void EveSpaceScene::SetShLightingManager( Tr2ShLightingManager* manager )
 	if( m_shLightingManager )
 	{
 		for( auto it = m_planets.begin(); it != m_planets.end(); ++it )
+		{
+			ITr2SecondaryLightSourcePtr lightSource = BlueCastPtr( *it );
+			if( lightSource )
+			{
+				lightSource->RegisterSecondaryLightSource( *m_shLightingManager );
+			}
+		}
+		for( auto it = m_objects.begin(); it != m_objects.end(); ++it )
 		{
 			ITr2SecondaryLightSourcePtr lightSource = BlueCastPtr( *it );
 			if( lightSource )

@@ -172,12 +172,6 @@ public:
 	double GetLastShotTime() const { return m_lastShotTime; }
 	float GetShotTimeVariance() const { return EVE_TURRET_RANDOM_DELAY_MAX; }
 
-private:
-	void PopShotMissed();
-	void ResetMissQueue();
-	void UpdateMissPosition(const Matrix *);
-	size_t MissQueueSize() const;
-
 	// turret LOD
 	enum LOD
 	{
@@ -187,6 +181,13 @@ private:
 
 		LOD_DISABLED,
 	};
+
+private:
+	void PopShotMissed();
+	void ResetMissQueue();
+	void UpdateMissPosition(const Matrix *);
+	size_t MissQueueSize() const;
+
 	// turret set states
 	enum State
 	{

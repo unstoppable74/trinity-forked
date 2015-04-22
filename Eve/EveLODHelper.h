@@ -7,21 +7,13 @@
 #ifndef EveLODHelper_h
 #define EveLODHelper_h
 
+#include "Resources/Tr2LodResource.h"
+
 extern float g_eveSpaceSceneLowUpdateRate;
 extern float g_eveSpaceSceneMediumUpdateRate;
 
 
 enum BoundingSphereQuery { EVE_BOUNDS_NORMAL, EVE_BOUNDS_WITH_CHILDREN };
-
-// TODO: Change to use Tr2Lod
-enum LodLevel
-{
-	LOD_INVALID = -1,
-	
-	LOD_HIGH = 0,
-	LOD_MEDIUM,
-	LOD_LOW,
-};
 
 class EveLODHelper
 {
@@ -36,15 +28,15 @@ public:
 	// Return value:
 	//   Returns true if caller should be updated.
 	// --------------------------------------------------------------------------------
-	static inline bool ShouldUpdate( LodLevel lod, float timeSinceUpdate )
+	static inline bool ShouldUpdate( Tr2Lod lod, float timeSinceUpdate )
 	{
 		switch( lod )
 		{
-		case LOD_INVALID:
-		case LOD_LOW:
+		case TR2_LOD_UNSPECIFIED:
+		case TR2_LOD_LOW:
 			return timeSinceUpdate >= g_eveSpaceSceneLowUpdateRate;
 			break;
-		case LOD_MEDIUM:
+		case TR2_LOD_MEDIUM:
 			return timeSinceUpdate >= g_eveSpaceSceneMediumUpdateRate;
 			break;
 		default:
@@ -61,16 +53,16 @@ public:
 	//   lod0 - first LOD to examine
 	//   lod1 - second LOD to examine
 	// Return value:
-	//   Returns the higher(valid) LOD of the two LODs passed in, or LOD_INVALID if
+	//   Returns the higher(valid) LOD of the two LODs passed in, or TR2_LOD_UNSPECIFIED if
 	//   neither LOD is valid.
 	// --------------------------------------------------------------------------------
-	static inline LodLevel MergeLOD( LodLevel lod0, LodLevel lod1 )
+	static inline Tr2Lod MergeLOD( Tr2Lod lod0, Tr2Lod lod1 )
 	{
-		if( lod0 == LOD_INVALID || lod1 == LOD_INVALID )
+		if( lod0 == TR2_LOD_UNSPECIFIED || lod1 == TR2_LOD_UNSPECIFIED )
 		{
-			return ( lod0 == LOD_INVALID ) ? lod1 : lod0;
+			return ( lod0 == TR2_LOD_UNSPECIFIED ) ? lod1 : lod0;
 		}
-		return ( lod0 < lod1 ) ? lod0 : lod1;
+		return ( lod0 > lod1 ) ? lod0 : lod1;
 	}
 };
 

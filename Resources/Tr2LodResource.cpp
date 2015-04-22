@@ -6,6 +6,10 @@
 
 #include "StdAfx.h"
 #include "Tr2LodResource.h"
+#include "TriSettingsRegistrar.h"
+
+bool g_lodLevelUltraEnabled = false;
+TRI_REGISTER_SETTING( "lodLevelUltraEnabled", g_lodLevelUltraEnabled );
 
 Tr2LodResource::Tr2LodResource( IRoot* lockobj ) :
 	m_currentLod( TR2_LOD_UNSPECIFIED )
@@ -50,14 +54,19 @@ IBlueResource* Tr2LodResource::GetResource()
 
 void Tr2LodResource::SelectLod( Tr2Lod lod )
 {
+	if( lod == TR2_LOD_ULTRA && !g_lodLevelUltraEnabled )
+	{
+		lod = TR2_LOD_HIGH;
+	}
+
 	if( lod == m_currentLod )
 	{
 		return;
 	}
-
+	
 	m_currentLod = lod;
-
-	auto& respath = m_resPath[ m_currentLod ];
+	auto& respath = m_resPath[ lod ];
+	
 	BeResMan->GetResource( respath, "", m_requested );
 }
 

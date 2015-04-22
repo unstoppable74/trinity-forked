@@ -11,6 +11,37 @@
 
 BLUE_DEFINE( EveTurretSet );
 
+Be::VarChooser LODChooser[] =
+{
+	{
+		"LOD_INVALID",
+			BeCast( EveTurretSet::LOD_INVALID ),
+			""
+	},
+	{
+		"LOD_EMPTY",
+			BeCast( EveTurretSet::LOD_EMPTY ),
+			""
+	},
+	{
+		"LOD_HIGHEST",
+			BeCast( EveTurretSet::LOD_HIGHEST ),
+			""
+	},
+	{
+		"LOD_DISABLED",
+			BeCast( EveTurretSet::LOD_DISABLED ),
+			""
+	},
+	{ 0 }
+};
+
+BLUE_REGISTER_ENUM_EX( 
+	"EveTurretSetLOD", 
+	EveTurretSet::LOD, 
+	LODChooser, 
+	ENUM_REG_ENUM_OBJECT_ON_MODULE );
+
 const Be::ClassInfo* EveTurretSet::ExposeToBlue()
 {
 	EXPOSURE_BEGIN( EveTurretSet, "" )
