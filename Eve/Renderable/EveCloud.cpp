@@ -152,6 +152,9 @@ void EveCloud::UpdateSyncronous( EveUpdateContext& updateContext )
 
 void EveCloud::UpdateAsyncronous( EveUpdateContext& updateContext )
 {
+	Vector3 min = Vector3( -0.5f, -0.5f, -0.5f );
+	Vector3 max = Vector3( 0.5f, 0.5f, 0.5f );
+	BoundingSphereFromBox( m_boundingSphere, min, max, &m_worldTransform );
 }
 
 void EveCloud::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
