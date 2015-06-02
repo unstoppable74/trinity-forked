@@ -2634,6 +2634,7 @@
     <ClInclude Include="Tr2PushPopDS.h"/>
     <ClInclude Include="Tr2PushPopRT.h"/>
     <ClInclude Include="Tr2PyValueBinding.h"/>
+    <ClInclude Include="Tr2QuadRenderer.h"/>
     <ClInclude Include="Tr2RenderContext.h"/>
     <ClInclude Include="Tr2Renderer.h"/>
     <ClInclude Include="Tr2RenderTarget.h"/>
@@ -3119,6 +3120,8 @@
     <ClCompile Include="Tr2PushPopRT.cpp"/>
     <ClCompile Include="Tr2PyValueBinding.cpp"/>
     <ClCompile Include="Tr2PyValueBinding_Blue.cpp"/>
+    <ClCompile Include="Tr2QuadRenderer.cpp"/>
+    <ClCompile Include="Tr2QuadRenderer_Blue.cpp"/>
     <ClCompile Include="Tr2RenderContext.cpp"/>
     <ClCompile Include="Tr2RenderContext_Blue.cpp"/>
     <ClCompile Include="Tr2Renderer.cpp"/>
