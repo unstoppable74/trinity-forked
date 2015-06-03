@@ -1493,15 +1493,6 @@ void Tr2Renderer::SetShaderModel( TR2SHADERMODEL sm )
 
 		// Reinitialize registered Tr2Effects
 		ReinitializeRegisteredEffects();
-
-
-		while( BeResMan->GetPendingLoads() + BeResMan->GetPendingPrepares() > 0 )
-		{
-			CcpThreadSleep( 10 );
-
-			// This will loop until all resource loads have finished
-			BeResMan->PumpMainThreadQueue();
-		}
 	}
 }
 
