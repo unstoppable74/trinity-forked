@@ -76,6 +76,7 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	PARENTLOCK( m_curveSets ),
 	PARENTLOCK( m_overlayEffects ),
 	PARENTLOCK( m_particleEmittersGPU ),
+	PARENTLOCK( m_effectChildren ),
 	m_display( true ),
 	m_update( true ),
 	m_enableShadow( true ),
@@ -276,6 +277,11 @@ void EveSpaceObject2::UpdateSyncronous( EveUpdateContext& updateContext )
 		(*it)->Update( m_worldTransform );
 	}
 
+	for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt ) 
+	{
+		(*ecIt)->UpdateSyncronous( updateContext, this );
+	}
+
 	Tr2MeshBase* mesh = m_meshLod;
 	if( m_mesh )
 	{
@@ -343,6 +349,11 @@ void EveSpaceObject2::UpdateAsyncronous( EveUpdateContext& updateContext )
 	for( IEveTransformVector::const_iterator it = m_children.begin(); it != m_children.end(); ++it )
 	{
 		(*it)->Update( updateContext );
+	}
+	
+	for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt ) 
+	{
+		(*ecIt)->UpdateAsyncronous( updateContext, this );
 	}
 }
 
@@ -1033,6 +1044,10 @@ void EveSpaceObject2::GetRenderables( const TriFrustum& frustum, std::vector<ITr
 			{
 				IEveTransform* p = *it;
 				p->GetRenderables( frustum, renderables, m_worldTransform );
+			}
+			for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt )
+			{
+				(*ecIt)->GetRenderables( frustum, renderables, m_worldTransform );
 			}
 		}
 
@@ -1759,7 +1774,7 @@ bool EveSpaceObject2::GetLocalBoundingBox( Vector3 &min, Vector3 &max )
 	return true;
 }
 	
-void EveSpaceObject2::GetLocalToWorldTransform( Matrix &transform )
+void EveSpaceObject2::GetLocalToWorldTransform( Matrix &transform ) const
 {
 	transform = m_worldTransform;
 }

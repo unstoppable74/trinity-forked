@@ -228,7 +228,7 @@ void EveEffectRoot::GetRenderables( const TriFrustum& frustum, std::vector<ITr2R
 bool EveEffectRoot::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query ) const
 { 
 	sphere = m_boundingSphere;
-	return true; 
+	return true;
 };
 
 
@@ -293,7 +293,7 @@ bool EveEffectRoot::GetLocalBoundingBox( Vector3 &min, Vector3 &max )
 	return false;
 }
 
-void EveEffectRoot::GetLocalToWorldTransform( Matrix &transform )
+void EveEffectRoot::GetLocalToWorldTransform( Matrix &transform ) const
 {
 	// Get the local to world transform
 	transform = m_lastUpdateMatrix;

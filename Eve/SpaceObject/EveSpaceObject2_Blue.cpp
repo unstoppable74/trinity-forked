@@ -3,6 +3,7 @@
 #include "TriConstants.h"
 #include "Vector3.h"
 
+BLUE_DEFINE_INTERFACE( IEveSpaceObjectChild );
 BLUE_DEFINE_INTERFACE( IEveSpaceObject2 );
 BLUE_DEFINE_INTERFACE( IEveShadowCaster );
 BLUE_DEFINE_INTERFACE( IEveLightReceiver );
@@ -230,7 +231,13 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 		MAP_ATTRIBUTE( "lodLevel", m_lodLevel, "Current lod-level of this spaceobject\n", Be::READ )
 
 		MAP_ATTRIBUTE( "customMask", m_customMask, "\n", Be::READWRITE | Be::PERSIST )
-
+		MAP_ATTRIBUTE
+		(
+			"effectChildren",
+			m_effectChildren,
+			"",
+			Be::READWRITE | Be::PERSIST
+		)
 		MAP_ATTRIBUTE
 		(
 			"children",

@@ -265,7 +265,7 @@ bool EveCloud::GetLocalBoundingBox( Vector3 &min, Vector3 &max )
 	return true; 
 }
 
-void EveCloud::GetLocalToWorldTransform( Matrix &transform ) 
+void EveCloud::GetLocalToWorldTransform( Matrix &transform ) const 
 { 
 	transform = m_worldTransform;
 }

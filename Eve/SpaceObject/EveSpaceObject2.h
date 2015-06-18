@@ -21,6 +21,7 @@
 #include "Eve/Animation/EveAnimationData.h"
 #include "Tr2ShLightingManager.h"
 #include "Eve/SpaceObject/Attachments/EveMeshOverlayEffect.h"
+#include "Eve/SpaceObject/Children/IEveSpaceObjectChild.h"
 
 // consts
 #define EVE_SPACEOBJECT_DIRT_LEVEL_DEFAULT (0.f)
@@ -158,7 +159,7 @@ public:
 	virtual void GetModelCenterWorldPosition( Vector3 &position, Be::Time t );
 	virtual void GetCurrentModelCenterWorldPosition( Vector3 &position );
 	virtual bool GetLocalBoundingBox( Vector3 &min, Vector3 &max );
-	virtual void GetLocalToWorldTransform( Matrix &transform );
+	virtual void GetLocalToWorldTransform( Matrix &transform ) const;
 	virtual void RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer );
 	virtual void AddQuadsToQuadRenderer( Tr2QuadRenderer& quadRenderer );
 
@@ -440,6 +441,10 @@ protected:
 	PIEveTransformVector m_children;
 	bool m_displayChildren;
 	virtual bool DisplayChildren() const;
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// Effect children
+	PIEveSpaceObjectChildVector m_effectChildren;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// custom masks

@@ -28,7 +28,7 @@ BLUE_INTERFACE( IEveSpaceObject2 ) : public IRoot
 	// If possible, return an AABB in local coordinates
 	virtual bool GetLocalBoundingBox( Vector3 &min, Vector3 &max ) = 0;
 	// Get the local to world transform
-	virtual void GetLocalToWorldTransform( Matrix &transform ) = 0;
+	virtual void GetLocalToWorldTransform( Matrix &transform ) const = 0;
 
 	// Registers an object and its attachments with the quad renderer
 	virtual void RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer ) {}

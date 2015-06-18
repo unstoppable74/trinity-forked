@@ -56,7 +56,7 @@ public:
 	virtual void GetModelCenterWorldPosition( Vector3 &position, Be::Time t );
 	virtual void GetCurrentModelCenterWorldPosition( Vector3 &position );
 	virtual bool GetLocalBoundingBox( Vector3 &min, Vector3 &max ) { return false; }
-	virtual void GetLocalToWorldTransform( Matrix &transform ) { D3DXMatrixIdentity( &transform ); }
+	virtual void GetLocalToWorldTransform( Matrix &transform ) const { D3DXMatrixIdentity( &transform ); }
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2Renderable - mostly implemented by Tr2Transform except for these

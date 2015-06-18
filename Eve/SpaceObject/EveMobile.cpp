@@ -212,7 +212,7 @@ void EveMobile::UpdateViewDistanceInfo( const TriFrustum& frustum, ViewDistanceI
 	{
 		return;
 	}
-
+	
 	for( auto it = m_turretSets.begin(); it != m_turretSets.end(); it++ )
 	{
 		(*it)->UpdateViewDistanceInfo( frustum, viewDistance );

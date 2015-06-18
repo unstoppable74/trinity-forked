@@ -42,7 +42,7 @@ public:
 	void GetModelCenterWorldPosition( Vector3 &position, Be::Time t ) {}
 	void GetCurrentModelCenterWorldPosition( Vector3 &position ) {}
 	bool GetLocalBoundingBox( Vector3 &min, Vector3 &max ) { return false; }
-	void GetLocalToWorldTransform( Matrix &transform ) { D3DXMatrixIdentity( &transform ); }
+	void GetLocalToWorldTransform( Matrix &transform ) const { D3DXMatrixIdentity( &transform ); }
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// per-object data

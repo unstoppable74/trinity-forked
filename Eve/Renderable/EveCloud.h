@@ -55,7 +55,7 @@ public:
 	void GetModelCenterWorldPosition( Vector3 &position, Be::Time t );
 	void GetCurrentModelCenterWorldPosition( Vector3 &position );
 	bool GetLocalBoundingBox( Vector3 &min, Vector3 &max );
-	void GetLocalToWorldTransform( Matrix &transform );
+	void GetLocalToWorldTransform( Matrix &transform ) const;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2Renderable

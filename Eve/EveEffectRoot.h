@@ -44,7 +44,7 @@ public:
 	// If possible, return an AABB in local coordinates
 	bool GetLocalBoundingBox( Vector3 &min, Vector3 &max );
 	// Get the local to world transform
-	void GetLocalToWorldTransform( Matrix &transform );
+	void GetLocalToWorldTransform( Matrix &transform ) const;
 
 	// Functions for starting and stopping the effect.
 	void Start();
