@@ -945,14 +945,14 @@ void Tr2GPUParticlePool::Render( Tr2RenderContext &renderContext )
 	PclPerFrameVS perFrameVS;
 
 	perFrameVS.view = Tr2Renderer::GetViewTransform();
-    perFrameVS.proj = XMMatrixTranspose( Tr2Renderer::GetProjectionTransform() );
+    perFrameVS.proj = XMMatrixTranspose( Tr2Renderer::GetReversedDepthProjectionTransform() );
 	XMVECTOR det;
 	perFrameVS.viewInverseTranspose = XMMatrixTranspose( XMMatrixInverse( &det, perFrameVS.view ) );
 
     perFrameVS.viewProj = XMMatrixTranspose(
         XMMatrixMultiply(
         Tr2Renderer::GetViewTransform(),
-        Tr2Renderer::GetProjectionTransform() ) );
+        Tr2Renderer::GetReversedDepthProjectionTransform() ) );
 
 	
 #if (TRINITY_PLATFORM == TRINITY_DIRECTX9)
