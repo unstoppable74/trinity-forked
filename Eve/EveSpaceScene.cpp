@@ -605,8 +605,11 @@ void EveSpaceScene::PrepareShadowMap(
 		SHADER_TYPE_EXISTS( DOMAIN_SHADER)		;
 	FillAndSetConstants( m_shadowPerFrameVSBuffer, &data, sizeof( data ), perFrameVsMask, Tr2Renderer::GetPerFrameVSStartRegister(), renderContext );
 
-
-	renderContext.RenderBatches( m_shadowBatches );
+	{
+		renderContext.m_esm.SetInvertedDepthTest( false );
+		ON_BLOCK_EXIT( [&] { renderContext.m_esm.SetInvertedDepthTest( true ); } );
+		renderContext.RenderBatches( m_shadowBatches );
+	}
 	m_shadowMap->EndShadowRendering();
 
 	// column_major for shaders
