@@ -940,6 +940,10 @@ void Tr2Effect::MapPassResources( const Tr2EffectResourceMap& resources, Tr2Effe
 				param.m_sourceValue = v;
 			}
 		}
+		else if( ss.isAutoregister )
+		{
+			param.m_sourceValue = GetVariableStore().GetVariable( name );
+		}
 		
 		if( param.m_sourceValue )
 		{
