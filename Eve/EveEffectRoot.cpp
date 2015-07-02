@@ -4,6 +4,8 @@
 #include "Utilities/BoundingSphere.h"
 #include "Utilities/ViewDistanceInfo.h"
 #include "TriFrustum.h"
+#include "Tr2PointLight.h"
+#include "Tr2LightManager.h"
 #include "EveUpdateContext.h"
 extern float g_eveSpaceObjectResourceUnloadingTimeThreshold;
 extern float g_eveSpaceSceneMediumDetailThreshold;
@@ -11,6 +13,7 @@ extern float g_eveSpaceSceneLowDetailThreshold;
 
 EveEffectRoot::EveEffectRoot( IRoot* lockobj ) :
 	PARENTLOCK( m_observers ),
+	PARENTLOCK( m_lights ),
 	m_boundingSphere( 0, 0, 0, 0 ),
 	m_scaling( 1.0f, 1.0f, 1.0f ),
 	m_rotation( 0.0f, 0.0f, 0.0f, 1.0f ),
@@ -332,5 +335,17 @@ void EveEffectRoot::Stop()
 	if( m_lowDetail )
 	{
 		m_lowDetail->ClearObject();
+	}
+}
+
+void EveEffectRoot::GetLights( Tr2LightManager& lightManager ) const
+{
+	XMMATRIX worldTransform = m_worldTransform;
+	for( auto it = std::begin( m_lights ); it != std::end( m_lights ); ++it )
+	{
+		lightManager.AddPointLight( 
+			Vector3( XMVector3TransformCoord( (* it )->m_position, worldTransform ) ), 
+			( *it )->m_radius, 
+			( *it )->m_color );
 	}
 }

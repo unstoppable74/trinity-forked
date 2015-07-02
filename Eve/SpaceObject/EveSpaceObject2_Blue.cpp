@@ -408,6 +408,8 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 			GetModelWorldPosition,
 			"The spaceobject's model world position"
 		)
+
+		MAP_ATTRIBUTE( "lights", m_lights, "List of dynamic lights", Be::READ | Be::PERSIST );
 		
 		
     EXPOSURE_END()

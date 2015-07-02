@@ -9,6 +9,7 @@ class TriFrustum;
 class Tr2RenderContext;
 class EveUpdateContext;
 class Tr2QuadRenderer;
+class Tr2LightManager;
 
 BLUE_INTERFACE( IEveSpaceObject2 ) : public IRoot
 {
@@ -34,6 +35,8 @@ BLUE_INTERFACE( IEveSpaceObject2 ) : public IRoot
 	virtual void RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer ) {}
 	// Adds quads from space object and its attachments to the quad renderer. ATTENTION: this function is called in-parallel
 	virtual void AddQuadsToQuadRenderer( Tr2QuadRenderer& quadRenderer ) {}
+
+	virtual void GetLights( Tr2LightManager& lightManager ) const {}
 };
 
 BLUE_DECLARE_IVECTOR( IEveSpaceObject2 );

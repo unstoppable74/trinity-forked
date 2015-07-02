@@ -27,6 +27,7 @@
 #include "Tr2Effect.h"
 #include "Utils/EveCustomMask.h"
 #include "TriSettingsRegistrar.h"
+#include "Tr2PointLight.h"
 
 #include <limits>
 
@@ -77,6 +78,7 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	PARENTLOCK( m_overlayEffects ),
 	PARENTLOCK( m_particleEmittersGPU ),
 	PARENTLOCK( m_effectChildren ),
+	PARENTLOCK( m_lights ),
 	m_display( true ),
 	m_update( true ),
 	m_enableShadow( true ),
@@ -2156,3 +2158,16 @@ void EveSpaceObject2::SetMeshLod( Tr2MeshLod* mesh )
 	m_meshLod = mesh;
 	m_mesh.Unlock();
 }
+
+void EveSpaceObject2::GetLights( Tr2LightManager& lightManager ) const
+{
+	XMMATRIX worldTransform = m_worldTransform;
+	for( auto it = std::begin( m_lights ); it != std::end( m_lights ); ++it )
+	{
+		lightManager.AddPointLight( 
+			Vector3( XMVector3TransformCoord( (* it )->m_position, worldTransform ) ), 
+			( *it )->m_radius, 
+			( *it )->m_color );
+	}
+}
+

@@ -18,6 +18,7 @@
 #include "EveUpdateContext.h"
 #include "Tr2GPUParticlePool.h"
 #include "Tr2QuadRenderer.h"
+#include "Tr2LightManager.h"
 
 class TriProjection;
 class TriView;
@@ -532,6 +533,7 @@ private:
 	void TAAOffset();
 
 	Tr2QuadRendererPtr m_quadRenderer;
+	std::unique_ptr<Tr2LightManager, TrackableDelete<Tr2LightManager>> m_lightManager;
 };
 
 TYPEDEF_BLUECLASS( EveSpaceScene );

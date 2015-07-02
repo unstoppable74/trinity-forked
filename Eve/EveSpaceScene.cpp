@@ -37,6 +37,8 @@ class TriPoolAllocator;
 
 CCP_STATS_DECLARE( shadowsRendered, "Trinity/EveSpaceScene/shadowsRendered", true, CST_COUNTER_LOW, "How many times are shadows rendered per frame?" );
 CCP_STATS_DECLARE( shLightingUpdateTime, "Trinity/EveSpaceScene/shLightingUpdateTime", true, CST_TIME, "Time took to update SH lighting for EveSpaceScene" );
+CCP_STATS_DECLARE( gatherDynamicLights, "Trinity/EveSpaceScene/gatherDynamicLights", true, CST_TIME, "Time took to gather dynamic lights for EveSpaceScene" );
+CCP_STATS_DECLARE( updateDynamicLightLists, "Trinity/EveSpaceScene/updateDynamicLights", true, CST_TIME, "Time took to gather dynamic lights for EveSpaceScene" );
 
 bool g_eveIsSpaceObjectResourceUnloadingEnabled = true;
 TRI_REGISTER_SETTING( "eveIsSpaceObjectResourceUnloadingEnabled", g_eveIsSpaceObjectResourceUnloadingEnabled );
@@ -86,6 +88,9 @@ extern bool s_gpuParticlesRender;
 TRI_REGISTER_SETTING( "gpuParticleRender", s_gpuParticlesRender );
 TRI_REGISTER_SETTING( "gpuParticleUpdateRate", s_gpuParticleUpdateRate );
 TRI_REGISTER_SETTING( "gpuParticlesEnabled", s_gpuParticlesEnabled );
+
+bool g_eveSpaceSceneDynamicLighting = false;
+TRI_REGISTER_SETTING( "eveSpaceSceneDynamicLighting", g_eveSpaceSceneDynamicLighting );
 
 namespace
 {
@@ -164,7 +169,8 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	m_planetCameraScale( 1e6 ),
 	m_taaPixelOffsetScale( 0.5f ),
 	m_taaSamplingIndex( 0 ),
-	m_taaPattern( TAA_NONE )
+	m_taaPattern( TAA_NONE ),
+	m_lightManager( nullptr )
 {
 	TriPoolAllocator* allocator = Tr2Renderer::GetPoolAllocator();
 	m_primaryBatches[TRIBATCHTYPE_OPAQUE] = CCP_NEW( "EveSpaceScene/m_batches" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
@@ -1207,6 +1213,32 @@ void EveSpaceScene::BeginRender( Tr2RenderContext& renderContext )
 	UpdatePostProcessPSData();
 	UpdateVariableStore();
 
+	if( g_eveSpaceSceneDynamicLighting )
+	{
+		if( !m_lightManager )
+		{
+			m_lightManager.reset( CCP_NEW( "EveSpaceScene::m_lightManager" ) Tr2LightManager( "res:/graphics/effect/managed/space/system/computelightlists.fx" ) );
+		}
+
+		CCP_STATS_SCOPED_TIME( gatherDynamicLights );
+
+		m_lightManager->Clear();
+		m_lightManager->SetFrustum( frustum );
+
+		Tr2ParallelFor( Tr2BlockedRange<size_t>( 0, m_objects.size(), 20 ), [&] ( Tr2BlockedRange<size_t> range ) 
+		{
+			for( auto i = range.begin(); i != range.end(); ++i )
+			{
+				m_objects[i]->GetLights( *m_lightManager );
+			}
+		} );
+	}
+	else
+	{
+		m_lightManager.reset();
+	}
+
+
 	PrepareLighting();
 
 	renderContext.m_esm.BeginManagedRendering();
@@ -1665,6 +1697,12 @@ void EveSpaceScene::RenderMainPass( Tr2RenderContext& renderContext )
 		PopulatePerFramePSData( m_perFramePS );
 		PopulatePerFrameVSData( m_perFrameVS );
 		ApplyPerFrameData( renderContext );
+	}
+
+	if( m_lightManager )
+	{
+		CCP_STATS_SCOPED_TIME( updateDynamicLightLists );
+		m_lightManager->UpdateLists( renderContext );
 	}
 	
 	// Draw the planets to the z-buffer to occlude any stations etc.

@@ -61,6 +61,9 @@ BLUE_DECLARE( Tr2BindingVector3 );
 
 BLUE_DECLARE( EveAnimationSequencer );
 
+BLUE_DECLARE( Tr2PointLight );
+BLUE_DECLARE_VECTOR( Tr2PointLight );
+
 struct granny_skeleton;
 
 class TriFrustum;
@@ -162,6 +165,7 @@ public:
 	virtual void GetLocalToWorldTransform( Matrix &transform ) const;
 	virtual void RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer );
 	virtual void AddQuadsToQuadRenderer( Tr2QuadRenderer& quadRenderer );
+	virtual void GetLights( Tr2LightManager& lightManager ) const;
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// IEveShadowCaster
@@ -401,6 +405,10 @@ protected:
 	// efficient per-frame calculations of transformed damage locator positions.
 
 	PEveDamageLocatorStructureList m_persistedDamageLocators;
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// Dynamic lighting
+	PTr2PointLightVector m_lights;
 
 	unsigned m_allocatedDamageLocatorCount;
 	unsigned m_persistedImpactDirectionCount;

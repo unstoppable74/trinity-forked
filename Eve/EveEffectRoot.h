@@ -9,6 +9,9 @@
 #include "EveLODHelper.h"
 #include "IEveSpaceObject2.h"
 
+BLUE_DECLARE( Tr2PointLight );
+BLUE_DECLARE_VECTOR( Tr2PointLight );
+
 BLUE_DECLARE( EveEffectRoot );
 
 class EveEffectRoot:
@@ -34,6 +37,7 @@ public:
 	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform );
 	bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query=EVE_BOUNDS_NORMAL ) const;
 	void UpdateViewDistanceInfo( const TriFrustum& frustum, ViewDistanceInfo& viewDistance ) const;
+	virtual void GetLights( Tr2LightManager& lightManager ) const;
 
 	// This version of the function should perform an update on the model / ball position
 	void GetModelCenterWorldPosition( Vector3 &position, Be::Time t );
@@ -78,6 +82,7 @@ protected:
 	IBlueObjectProxyPtr m_lowDetail;
 	
 	EveTransformPtr m_effectObject;
+	PTr2PointLightVector m_lights;
 
 	bool m_display;
 	bool m_dynamicLODSelection;

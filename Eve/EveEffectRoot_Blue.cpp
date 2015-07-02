@@ -128,5 +128,7 @@ const Be::ClassInfo* EveEffectRoot::ExposeToBlue()
 			Be::READWRITE
 		)
 
+		MAP_ATTRIBUTE( "lights", m_lights, "List of dynamic lights", Be::READ | Be::PERSIST );
+
     EXPOSURE_END();
 }
