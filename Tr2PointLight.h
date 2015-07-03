@@ -18,6 +18,7 @@ public:
 	Vector3 m_position;
 	float m_radius;
 	Color m_color;
+	std::string m_name;
 };
 
 TYPEDEF_BLUECLASS( Tr2PointLight );
