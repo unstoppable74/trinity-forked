@@ -39,6 +39,16 @@ Tr2QuadRenderer::Tr2QuadRenderer( IRoot* )
 {
 }
 
+Tr2QuadRenderer* Tr2QuadRenderer::Instance()
+{
+	static Tr2QuadRendererPtr instance;
+	if( !instance )
+	{
+		instance.CreateInstance();
+	}
+	return instance;
+}
+
 // --------------------------------------------------------------------------------------
 // Description:
 //   Registers an effect with the renderer. After the effect is registered it can be

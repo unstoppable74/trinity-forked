@@ -58,6 +58,12 @@ bool ExtractAnnotationValue( const Tr2EffectParameterAnnotation& annotation,
 	return false;
 }
 
+Tr2LightManager*& Singleton()
+{
+	static Tr2LightManager* manager = nullptr;
+	return manager;
+}
+
 }
 
 Tr2LightManager::Tr2LightManager( const char* effectPath )
@@ -82,6 +88,28 @@ Tr2LightManager::~Tr2LightManager()
 
 	m_lightBufferVariable.Register( "LightBuffer", empty );
 	m_indexBufferVariable.Register( "LightIndexBuffer", empty );
+}
+
+Tr2LightManager* Tr2LightManager::GetOrCreateInstance( const char* effectPath )
+{
+	auto& singleton = Singleton();
+	if( !singleton )
+	{
+		singleton = CCP_NEW( "Tr2LightManager::Singleton" ) Tr2LightManager( effectPath );
+	}
+	return singleton;
+}
+
+Tr2LightManager* Tr2LightManager::GetInstance()
+{
+	return Singleton();
+}
+
+void Tr2LightManager::DeleteInstance()
+{
+	auto& singleton = Singleton();
+	CCP_DELETE singleton;
+	singleton = nullptr;
 }
 
 void Tr2LightManager::Clear()

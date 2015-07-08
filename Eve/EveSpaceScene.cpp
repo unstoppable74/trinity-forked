@@ -169,8 +169,7 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	m_planetCameraScale( 1e6 ),
 	m_taaPixelOffsetScale( 0.5f ),
 	m_taaSamplingIndex( 0 ),
-	m_taaPattern( TAA_NONE ),
-	m_lightManager( nullptr )
+	m_taaPattern( TAA_NONE )
 {
 	TriPoolAllocator* allocator = Tr2Renderer::GetPoolAllocator();
 	m_primaryBatches[TRIBATCHTYPE_OPAQUE] = CCP_NEW( "EveSpaceScene/m_batches" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
@@ -235,8 +234,6 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	m_taaSamplingPatterns[6] = Vector2( -.67f, -.1f );
 	m_taaSamplingPatterns[7] = Vector2( .1f, .67f );
 	m_taaSamplingPatterns[8] = Vector2( .67f, -.67f );
-
-	m_quadRenderer.CreateInstance();
 }
 
 EveSpaceScene::~EveSpaceScene()
@@ -1215,27 +1212,24 @@ void EveSpaceScene::BeginRender( Tr2RenderContext& renderContext )
 
 	if( g_eveSpaceSceneDynamicLighting )
 	{
-		if( !m_lightManager )
-		{
-			m_lightManager.reset( CCP_NEW( "EveSpaceScene::m_lightManager" ) Tr2LightManager( "res:/graphics/effect/managed/space/system/computelightlists.fx" ) );
-		}
+		auto lightManager = Tr2LightManager::GetOrCreateInstance( "res:/graphics/effect/managed/space/system/computelightlists.fx" );
 
 		CCP_STATS_SCOPED_TIME( gatherDynamicLights );
 
-		m_lightManager->Clear();
-		m_lightManager->SetFrustum( frustum );
+		lightManager->Clear();
+		lightManager->SetFrustum( frustum );
 
 		Tr2ParallelFor( Tr2BlockedRange<size_t>( 0, m_objects.size(), 20 ), [&] ( Tr2BlockedRange<size_t> range ) 
 		{
 			for( auto i = range.begin(); i != range.end(); ++i )
 			{
-				m_objects[i]->GetLights( *m_lightManager );
+				m_objects[i]->GetLights( *lightManager );
 			}
 		} );
 	}
 	else
 	{
-		m_lightManager.reset();
+		Tr2LightManager::DeleteInstance();
 	}
 
 
@@ -1368,7 +1362,7 @@ void EveSpaceScene::GatherBatches( Tr2RenderContext& renderContext )
 	}
 
 	UpdateQuadRenderer( objectsReceivingShadow, objectsNotReceivingShadow, renderContext );
-	m_quadRenderer->GetBatches( m_primaryBatches[TRIBATCHTYPE_ADDITIVE] );
+	Tr2QuadRenderer::Instance()->GetBatches( m_primaryBatches[TRIBATCHTYPE_ADDITIVE] );
 
 	GetAllBatchesFromRenderables( renderables, transparentObjects, m_primaryBatches );
 	GetTransparentBatchesFromRenderables( shadowRenderables, transparentObjects, m_primaryBatches );
@@ -1447,7 +1441,7 @@ void EveSpaceScene::UpdateQuadRenderer(
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
-	auto& quadRenderer = *m_quadRenderer;
+	auto& quadRenderer = *Tr2QuadRenderer::Instance();
 
 	Tr2ParallelFor( Tr2BlockedRange<size_t>( 0, objectsReceivingShadow.size(), 20 ), [&] ( Tr2BlockedRange<size_t> range ) 
 	{
@@ -1465,6 +1459,15 @@ void EveSpaceScene::UpdateQuadRenderer(
 		}
 	} );
 	quadRenderer.BeginRendering( renderContext );
+}
+
+// --------------------------------------------------------------------------------------
+// Description:
+//   Returns shared quad renderer pointer. Mostly for blue exposure.
+// --------------------------------------------------------------------------------------
+Tr2QuadRenderer* EveSpaceScene::GetQuadRenderer() const
+{
+	return Tr2QuadRenderer::Instance();
 }
 
 // --------------------------------------------------------------------------------------
@@ -1699,10 +1702,10 @@ void EveSpaceScene::RenderMainPass( Tr2RenderContext& renderContext )
 		ApplyPerFrameData( renderContext );
 	}
 
-	if( m_lightManager )
+	if( auto lightManager = Tr2LightManager::GetInstance() )
 	{
 		CCP_STATS_SCOPED_TIME( updateDynamicLightLists );
-		m_lightManager->UpdateLists( renderContext );
+		lightManager->UpdateLists( renderContext );
 	}
 	
 	// Draw the planets to the z-buffer to occlude any stations etc.
@@ -1776,7 +1779,7 @@ void EveSpaceScene::EndRender( Tr2RenderContext& renderContext )
 		return;
 	}
 
-	m_quadRenderer->DoneRendering( renderContext );
+	Tr2QuadRenderer::Instance()->DoneRendering( renderContext );
 
 	renderContext.m_esm.BeginManagedRendering();
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
@@ -2286,7 +2289,7 @@ void EveSpaceScene::OnListModified(
 			IEveSpaceObject2Ptr spaceObject = BlueCastPtr( value );
 			if( spaceObject )
 			{
-				spaceObject->RegisterWithQuadRenderer( *m_quadRenderer );
+				spaceObject->RegisterWithQuadRenderer( *Tr2QuadRenderer::Instance() );
 			}
 		}
 		break;

@@ -593,11 +593,10 @@ const Be::ClassInfo* EveSpaceScene::ExposeToBlue()
 			"\n 4 - 4x pattern",
 			Be::READWRITE )
 			
-		MAP_ATTRIBUTE(
+		MAP_PROPERTY_READONLY(
 			"quadRenderer",
-			m_quadRenderer,
-			"Quad renderer used for batch-rendering of space object attachments",
-			Be::READ )
+			GetQuadRenderer,
+			"Quad renderer used for batch-rendering of space object attachments" )
 
     EXPOSURE_END()
 }

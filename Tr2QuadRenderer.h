@@ -39,6 +39,8 @@ public:
 
 	uint32_t GetInstanceBufferSize() const;
 	uint32_t GetInstanceDataSize() const;
+
+	static Tr2QuadRenderer* Instance();
 private:
 	struct PerThreadData
 	{

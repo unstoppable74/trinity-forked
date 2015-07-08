@@ -517,6 +517,8 @@ private:
 		const std::vector<IEveSpaceObject2*>& objectsNotReceivingShadow, 
 		Tr2RenderContext& renderContext );
 
+	Tr2QuadRenderer* GetQuadRenderer() const;
+
 	bool m_dynamicClipPlanes;
 	float m_nearClip;
 	float m_farClip;
@@ -531,9 +533,6 @@ private:
 
 	float m_taaPixelOffsetScale;
 	void TAAOffset();
-
-	Tr2QuadRendererPtr m_quadRenderer;
-	std::unique_ptr<Tr2LightManager, TrackableDelete<Tr2LightManager>> m_lightManager;
 };
 
 TYPEDEF_BLUECLASS( EveSpaceScene );

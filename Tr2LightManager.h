@@ -67,6 +67,10 @@ public:
 	ALResult UpdateLists( Tr2RenderContext& renderContext );
 
 	virtual void ReleaseResources( TriStorage s );
+
+	static Tr2LightManager* GetOrCreateInstance( const char* effectPath );
+	static Tr2LightManager* GetInstance();
+	static void DeleteInstance();
 private:
 	struct PerLightData
 	{
