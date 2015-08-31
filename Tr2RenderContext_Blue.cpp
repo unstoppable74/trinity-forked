@@ -318,45 +318,6 @@ BLUE_DEFINE( Tr2RenderContext );
 BLUE_DEFINE( Tr2PrimaryRenderContext );
 #endif
 
-extern float alFuzzValue	  [OBJECT_TYPE_COUNT];
-extern float alFuzzLockValue[OBJECT_TYPE_COUNT];
-
-#define REGISTER(x)			static TriSettingsRegistrar s_fuzz_ ## x ## Registration( "fuzz_" # x, &alFuzzValue[ OT_ ## x ] );
-#define REGISTER_LOCK(x)	static TriSettingsRegistrar s_fuzzLock_ ## x ## Registration( "fuzz_lock_" # x, &alFuzzLockValue[ OT_ ## x ] );
-
-REGISTER( CONSTANT_BUFFER	)
-REGISTER( DEPTH_STENCIL		)
-REGISTER( INDEX_BUFFER		)
-REGISTER( RENDER_CONTEXT	)
-REGISTER( RENDER_TARGET		)
-REGISTER( SHADER			)
-REGISTER( SAMPLER_STATE		)
-REGISTER( TEXTURE			)
-REGISTER( VERTEX_BUFFER		)
-REGISTER( VERTEX_LAYOUT		)
-
-REGISTER_LOCK( CONSTANT_BUFFER	)
-REGISTER_LOCK( DEPTH_STENCIL	)
-REGISTER_LOCK( INDEX_BUFFER		)
-REGISTER_LOCK( RENDER_CONTEXT	)
-REGISTER_LOCK( RENDER_TARGET	)
-REGISTER_LOCK( SHADER			)
-REGISTER_LOCK( SAMPLER_STATE	)
-REGISTER_LOCK( TEXTURE			)
-REGISTER_LOCK( VERTEX_BUFFER	)
-REGISTER_LOCK( VERTEX_LAYOUT	)
-
-#undef REGISTER
-#undef REGISTER_LOCK
-
-
-extern bool g_trinityCaptureRecord;
-TRI_REGISTER_SETTING( "trinityCaptureRecord", g_trinityCaptureRecord );
-extern bool g_trinityCapturePlay;
-TRI_REGISTER_SETTING( "trinityCapturePlay", g_trinityCapturePlay );
-extern int g_trinityCaptureDebugViewRt;
-TRI_REGISTER_SETTING( "trinityCaptureDebugViewRt", g_trinityCaptureDebugViewRt );
-
 extern uint32_t g_forceAnisotropy;
 TRI_REGISTER_SETTING( "forceAnisotropy", g_forceAnisotropy );
 
@@ -464,33 +425,4 @@ MAP_FUNCTION(
 	"Returns a per-AL-type dictionary of lists of live AL objects. The function\n"
 	"is expensive and is not supposed to be used every frame." );
 
-#if TRINITY_AL_CAPTURE_ENABLED
-
-static PyObject* PyCaptureSave( PyObject* /*module*/, PyObject* args )
-{
-	const char* folder = nullptr;
-	if( PyTuple_GET_SIZE(args) == 1 )
-	{
-		PyObject* o = PyTuple_GetItem( args, 0 );
-		if( PyString_Check( o ) )
-		{
-			folder = PyString_AsString( o );			
-		}
-	}	
-
-	if( !folder )
-	{
-		folder = "c:/temp/capture";
-	}
-
-	s_renderCapture.Save( folder );
-
-	Py_RETURN_NONE;
-}
-
-MAP_FUNCTION(	"CaptureSave", 
-				PyCaptureSave, 
-				"CaptureSave( folderPath )\n"
-				"Save a captured frame to path." );
-#endif
 #endif
