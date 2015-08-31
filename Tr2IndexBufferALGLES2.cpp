@@ -48,8 +48,6 @@ ALResult Tr2IndexBufferAL::Create(
 	const void* initialData, 
 	Tr2RenderContextAL & renderContext )
 {
-	AL_FUZZ( OT_INDEX_BUFFER );
-
 	if( !ValidateUsage( usage ) )
 	{
 		CCP_AL_LOGERR( "Invalid combination of USAGE flags passed to Tr2IndexBufferAL Create function" );
@@ -98,8 +96,6 @@ ALResult Tr2IndexBufferAL::Lock(
 	LockType lockType, 
 	Tr2RenderContextAL & renderContext )
 {
-	AL_FUZZ_LOCK( OT_INDEX_BUFFER );
-
 	if( !m_is16Bit )
 	{
 		data = nullptr;
@@ -115,8 +111,6 @@ ALResult Tr2IndexBufferAL::Lock(
 	LockType lockType, 
 	Tr2RenderContextAL & renderContext )
 {
-	AL_FUZZ_LOCK( OT_INDEX_BUFFER );
-
 	if( m_is16Bit )
 	{
 		data = nullptr;
@@ -132,8 +126,6 @@ ALResult Tr2IndexBufferAL::Lock(
 	LockType lockType, 
 	Tr2RenderContextAL & renderContext )
 {
-	AL_FUZZ_LOCK( OT_INDEX_BUFFER );
-
 	if( !renderContext.IsValid() )
 	{
 		return E_FAIL;
@@ -208,8 +200,6 @@ ALResult Tr2IndexBufferAL::Lock(
 
 ALResult Tr2IndexBufferAL::Unlock( Tr2RenderContextAL & renderContext )
 {
-	AL_FUZZ_LOCK( OT_INDEX_BUFFER );
-
 	if( !renderContext.IsValid() )
 	{
 		return E_FAIL;

@@ -64,11 +64,6 @@ public:
 
 	Tr2ALMemoryType GetMemoryClass() const { return AL_MEMORY_MANAGED; }
 
-#if TRINITY_AL_CAPTURE_ENABLED
-	ALResult CloneTo( Tr2ConstantBufferAL& target );
-	uint32_t m_writeLockCount;
-#endif
-	
 private:
 	Tr2ConstantBufferAL( const Tr2ConstantBufferAL& ) /* = delete */;
 	Tr2ConstantBufferAL& operator=( const Tr2ConstantBufferAL& ) /* = delete */;

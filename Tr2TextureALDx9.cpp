@@ -91,8 +91,6 @@ ALResult Tr2TextureAL::Create2D( uint32_t width,
 								 Tr2SubresourceData* initialData,
 								 Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	Destroy();
 
 	if ( !ValidateUsage( usage ) )
@@ -271,8 +269,6 @@ ALResult Tr2TextureAL::CreateCube( uint32_t width,
 								   Tr2SubresourceData* initialData,
 								   Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	Destroy();
 
 	// Smart pointer helps dealing with error handling. Once we're successful, out
@@ -416,8 +412,6 @@ ALResult Tr2TextureAL::CreateVolume( uint32_t width,
 									 Tr2SubresourceData* initialData,
 									 Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	if ( !ValidateUsage( usage ) )
 	{
 		CCP_AL_LOGERR( "Invalid combination of USAGE flags passed to Tr2TextureAL Create function" );
@@ -533,8 +527,6 @@ ALResult Tr2TextureAL::UpdateSubresource( uint32_t left,
 										  uint32_t sourcePitch,
 										  Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	if ( !IsValid() || !source || !sourcePitch || left >= right || top >= bottom || m_type != TEX_TYPE_2D )
 	{
 		return E_INVALIDARG;
@@ -726,8 +718,6 @@ ALResult Tr2TextureAL::CopySubresourceRegion( const Tr2TextureSubresource& destS
 											  const Tr2TextureSubresource& sourceSubresource,
 											  Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	CCP_ASSERT( IsValid() );
 	CCP_ASSERT( source.IsValid() );
 	CCP_ASSERT( GetFormat() == source.GetFormat() );
@@ -1034,7 +1024,6 @@ ALResult Tr2TextureAL::Lock( uint32_t face,
 							 LockType lockType,
 							 Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ_LOCK( OT_TEXTURE );
 	if ( m_currentLock != LOCK_INVALID )
 	{
 		CCP_AL_LOGERR( "Attempting to lock already locked texture" );
@@ -1067,7 +1056,6 @@ ALResult Tr2TextureAL::Lock( uint32_t face,
 
 ALResult Tr2TextureAL::Unlock( Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ_LOCK( OT_TEXTURE );
 	switch ( m_currentLock )
 	{
 	case LOCK_READONLY:

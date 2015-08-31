@@ -49,7 +49,6 @@ ALResult Tr2VertexBufferAL::Create( uint32_t lengthInBytes,
 									const void* initialData,
 									Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_VERTEX_BUFFER );
 	m_lengthInBytes = lengthInBytes;
 	m_usage = usage;
 
@@ -116,7 +115,6 @@ ALResult Tr2VertexBufferAL::Lock( uint32_t offset,
 								  Tr2RenderContextEnum::LockType lockType,
 								  Tr2RenderContextAL& /*renderContext*/ )
 {
-	AL_FUZZ_LOCK( OT_VERTEX_BUFFER );
 	if ( !m_buffer )
 	{
 		*data = 0;
@@ -169,7 +167,6 @@ ALResult Tr2VertexBufferAL::Lock( uint32_t offset,
 
 ALResult Tr2VertexBufferAL::Unlock( Tr2RenderContextAL& /*renderContext*/ )
 {
-	AL_FUZZ_LOCK( OT_VERTEX_BUFFER );
 	return m_buffer ? m_buffer->Unlock() : E_FAIL;
 }
 

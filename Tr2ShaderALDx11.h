@@ -44,11 +44,6 @@ public:
 
 	void SetNullShaderType( Tr2RenderContextEnum::ShaderType type );
 
-#if TRINITY_AL_CAPTURE_ENABLED
-	ALResult CloneTo( Tr2ShaderAL& target );
-	uint32_t m_writeLockCount;
-#endif
-
 private:
 	Tr2ShaderAL( const Tr2ShaderAL& shader );
 	Tr2ShaderAL& operator=( const Tr2ShaderAL& shader );
@@ -59,9 +54,6 @@ private:
 
 	Tr2RenderContextEnum::ShaderType	m_type;
 	CcpMallocBuffer						m_bytecode;	
-#if TRINITY_AL_CAPTURE_ENABLED
-	CcpMallocBuffer						m_bytecodePatched;
-#endif
 	Tr2ShaderInputDefinition			m_inputDefinition;
 	union Shader
 	{

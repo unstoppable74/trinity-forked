@@ -55,10 +55,6 @@ public:
 	uint32_t							m_lengthInBytes;
 	Tr2RenderContextEnum::BufferUsage	m_usage;
 
-#if TRINITY_AL_CAPTURE_ENABLED
-	uint32_t	m_writeLockCount;
-#endif
-
 #if TRINITY_AL_GUARD_LOCKS
 	Tr2LockGuard m_lockGuard;
 #endif

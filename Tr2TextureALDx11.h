@@ -135,12 +135,6 @@ public:
 
 	ALResult CreateUAV( Tr2PrimaryRenderContextAL &renderContext );
 
-#if TRINITY_AL_CAPTURE_ENABLED
-	ALResult CloneTo( Tr2TextureAL& target );
-	uint32_t	m_writeLockCount;
-#endif
-
-
 private:
 	Tr2RenderContextEnum::BufferUsage	m_usage;
 	// Texture is owned by other AL object (render target, depth stencil)

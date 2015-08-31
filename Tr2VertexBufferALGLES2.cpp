@@ -50,8 +50,6 @@ ALResult Tr2VertexBufferAL::Create( uint32_t lengthInBytes,
 									const void* initialData,
 									Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_VERTEX_BUFFER );
-
 	if ( !ValidateUsage( usage ) )
 	{
 		CCP_AL_LOGERR( "Invalid combination of USAGE flags passed to Tr2VertexBufferAL Create function" );
@@ -105,8 +103,6 @@ ALResult Tr2VertexBufferAL::Lock( uint32_t offset,
 								  Tr2RenderContextEnum::LockType lockType,
 								  Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ_LOCK( OT_VERTEX_BUFFER );
-
 	if ( !renderContext.IsValid() )
 	{
 		return E_FAIL;
@@ -190,8 +186,6 @@ ALResult Tr2VertexBufferAL::Lock( uint32_t offset,
 
 ALResult Tr2VertexBufferAL::Unlock( Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ_LOCK( OT_VERTEX_BUFFER );
-
 	if ( !renderContext.IsValid() )
 	{
 		return E_FAIL;

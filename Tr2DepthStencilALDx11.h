@@ -63,11 +63,6 @@ public:
 	static DXGI_FORMAT	ConvertDepthStencilFormatToDxgi( 
 					Tr2RenderContextEnum::DepthStencilFormat format );
 
-#if TRINITY_AL_CAPTURE_ENABLED
-	ALResult	CloneTo( Tr2DepthStencilAL& target );
-	uint32_t	m_writeLockCount;
-#endif
-
 private:
 	uint32_t	m_width;
 	uint32_t	m_height;

@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files"/>
-    <Filter Include="Source Files\include"/>
+    <Filter Include="Source Files" />
+    <Filter Include="Source Files\include" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ALLog.h">
@@ -104,9 +104,6 @@
     <ClInclude Include="Tr2Hal.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tr2HalFuzzing.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tr2HalHelperStructures.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -150,9 +147,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2PrimaryRenderContextDx11.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tr2RenderCapture.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2RenderContextDx11.h">
@@ -365,9 +359,6 @@
     <ClCompile Include="Tr2GpuTelemetry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tr2HalFuzzing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tr2HalHelperStructures.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -411,9 +402,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2PrimaryRenderContextDx11.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tr2RenderCapture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2RenderContextDx11.cpp">

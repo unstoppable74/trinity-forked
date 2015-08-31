@@ -46,8 +46,6 @@ ALResult Tr2IndexBufferAL::Create(
 	const void* initialData, 
 	Tr2RenderContextAL & renderContext )
 {
-	AL_FUZZ( OT_INDEX_BUFFER );
-
 	m_is16Bit = bitCount == IB_16BIT;
 	m_numIndices = numberOfIndices;
 	m_usage = usage;
@@ -110,8 +108,6 @@ ALResult Tr2IndexBufferAL::Lock(
 	LockType lockType, 
 	Tr2RenderContextAL & renderContext )
 {
-	AL_FUZZ_LOCK( OT_INDEX_BUFFER );
-
 	if( !m_is16Bit )
 	{
 		data = nullptr;
@@ -127,8 +123,6 @@ ALResult Tr2IndexBufferAL::Lock(
 	LockType lockType, 
 	Tr2RenderContextAL & renderContext )
 {
-	AL_FUZZ_LOCK( OT_INDEX_BUFFER );
-
 	if( m_is16Bit )
 	{
 		data = nullptr;
@@ -144,8 +138,6 @@ ALResult Tr2IndexBufferAL::Lock(
 	LockType lockType, 
 	Tr2RenderContextAL & /*renderContext*/ )
 {
-	AL_FUZZ_LOCK( OT_INDEX_BUFFER );
-
 	if( !m_buffer )
 	{
 		*data = 0;
@@ -197,8 +189,6 @@ ALResult Tr2IndexBufferAL::Lock(
 
 ALResult Tr2IndexBufferAL::Unlock( Tr2RenderContextAL & /*renderContext*/ )
 {
-	AL_FUZZ_LOCK( OT_INDEX_BUFFER );
-
 	return m_buffer ? m_buffer->Unlock() : E_FAIL;
 }
 

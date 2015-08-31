@@ -49,7 +49,6 @@ public:
 				   Tr2RenderContextEnum::LockType lockType,
 				   Tr2RenderContextAL& renderContext )
 	{
-		AL_FUZZ_LOCK( Tr2RenderContextEnum::OT_VERTEX_BUFFER );
 		return Tr2BufferImplAL::Lock( offset, sizeInBytes, data, lockType, renderContext );
 	}
 
@@ -65,7 +64,6 @@ public:
 
 	ALResult Unlock( Tr2RenderContextAL& renderContext )
 	{
-		AL_FUZZ_LOCK( Tr2RenderContextEnum::OT_VERTEX_BUFFER );
 		return Tr2BufferImplAL::Unlock( renderContext );
 	}
 
@@ -87,10 +85,6 @@ public:
 	{
 		return AL_MEMORY_MANAGED;
 	}
-
-#if TRINITY_AL_CAPTURE_ENABLED
-	ALResult CloneTo( Tr2VertexBufferAL& target );
-#endif
 
 private:
 	Tr2VertexBufferAL( const Tr2VertexBufferAL& )/* = delete */;

@@ -25,8 +25,6 @@ ALResult Tr2ShaderAL::Create(
 {
 	ReleaseShader();
 
-	AL_FUZZ( OT_SHADER );
-
 	if( renderContext.m_d3dDevice11 == nullptr )
 	{
 		return E_FAIL;
@@ -44,15 +42,6 @@ ALResult Tr2ShaderAL::Create(
 
 	m_shader.vertexShader = nullptr;
 	m_patchedShader.vertexShader = nullptr;
-
-#if TRINITY_AL_CAPTURE_ENABLED
-	m_writeLockCount = 0;
-	m_bytecodePatched.resize( "Tr2ShaderAL::m_bytecodePatched", patchedBytecodeSize );
-	if( !m_bytecodePatched.empty() )
-	{
-		memcpy( m_bytecodePatched.get(), patchedBytecode, patchedBytecodeSize );
-	}
-#endif
 
 	switch( type )
 	{
@@ -171,8 +160,6 @@ bool Tr2ShaderAL::IsValid() const
 
 ALResult Tr2ShaderAL::Apply( Tr2RenderContextAL& renderContext ) const
 {
-	AL_FUZZ( OT_SHADER );
-
 	if( !renderContext.m_context )
 	{
 		return E_FAIL;
@@ -211,8 +198,6 @@ ALResult Tr2ShaderAL::ApplyPatchedShader( Tr2RenderContextAL& renderContext ) co
 		return Apply( renderContext );
 	}
 
-	AL_FUZZ( OT_SHADER );
-
 	if( !renderContext.m_context )
 	{
 		return E_FAIL;
@@ -246,8 +231,6 @@ ALResult Tr2ShaderAL::ApplyPatchedShader( Tr2RenderContextAL& renderContext ) co
 
 ALResult Tr2ShaderAL::GetBytecode( const void*& bytecode, uint32_t& size ) const
 {
-	AL_FUZZ( OT_SHADER );
-
 	if( m_type == INVALID_SHADER )
 	{
 		bytecode = nullptr;
@@ -320,24 +303,5 @@ void Tr2ShaderAL::SetNullShaderType( Tr2RenderContextEnum::ShaderType type )
 	CCP_ASSERT( !IsValid() );
 	m_type = type;
 }
-
-#if TRINITY_AL_CAPTURE_ENABLED
-ALResult Tr2ShaderAL::CloneTo( Tr2ShaderAL& target )
-{
-	auto& renderContext = Tr2RenderContextAL::GetPrimaryRenderContext();
-	
-	CR_RETURN_HR( 
-		target.Create(	renderContext,
-						m_type, 
-						m_bytecode.get(), 
-						(uint32_t)m_bytecode.size(), 
-						m_bytecodePatched.get(),
-						(uint32_t)m_bytecodePatched.size(), 
-						m_inputDefinition ) );
-		
-	target.m_writeLockCount = m_writeLockCount;
-	return S_OK;
-}
-#endif
 
 #endif

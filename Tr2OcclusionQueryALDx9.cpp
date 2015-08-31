@@ -14,8 +14,6 @@ Tr2OcclusionQueryAL::~Tr2OcclusionQueryAL()
 
 ALResult Tr2OcclusionQueryAL::Create( Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( Tr2RenderContextEnum::OT_OCCLUSION_QUERY );
-
 	Destroy();
 
 	if( !renderContext.m_d3dDevice9 )

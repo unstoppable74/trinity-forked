@@ -129,8 +129,6 @@ ALResult Tr2RenderTargetAL::CreateEx(
 	uint32_t flags,
 	Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_RENDER_TARGET );
-
 	Destroy();
 
 	if( renderContext.m_d3dDevice9 == nullptr )
@@ -634,8 +632,6 @@ ALResult Tr2RenderTargetAL::GenerateMipMaps( Tr2RenderContextAL& renderContext )
 
 ALResult Tr2RenderTargetAL::Bind( uint32_t slot, Tr2RenderContextAL& renderContext ) const
 {
-	AL_FUZZ( OT_RENDER_TARGET );
-
 	if( !renderContext.m_d3dDevice9 )
 	{
 		return E_FAIL;
@@ -744,8 +740,6 @@ ALResult Tr2RenderTargetAL::GetRenderTargetData( uint32_t mipLevel, CComPtr<IDir
 
 ALResult Tr2RenderTargetAL::GetLockedRenderTarget( uint32_t mipLevel, uint32_t* ltrb, Tr2LockedRenderTargetAL& lockedRT, Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ_LOCK( OT_RENDER_TARGET );
-
 	if( !renderContext.m_d3dDevice9 || ( m_msaaRT && m_msaaType >= 2 ) )
 	{
 		return E_FAIL;
@@ -773,8 +767,6 @@ ALResult Tr2RenderTargetAL::Lock(
 	uint32_t& pitch, 
 	Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ_LOCK( OT_RENDER_TARGET );
-
 	CCP_ASSERT( !m_sysMemLocked );	// already locked?
 	if( !renderContext.m_d3dDevice9 || m_sysMemLocked || ( m_msaaRT && m_msaaType >= 2 ) )
 	{
@@ -803,8 +795,6 @@ ALResult Tr2RenderTargetAL::Lock(
 
 ALResult Tr2RenderTargetAL::Unlock( Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ_LOCK( OT_RENDER_TARGET );
-
 	CCP_ASSERT( m_sysMemLocked );	// properly locked?
 	if( !renderContext.m_d3dDevice9 || !m_sysMemLocked || !m_sysMemLocked )
 	{

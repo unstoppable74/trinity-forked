@@ -32,8 +32,6 @@ Tr2SwapChainAL::Tr2SwapChainAL()
 // --------------------------------------------------------------------------------------
 ALResult Tr2SwapChainAL::Create( Tr2WindowHandle windowHandle, Tr2PrimaryRenderContextAL &renderContext )
 {
-	AL_FUZZ( Tr2RenderContextEnum::OT_SWAP_CHAIN );
-
 	Destroy();
 
 	m_description.OutputWindow = windowHandle;

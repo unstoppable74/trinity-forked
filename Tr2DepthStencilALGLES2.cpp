@@ -56,8 +56,6 @@ ALResult Tr2DepthStencilAL::Create(
 	uint32_t msaaQuality, 
 	Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_DEPTH_STENCIL );
-
 	Destroy();
 
 	if( !renderContext.IsValid() )

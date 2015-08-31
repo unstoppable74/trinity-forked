@@ -27,11 +27,6 @@ public:
 
 	CComPtr<ID3D11SamplerState> m_samplerState;
 	D3D11_SAMPLER_DESC m_samplerDesc;
-
-#if TRINITY_AL_CAPTURE_ENABLED
-	ALResult CloneTo( Tr2SamplerStateAL& target );
-	uint32_t m_writeLockCount;
-#endif
 };
 
 #endif // TRINITY_PLATFORM==TRINITY_DIRECTX11

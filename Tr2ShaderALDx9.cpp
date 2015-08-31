@@ -28,8 +28,6 @@ ALResult Tr2ShaderAL::Create(
 		return E_FAIL;
 	}
 
-	AL_FUZZ( OT_SHADER );
-
 	m_bytecode.resize( "Tr2ShaderAL::m_byteCode", bytecodeSize );
 	if( !m_bytecode.empty() )
 	{
@@ -108,8 +106,6 @@ Tr2RenderContextEnum::ShaderType Tr2ShaderAL::GetType() const
 
 ALResult Tr2ShaderAL::Apply( Tr2RenderContextAL& renderContext ) const
 {
-	AL_FUZZ( OT_SHADER );
-
 	if( !renderContext.m_d3dDevice9 )
 	{
 		return E_FAIL;
@@ -126,8 +122,6 @@ ALResult Tr2ShaderAL::Apply( Tr2RenderContextAL& renderContext ) const
 
 ALResult Tr2ShaderAL::GetBytecode( const void*& bytecode, uint32_t& size ) const
 {
-	AL_FUZZ( OT_SHADER );
-
 	if( m_type == INVALID_SHADER )
 	{
 		bytecode = nullptr;

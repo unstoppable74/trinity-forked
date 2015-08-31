@@ -27,10 +27,6 @@ void Tr2RenderTargetAL::Destroy()
 	m_isAttached	= false;
 
 	m_backingStore.Destroy();
-
-#if TRINITY_AL_CAPTURE_ENABLED
-	m_writeLockCount = 0;
-#endif
 }
 
 Tr2RenderTargetAL::~Tr2RenderTargetAL()
@@ -81,8 +77,6 @@ ALResult Tr2RenderTargetAL::CreateEx(
 	uint32_t flags,
 	Tr2PrimaryRenderContextAL &renderContext )
 {
-	AL_FUZZ( OT_RENDER_TARGET );
-
 	Destroy();
 
 	if( !renderContext.m_d3dDevice11 )
@@ -284,8 +278,6 @@ ALResult Tr2RenderTargetAL::Attach( ID3D11Texture2D* texture, Tr2PrimaryRenderCo
 // -------------------------------------------------------------
 ALResult Tr2RenderTargetAL::Resolve( Tr2RenderTargetAL& destination, Tr2RenderContextAL& renderContext )
 {
-	TRINITY_AL_CAPTURE( Resolve, destination, *this );
-
 	if( m_msaaType <= 1 )
 	{
 		return destination.GetTexture().CopySubresourceRegion( Tr2TextureSubresource(), GetTexture(), Tr2TextureSubresource(), renderContext );
@@ -438,7 +430,6 @@ ALResult Tr2RenderTargetAL::Lock(
 	uint32_t& pitch, 
 	Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ_LOCK( OT_RENDER_TARGET );
 	return m_backingStore.Lock( mipLevel, ltrb, data, pitch, LOCK_READONLY, renderContext );
 }
 
@@ -550,24 +541,5 @@ uint32_t Tr2RenderTargetAL::GetSharedHandle() const
 		return reinterpret_cast<uint32_t>( sharedHandle );
 	}
 }
-
-#if TRINITY_AL_CAPTURE_ENABLED
-// Note: we don't clone the contents; we assume that frame capture also captures all the commands
-// for updating the RT (so we don't support RTs that are filled once and then left hanging around
-// for several frames).
-ALResult Tr2RenderTargetAL::CloneTo( Tr2RenderTargetAL& target )
-{
-	auto& renderContext = Tr2RenderContextAL::GetPrimaryRenderContext();
-	return target.CreateEx(	m_width,
-							m_height,
-							m_mipCount,
-							m_format,
-							m_msaaType,
-							m_msaaQuality,
-							0,
-							0,
-							renderContext );
-}
-#endif
 
 #endif // ( TRINITY_PLATFORM==TRINITY_DIRECTX9 )

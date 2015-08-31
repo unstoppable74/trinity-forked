@@ -26,8 +26,6 @@ ALResult Tr2VertexBufferAL::CreateEx( uint32_t lengthInBytes,
 									  uint32_t/* exFlags */,
 									  Tr2PrimaryRenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_VERTEX_BUFFER );
-
 	HRESULT hr = Tr2BufferImplAL::Create( lengthInBytes,
 									usage,
 									D3D11_BIND_VERTEX_BUFFER,
@@ -50,8 +48,6 @@ ALResult Tr2VertexBufferAL::CreateEx( uint32_t lengthInBytes,
 ALResult Tr2VertexBufferAL::Create( uint32_t length,
 									Tr2PrimaryRenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_VERTEX_BUFFER );
-
 	HRESULT hr = Tr2BufferImplAL::Create( length,
 									USAGE_CPU_READ | USAGE_CPU_WRITE,
 									D3D11_BIND_VERTEX_BUFFER,
@@ -71,28 +67,5 @@ Tr2VertexBufferAL& Tr2VertexBufferAL::operator=( Tr2VertexBufferAL&& other )
 	ChangeObjectId();
 	return *this;
 }
-
-#if TRINITY_AL_CAPTURE_ENABLED
-ALResult Tr2VertexBufferAL::CloneTo( Tr2VertexBufferAL& target )
-{
-	void* data;
-	auto& renderContext = Tr2RenderContextAL::GetPrimaryRenderContext();
-
-	if( m_currentLock != LOCK_INVALID )
-	{
-		return E_FAIL;
-	}
-
-	CR_RETURN_HR( Lock( 0, 0, &data, LOCK_READONLY, renderContext ) );
-#pragma warning( disable: 4189 )
-	ON_BLOCK_EXIT( [&]{ Unlock( renderContext ); } );
-
-	CR_RETURN_HR( target.Create( m_lengthInBytes, 0, data, renderContext ) );
-	target.m_writeLockCount = m_writeLockCount;
-
-	return S_OK;
-}
-#endif
-
 
 #endif

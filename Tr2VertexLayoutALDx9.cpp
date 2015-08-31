@@ -55,7 +55,6 @@ namespace {
 
 ALResult Tr2VertexLayoutAL::Create( const Tr2VertexDefinition& definition, Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_VERTEX_LAYOUT );
 	if( !renderContext.m_d3dDevice9 || definition.m_items.empty() )
 	{
 		return E_FAIL;
@@ -97,8 +96,6 @@ void Tr2VertexLayoutAL::Destroy()
 
 ALResult Tr2VertexLayoutAL::SetLayout( const Tr2ShaderAL* /*vertexShader*/, Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_VERTEX_LAYOUT );
-
 	if( m_layout == nullptr || renderContext.m_d3dDevice9 == nullptr )
 	{
 		return E_FAIL;

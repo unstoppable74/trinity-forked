@@ -39,11 +39,6 @@ public:
 		return AL_MEMORY_MANAGED;
 	}
 
-#if TRINITY_AL_CAPTURE_ENABLED
-	ALResult CloneTo( Tr2VertexLayoutAL& target );
-	uint32_t m_writeLockCount;
-#endif
-
 private:
 	Tr2VertexLayoutAL( const Tr2VertexLayoutAL& )/* = delete */;
 	Tr2VertexLayoutAL& operator=( const Tr2VertexLayoutAL& )/* = delete */;

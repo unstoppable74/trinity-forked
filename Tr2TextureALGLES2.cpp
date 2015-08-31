@@ -170,8 +170,6 @@ ALResult Tr2TextureAL::Create2D( uint32_t width,
 								 Tr2SubresourceData* initialData,
 								 Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	Destroy();
 
 	if ( width == 0 || height == 0 )
@@ -304,8 +302,6 @@ ALResult Tr2TextureAL::CreateCube( uint32_t width,
 								   Tr2SubresourceData* initialData,
 								   Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	Destroy();
 
 	if( ( usage & USAGE_IMMUTABLE ) && !initialData )
@@ -462,8 +458,6 @@ ALResult Tr2TextureAL::CreateDepthTexture( uint32_t width,
 										   uint32_t height,
 										   Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	Destroy();
 #ifdef TRINITY_AL_MOBILE
     if( !CHECK_EXT( OES_depth_texture ) )
@@ -584,8 +578,6 @@ ALResult Tr2TextureAL::UpdateSubresource( uint32_t left,
 										  uint32_t sourcePitch,
 										  Tr2RenderContextAL& /*renderContext*/ )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	if ( !IsValid() || !source || !sourcePitch || left >= right || top >= bottom || m_type != TEX_TYPE_2D )
 	{
 		return E_FAIL;
@@ -623,8 +615,6 @@ ALResult Tr2TextureAL::CopySubresourceRegion( const Tr2TextureSubresource& destS
 											  const Tr2TextureSubresource& sourceSubresource,
 											  Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	return renderContext.CopySubresourceRegion( *this, destSubresource, source, sourceSubresource );
 }
 
@@ -633,8 +623,6 @@ ALResult Tr2TextureAL::CopySubresourceRegion( const Tr2TextureSubresource& destS
 											  const Tr2TextureSubresource& sourceSubresource,
 											  Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	return renderContext.CopySubresourceRegion( *this, destSubresource, source.m_backingStore, sourceSubresource );
 }
 
@@ -645,7 +633,6 @@ ALResult Tr2TextureAL::Lock( uint32_t mipLevel,
 							 LockType lockType,
 							 Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ_LOCK( OT_TEXTURE );
 	if ( m_currentLock != LOCK_INVALID )
 	{
 		CCP_AL_LOGERR( "Attempting to lock already locked texture" );
@@ -681,7 +668,6 @@ ALResult Tr2TextureAL::Lock( uint32_t face,
 							 LockType lockType,
 							 Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ_LOCK( OT_TEXTURE );
 	if ( m_currentLock != LOCK_INVALID )
 	{
 		CCP_AL_LOGERR( "Attempting to lock already locked texture" );
@@ -702,7 +688,6 @@ ALResult Tr2TextureAL::Lock( uint32_t face,
 
 ALResult Tr2TextureAL::Unlock( Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ_LOCK( OT_TEXTURE );
 	if ( m_currentLock != LOCK_WRITEONLY )
 	{
 		CCP_AL_LOGERR( "Trying to Unlock buffer that's not locked" );

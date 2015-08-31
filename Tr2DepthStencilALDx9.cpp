@@ -42,8 +42,6 @@ ALResult Tr2DepthStencilAL::CreateEx(
 	uint32_t flags, 
 	Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_DEPTH_STENCIL );
-
 	Destroy();
 
 	if( !renderContext.m_d3dDevice9 )

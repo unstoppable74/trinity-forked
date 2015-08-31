@@ -98,8 +98,6 @@ namespace {
 
 ALResult Tr2VertexLayoutAL::Create( const Tr2VertexDefinition& definition, Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_VERTEX_LAYOUT );
-
 	if( !renderContext.IsValid() )
 	{
 		return E_FAIL;
@@ -123,10 +121,6 @@ ALResult Tr2VertexLayoutAL::Create( const Tr2VertexDefinition& definition, Tr2Re
 		dst.InputSlotClass			= src.m_instanceStepRate ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
 		dst.InstanceDataStepRate	= src.m_instanceStepRate;
     };
-
-#if TRINITY_AL_CAPTURE_ENABLED
-	m_writeLockCount = 0;
-#endif
 
 	ChangeObjectId();
 	return S_OK;
@@ -153,7 +147,6 @@ static bool FindInputElement( const TrackableStdVector<D3D11_INPUT_ELEMENT_DESC>
 
 ALResult Tr2VertexLayoutAL::SetLayout( const Tr2ShaderAL* vertexShader, Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_VERTEX_LAYOUT );
 	if( !renderContext.m_secondaryDevice11 || !vertexShader || m_definition.empty() )
 	{
 		return E_FAIL;
@@ -221,17 +214,5 @@ ALResult Tr2VertexLayoutAL::SetLayout( const Tr2ShaderAL* vertexShader, Tr2Rende
 	}
 	return result;
 }
-
-#if TRINITY_AL_CAPTURE_ENABLED
-ALResult Tr2VertexLayoutAL::CloneTo( Tr2VertexLayoutAL& target )
-{
-	target.m_definition     = m_definition;
-	target.m_layout.clear();
-	target.m_writeLockCount = m_writeLockCount;
-	return S_OK;
-}
-	
-#endif
-
 
 #endif // DX11?

@@ -87,11 +87,6 @@ public:
 
 	Tr2ALMemoryType GetMemoryClass() const { return AL_MEMORY_MANAGED; }
 
-#if TRINITY_AL_CAPTURE_ENABLED
-	ALResult CloneTo( Tr2RenderTargetAL& target );
-	uint32_t m_writeLockCount;
-#endif
-
 private:
 	uint32_t m_msaaType;
 	uint32_t m_msaaQuality;

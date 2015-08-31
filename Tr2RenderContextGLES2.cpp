@@ -1270,8 +1270,6 @@ ALResult Tr2RenderContextAL::SetVertexLayout( Tr2VertexLayoutAL& layout )
 
 ALResult Tr2RenderContextAL::SetShader( const Tr2ShaderAL& shader )
 {
-	AL_FUZZ( OT_SHADER );
-
 	AL_UPDATE_RESOURCE_FRAME_USAGE( shader );
 	switch( shader.GetType() )
 	{

@@ -29,18 +29,12 @@ Tr2SamplerStateAL::Tr2SamplerStateAL()
 	m_samplerDesc.BorderColor[1] = 0;
 	m_samplerDesc.BorderColor[2] = 0;
 	m_samplerDesc.BorderColor[3] = 0;
-
-#if TRINITY_AL_CAPTURE_ENABLED
-	m_writeLockCount = 0;
-#endif
 }
 
 ALResult Tr2SamplerStateAL::Create( 
 	Tr2PrimaryRenderContextAL &renderContext,
 	const Tr2SamplerDescription& description )
 {
-	AL_FUZZ( OT_SAMPLER_STATE );
-
 	if( !renderContext.m_d3dDevice11 )
 	{
 		return E_FAIL;
@@ -84,16 +78,5 @@ bool Tr2SamplerStateAL::operator==( const Tr2SamplerStateAL& sampler ) const
 {
 	return this == &sampler;
 }
-
-#if TRINITY_AL_CAPTURE_ENABLED
-ALResult Tr2SamplerStateAL::CloneTo( Tr2SamplerStateAL& target )
-{
-	auto& renderContext = Tr2RenderContextAL::GetPrimaryRenderContext();
-
-	target.m_samplerDesc = m_samplerDesc;
-	target.m_writeLockCount = m_writeLockCount;
-	return renderContext.m_d3dDevice11->CreateSamplerState( &target.m_samplerDesc, &target.m_samplerState );
-}
-#endif
 
 #endif // TRINITY_PLATFORM==TRINITY_DIRECTX11

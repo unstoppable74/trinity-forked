@@ -3,7 +3,6 @@
 #if( TRINITY_PLATFORM==TRINITY_DIRECTX11 )
 
 #include "Tr2PrimaryRenderContextDx11.h"
-#include "Tr2RenderCapture.h"
 #include "ITr2RenderContextEvents.h"
 
 #include "ALLog.h"
@@ -504,8 +503,6 @@ ALResult Tr2PrimaryRenderContextAL::CreateBackBuffers( const Tr2PresentParameter
 
 ALResult Tr2PrimaryRenderContextAL::Present()
 {
-	TRINITY_AL_CAPTURE_PRESENT;
-
 #if AL_TACK_RESOURCE_USAGE && TRACK_AL_RESOURCES
 	extern uint64_t g_trackCurrentFrame;
 	++g_trackCurrentFrame;

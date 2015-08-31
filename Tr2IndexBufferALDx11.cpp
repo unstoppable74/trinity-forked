@@ -26,8 +26,6 @@ ALResult Tr2IndexBufferAL::Create(
 	const void* initialData, 
 	Tr2PrimaryRenderContextAL &renderContext )
 {
-	AL_FUZZ( OT_INDEX_BUFFER );
-
 	m_numIndices = numberOfIndices;
 	m_is16Bit = bitCount == Tr2RenderContextEnum::IB_16BIT;
 	HRESULT hr = Tr2BufferImplAL::Create( 
@@ -64,8 +62,6 @@ ALResult Tr2IndexBufferAL::Lock(
 	Tr2RenderContextEnum::LockType lockType, 
 	Tr2RenderContextAL & renderContext )
 {
-	AL_FUZZ_LOCK( OT_INDEX_BUFFER );
-
 	if( !m_is16Bit )
 	{
 		data = nullptr;
@@ -85,8 +81,6 @@ ALResult Tr2IndexBufferAL::Lock(
 	Tr2RenderContextEnum::LockType lockType, 
 	Tr2RenderContextAL & renderContext )
 {
-	AL_FUZZ_LOCK( OT_INDEX_BUFFER );
-
 	if( m_is16Bit )
 	{
 		data = nullptr;
@@ -94,32 +88,5 @@ ALResult Tr2IndexBufferAL::Lock(
 	}
 	return Tr2BufferImplAL::Lock( offset, sizeInBytes, (void**)&data, lockType, renderContext );
 }
-
-
-#if TRINITY_AL_CAPTURE_ENABLED
-ALResult Tr2IndexBufferAL::CloneTo( Tr2IndexBufferAL& target )
-{
-	void* data;
-
-	if( m_currentLock != LOCK_INVALID )
-	{
-		return E_FAIL;
-	}
-
-	CR_RETURN_HR( Lock( 0, 0, &data, LOCK_READONLY, Tr2RenderContextAL::GetPrimaryRenderContext() ) );
-#pragma warning( disable: 4189 )
-	ON_BLOCK_EXIT( [&]{ Unlock( Tr2RenderContextAL::GetPrimaryRenderContext() ); } );
-
-	CR_RETURN_HR( target.Create(	GetNumIndices(), 
-									0,
-									Is16Bit() ? IB_16BIT : IB_32BIT,
-									data,
-									Tr2RenderContextAL::GetPrimaryRenderContext() ) );
-
-	target.m_writeLockCount = m_writeLockCount;
-
-	return S_OK;
-}
-#endif
 
 #endif

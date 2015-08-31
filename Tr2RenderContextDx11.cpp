@@ -783,15 +783,11 @@ void Tr2RenderContextAL::ApplyReadOnlyDepth() throw()
 };
 
 ALResult Tr2RenderContextAL::DrawIndexedPrimitive(	
-	uint32_t numVertices, 
+	uint32_t,
 	uint32_t startIndex, 
 	uint32_t primitiveCount, 
-	uint32_t minimumIndex )
+	uint32_t )
 {
-	TRINITY_AL_CAPTURE( DrawIndexedPrimitive, numVertices, startIndex, primitiveCount, minimumIndex ); 
-	(numVertices);
-	(minimumIndex);
-
 	auto vc = ComputeVertexCount( primitiveCount );
 	
 	CCP_STATS_ADD( primitiveCount, primitiveCount );
@@ -810,14 +806,11 @@ ALResult Tr2RenderContextAL::DrawIndexedPrimitive(
 }
 
 ALResult Tr2RenderContextAL::DrawIndexedInstanced(	
-	uint32_t numVertices, 
+	uint32_t, 
 	uint32_t startIndex,	
 	uint32_t primitiveCount, 
 	uint32_t numInstances )
 {
-	TRINITY_AL_CAPTURE( DrawIndexedInstanced, numVertices, startIndex, primitiveCount, numInstances );
-	(numVertices);
-	
 	auto vc = ComputeVertexCount( primitiveCount );
 
 	CCP_STATS_ADD( primitiveCount, primitiveCount * numInstances );
@@ -872,8 +865,6 @@ ALResult Tr2RenderContextAL::DrawIndexedInstancedIndirect( Tr2GpuBufferAL& param
 
 ALResult Tr2RenderContextAL::DrawPrimitive( uint32_t startVertex, uint32_t primitiveCount )
 {
-	TRINITY_AL_CAPTURE( DrawPrimitive, startVertex, primitiveCount );
-	
 	auto vc = ComputeVertexCount( primitiveCount );
 
 	CCP_STATS_ADD( primitiveCount, primitiveCount );
@@ -896,10 +887,6 @@ ALResult Tr2RenderContextAL::DrawPrimitiveUP(
 	const void* vertexStreamZeroData, 
 	uint32_t vertexStreamZeroStride )
 {
-	TRINITY_AL_CAPTURE(		DrawPrimitiveUP, 
-											primitiveCount,
-											vertexStreamZeroData,
-											vertexStreamZeroStride );
 	return m_drawUP.DrawPrimitiveUP(	primitiveCount,
 										vertexStreamZeroData,
 										vertexStreamZeroStride,
@@ -913,12 +900,6 @@ ALResult Tr2RenderContextAL::DrawIndexedPrimitiveUP(
 	const void* vertexStreamZeroData,
 	uint32_t vertexStreamZeroStride)
 {
-	TRINITY_AL_CAPTURE(		DrawIndexedPrimitiveUP, 
-											numVertices,
-											primitiveCount,
-											indexData,
-											vertexStreamZeroData,
-											vertexStreamZeroStride );
 	return m_drawUP.DrawIndexedPrimitiveUP(	numVertices,
 											primitiveCount,
 											indexData,
@@ -934,12 +915,6 @@ ALResult Tr2RenderContextAL::DrawIndexedPrimitiveUP(
 	const void* vertexStreamZeroData,
 	uint32_t vertexStreamZeroStride)
 {
-	TRINITY_AL_CAPTURE(		DrawIndexedPrimitiveUP, 
-											numVertices,
-											primitiveCount,
-											indexData,
-											vertexStreamZeroData,
-											vertexStreamZeroStride );
 	return m_drawUP.DrawIndexedPrimitiveUP(	numVertices,
 											primitiveCount,
 											indexData,
@@ -993,10 +968,8 @@ ALResult Tr2RenderContextAL::SetConstants(
 									const Tr2ConstantBufferAL& buffer, 
 									Tr2RenderContextEnum::ShaderType constantType, 
 									uint32_t registerIndex, 
-									uint32_t unused )
+									uint32_t )
 {
-	unused;
-	TRINITY_AL_CAPTURE( SetConstants, buffer, constantType, registerIndex, unused );
 	using namespace Tr2RenderContextEnum;
 
 	ID3D11Buffer* bufArray[1] = { buffer.m_buffer };
@@ -1116,8 +1089,6 @@ ALResult Tr2RenderContextAL::Clear(
 	float depth, 
 	uint32_t stencil )
 {
-	TRINITY_AL_CAPTURE( Clear, clearFlags, color, depth, stencil );
-	
 	if( clearFlags & CLEARFLAGS_TARGET )
 	{
 		uint32_t slot = 0;	// in the future we might want to clear other things :)
@@ -1260,7 +1231,6 @@ ALResult Tr2RenderContextAL::SetRtDsToDevice( uint32_t changedSlot )
 
 void Tr2RenderContextAL::SetReadOnlyDepth( bool enable )
 {
-	TRINITY_AL_CAPTURE_NORETVAL( SetReadOnlyDepth, enable );
 	if( m_useReadOnlyDepthView == enable )
 	{
 		return;
@@ -1273,8 +1243,6 @@ void Tr2RenderContextAL::SetReadOnlyDepth( bool enable )
 
 ALResult Tr2RenderContextAL::SetDepthStencil( const Tr2DepthStencilAL& depthStencil )
 {
-	TRINITY_AL_CAPTURE( SetDepthStencil, depthStencil );
-	
 	AL_UPDATE_RESOURCE_FRAME_USAGE( depthStencil );
 
 	m_boundDepthStencil = depthStencil.IsValid() ? &depthStencil : nullptr;
@@ -1285,7 +1253,6 @@ ALResult Tr2RenderContextAL::SetDepthStencil( const Tr2DepthStencilAL& depthSten
 
 ALResult Tr2RenderContextAL::SetRenderTarget( const Tr2RenderTargetAL& renderTarget, uint32_t slot )
 {
-	TRINITY_AL_CAPTURE( SetRenderTarget, renderTarget, slot );
 	CCP_ASSERT( slot < MAX_RENDER_TARGET );
 	if( slot >= MAX_RENDER_TARGET )
 	{
@@ -1313,7 +1280,6 @@ ALResult Tr2RenderContextAL::SetStreamSource(
 	uint32_t offset, 
 	uint32_t stride )
 {
-	TRINITY_AL_CAPTURE( SetStreamSource, stream, buffer, offset, stride );
 	if( stream == VERTEX_BUFFER_ZERO_STREAM_RESERVED )
 	{
 		CCP_AL_LOGWARN( "Changing stream %d, which is reserved by Trinity. Undefined behavior.", stream );
@@ -1338,7 +1304,6 @@ ALResult Tr2RenderContextAL::SetStreamSource(
 
 ALResult Tr2RenderContextAL::SetIndices( const Tr2IndexBufferAL & buffer )
 {
-	TRINITY_AL_CAPTURE( SetIndices, buffer );
 	if( !buffer.IsValid() )
 	{
 		if( &buffer == &nullIB )
@@ -1359,7 +1324,6 @@ ALResult Tr2RenderContextAL::SetIndices( const Tr2IndexBufferAL & buffer )
 
 ALResult Tr2RenderContextAL::SetVertexLayout( Tr2VertexLayoutAL& layout )
 {
-	TRINITY_AL_CAPTURE( SetVertexLayout, layout );
 	if( !layout.IsValid() )
 	{
 		return E_INVALIDARG;
@@ -1373,7 +1337,6 @@ ALResult Tr2RenderContextAL::SetVertexLayout( Tr2VertexLayoutAL& layout )
 
 ALResult Tr2RenderContextAL::SetShader( const Tr2ShaderAL& shader )
 {
-	TRINITY_AL_CAPTURE( SetShader, shader );
 	AL_UPDATE_RESOURCE_FRAME_USAGE( shader );
 	if( shader.GetType() == VERTEX_SHADER )
 	{
@@ -1405,7 +1368,6 @@ ALResult Tr2RenderContextAL::SetSamplerState(
 	ShaderType inputType, 
 	uint32_t registerNumber )
 {
-	TRINITY_AL_CAPTURE( SetSamplerState, samplerState, inputType, registerNumber );
 	AL_UPDATE_RESOURCE_FRAME_USAGE( samplerState );
 	switch( inputType )
 	{
@@ -1457,7 +1419,6 @@ ALResult Tr2RenderContextAL::GetRenderState( RenderState state, uint32_t* value 
 
 ALResult Tr2RenderContextAL::SetRenderState( RenderState state, uint32_t value )
 {
-	TRINITY_AL_CAPTURE( SetRenderState, state, value );
 	uint32_t sv[2] = { state, value };
 	return SetRenderStatesImpl( sv, 1 );
 }
@@ -1469,7 +1430,6 @@ ALResult Tr2RenderContextAL::SetRenderStates( const uint32_t *stateValuePairs, u
 		return S_OK;
 	}
 
-	TRINITY_AL_CAPTURE( SetRenderStates, stateValuePairs, count );
 	return SetRenderStatesImpl( stateValuePairs, count );
 }
 
@@ -1740,15 +1700,12 @@ ALResult Tr2RenderContextAL::SetRenderStatesImpl( const uint32_t *stateValuePair
 
 ALResult Tr2RenderContextAL::SetClipPlane( uint32_t planeIndex, const float* planeEq )
 {
-	TRINITY_AL_CAPTURE( SetClipPlane, planeIndex, planeEq );
 	m_dirtyFlag |= m_renderStateEmulation.m_fragmentOpSettings.SetClipPlane( planeIndex, planeEq );
 	return S_OK;
 }
 
 ALResult Tr2RenderContextAL::SetScissorRect( uint32_t left, uint32_t top, uint32_t right, uint32_t bottom )
 {
-	TRINITY_AL_CAPTURE( SetScissorRect, left, top, right, bottom );
-
 	D3D11_RECT rect;
 	rect.left = left;
 	rect.top = top;
@@ -1760,7 +1717,6 @@ ALResult Tr2RenderContextAL::SetScissorRect( uint32_t left, uint32_t top, uint32
 
 ALResult Tr2RenderContextAL::SetNumberOfLights( uint32_t numLights )
 {
-	TRINITY_AL_CAPTURE( SetNumberOfLights, numLights );
 	m_dirtyFlag |= m_renderStateEmulation.m_fragmentOpSettings.SetNumberOfLights( numLights );	
 	return S_OK;
 }
@@ -1957,8 +1913,6 @@ ALResult Tr2RenderContextAL::SetTexture(
 	const Tr2TextureAL& texture, 
 	Tr2RenderContextEnum::ColorSpace colorSpace )
 {
-	TRINITY_AL_CAPTURE( SetTexture, inputType, slot, texture, colorSpace );
-	
 	ID3D11ShaderResourceView* view;
 
 	AL_UPDATE_RESOURCE_FRAME_USAGE( texture );
@@ -2014,8 +1968,6 @@ ALResult  Tr2RenderContextAL::SetShaderBuffer(
 	uint32_t slot, 
 	const Tr2GpuBufferAL& buffer )
 {
-	TRINITY_AL_CAPTURE( SetShaderBuffer, inputType, slot, buffer );
-	
 	ID3D11ShaderResourceView* view;
 
 	AL_UPDATE_RESOURCE_FRAME_USAGE( buffer );
@@ -2224,8 +2176,6 @@ ALResult Tr2RenderContextAL::ClearUav( Tr2GpuBufferAL& buffer, const uint32_t va
 
 ALResult Tr2RenderContextAL::SetViewport( const Tr2Viewport& viewport )
 {
-	TRINITY_AL_CAPTURE( SetViewport, viewport );
-	
 	static_assert( sizeof( viewport ) == sizeof( D3D11_VIEWPORT ), "viewport size mismatch" );
 	m_context->RSSetViewports( 1, reinterpret_cast<const D3D11_VIEWPORT*>(&viewport) );
 	float invWidth = 1.f / viewport.m_width;
@@ -2250,7 +2200,6 @@ ALResult Tr2RenderContextAL::GetViewport( Tr2Viewport& viewport )
 
 ALResult Tr2RenderContextAL::PushRenderTarget( uint32_t slot )
 {
-	TRINITY_AL_CAPTURE( PushRenderTarget, slot );
 	CCP_ASSERT( slot < MAX_RENDER_TARGET );
 	if( slot >= MAX_RENDER_TARGET )
 	{
@@ -2263,7 +2212,6 @@ ALResult Tr2RenderContextAL::PushRenderTarget( uint32_t slot )
 
 ALResult Tr2RenderContextAL::PopRenderTarget( uint32_t slot )
 {
-	TRINITY_AL_CAPTURE( PopRenderTarget, slot );
 	CCP_ASSERT( slot < MAX_RENDER_TARGET );
 	if( slot >= MAX_RENDER_TARGET )
 	{
@@ -2282,14 +2230,12 @@ ALResult Tr2RenderContextAL::PopRenderTarget( uint32_t slot )
 
 ALResult Tr2RenderContextAL::PushDepthStencil()
 {
-	TRINITY_AL_CAPTURE( PushDepthStencil );
 	m_stackDS.push( m_boundDepthStencil );
 	return S_OK;
 }
 
 ALResult Tr2RenderContextAL::PopDepthStencil()
 {
-	TRINITY_AL_CAPTURE( PopDepthStencil );
 	CCP_ASSERT( !m_stackDS.empty() );
 	if( m_stackDS.empty() )
 	{
@@ -2374,7 +2320,6 @@ void Tr2RenderContextAL::ResetCapturePlayback()
 
 ALResult Tr2RenderContextAL::SetTopology( Tr2RenderContextEnum::Topology topology )
 {
-	TRINITY_AL_CAPTURE( SetTopology, topology );
 	using namespace Tr2RenderContextEnum;
 	static D3D11_PRIMITIVE_TOPOLOGY lookup[TOP_MAX_TOPOLOGY] = 
 	{

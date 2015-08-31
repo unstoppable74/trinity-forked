@@ -6,8 +6,6 @@
 
 ALResult Tr2OcclusionQueryAL::Create( Tr2PrimaryRenderContextAL& renderContext )
 {
-	AL_FUZZ( Tr2RenderContextEnum::OT_OCCLUSION_QUERY );
-
 	Destroy();
 
 	if( !renderContext.m_d3dDevice11 )

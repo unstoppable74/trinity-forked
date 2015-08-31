@@ -120,8 +120,6 @@ ALResult Tr2SwapChainAL::CreateFramebuffer( Tr2RenderContextAL& renderContext )
 // --------------------------------------------------------------------------------------
 ALResult Tr2SwapChainAL::Create( Tr2WindowHandle windowHandle, Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( Tr2RenderContextEnum::OT_SWAP_CHAIN );
-
 	Destroy();
 
 	if( !renderContext.IsValid() )

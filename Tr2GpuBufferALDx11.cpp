@@ -32,8 +32,6 @@ ALResult Tr2GpuBufferAL::CreateEx(
 	uint32_t flags,
 	Tr2PrimaryRenderContextAL & renderContext )
 {
-	AL_FUZZ( OT_GPU_BUFFER );
-
 	Destroy();
 
 	m_numElements = numberOfElements;
@@ -53,8 +51,6 @@ ALResult Tr2GpuBufferAL::CreateStructured(
 	const void* initialData, 
 	Tr2PrimaryRenderContextAL & renderContext )
 {
-	AL_FUZZ( OT_GPU_BUFFER );
-
 	Destroy();
 
 	m_numElements = numberOfElements;

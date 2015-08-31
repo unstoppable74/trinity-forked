@@ -64,13 +64,11 @@ public:
 		Tr2RenderContextEnum::LockType lockType, 
 		Tr2RenderContextAL & renderContext )
 	{
-		AL_FUZZ_LOCK( Tr2RenderContextEnum::OT_GPU_BUFFER );
 		return Tr2BufferImplAL::Lock( offset, sizeInBytes, data, lockType, renderContext );
 	}
 
 	ALResult Unlock( Tr2RenderContextAL & renderContext )
 	{
-		AL_FUZZ_LOCK( Tr2RenderContextEnum::OT_GPU_BUFFER );
 		return Tr2BufferImplAL::Unlock( renderContext );
 	}
 

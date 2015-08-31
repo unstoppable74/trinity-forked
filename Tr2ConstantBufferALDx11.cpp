@@ -18,9 +18,6 @@ Tr2ConstantBufferAL::Tr2ConstantBufferAL()
 	: m_size( 0 )
 	, m_frameUse( FRAME_USE_NOT_USED_YET )
 	, m_usage( s_defaultUsage )
-#if TRINITY_AL_CAPTURE_ENABLED
-	, m_writeLockCount( 0 )
-#endif
 {
 }
 
@@ -51,8 +48,6 @@ Tr2ConstantBufferAL& Tr2ConstantBufferAL::operator=( Tr2ConstantBufferAL&& other
 
 ALResult Tr2ConstantBufferAL::Create( uint32_t size, Tr2RenderContextEnum::BufferUsage usage, const void* initialData, Tr2PrimaryRenderContextAL & renderContext )
 {
-	AL_FUZZ( OT_CONSTANT_BUFFER );
-
 	m_buffer = nullptr;
 	m_size = 0;
 	m_usage = s_defaultUsage;
@@ -133,8 +128,6 @@ ALResult Tr2ConstantBufferAL::Create( uint32_t size, Tr2RenderContextEnum::Buffe
 // --------------------------------------------------------------------------------------
 ALResult Tr2ConstantBufferAL::Lock( void** data, Tr2RenderContextAL & renderContext )
 {
-	AL_FUZZ_LOCK( OT_CONSTANT_BUFFER );
-
 	bool isDynamic = ( m_usage & USAGE_LOCK_FREQUENTLY ) != 0;
 
 	if( isDynamic )
@@ -153,10 +146,6 @@ ALResult Tr2ConstantBufferAL::Lock( void** data, Tr2RenderContextAL & renderCont
 			return E_FAIL;
 		}
 	}
-
-#if TRINITY_AL_CAPTURE_ENABLED
-	++m_writeLockCount;
-#endif
 
 	CCP_ASSERT( m_frameUse != FRAME_USE_MIRRORED );	// if this fires, you've used GetBufferMirror, and should call UpdateFromMirror.
 	CCP_ASSERT( m_frameUse != FRAME_USE_LOCKING  );	// if this fires, you've already locked this CB without then having bound it to the device.
@@ -195,8 +184,6 @@ ALResult Tr2ConstantBufferAL::Lock( void** data, Tr2RenderContextAL & renderCont
 
 ALResult Tr2ConstantBufferAL::Unlock( Tr2RenderContextAL & renderContext )
 {
-	AL_FUZZ_LOCK( OT_CONSTANT_BUFFER );
-
 	CCP_ASSERT( m_frameUse != FRAME_USE_MIRRORED );	// if this fires, you've used GetBufferMirror, and should call UpdateFromMirror.
 	CCP_ASSERT( m_frameUse == FRAME_USE_LOCKING	 );	// if this fires, you didn't call Lock (or it didn't work and you ignored HR).
 
@@ -248,7 +235,6 @@ void Tr2ConstantBufferAL::Destroy()
 void* Tr2ConstantBufferAL::GetBufferMirror( uint32_t minimumSize, Tr2RenderContextAL& /*renderContext*/ )
 {
 	using namespace Tr2RenderContextEnum;
-	AL_FUZZ_RET( OT_CONSTANT_BUFFER, nullptr );
 
 	if( minimumSize > GetSize() )
 	{
@@ -283,8 +269,6 @@ void* Tr2ConstantBufferAL::GetBufferMirror( uint32_t minimumSize, Tr2RenderConte
 // --------------------------------------------------------------------------------------
 ALResult Tr2ConstantBufferAL::UpdateFromMirror( Tr2RenderContextAL & renderContext )
 {
-	AL_FUZZ( OT_CONSTANT_BUFFER );
-
 	if( m_usage & USAGE_IMMUTABLE )
 	{
 		return E_INVALIDCALL;
@@ -295,10 +279,6 @@ ALResult Tr2ConstantBufferAL::UpdateFromMirror( Tr2RenderContextAL & renderConte
 	{
 		return E_FAIL;
 	}
-
-#if TRINITY_AL_CAPTURE_ENABLED
-	++m_writeLockCount;
-#endif
 
 	CCP_ASSERT( m_frameUse != FRAME_USE_LOCKING );	// if this fires, you've used Lock, and should call Unlock.
 	m_frameUse = FRAME_USE_MIRRORED;	// might not be set yet -- which is fine, the mirror persists across frames (but the CB itself might be shared)
@@ -328,52 +308,5 @@ ALResult Tr2ConstantBufferAL::UpdateFromMirror( Tr2RenderContextAL & renderConte
 		return S_OK;
 	}
 }
-
-#if TRINITY_AL_CAPTURE_ENABLED
-ALResult Tr2ConstantBufferAL::CloneTo( Tr2ConstantBufferAL& target )
-{
-	auto& renderContext = Tr2RenderContextAL::GetPrimaryRenderContext();
-
-	bool isDynamic = ( m_usage & USAGE_LOCK_FREQUENTLY ) != 0;
-
-	if( !isDynamic )
-	{
-		CComPtr<ID3D11Buffer> staging;
-
-		D3D11_BUFFER_DESC bd;
-		ZeroMemory(&bd, sizeof(bd));
-
-		bd.Usage			= D3D11_USAGE_STAGING;
-		bd.ByteWidth		= m_size;
-		bd.BindFlags		= 0;
-		bd.CPUAccessFlags	= D3D11_CPU_ACCESS_READ;
-
-		CR_RETURN_HR( 
-			renderContext.m_d3dDevice11->CreateBuffer( 
-							&bd, 
-							nullptr, 
-							&staging ) );
-			
-		if( !staging )
-		{
-			return E_FAIL;
-		}
-	
-		renderContext.m_context->CopyResource( staging, m_buffer );
-
-#pragma warning( disable: 4189 )
-	
-		D3D11_MAPPED_SUBRESOURCE ms;
-		CR_RETURN_HR(       renderContext.m_context->Map  ( staging, 0, D3D11_MAP_READ, 0, &ms ) );
-		ON_BLOCK_EXIT( [&]{ renderContext.m_context->Unmap( staging, 0 ); } );
-	
-		return target.Create( m_size, m_usage, ms.pData, renderContext );
-	}
-	else
-	{
-		return target.Create( m_size, m_usage, m_bufferMirror.get(), renderContext );
-	}
-}
-#endif
 
 #endif

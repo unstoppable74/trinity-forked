@@ -31,8 +31,6 @@ ALResult Tr2SamplerStateAL::Create(
 	Tr2RenderContextAL& /*renderContext*/,
 	const Tr2SamplerDescription& description )
 {
-	AL_FUZZ( OT_SAMPLER_STATE );
-
 	m_states[D3DSAMP_MINFILTER] = g_forceAnisotropy == 1 ? TF_LINEAR : description.m_minFilter;
 	m_states[D3DSAMP_MAGFILTER] = g_forceAnisotropy == 1 ? TF_LINEAR : description.m_magFilter;
 	m_states[D3DSAMP_MIPFILTER] = description.m_mipFilter;

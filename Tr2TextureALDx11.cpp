@@ -34,10 +34,6 @@ void Tr2TextureAL::Destroy()
 
 	m_currentLock	= LOCK_INVALID;
 	m_currentLockMipLevel = 0;
-
-#if TRINITY_AL_CAPTURE_ENABLED
-	m_writeLockCount = 0;
-#endif
 }
 
 Tr2TextureAL::~Tr2TextureAL()
@@ -70,11 +66,6 @@ Tr2TextureAL& Tr2TextureAL::operator=( Tr2TextureAL&& other )
 		m_arraySize = other.m_arraySize;
 		ChangeObjectId();
 	}
-
-#if TRINITY_AL_CAPTURE_ENABLED
-	m_writeLockCount = other.m_writeLockCount;
-#endif
-
 	return *this;
 }
 
@@ -104,10 +95,6 @@ Tr2TextureAL& Tr2TextureAL::operator=( Tr2TextureAL& other )
 		m_view[1]		= other.m_view[1];
 		ChangeObjectId();
 	}
-
-#if TRINITY_AL_CAPTURE_ENABLED
-	m_writeLockCount = other.m_writeLockCount;
-#endif
 
 	return *this;
 }
@@ -164,8 +151,6 @@ ALResult Tr2TextureAL::Create2D(
 	Tr2SubresourceData* initialData,
 	Tr2PrimaryRenderContextAL &renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	HRESULT hr = Create2DImpl( width, height, mipLevelCount, 1, 0, format, usage, initialData, renderContext );
 	if( SUCCEEDED( hr ) )
 	{
@@ -184,8 +169,6 @@ ALResult Tr2TextureAL::Create2DArray(
 	Tr2SubresourceData* initialData,
 	Tr2PrimaryRenderContextAL &renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	HRESULT hr = Create2DImpl( width, height, mipLevelCount, arrayCount, 0, format, usage, initialData, renderContext );
 	if( SUCCEEDED( hr ) )
 	{
@@ -209,8 +192,6 @@ ALResult Tr2TextureAL::CreateCube(
 	Tr2SubresourceData* initialData,
 	Tr2PrimaryRenderContextAL &renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	HRESULT hr = Create2DImpl( width, height, mipLevelCount, 6, D3D11_RESOURCE_MISC_TEXTURECUBE, format, usage, initialData, renderContext );
 	if( SUCCEEDED( hr ) )
 	{
@@ -339,8 +320,6 @@ ALResult Tr2TextureAL::CreateVolume(
 	Tr2SubresourceData* initialData,
 	Tr2PrimaryRenderContextAL &renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	Destroy();
 
 	if( !ValidateUsage( usage ) )
@@ -435,8 +414,6 @@ ALResult Tr2TextureAL::UpdateSubresource(
 	uint32_t sourcePitch, 
 	Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
-
 	if( !m_texture || !renderContext.m_context || m_type != TEX_TYPE_2D ) 
 	{
 		return E_FAIL;
@@ -462,9 +439,6 @@ ALResult Tr2TextureAL::UpdateSubresource(
 	}
 	renderContext.m_context->UpdateSubresource( m_texture, 0, &box, source, sourcePitch, 0 );
 
-#if TRINITY_AL_CAPTURE_ENABLED
-	++m_writeLockCount;
-#endif
 	return S_OK;
 }
 
@@ -490,7 +464,6 @@ ALResult Tr2TextureAL::CopySubresourceRegion(
 	const Tr2TextureSubresource& sourceSubresource,
 	Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_TEXTURE );
 	CCP_ASSERT( m_texture );
 	CCP_ASSERT( source.m_texture );
 
@@ -507,10 +480,6 @@ ALResult Tr2TextureAL::CopySubresourceRegion(
 		renderContext.m_context->CopyResource( m_texture, source.m_texture );
 		return S_OK;
 	}
-
-#if TRINITY_AL_CAPTURE_ENABLED
-	++m_writeLockCount;
-#endif
 
 	Tr2TextureSubresource src = sourceSubresource;
 	Tr2TextureSubresource dst = destSubresource;	
@@ -581,10 +550,6 @@ ALResult Tr2TextureAL::CopySubresourceRegion(
 	const Tr2TextureSubresource& sourceSubresource,
 	Tr2RenderContextAL& renderContext )
 {
-#if TRINITY_AL_CAPTURE_ENABLED
-	++m_writeLockCount;
-#endif
-
 	AL_UPDATE_RESOURCE_FRAME_USAGE( *this );
 	AL_UPDATE_RESOURCE_FRAME_USAGE( source );
 
@@ -663,7 +628,6 @@ ALResult Tr2TextureAL::Lock(
 	LockType lockType, 
 	Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ_LOCK( OT_TEXTURE );
 	CCP_ASSERT( m_currentLock == LOCK_INVALID );
 	if( m_currentLock != LOCK_INVALID )
 	{
@@ -695,8 +659,6 @@ ALResult Tr2TextureAL::Lock(
 
 ALResult Tr2TextureAL::Unlock( Tr2RenderContextAL & renderContext )
 {
-	AL_FUZZ_LOCK( OT_TEXTURE );
-
 	switch( m_currentLock )
 	{
 	case LOCK_READONLY:
@@ -837,10 +799,6 @@ ALResult Tr2TextureAL::LockWriting(
 		return E_FAIL;
 	}
 
-#if TRINITY_AL_CAPTURE_ENABLED
-	++m_writeLockCount;
-#endif
-
 	if( ltrb || !( m_usage & USAGE_CPU_WRITE ) )
 	{
 		if( !m_writeStaging.empty() )
@@ -957,10 +915,6 @@ ALResult Tr2TextureAL::UnlockWriting( Tr2RenderContextAL & renderContext )
 			renderContext.m_context->UpdateSubresource( m_texture, m_currentLockMipLevel, &box, m_writeStaging.get(), pitch, 0 );
 		}
 
-#if TRINITY_AL_CAPTURE_ENABLED
-		++m_writeLockCount;
-#endif
-
 		m_writeStaging.clear();
 		m_writeLtrb[0] = m_writeLtrb[1] = m_writeLtrb[2] = m_writeLtrb[3] = 0;
 
@@ -973,62 +927,6 @@ ALResult Tr2TextureAL::UnlockWriting( Tr2RenderContextAL & renderContext )
 	renderContext.m_context->Unmap( m_texture, m_currentLockMipLevel );
 	return S_OK;
 }
-
-#if TRINITY_AL_CAPTURE_ENABLED
-ALResult Tr2TextureAL::CloneTo( Tr2TextureAL& target )
-{
-	void* data = nullptr;
-	uint32_t pitch = 0;
-
-	auto& renderContext = Tr2RenderContextAL::GetPrimaryRenderContext();
-
-	switch( m_type )
-	{
-	case TEX_TYPE_2D:
-		CR_RETURN_HR(	target.Create2D(	m_width,
-											m_height,
-											m_mipCount,
-											m_format,
-											USAGE_CPU_READ,
-											nullptr,
-											renderContext ) );
-		break;
-
-	case TEX_TYPE_3D:
-		CR_RETURN_HR(	target.CreateVolume(	m_width, 
-												m_height,
-												m_volumeDepth,
-												m_mipCount,
-												m_format,
-												USAGE_CPU_READ,
-												nullptr,
-												renderContext ) );
-		break;
-
-	case TEX_TYPE_CUBE:
-		CR_RETURN_HR(	target.CreateCube(		m_width, 
-												m_height, 
-												m_mipCount,
-												m_format,
-												USAGE_CPU_READ,
-												nullptr,
-												renderContext ) );
-		break;
-
-	default:
-		return E_FAIL;
-	}
-
-	CR_RETURN_HR( target.CopySubresourceRegion(	Tr2TextureSubresource(),
-												*this,
-												Tr2TextureSubresource(),
-												renderContext ) );
-
-	target.m_writeLockCount = m_writeLockCount;
-
-	return S_OK;
-}
-#endif	// ? TRINITY_AL_CAPTURE_ENABLED
 
 ALResult Tr2TextureAL::CreateUAV( Tr2PrimaryRenderContextAL &renderContext )
 {

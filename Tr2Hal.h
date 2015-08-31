@@ -20,10 +20,6 @@
 #	error TRINITY_PLATFORM must be set
 #endif
 
-#if !defined( NDEBUG ) && !defined( TRINITY_AL_CAPTURE_ENABLED ) && ( TRINITY_PLATFORM == TRINITY_DIRECTX11 )
-#	define TRINITY_AL_CAPTURE_ENABLED		1
-#endif
-
 
 #ifdef _MSC_VER
 #pragma warning(push, 3)
@@ -80,12 +76,10 @@ class Tr2PrimaryRenderContextAL;
 
 #include "ALResult.h"
 #include "Tr2HalHelperStructures.h"
-#include "Tr2HalFuzzing.h"
 #include "Tr2RenderContextEnum.h"
 #include "Tr2TrackedALObject.h"
 
 #include "Tr2AdapterStructures.h"
-#include "Tr2RenderCapture.h"
 
 // --------------------------------------------------------
 // - Start including actual implementations.  They all duck type

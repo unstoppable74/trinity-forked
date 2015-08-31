@@ -57,8 +57,6 @@ void Tr2SwapChainAL::PrepareALResource( Tr2PrimaryRenderContextAL& renderContext
 // --------------------------------------------------------------------------------------
 ALResult Tr2SwapChainAL::Create( Tr2WindowHandle windowHandle, Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( Tr2RenderContextEnum::OT_SWAP_CHAIN );
-
 	Destroy();
 
 	m_presentParam.hDeviceWindow = windowHandle;

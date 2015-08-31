@@ -104,8 +104,6 @@ ALResult Tr2RenderTargetAL::Create(
 	uint32_t msaaQuality,
 	Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_RENDER_TARGET );
-
 	Destroy();
 
 	if( msaaType > 1 )
@@ -321,8 +319,6 @@ ALResult Tr2RenderTargetAL::Lock(
 	uint32_t& pitch, 
 	Tr2RenderContextAL& renderContext )
 {	
-	AL_FUZZ_LOCK( OT_RENDER_TARGET );
-
 	if( !m_backingStore.IsValid() || m_isLocked )
 	{
 		return E_FAIL;
@@ -337,8 +333,6 @@ ALResult Tr2RenderTargetAL::Lock(
 
 ALResult Tr2RenderTargetAL::Unlock( Tr2RenderContextAL& /*renderContext*/ )
 {
-	AL_FUZZ_LOCK( OT_RENDER_TARGET );
-
 	if( !m_lockedOften )
 	{
 		CcpMallocBuffer empty;

@@ -72,8 +72,6 @@ ALResult Tr2ShaderAL::Create(
 {
 	Destroy();
 
-	AL_FUZZ( OT_SHADER );
-
 	m_type = type;
 
 	int shader = CreateShader( type, bytecode, bytecodeSize );
@@ -144,8 +142,6 @@ Tr2RenderContextEnum::ShaderType Tr2ShaderAL::GetType() const
 
 ALResult Tr2ShaderAL::GetBytecode( const void*& bytecode, uint32_t& size ) const
 {
-	AL_FUZZ( OT_SHADER );
-
 	if( m_type == INVALID_SHADER )
 	{
 		bytecode = nullptr;

@@ -39,8 +39,6 @@ ALResult Tr2SamplerStateAL::Create(
 	Tr2RenderContextAL& /*renderContext*/,
 	const Tr2SamplerDescription& description )
 {
-	AL_FUZZ( OT_SAMPLER_STATE );
-
 	CR_RETURN_HR( CreateStateData( description, m_stateData ) );
     m_isValid = true;
 	return S_OK;
@@ -128,8 +126,6 @@ ALResult Tr2SamplerStateAL::CreateStateData( const Tr2SamplerDescription& descri
 
 ALResult Tr2SamplerStateAL::Apply( GLenum textureType, bool hasMipLevels, const StateData& stateData )
 {
-	AL_FUZZ( OT_SAMPLER_STATE );
-
 	CR_GL( glTexParameteri( textureType, GL_TEXTURE_MIN_FILTER, hasMipLevels ? stateData.m_minFilter : stateData.m_minFilterNoMips ) );
 	CR_GL( glTexParameteri( textureType, GL_TEXTURE_MAG_FILTER, stateData.m_magFilter ) );
 	CR_GL( glTexParameteri( textureType, GL_TEXTURE_WRAP_S, textureType == GL_TEXTURE_CUBE_MAP ? GL_CLAMP_TO_EDGE : stateData.m_wrapT ) );

@@ -20,8 +20,6 @@ Tr2ConstantBufferAL::~Tr2ConstantBufferAL()
 
 ALResult Tr2ConstantBufferAL::Create( uint32_t size, Tr2RenderContextEnum::BufferUsage usage, const void* initialData, Tr2RenderContextAL &renderContext )
 {
-	AL_FUZZ( OT_CONSTANT_BUFFER );
-
 	if( !renderContext.IsValid() )
 	{
 		return E_INVALIDARG;
@@ -56,8 +54,6 @@ ALResult Tr2ConstantBufferAL::Create( uint32_t size, Tr2RenderContextEnum::Buffe
 
 ALResult Tr2ConstantBufferAL::Lock( void** data, Tr2RenderContextAL & /*renderContext*/ )
 {
-	AL_FUZZ_LOCK( OT_CONSTANT_BUFFER );
-
 	if( m_usage & USAGE_IMMUTABLE )
 	{
 		return E_INVALIDCALL;
@@ -77,7 +73,6 @@ ALResult Tr2ConstantBufferAL::Lock( void** data, Tr2RenderContextAL & /*renderCo
 
 ALResult Tr2ConstantBufferAL::Unlock( Tr2RenderContextAL & /*renderContext*/ )
 {
-	AL_FUZZ_LOCK( OT_CONSTANT_BUFFER );
 	CCP_ASSERT( !m_debugUsingMirror );
 	
 	if( !m_isLocked )
@@ -110,8 +105,6 @@ void Tr2ConstantBufferAL::Destroy()
 // --------------------------------------------------------------------------------------
 void* Tr2ConstantBufferAL::GetBufferMirror( uint32_t minimumSize, Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ_RET( OT_CONSTANT_BUFFER, nullptr );
-
 	if( minimumSize > GetSize() )
 	{
 		if( FAILED( Create( minimumSize, renderContext ) ) )
@@ -132,7 +125,6 @@ void* Tr2ConstantBufferAL::GetBufferMirror( uint32_t minimumSize, Tr2RenderConte
 
 ALResult Tr2ConstantBufferAL::UpdateFromMirror( Tr2RenderContextAL & /*renderContext*/ )
 {
-	AL_FUZZ( OT_CONSTANT_BUFFER );
 	CCP_ASSERT( m_debugUsingMirror );
 	m_debugUsingMirror = false;
 	return S_OK;

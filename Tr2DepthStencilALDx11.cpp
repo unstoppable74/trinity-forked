@@ -14,9 +14,6 @@ Tr2DepthStencilAL::Tr2DepthStencilAL()
 	, m_format( static_cast<DepthStencilFormat>( 0 ) )
 	, m_msaaType( 0 )
 	, m_msaaQuality( 0 )
-#if TRINITY_AL_CAPTURE_ENABLED	
-	, m_writeLockCount( 0 )
-#endif
 {
 	memset( &m_deviceLost, 0, sizeof( m_deviceLost ) );
 }
@@ -70,8 +67,6 @@ ALResult Tr2DepthStencilAL::CreateEx(
 	uint32_t flags, 
 	Tr2PrimaryRenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_DEPTH_STENCIL );
-
 	Destroy();
 
 	const bool shared = flags & EX_CREATE_SHARED;
@@ -311,18 +306,5 @@ uint32_t Tr2DepthStencilAL::GetSharedHandle() const
 		return reinterpret_cast<uint32_t>( sharedHandle );
 	}
 }
-
-#if TRINITY_AL_CAPTURE_ENABLED
-// Note - we don't clone the contents.
-ALResult Tr2DepthStencilAL::CloneTo( Tr2DepthStencilAL& target )
-{
-	return target.Create(	m_width,
-							m_height,
-							m_format,
-							m_msaaType,
-							m_msaaQuality,
-							Tr2RenderContextAL::GetPrimaryRenderContext() );
-}	
-#endif
 
 #endif

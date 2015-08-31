@@ -12,9 +12,6 @@ Tr2BufferImplAL::Tr2BufferImplAL()
 	: m_currentLock( LOCK_INVALID )
 	, m_lengthInBytes( 0 )
 	, m_usage( 0 )
-#if TRINITY_AL_CAPTURE_ENABLED
-	, m_writeLockCount( 0 )
-#endif
 {
 }
 
@@ -275,9 +272,6 @@ ALResult Tr2BufferImplAL::LockWriting(
 		}
 		m_currentLock = lockType;
 
-#if TRINITY_AL_CAPTURE_ENABLED
-		++m_writeLockCount;
-#endif
 		return hr;
 	}
 	if( lockType == LOCK_NO_OVERWRITE )

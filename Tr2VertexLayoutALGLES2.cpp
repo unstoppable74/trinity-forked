@@ -11,8 +11,6 @@ Tr2VertexLayoutAL::Tr2VertexLayoutAL()
 
 ALResult Tr2VertexLayoutAL::Create( const Tr2VertexDefinition& definition, Tr2RenderContextAL& renderContext )
 {
-	AL_FUZZ( OT_VERTEX_LAYOUT );
-
 	if( !renderContext.IsValid() )
 	{
 		return E_FAIL;
