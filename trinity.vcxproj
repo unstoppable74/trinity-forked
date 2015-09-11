@@ -2626,6 +2626,7 @@
     <ClInclude Include="Tr2PerObjectData.h"/>
     <ClInclude Include="Tr2PersistentPerObjectData.h"/>
     <ClInclude Include="Tr2PickBuffer.h"/>
+    <ClInclude Include="Tr2PickingHelperBatch.h"/>
     <ClInclude Include="Tr2PointLight.h"/>
     <ClInclude Include="Tr2PostProcess.h"/>
     <ClInclude Include="Tr2PrimitiveScene.h"/>

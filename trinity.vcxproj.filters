@@ -260,6 +260,9 @@
     <ClInclude Include="Tr2PickBuffer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Tr2PickingHelperBatch.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="Tr2PointLight.h">
       <Filter>Source Files</Filter>
     </ClInclude>
