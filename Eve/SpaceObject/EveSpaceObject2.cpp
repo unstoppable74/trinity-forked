@@ -2225,7 +2225,7 @@ IRoot* EveSpaceObject2::GetID( uint16_t areaID )
 			{
 				return items->GetAt( areaIndex );
 			}
-			areaIndex -= items->size();
+			areaIndex -= int( items->size() );
 		}
 		return GetRawRoot();
 	case ATTACHMENT_TYPE_SPOTLIGHT_SET:
@@ -2236,7 +2236,7 @@ IRoot* EveSpaceObject2::GetID( uint16_t areaID )
 			{
 				return items->GetAt( areaIndex );
 			}
-			areaIndex -= items->size();
+			areaIndex -= int( items->size() );
 		}
 		return GetRawRoot();
 	case ATTACHMENT_TYPE_PLANE_SET:
@@ -2247,7 +2247,7 @@ IRoot* EveSpaceObject2::GetID( uint16_t areaID )
 			{
 				return items->GetAt( areaIndex );
 			}
-			areaIndex -= items->size();
+			areaIndex -= int( items->size() );
 		}
 		return GetRawRoot();
 	default:

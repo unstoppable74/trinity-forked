@@ -111,7 +111,7 @@ public:
 		renderContext.m_esm.ApplyVertexDeclaration( g_debugResourceHelper.GetVertexPosColorDecl() );
 
 		renderContext.SetTopology( Tr2RenderContextEnum::TOP_TRIANGLES );
-		renderContext.DrawPrimitiveUP( m_vertices.size() / 3, &m_vertices.front(), sizeof( Vector4 ) );
+		renderContext.DrawPrimitiveUP( uint32_t( m_vertices.size() / 3 ), &m_vertices.front(), uint32_t( sizeof( Vector4 ) ) );
 	}
 private:
 
