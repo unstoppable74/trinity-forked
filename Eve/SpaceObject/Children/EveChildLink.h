@@ -31,12 +31,17 @@ public:
 	virtual void UpdateAsyncronous( EveUpdateContext& updateContext, EveSpaceObject2* parent );
 
 private:
-	// the size of this thing
-	float m_scale;
 	// what's it pointing at?
-	Vector3 m_direction;
+	Vector3 m_currentDirection;
+	float m_currentDistance;
 	// how string is the link?
 	float m_linkStrength;
+	// where is the barrier
+	float m_linkBarrier;
+	float m_linkBarrierZone;
+
+	// this is the target
+	ITriVectorFunctionPtr m_target;
 
 	// a link has it's own set of curves for link strength lookup
 	PITr2ValueBindingVector m_linkStrengthBindings;

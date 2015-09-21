@@ -9,6 +9,7 @@
 
 #include "include/TriMath.h"
 #include "TriValueBinding.h"
+#include "Eve/EveUpdateContext.h"
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -18,9 +19,11 @@ EveChildLink::EveChildLink( IRoot* lockobj ) :
 	EveChildMesh( lockobj ),
 	PARENTLOCK( m_linkStrengthCurves ),
 	PARENTLOCK( m_linkStrengthBindings ),
-	m_scale( 1.f ),
-	m_direction( 0.f, 0.f, 1.f ),
-	m_linkStrength( 0.f )
+	m_currentDirection( 0.f, 0.f, 1.f ),
+	m_currentDistance( 0.f ),
+	m_linkStrength( 0.f ),
+	m_linkBarrier( 0.f ),
+	m_linkBarrierZone( 1.f )
 {
 }
 
@@ -39,6 +42,22 @@ EveChildLink::~EveChildLink()
 void EveChildLink::UpdateSyncronous( EveUpdateContext& updateContext, EveSpaceObject2* parent )
 {
 	EveChildMesh::UpdateSyncronous( updateContext, parent );
+
+	// if we have a target, we can calc the diretion
+	if( m_target )
+	{
+		// target comes from attached ball
+		Vector3 tgtPos;
+		m_target->GetValueAt( &tgtPos, updateContext.GetTime() );
+		// source is form parent
+		Vector3 srcPos = parent->GetModelWorldPosition();
+
+		// and that gives the direcion and current distance
+		m_currentDirection = tgtPos - srcPos;
+		m_currentDistance = D3DXVec3Length( &m_currentDirection );
+
+		D3DXVec3Normalize( &m_currentDirection, &m_currentDirection );
+	}
 }
 
 // --------------------------------------------------------------------------------
@@ -64,7 +83,10 @@ void EveChildLink::UpdateAsyncronous( EveUpdateContext& updateContext, EveSpaceO
 	// link rotation comes from direction
 	Vector3 linkMeshDir( 0.f, 1.f, 0.f );
 	Matrix linkRotationMat;
-	TriMatrixRotationArc( &linkRotationMat, &linkMeshDir, &m_direction );
+	TriMatrixRotationArc( &linkRotationMat, &linkMeshDir, &m_currentDirection );
+
+	// link strength comes from distance vs. barrier
+	m_linkStrength = Clamp( ( m_linkBarrierZone - m_currentDistance + m_linkBarrier ) / ( 2.f * m_linkBarrierZone ), 0.f, 1.f );
 
 	// need inverse rotation-only from worldmatrix
 	Matrix invRotationWorldMat;
