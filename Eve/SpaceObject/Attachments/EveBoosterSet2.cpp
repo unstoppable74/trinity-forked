@@ -56,6 +56,8 @@ bool g_lightNoiseInitialized = false;
 EveBoosterSet2::EveBoosterSet2( IRoot* lockobj ) :
 	m_glowColor( 0.0f, 0.0f, 0.0f, 0.0f ),
 	m_haloColor( 0.0f, 0.0f, 0.0f, 0.0f ),
+	m_warpGlowColor( 0.0f, 0.0f, 0.0f, 0.0f ),
+	m_warpHaloColor( 0.0f, 0.0f, 0.0f, 0.0f ),
 	m_display( true ),
 	m_physicsUpdate( true ),
 	m_destinyUpdate( true ),
@@ -444,22 +446,22 @@ void EveBoosterSet2::Add( const Matrix* localMatrix, const Vector4* functionalit
 		scale = D3DXVec3Length( &dir );
 	}
 
-	float seed = float( rand() ) / float( RAND_MAX );
+	float seed = float( rand() ) / float( RAND_MAX ) * 0.7f;
 
 	// also add it to all the lensflares
 	if( m_glows )
 	{
 		Vector3 spritePos = pos - 2.5f * dir;
-		m_glows->Add( spritePos, 0.0f, 0.0f, scale * m_glowScale, scale * m_glowScale, 0.0f, 
-			Color( m_glowColor.r, m_glowColor.g, m_glowColor.b, seed ) );
+		m_glows->Add( spritePos, seed, seed, scale * m_glowScale, scale * m_glowScale, 0.0f, 
+			m_glowColor, m_warpGlowColor );
 
 		spritePos = pos - 3.0f * dir;
-		m_glows->Add( spritePos, 0.0f, 1.0f, scale * m_symHaloScale, scale * m_symHaloScale, 0.0f, 
-			Color( m_haloColor.r, m_haloColor.g, m_haloColor.b, seed ) );
+		m_glows->Add( spritePos, seed, 1.0f + seed, scale * m_symHaloScale, scale * m_symHaloScale, 0.0f, 
+			m_haloColor, m_warpHaloColor );
 
 		spritePos = pos - 3.01f * dir;
-		m_glows->Add( spritePos, 0.0f, 1.0f, scale * m_haloScaleX, scale * m_haloScaleY, 0.0f, 
-			Color( m_haloColor.r, m_haloColor.g, m_haloColor.b, seed ) );
+		m_glows->Add( spritePos, seed, 1.0f + seed, scale * m_haloScaleX, scale * m_haloScaleY, 0.0f, 
+			m_haloColor, m_warpHaloColor );
 	}
 
 	// also add it to the trails
@@ -488,14 +490,25 @@ void EveBoosterSet2::Add( const Matrix* localMatrix, const Vector4* functionalit
 // Description:
 //   Set all internal data of this set
 // --------------------------------------------------------------------------------
-void EveBoosterSet2::SetData( float glowScale, const Color* glowColor, float symHaloScale, float haloScaleX, float haloScaleY, const Color* haloColor, bool alwaysOn )
+void EveBoosterSet2::SetData( 
+	float glowScale, 
+	const Color* glowColor, 
+	const Color* warpGlowColor, 
+	float symHaloScale, 
+	float haloScaleX, 
+	float haloScaleY, 
+	const Color* haloColor, 
+	const Color* warpHaloColor, 
+	bool alwaysOn )
 {
 	m_glowScale = glowScale;
 	m_glowColor = *glowColor;
+	m_warpGlowColor = *warpGlowColor;
 	m_symHaloScale = symHaloScale;
 	m_haloScaleX = haloScaleX;
 	m_haloScaleY = haloScaleY;
 	m_haloColor = *haloColor;
+	m_warpHaloColor = *warpHaloColor;
 	m_alwaysOn = alwaysOn;
 }
 
@@ -1128,7 +1141,7 @@ void EveBoosterSet2::AddToQuadRenderer( Tr2QuadRenderer& quadRenderer, const Mat
 {
 	if( m_glows && m_boosterLOD > g_eveSpaceSceneLowDetailThreshold )
 	{
-		m_glows->AddBoosterGlowToQuadRenderer( quadRenderer, world, m_overallIntensity );
+		m_glows->AddBoosterGlowToQuadRenderer( quadRenderer, world, m_overallIntensity, m_warpIntensity );
 	}
 }
 

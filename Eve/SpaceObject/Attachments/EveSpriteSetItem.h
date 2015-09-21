@@ -26,6 +26,7 @@ public:
 	float m_maxScale;
 	float m_falloff;
 	Color m_color;
+	Color m_warpColor;
 	int m_boneIndex;
 };
 

@@ -59,6 +59,13 @@ const Be::ClassInfo* EveSpriteSetItem::ExposeToBlue()
 			Be::READWRITE | Be::NOTIFY | Be::PERSIST
 		)
 		MAP_ATTRIBUTE
+		(
+			"warpColor",  
+			m_warpColor, 
+			"na", 
+			Be::READWRITE | Be::NOTIFY | Be::PERSIST
+		)
+		MAP_ATTRIBUTE
 		( 
 			"boneIndex", 
 			m_boneIndex, 

@@ -818,6 +818,8 @@ void EveSOFDataMgr::GenerateRaceData( RaceData& rd, EveSOFDataRacePtr srcData ) 
 	rd.boosters.haloScaleY = srcData->m_booster->m_haloScaleY;
 	rd.boosters.symHaloScale = srcData->m_booster->m_symHaloScale;
 	rd.boosters.trailColor = srcData->m_booster->m_trailColor;
+	rd.boosters.warpGlowColor = srcData->m_booster->m_warpGlowColor;
+	rd.boosters.warpHaloColor = srcData->m_booster->m_warpHaloColor;
 	rd.boosters.trailSize = srcData->m_booster->m_trailSize;
 
 	auto copyShape = [=]( RaceBoosterDataShape& dest, EveSOFDataBoosterShape* src )

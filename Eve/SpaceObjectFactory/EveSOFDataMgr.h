@@ -250,7 +250,7 @@ public:
 	struct RaceBoosterData
 	{
 		float glowScale, symHaloScale, haloScaleX, haloScaleY;
-		Color color, glowColor, haloColor, trailColor;
+		Color color, glowColor, haloColor, trailColor, warpGlowColor, warpHaloColor;
 		Vector4 scale, trailSize;
 		std::string textureResPath;
 

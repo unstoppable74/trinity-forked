@@ -897,7 +897,16 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 	set.CreateInstance();
 
 	// set the booster set's internal data
-	set->SetData( rdata->glowScale, &rdata->glowColor, rdata->symHaloScale, rdata->haloScaleX, rdata->haloScaleY, &rdata->haloColor, hdata->alwaysOn );
+	set->SetData( 
+		rdata->glowScale, 
+		&rdata->glowColor, 
+		&rdata->warpGlowColor,
+		rdata->symHaloScale, 
+		rdata->haloScaleX, 
+		rdata->haloScaleY, 
+		&rdata->haloColor, 
+		&rdata->warpHaloColor,
+		hdata->alwaysOn );
 	set->SetLightData( rdata->lightOffset, rdata->lightFlickerAmplitude, rdata->lightFlickerFrequency, rdata->lightRadius, rdata->lightColor, rdata->lightWarpRadius, rdata->lightWarpColor );
 	set->SetVolumetric( rdata->volumetric );
 

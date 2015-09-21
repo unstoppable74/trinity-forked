@@ -96,6 +96,8 @@ EveSOFDataBooster::EveSOFDataBooster( IRoot* lockobj ) :
 	m_glowScale( 1.f ),
 	m_glowColor( 0.f, 0.f, 0.f, 0.f ),
 	m_haloColor( 0.f, 0.f, 0.f, 0.f ),
+	m_warpGlowColor( 0.f, 0.f, 0.f, 0.f ),
+	m_warpHaloColor( 0.f, 0.f, 0.f, 0.f ),
 	m_haloScaleX( 1.f ),
 	m_haloScaleY( 1.f ),
 	m_symHaloScale( 1.f ),

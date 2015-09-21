@@ -22,6 +22,7 @@ const Tr2VertexDefinition& EveSpriteSet::PoolVertex::GetDefinition()
 		vd.Add( vd.FLOAT16_4, vd.TEXCOORD, 0, 1, 1 );
 		vd.Add( vd.FLOAT16_2, vd.TEXCOORD, 1, 1, 1 );
 		vd.Add( vd.UBYTE_4_NORM , vd.COLOR, 0, 1, 1 );
+		vd.Add( vd.UBYTE_4_NORM , vd.COLOR, 1, 1, 1 );
 	}
 	return s_spriteVertexDecl;
 }
@@ -112,6 +113,11 @@ bool EveSpriteSet::OnPrepareResources()
 			vertex.m_position = sprite->m_position;
 			uint32_t color = sprite->m_color;
 			vertex.m_color = 
+				( ( color & 0xff0000 ) >> 16 ) |
+				( color & 0xff00ff00 ) |
+				( ( color & 0xff ) << 16 );
+			color = sprite->m_warpColor;
+			vertex.m_warpColor = 
 				( ( color & 0xff0000 ) >> 16 ) |
 				( color & 0xff00ff00 ) |
 				( ( color & 0xff ) << 16 );
@@ -210,7 +216,7 @@ bool EveSpriteSet::OnPrepareResources()
 //   world - parent local to world transform
 //   boosterGain - parent booster intensity
 // --------------------------------------------------------------------------------
-void EveSpriteSet::AddBoosterGlowToQuadRenderer( Tr2QuadRenderer& quadRenderer, const Matrix& world, float boosterGain )
+void EveSpriteSet::AddBoosterGlowToQuadRenderer( Tr2QuadRenderer& quadRenderer, const Matrix& world, float boosterGain, float warpIntensity )
 {
 	if( !m_useQuadRenderer || !m_display || m_spriteData.empty() )
 	{
@@ -231,6 +237,8 @@ void EveSpriteSet::AddBoosterGlowToQuadRenderer( Tr2QuadRenderer& quadRenderer, 
 	D3DXFLOAT16 zDirY = world.GetZ().y;
 	D3DXFLOAT16 zDirZ = world.GetZ().z;
 	uint32_t gain = std::min( uint32_t( boosterGain * 255.f ), 255u ) << 24;
+	uint32_t warp = std::min( uint32_t( warpIntensity * 255.f ), 255u ) << 24;
+
 	for( size_t i = 0; i < n; ++i )
 	{
 		auto& vert = m_buffer[i];
@@ -238,7 +246,7 @@ void EveSpriteSet::AddBoosterGlowToQuadRenderer( Tr2QuadRenderer& quadRenderer, 
 		vert.m_blinkRate = zDirY;
 		vert.m_falloff = zDirZ;
 		vert.m_color = ( vert.m_color & 0xffffff ) | gain;
-
+		vert.m_warpColor = ( vert.m_warpColor & 0xffffff ) | warp;
 	}
 	quadRenderer.AddQuads( m_effectHash, &m_buffer[0], m_sprites.GetSize() );
 }
@@ -316,7 +324,15 @@ void EveSpriteSet::Clear()
 	m_sprites.Remove(-1);
 }
 
-void EveSpriteSet::Add( const Vector3& pos, float blinkRate, float blinkPhase, float minScale, float maxScale, float falloff, Color color )
+void EveSpriteSet::Add( 
+	const Vector3& pos, 
+	float blinkRate, 
+	float blinkPhase, 
+	float minScale, 
+	float maxScale, 
+	float falloff, 
+	const Color& color, 
+	const Color& warpColor )
 {
 	EveSpriteSetItemPtr item;
 	item.CreateInstance();
@@ -328,14 +344,15 @@ void EveSpriteSet::Add( const Vector3& pos, float blinkRate, float blinkPhase, f
 	item->m_maxScale = maxScale;
 	item->m_falloff = falloff;
 	item->m_color = color;
+	item->m_warpColor = warpColor;
 	item->m_boneIndex = 0;
 
 	Add( item );
 }
 
-void EveSpriteSet::Add( const Vector3& pos, float scale, Color color )
+void EveSpriteSet::Add( const Vector3& pos, float scale, const Color& color, const Color& warpColor )
 {
-	Add( pos, 0.0f, 0.0f, scale, scale, 0.0f, color );
+	Add( pos, 0.0f, 0.0f, scale, scale, 0.0f, color, warpColor );
 }
 
 void EveSpriteSet::Add( EveSpriteSetItemPtr newItem )

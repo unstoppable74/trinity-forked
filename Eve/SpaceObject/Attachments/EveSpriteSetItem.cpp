@@ -5,6 +5,7 @@
 EveSpriteSetItem::EveSpriteSetItem( IRoot* lockobj ) :
 	m_position( 0.0f, 0.0f, 0.0f ),
 	m_color( 1.0f, 1.0f, 1.0f, 1.0f ),
+	m_warpColor( 1.0f, 1.0f, 1.0f, 1.0f ),
 	m_blinkRate( 0.1f ),
 	m_blinkPhase( 0.0f ),
 	m_minScale( 1.0f ),

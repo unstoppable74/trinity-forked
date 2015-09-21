@@ -155,7 +155,16 @@ public:
 	void Clear();
 	void Add( const Matrix* localMatrix, const Vector4* functionality, bool hasTrail, uint32_t atlasIndex0, uint32_t atlasIndex1 );
 	// set internal visual data
-	void SetData( float glowScale, const Color* glowColor, float symHaloScale, float haloScaleX, float haloScaleY, const Color* haloColor, bool alwaysOn );
+	void SetData( 
+		float glowScale, 
+		const Color* glowColor, 
+		const Color* warpGlowColor, 
+		float symHaloScale, 
+		float haloScaleX, 
+		float haloScaleY, 
+		const Color* haloColor, 
+		const Color* warpHaloColor, 
+		bool alwaysOn );
 	void SetVolumetric( bool isVolumetric );
 	void SetLightData( float offset, float flickerAmplitude, float flickerFrequency, float radius, const Color& color, float warpRadius, const Color& warpColor );
 	void SetEffect( Tr2EffectPtr effect );
@@ -249,6 +258,8 @@ private:
 	float m_haloScaleY;
 	Color m_glowColor;
 	Color m_haloColor;
+	Color m_warpGlowColor;
+	Color m_warpHaloColor;
 
 	// data of the trails
 	float m_trailIntensity;

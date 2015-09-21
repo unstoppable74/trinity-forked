@@ -33,8 +33,8 @@ public:
 
 	// Note: Call Clear, Add (as many times as needed), then PrepareResources
 	void Clear();
-	void Add( const Vector3& pos, float blinkRate, float blinkPhase, float minScale, float maxScale, float falloff, Color color );
-	void Add( const Vector3& pos, float scale, Color color );
+	void Add( const Vector3& pos, float blinkRate, float blinkPhase, float minScale, float maxScale, float falloff, const Color& color, const Color& warpColor );
+	void Add( const Vector3& pos, float scale, const Color& color, const Color& warpColor );
 	void Add( EveSpriteSetItemPtr newItem );
 	
 	// Rebuild resources
@@ -46,7 +46,7 @@ public:
 	void RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer );
 
 	void AddToQuadRenderer( Tr2QuadRenderer& quadRenderer, const Matrix& world, float activation, const granny_matrix_3x4* bones, size_t boneCount );
-	void AddBoosterGlowToQuadRenderer( Tr2QuadRenderer& quadRenderer, const Matrix& world, float boosterGain );
+	void AddBoosterGlowToQuadRenderer( Tr2QuadRenderer& quadRenderer, const Matrix& world, float boosterGain, float warpIntensity );
 
 	EveSpriteSetItemVector* GetSprites();
 	const char* GetName();
@@ -96,6 +96,7 @@ private:
 		D3DXFLOAT16 m_maxScale;
 		D3DXFLOAT16 m_falloff;
 		uint32_t m_color;
+		uint32_t m_warpColor;
 
 		static const Tr2VertexDefinition& GetDefinition();
 	};

@@ -577,6 +577,8 @@ public:
 	// data
 	float m_glowScale, m_symHaloScale, m_haloScaleX, m_haloScaleY;
 	Color m_color, m_glowColor, m_haloColor, m_trailColor;
+	Color m_warpGlowColor;
+	Color m_warpHaloColor;
 	std::string m_textureResPath;
 	Vector4 m_trailSize, m_scale;
 

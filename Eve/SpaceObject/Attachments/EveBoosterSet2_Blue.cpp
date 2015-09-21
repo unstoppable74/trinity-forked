@@ -115,6 +115,20 @@ const Be::ClassInfo* EveBoosterSet2::ExposeToBlue()
 			"Color of glow sprites", 
 			Be::READWRITE | Be::PERSIST
 		)	
+		MAP_ATTRIBUTE
+		(    
+			"warpGlowColor",       
+			m_warpGlowColor,       
+			"Color of glow sprites in warp", 
+			Be::READWRITE | Be::PERSIST
+		)	
+		MAP_ATTRIBUTE
+		(    
+			"warpHaloColor",       
+			m_warpHaloColor,       
+			"Color of halo sprites in warp", 
+			Be::READWRITE | Be::PERSIST
+		)	
 
 		MAP_ATTRIBUTE( "trailsSmoothing", m_trailsSmoothing, "Smoothness for bending (length of tangents of splines)", Be::READWRITE | Be::PERSIST )
 
