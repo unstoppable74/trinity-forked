@@ -29,6 +29,7 @@ static std::string s_systemBoneSkeletonNames[] = {
 	"Sys_CounterRotation",	// SYSBONE_COUNTER_ROTATION
 	"Sys_Pitch_Barrel",		// SYSBONE_PITCH
 	"Sys_Pitch_Barrel1",	// SYSBONE_PITCH1
+	"Sys_Pitch_Barrel2",	// SYSBONE_PITCH2
 	"Sys_Height",			// SYSBONE_SCALED_HEIGHT
 	"Sys_Pitch_Arm01",		// SYSBONE_SCALED_PITCH01
 	"Sys_Pitch_Arm02",		// SYSBONE_SCALED_PITCH02
@@ -953,6 +954,7 @@ void EveTurretSet::ModifySystemBoneTransform( SystemBones bone, const Vector3* t
 		break;
 	case SYSBONE_PITCH:
 	case SYSBONE_PITCH1:
+	case SYSBONE_PITCH2:
 		if( transform )
 		{
 			CalcTransformForPitchBone( target, transform, XMConvertToRadians( m_sysBonePitchMin ), m_sysBonePitchFactor, m_sysBonePitchOffset );
