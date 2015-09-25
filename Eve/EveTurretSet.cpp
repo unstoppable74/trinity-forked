@@ -82,7 +82,7 @@ EveTurretSet::EveTurretSet( IRoot* lockobj ) :
 	m_useRandomFiringDelay( true ),
 	m_randomFiringDelay( 0.f ),
 	m_alternateFiringAnimCount( 0 ),
-	m_hasCyclingFiringPos( false ),
+	m_maxCyclingFirePos( 1 ),
 	m_currentCyclingFiresPos( 0 ),
 	m_sysBoneHeight( 1.f ),
 	m_sysBonePitchOffset( 0.f ),
@@ -985,7 +985,7 @@ void EveTurretSet::ModifySystemBoneTransform( SystemBones bone, const Vector3* t
 	case SYSBONE_SCALED_PITCH06:
 		if( transform )
 		{
-			CalcTransformForPitchBone( target, transform, 0.0f, bone );
+			CalcTransformForPitchBone( target, transform, 0.f, bone );
 		}
 		break;
 	default:
@@ -1635,7 +1635,7 @@ std::string EveTurretSet::GetFireAnimationName() const
 	int rndNum = TriIntRandom( 0, m_alternateFiringAnimCount );
 
 	// cycling?
-	if( m_hasCyclingFiringPos )
+	if( m_maxCyclingFirePos > 1 )
 	{
 		idx = m_currentCyclingFiresPos * ( m_alternateFiringAnimCount + 1 ) + rndNum;
 	}
@@ -1860,7 +1860,7 @@ void EveTurretSet::EnterStateFiring()
 	// We're starting a firing sequence, we need to set up our firing effect time-delays
 	if( m_firingEffect )
 	{
-		if( m_hasCyclingFiringPos )
+		if( m_maxCyclingFirePos > 1 )
 		{
 			m_firingEffect->PrepareFiring( m_randomFiringDelay, m_currentCyclingFiresPos );
 		}
@@ -1888,10 +1888,10 @@ bool EveTurretSet::SetupFiringState()
 	GetClosestTurretAndLocator( closestTurret, closestLocator );
 
 	// if this turret is set to cycle through the muzzles for firing, do it here
-	if( m_hasCyclingFiringPos )
+	if( m_maxCyclingFirePos > 1 )
 	{
 		++m_currentCyclingFiresPos;
-		if( m_currentCyclingFiresPos > 1 )
+		if( m_currentCyclingFiresPos >= m_maxCyclingFirePos )
 		{
 			m_currentCyclingFiresPos = 0;
 		}
