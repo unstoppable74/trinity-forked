@@ -13,6 +13,7 @@ const Be::ClassInfo* EveShip2::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "speed", m_speed, "The speed of the ship", Be::READ )
 		MAP_ATTRIBUTE( "maxSpeed", m_maxSpeed, "The maximum speed of the ship", Be::READWRITE )
+		MAP_ATTRIBUTE( "displayKillCounterValue", m_displayKillCounterValue, "How much kills for this ship, to show on the hull via decals", Be::READWRITE )
 		MAP_PROPERTY( "audioSpeedParameter", GetAudioParameter, SetAudioParameter, "The audio parameter related to the ship speed" )
 
 		MAP_ATTRIBUTE( "boosters", m_boosters, "", Be::READWRITE | Be::PERSIST )

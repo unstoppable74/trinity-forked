@@ -282,6 +282,9 @@ Tr2PerObjectData* EveSpaceObjectDecal::GetPerObjectData( ITriRenderBatchAccumula
 	perObjectData->m_clipData1 = m_parentData.clipData;
 	perObjectData->m_clipData2 = m_parentData.clipDataEx;
 
+	// display data
+	perObjectData->m_displayData = Vector4( (float)m_parentData.displayCounter, 0.f, 0.f, 0.f );
+
 	if( m_parentData.shLighting )
 	{
 		memcpy( perObjectData->m_shLightingCoefficients, m_parentData.shLighting, sizeof( perObjectData->m_shLightingCoefficients ) );
@@ -741,7 +744,7 @@ void EveDecalPerObjectData::SetPerObjectDataToDevice( Tr2ConstantBufferAL** buff
 {
 	// add up constant count, see EveDecalPerObjectData
 	FillAndSetConstants( *buffers[VERTEX_SHADER], &m_worldMatrix, 5 * 64, VERTEX_SHADER, Tr2Renderer::GetPerObjectVSStartRegister(), renderContext );
-	FillAndSetConstants( *buffers[PIXEL_SHADER], &m_shipData, ( 3 + Tr2ShLightingManager::PACKED_COEFFICIENT_COUNT ) * 16, PIXEL_SHADER, Tr2Renderer::GetPerObjectPSStartRegister(), renderContext );
+	FillAndSetConstants( *buffers[PIXEL_SHADER], &m_displayData, ( 4 + Tr2ShLightingManager::PACKED_COEFFICIENT_COUNT ) * 16, PIXEL_SHADER, Tr2Renderer::GetPerObjectPSStartRegister(), renderContext );
 }
 
 

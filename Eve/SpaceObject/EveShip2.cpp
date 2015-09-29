@@ -19,7 +19,8 @@ CCP_STATS_DECLARE( eveShipsRendered, "Trinity/EveShip2/ShipsRendered", true, CST
 //   Initialize data members
 // --------------------------------------------------------------------------------
 EveShip2::EveShip2( IRoot* lockobj ) :
-	m_maxSpeed( 0.f )
+	m_maxSpeed( 0.f ),
+	m_displayKillCounterValue( 0 )
 {
 	m_speed.CreateInstance();
 
@@ -313,6 +314,26 @@ void EveShip2::SetAudioParameter( IRoot* aud )
 	}
 }
 
+// --------------------------------------------------------------------------------
+// Description:
+//   This funstion fills all the relevant data to pass to each decal as "parent's
+//   data. With it being virtual, sub classes can add more data.
+// Arguments:
+//   pd - the data buffer
+// --------------------------------------------------------------------------------
+void EveShip2::FillDecalParentData( EveSpaceObjectDecal::ParentData* pd ) const
+{
+	// call base
+	EveSpaceObject2::FillDecalParentData( pd );
+
+	// add in the kill counter
+	pd->displayCounter = m_displayKillCounterValue;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Return audio parameter
+// --------------------------------------------------------------------------------
 IRoot* EveShip2::GetAudioParameter() const
 {
 	return m_audioSpeedParameter;

@@ -45,6 +45,10 @@ public:
 	// Overrides of animation controller
 	virtual bool ExecuteAnimationStateCommand( EveAnimationCmd cmd, const std::string& data, const std::map<std::string, float>& parameters );
 
+	/////////////////////////////////////////////////////////////////////////////////////
+	// Overrides of decal data
+	virtual void FillDecalParentData( EveSpaceObjectDecal::ParentData* pd ) const;
+
 	// boosters
 	void SetBoosterSet( EveBoosterSet2Ptr set );
 	// re-positions all attached boosters to the corresponding locators
@@ -76,6 +80,9 @@ private:
 
 	// boosters and trails
 	EveBoosterSet2Ptr m_boosters;
+
+	// on ship info displays
+	uint32_t m_displayKillCounterValue;
 };
 
 TYPEDEF_BLUECLASS( EveShip2 );

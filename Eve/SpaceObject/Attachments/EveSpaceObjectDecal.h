@@ -10,8 +10,6 @@
 #include "Tr2DeviceResource.h"
 #include "Tr2ShLightingManager.h"
 
-#include "Eve/SpaceObject/EveShip2.h"
-
 BLUE_DECLARE( Tr2Effect );
 BLUE_DECLARE( Tr2Mesh );
 BLUE_DECLARE( TriVariable );
@@ -38,6 +36,7 @@ public:
 	Matrix m_invDecalMatrix;
 	Matrix m_parentBoneMatrix;
 	// pixel shader per object data
+	Vector4 m_displayData;
 	Vector4 m_shipData;
 	Vector4 m_clipData1;
 	Vector4 m_clipData2;
@@ -92,6 +91,7 @@ public:
 	struct ParentData
 	{
 		Matrix transform;
+		uint32_t displayCounter;
 		Vector4 shipData;
 		Vector4 clipData;
 		Vector4 clipDataEx;
