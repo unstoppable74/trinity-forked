@@ -983,6 +983,20 @@ ALResult Tr2RenderContextAL::RunComputeShaderIndirect( Tr2GpuBufferAL& indirectP
 	return S_OK;
 }
 
+ALResult Tr2RenderContextAL::CopyBufferCounter( Tr2GpuBufferAL& dest, uint32_t destOffset, Tr2GpuBufferAL& src ) throw()
+{
+	if( !m_context )
+	{
+		return E_INVALIDCALL;
+	}
+	if( !dest.m_buffer || !src.m_uav )
+	{
+		return E_INVALIDARG;
+	}
+	m_context->CopyStructureCount( dest.m_buffer, destOffset, src.m_uav );
+	return S_OK;
+}
+
 ALResult Tr2RenderContextAL::SetConstants( 
 									const Tr2ConstantBufferAL& buffer, 
 									Tr2RenderContextEnum::ShaderType constantType, 

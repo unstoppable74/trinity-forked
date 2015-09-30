@@ -155,6 +155,11 @@ public:
 		return E_FAIL;
 	}
 
+	ALResult CopyBufferCounter( Tr2GpuBufferAL& dest, uint32_t destOffset, Tr2GpuBufferAL& src )
+	{
+		return E_FAIL;
+	}
+
 	ALResult SetVertexLayout( Tr2VertexLayoutAL& layout );
 
 	ALResult SetRenderState( Tr2RenderContextEnum::RenderState state, uint32_t value );

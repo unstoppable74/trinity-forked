@@ -118,6 +118,8 @@ public:
 	ALResult RunComputeShader( unsigned groupDimX, unsigned groupDimY, unsigned groupDimZ ) throw();
 	ALResult RunComputeShaderIndirect( Tr2GpuBufferAL& indirectParams, unsigned offset ) throw();
 
+	ALResult CopyBufferCounter( Tr2GpuBufferAL& dest, uint32_t destOffset, Tr2GpuBufferAL& src ) throw();
+
 	ALResult SetRenderState( Tr2RenderContextEnum::RenderState state, uint32_t value ) throw();
 
 	ALResult SetRenderStates( const uint32_t* stateValuePairs, uint32_t count ) throw();
