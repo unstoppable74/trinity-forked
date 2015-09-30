@@ -81,7 +81,6 @@ EveTurretSet::EveTurretSet( IRoot* lockobj ) :
 	m_grnMeshBinding( NULL ),
 	m_useRandomFiringDelay( true ),
 	m_randomFiringDelay( 0.f ),
-	m_alternateFiringAnimCount( 0 ),
 	m_maxCyclingFirePos( 1 ),
 	m_currentCyclingFiresPos( 0 ),
 	m_sysBoneHeight( 1.f ),
@@ -1623,33 +1622,17 @@ void EveTurretSet::StopAnimation( unsigned int turretIndex, float delay )
 // --------------------------------------------------------------------------------
 // Description:
 //   Usually animation names are just constant strings like "deploy" or "idle".
-//   But in the firing case, we support alternate animations, chosen randomly,
+//   But in the firing case, we support more than one for cycling through them
 //   to make the firing look more lively.
 // --------------------------------------------------------------------------------
 std::string EveTurretSet::GetFireAnimationName() const
 {
-	// firing anim "index"
-	int idx = 0;
-
-	// random!
-	int rndNum = TriIntRandom( 0, m_alternateFiringAnimCount );
-
-	// cycling?
-	if( m_maxCyclingFirePos > 1 )
-	{
-		idx = m_currentCyclingFiresPos * ( m_alternateFiringAnimCount + 1 ) + rndNum;
-	}
-	else
-	{
-		idx = rndNum;
-	}
-
-	// if idx is 0, it's just "Fire"
+	// if m_currentCyclingFiresPos is 0, it's just "Fire"
 	std::string res = "Fire";
-	if( idx )
+	if( m_currentCyclingFiresPos )
 	{
 		res.push_back('0');
-		res.push_back('0' + idx);
+		res.push_back('0' + m_currentCyclingFiresPos);
 	}
 
 	return res;
