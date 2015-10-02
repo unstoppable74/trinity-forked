@@ -156,11 +156,23 @@ void EveImpactOverlay::UpdateSyncronous( EveUpdateContext& updateContext, EveSpa
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Trinity's way of providing batches to render
+//   Do all the math-heavy conversion here async
 // --------------------------------------------------------------------------------
 void EveImpactOverlay::UpdateAsyncronous( EveUpdateContext& updateContext, EveSpaceObject2* parent )
 {
-	// do all the math-heavy conversion here async
+	// first take out the dead ones
+	for( auto sidit = m_shieldImpactData.begin(); sidit != m_shieldImpactData.end(); )
+	{
+		sidit->second.timeLeft -= updateContext.GetDeltaT();
+		if( sidit->second.timeLeft <= 0.f )
+		{
+			m_shieldImpactData.erase(sidit++);
+		}
+		else
+		{
+			++sidit;
+		}
+	}
 
 	// get parent's bounding ellipsoid and put it in word space
 	Vector3 parentBBoxMin( -1.f, -1.f, -1.f ), parentBBoxMax( 1.f, 1.f, 1.f );
