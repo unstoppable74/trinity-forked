@@ -142,3 +142,20 @@ ALResult Tr2GpuBufferAlias::CreateBuffer()
 	}
 	return m_buffer.CreateAlias( *source, m_format, renderContext );
 }
+
+void Tr2GpuBufferAlias::ReleaseResources( TriStorage s )
+{
+	if( m_buffer.IsValid() && ( ( s & m_buffer.GetMemoryClass() ) != 0 ) )
+	{
+		m_buffer.Destroy();
+	}
+}
+
+bool Tr2GpuBufferAlias::OnPrepareResources()
+{
+	if( !m_buffer.IsValid() && m_format != PIXEL_FORMAT_UNKNOWN )
+	{
+		return SUCCEEDED( CreateBuffer() );
+	}
+	return true;
+}

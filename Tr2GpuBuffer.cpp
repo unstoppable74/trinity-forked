@@ -169,3 +169,25 @@ ALResult Tr2GpuBuffer::CreateBuffer()
 		( m_creationFlags & DRAW_INDIRECT ) ? EX_DRAW_INDIRECT : 0,
 		renderContext );
 }
+
+void Tr2GpuBuffer::ReleaseResources( TriStorage s )
+{
+	if( m_buffer.IsValid() && ( ( s & m_buffer.GetMemoryClass() ) != 0 ) )
+	{
+		m_buffer.Destroy();
+	}
+}
+
+bool Tr2GpuBuffer::OnPrepareResources()
+{
+	if( !m_buffer.IsValid() && m_format != PIXEL_FORMAT_UNKNOWN )
+	{
+		return SUCCEEDED( CreateBuffer() );
+	}
+	return true;
+}
+
+uint32_t Tr2GpuBuffer::GetCount() const
+{
+	return m_buffer.GetNumElements();
+}

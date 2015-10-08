@@ -150,3 +150,25 @@ ALResult Tr2GpuStructuredBuffer::CreateBuffer()
 		nullptr, 
 		renderContext );
 }
+
+void Tr2GpuStructuredBuffer::ReleaseResources( TriStorage s )
+{
+	if( m_buffer.IsValid() && ( ( s & m_buffer.GetMemoryClass() ) != 0 ) )
+	{
+		m_buffer.Destroy();
+	}
+}
+
+bool Tr2GpuStructuredBuffer::OnPrepareResources()
+{
+	if( !m_buffer.IsValid() && m_count != 0 && m_stride != 0 )
+	{
+		return SUCCEEDED( CreateBuffer() );
+	}
+	return true;
+}
+
+uint32_t Tr2GpuStructuredBuffer::GetCount() const
+{
+	return m_buffer.GetNumElements();
+}

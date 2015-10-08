@@ -22,7 +22,8 @@
 BLUE_CLASS( Tr2GpuStructuredBuffer ): 
 	public ITr2GpuBuffer,
 	public INotify,
-	public IInitialize
+	public IInitialize,
+	public Tr2DeviceResource
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -57,7 +58,14 @@ public:
 
 	ALResult Create( uint32_t count, uint32_t stride, CreationFlags creationFlags );
 	bool IsValid() const;
+	uint32_t GetCount() const;
+
+	operator Tr2GpuBufferAL&() { return m_buffer; }
+	operator const Tr2GpuBufferAL&() const { return m_buffer; }
+
+	virtual void ReleaseResources( TriStorage s );
 private:
+	virtual bool OnPrepareResources();
 	ALResult CreateBuffer();
 
 	// AL buffer
