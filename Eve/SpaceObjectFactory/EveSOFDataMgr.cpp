@@ -517,6 +517,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 		EveSOFDataHullDecalPtr hullDecal = (*hdit);
 
 		HullDecalData hdd;
+		hdd.type = hullDecal->m_type;
 		hdd.position = hullDecal->m_position;
 		hdd.rotation = hullDecal->m_rotation;
 		hdd.scaling = hullDecal->m_scaling;

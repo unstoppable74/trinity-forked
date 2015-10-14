@@ -350,8 +350,17 @@ public:
 	EveSOFDataHullDecal( IRoot* lockobj = NULL );
 	~EveSOFDataHullDecal() {}
 
+	// decal type
+	enum Type
+	{
+		TYPE_STANDARD = 0,
+		TYPE_KILLCOUNTER,
+		TYPE_LOGO,
+	};
+
 	// per-hull data of a hull decal
 	std::string m_name;
+	Type m_type;
 	Vector3 m_position, m_scaling;
 	Quaternion m_rotation;
 	std::string m_shader;
@@ -375,7 +384,7 @@ public:
 	// trinity output class
 	enum BuildClass
 	{
-		BUILDCLASS_SHIP						= 0,
+		BUILDCLASS_SHIP = 0,
 		BUILDCLASS_MOBILE,
 		BUILDCLASS_STATIONARY,
 	};

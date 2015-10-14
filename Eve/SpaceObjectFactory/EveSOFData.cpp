@@ -177,6 +177,7 @@ static BlueStructureDefinition s_eveSOFDecalIndexDef[] =
 };
 
 EveSOFDataHullDecal::EveSOFDataHullDecal( IRoot* lockobj ) :
+	m_type( TYPE_STANDARD ),
 	m_position( 0.f, 0.f, 0.f ),
 	m_rotation( 0.f, 0.f, 0.f, 1.f ),
 	m_scaling( 1.f, 1.f, 1.f ),
