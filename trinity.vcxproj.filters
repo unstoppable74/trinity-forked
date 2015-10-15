@@ -693,9 +693,6 @@
     <ClInclude Include="Eve\EveSpaceScene.h">
       <Filter>Source Files\Eve</Filter>
     </ClInclude>
-    <ClInclude Include="Eve\EveSpaceSceneLightMgr.h">
-      <Filter>Source Files\Eve</Filter>
-    </ClInclude>
     <ClInclude Include="Eve\EveSpherePin.h">
       <Filter>Source Files\Eve</Filter>
     </ClInclude>
@@ -715,9 +712,6 @@
       <Filter>Source Files\Eve</Filter>
     </ClInclude>
     <ClInclude Include="Eve\EveUpdateContext.h">
-      <Filter>Source Files\Eve</Filter>
-    </ClInclude>
-    <ClInclude Include="Eve\IEveLightReceiver.h">
       <Filter>Source Files\Eve</Filter>
     </ClInclude>
     <ClInclude Include="Eve\IEveShadowCaster.h">
@@ -2485,12 +2479,6 @@
       <Filter>Source Files\Eve</Filter>
     </ClCompile>
     <ClCompile Include="Eve\EveSpaceScene.cpp">
-      <Filter>Source Files\Eve</Filter>
-    </ClCompile>
-    <ClCompile Include="Eve\EveSpaceSceneLightMgr.cpp">
-      <Filter>Source Files\Eve</Filter>
-    </ClCompile>
-    <ClCompile Include="Eve\EveSpaceSceneLightMgr_Blue.cpp">
       <Filter>Source Files\Eve</Filter>
     </ClCompile>
     <ClCompile Include="Eve\EveSpaceScene_Blue.cpp">

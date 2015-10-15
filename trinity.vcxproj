@@ -2946,7 +2946,6 @@
     <ClInclude Include="Eve\EveRootTransform.h"/>
     <ClInclude Include="Eve\EveShip2Builder.h"/>
     <ClInclude Include="Eve\EveSpaceScene.h"/>
-    <ClInclude Include="Eve\EveSpaceSceneLightMgr.h"/>
     <ClInclude Include="Eve\EveSpherePin.h"/>
     <ClInclude Include="Eve\EveSpherePinIndexTree.h"/>
     <ClInclude Include="Eve\EveStarfield.h"/>
@@ -2954,7 +2953,6 @@
     <ClInclude Include="Eve\EveTurretFiringFX.h"/>
     <ClInclude Include="Eve\EveTurretSet.h"/>
     <ClInclude Include="Eve\EveUpdateContext.h"/>
-    <ClInclude Include="Eve\IEveLightReceiver.h"/>
     <ClInclude Include="Eve\IEveShadowCaster.h"/>
     <ClInclude Include="Eve\IEveSpaceObject2.h"/>
     <ClInclude Include="Eve\IEveTransform.h"/>
@@ -3548,8 +3546,6 @@
     <ClCompile Include="Eve\EveShip2Builder.cpp"/>
     <ClCompile Include="Eve\EveShip2Builder_Blue.cpp"/>
     <ClCompile Include="Eve\EveSpaceScene.cpp"/>
-    <ClCompile Include="Eve\EveSpaceSceneLightMgr.cpp"/>
-    <ClCompile Include="Eve\EveSpaceSceneLightMgr_Blue.cpp"/>
     <ClCompile Include="Eve\EveSpaceScene_Blue.cpp"/>
     <ClCompile Include="Eve\EveSpherePin.cpp"/>
     <ClCompile Include="Eve\EveSpherePinIndexTree.cpp"/>
