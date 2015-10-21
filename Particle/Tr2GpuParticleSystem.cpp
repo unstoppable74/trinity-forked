@@ -22,6 +22,8 @@ namespace
 const uint32_t DEFAULT_MAX_PARTICLES = 512 * 512;
 const float MAXIMUM_FRAME_TIME = 1.f / 15.f;
 const float MAX_TURBULENCE_LENGTH = 4096.f;
+const float TURBULENCE_ANIMATION_SPEED = 0.05f;
+const size_t TEXTURE_METHOD_EMITS_PER_DP = 8;
 
 // --------------------------------------------------------------------------------------
 // Description:
@@ -62,11 +64,13 @@ Tr2GpuParticleSystem::EmitterParamsGpu::EmitterParamsGpu( const EmitterParams& p
 {
 	minLifeTime = params.minLifeTime;
 	maxLifeTime = params.maxLifeTime;
-	minSize = params.minSize;
-	maxSize = params.maxSize;
+	sizeVariance = params.sizeVariance;
 	textureIndex = params.textureIndex;
-	colorIndex = params.colorIndex;
-	sizeIndex = params.sizeIndex;
+	colors[0] = params.colors[0];
+	colors[1] = params.colors[1];
+	colors[2] = params.colors[2];
+	colors[3] = params.colors[3];
+	sizes = params.sizes;
 	drag = params.drag;
 	turbulenceAmplitude = params.turbulenceAmplitude;
 	turbulenceFrequency = float( params.turbulenceFrequency ) / MAX_TURBULENCE_LENGTH;
@@ -82,11 +86,12 @@ Tr2GpuParticleSystem::EmitterParamsGpu::EmitterParamsGpu( const EmitterParams& p
 {
 	minLifeTime = params.minLifeTime;
 	maxLifeTime = params.maxLifeTime;
-	minSize = params.minSize;
-	maxSize = params.maxSize;
+	colors[0] = params.colors[0];
+	colors[1] = params.colors[1];
+	colors[2] = params.colors[2];
+	colors[3] = params.colors[3];
+	sizes = Vector4( params.sizes, params.sizeVariance );
 	textureIndex = float( params.textureIndex );
-	colorIndex = float( params.colorIndex );
-	sizeIndex = float( params.sizeIndex );
 	drag = params.drag;
 	turbulenceAmplitude = params.turbulenceAmplitude;
 	turbulenceFrequency = float( params.turbulenceFrequency ) / MAX_TURBULENCE_LENGTH;
@@ -110,7 +115,11 @@ Tr2GpuParticleSystem::Tr2GpuParticleSystem( IRoot* )
 	m_updateVisibleCount( false ),
 	m_visibleCount( 0 ),
 	m_liveTime( 0.f ),
-	m_turbulenceOffset( 0.f, 0.f, 0.f )
+#if GPU_PARTICLES_METHOD == GPU_PARTICLES_TEXTURE_METHOD
+	m_decl( Tr2EffectStateManager::UNINITIALIZED_DECLARATION ),
+#endif
+	m_turbulenceOffset( 0.f, 0.f, 0.f ),
+	m_turbulenceAnimation( 0.f, 0.f, 0.f )
 {
 	USE_MAIN_THREAD_RENDER_CONTEXT();
 
@@ -281,9 +290,10 @@ bool Tr2GpuParticleSystem::OnPrepareResources()
 		vb.reserve( m_maxParticles * 4 );
 		for( uint32_t i = 0; i < m_maxParticles; ++i )
 		{
+			float seed = float( rand() ) / RAND_MAX;
 			for( uint32_t j = 0; j < 4; ++j )
 			{
-				vb.push_back( Vector4( float( i % width ), float( i / width ), float( j ), float( rand() ) / RAND_MAX ) );
+				vb.push_back( Vector4( float( i % width ), float( i / width ), float( j ), seed ) );
 			}
 		}
 		m_vb.Create( m_maxParticles * 4 * sizeof( Vector4 ), Tr2RenderContextEnum::USAGE_IMMUTABLE, &vb.front(), renderContext );
@@ -439,6 +449,8 @@ void Tr2GpuParticleSystem::Update( Be::Time time, const Vector3& originShift, Tr
 	m_turbulenceOffset.z -= floor( m_turbulenceOffset.z );
 	m_turbulenceOffset *= MAX_TURBULENCE_LENGTH;
 
+	m_turbulenceAnimation.z += dt * TURBULENCE_ANIMATION_SPEED;
+
 	ExpireEmitterParams( dt );
 	if( m_enableEmit )
 	{
@@ -534,6 +546,9 @@ void Tr2GpuParticleSystem::RunSimulation( float dt, const Vector3& originShift, 
 		Vector3 turbulenceOffset;
 		float padding1;
 
+		Vector3 turbulenceAnimation;
+		float padding2;
+
 		Vector4 frustumPlanes[6];
 	} updateCB;
 
@@ -543,6 +558,7 @@ void Tr2GpuParticleSystem::RunSimulation( float dt, const Vector3& originShift, 
 	updateCB.dt = dt;
 	updateCB.originShift = originShift;
 	updateCB.turbulenceOffset = m_turbulenceOffset;
+	updateCB.turbulenceAnimation = m_turbulenceAnimation;
 
 	for( size_t i = 0; i < 6; ++i )
 	{
@@ -640,13 +656,14 @@ void Tr2GpuParticleSystem::UpdateEmitterParams( Tr2RenderContext& renderContext 
 			else
 			{
 				paramsIndex.index = m_expiredEmitters.back();
+				m_expiredEmitters.pop_back();
 				m_emitterParams[paramsIndex.index] = it->params;
 			}
 			paramsIndex.hash = it->hash;
 			paramsIndex.lifetime = it->params.maxLifeTime;
 
 			m_emitterParamsIndex[it->id] = paramsIndex;
-			index = uint32_t( m_emitterParams.size() - 1 );
+			index = uint32_t( paramsIndex.index );
 			emitterBufferDirty = true;
 		}
 		else
@@ -698,7 +715,13 @@ void Tr2GpuParticleSystem::UpdateGpuEmitterParams( Tr2RenderContext& renderConte
 	{
 		USE_MAIN_THREAD_RENDER_CONTEXT();
 
-		m_emitterParamsTexture->Create( 4, uint32_t( m_emitterParams.size() ), 1, Tr2RenderContextEnum::PIXEL_FORMAT_R32G32B32A32_FLOAT, Tr2RenderContextEnum::USAGE_CPU_WRITE, renderContext );
+		m_emitterParamsTexture->Create( 
+			sizeof( EmitterParamsGpu ) / sizeof( Vector4 ), 
+			std::max( 64u, uint32_t( m_emitterParams.size() ) ), 
+			1, 
+			Tr2RenderContextEnum::PIXEL_FORMAT_R32G32B32A32_FLOAT, 
+			Tr2RenderContextEnum::USAGE_CPU_WRITE, 
+			renderContext );
 		texture = m_emitterParamsTexture->GetTexture();
 		if( !texture )
 		{
@@ -787,21 +810,16 @@ void Tr2GpuParticleSystem::EmitParticles( Tr2RenderContext& renderContext )
 		float padding0;
 	};
 
-	const size_t maxSize = std::min( 
-		Tr2Renderer::GetPerFrameVSStartRegister() - Tr2Renderer::GetPerObjectVSStartRegister(), 
-		Tr2Renderer::GetPerFramePSStartRegister() - Tr2Renderer::GetPerObjectPSStartRegister() ) * sizeof( Vector4 );
-	const size_t emitsPerDraw = ( maxSize - sizeof( EmitterCBPrefix ) ) / sizeof( EmitterGpu );
-
 	struct PerObjectPS
 	{
 		EmitterCBPrefix prefix;
-		EmitterGpu emitters[64];
+		EmitterGpu emitters[TEXTURE_METHOD_EMITS_PER_DP];
 	} perObjectPS;
 
 	struct PerObjectVS
 	{
 		EmitterCBPrefix prefix;
-		Vector4 offsetCount[64];
+		Vector4 offsetCount[TEXTURE_METHOD_EMITS_PER_DP];
 	} perObjectVS;
 
 	Tr2GpuTimerALContext ctx( m_emitTimer, renderContext );
@@ -819,9 +837,9 @@ void Tr2GpuParticleSystem::EmitParticles( Tr2RenderContext& renderContext )
 	effectResource->ApplyAllStateForPass( 0, renderContext );
 	m_emit->ApplyMaterialDataForPass( 0, renderContext );
 
-	for( size_t i = 0; i < m_emitRequests.GetCount(); i += emitsPerDraw )
+	for( size_t i = 0; i < m_emitRequests.GetCount(); i += TEXTURE_METHOD_EMITS_PER_DP )
 	{
-		uint32_t count = uint32_t( std::min( m_emitRequests.GetCount() - i, emitsPerDraw ) );
+		uint32_t count = uint32_t( std::min( m_emitRequests.GetCount() - i, TEXTURE_METHOD_EMITS_PER_DP ) );
 		perObjectPS.prefix.count = float( count );
 		perObjectPS.prefix.width = float( m_positions[0]->GetWidth() );
 		perObjectPS.prefix.height = float( m_positions[0]->GetHeight() );

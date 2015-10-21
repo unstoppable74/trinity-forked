@@ -57,12 +57,10 @@ public:
 		float minLifeTime;
 		float maxLifeTime;
 
-		float minSize;
-		float maxSize;
-
 		uint32_t textureIndex;
-		uint32_t colorIndex;
-		uint32_t sizeIndex;
+		Color colors[4];
+		Vector3 sizes;
+		float sizeVariance;
 
 		float drag;
 		float turbulenceAmplitude;
@@ -208,12 +206,10 @@ private:
 		float minLifeTime;
 		float maxLifeTime;
 
-		float minSize;
-		float maxSize;
-
 		uint32_t textureIndex;
-		uint32_t colorIndex;
-		uint32_t sizeIndex;
+		Color colors[4];
+		Vector3 sizes;
+		float sizeVariance;
 
 		float drag;
 		float turbulenceAmplitude;
@@ -250,15 +246,13 @@ private:
 		EmitterParamsGpu() {}
 		explicit EmitterParamsGpu( const EmitterParams& params );
 
-		float textureIndex;
-		float colorIndex;
-		float sizeIndex;
-		float velocityStretchRotation;
+		Color colors[4];
+		Vector4 sizes;
 
+		float textureIndex;
 		float minLifeTime;
 		float maxLifeTime;
-		float minSize;
-		float maxSize;
+		float velocityStretchRotation;
 
 		float drag;
 		float turbulenceAmplitude;
@@ -321,6 +315,8 @@ private:
 
 	// offset of turbulence origin in world space (due to world origin shifts)
 	Vector3 m_turbulenceOffset;
+	// turbulence animation (in local turbulence space)
+	Vector3 m_turbulenceAnimation;
 
 	// true if the system needs to be cleared during next update
 	bool m_clearRequested;

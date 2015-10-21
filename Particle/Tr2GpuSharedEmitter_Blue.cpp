@@ -76,29 +76,39 @@ const Be::ClassInfo* Tr2GpuSharedEmitter::ExposeToBlue()
 			"Maximum particle life time in seconds (stored on GPU)", 
 			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
         MAP_ATTRIBUTE( 
-			"minSize", 
-			m_params.minSize, 
-			"Minimum particle size (stored on GPU)", 
+			"sizes", 
+			m_params.sizes, 
+			"Particle sizes at 0, 50%, 100% of its age", 
 			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
         MAP_ATTRIBUTE( 
-			"maxSize", 
-			m_params.maxSize, 
-			"Maximum particle size (stored on GPU)", 
+			"sizeVariance", 
+			m_params.sizeVariance, 
+			"Particle size variance (0 to 1)", 
+			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
+        MAP_ATTRIBUTE( 
+			"color0", 
+			m_params.colors[0], 
+			"Particle color at 0% age", 
+			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
+        MAP_ATTRIBUTE( 
+			"color1", 
+			m_params.colors[1], 
+			"Particle color at 33% age", 
+			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
+        MAP_ATTRIBUTE( 
+			"color2", 
+			m_params.colors[2], 
+			"Particle color at 66% age", 
+			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
+        MAP_ATTRIBUTE( 
+			"color3", 
+			m_params.colors[3], 
+			"Particle color at 100% age", 
 			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
         MAP_ATTRIBUTE( 
 			"textureIndex", 
 			m_params.textureIndex, 
 			"Particle atlas texture index (stored on GPU)", 
-			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
-        MAP_ATTRIBUTE( 
-			"colorIndex", 
-			m_params.colorIndex, 
-			"Particle color gradient index (stored on GPU)", 
-			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
-        MAP_ATTRIBUTE( 
-			"sizeIndex", 
-			m_params.sizeIndex, 
-			"Particle size gradient index (stored on GPU)", 
 			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
         MAP_ATTRIBUTE( 
 			"velocityStretchRotation", 

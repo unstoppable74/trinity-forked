@@ -18,7 +18,7 @@ Tr2GpuSharedEmitter::Tr2GpuSharedEmitter( IRoot* lockObj )
 	m_inheritVelocity( 1.f ),
 	m_position( 0.f, 0.f, 0.f ),
 	m_direction( 0.f, 1.f, 0.f ),
-	m_prevPosition( std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN() )
+	m_prevPosition( 0.f, 0.f, 0.f )
 {
 	memset( &m_emitter, 0, sizeof( m_emitter ) );
 	memset( &m_params, 0, sizeof( m_params ) );
@@ -52,13 +52,14 @@ void Tr2GpuSharedEmitter::GenerateID()
 
 void Tr2GpuSharedEmitter::Update( Be::Time time, Tr2GpuParticleSystem& system, const Matrix& parentTransform, const Vector3& originShift )
 {
-	float dt = m_previousTime == Be::Time( -1 ) ? 0 : TimeAsFloat( time - m_previousTime );
+	const bool firstUpdate = m_previousTime == Be::Time( -1 );
+	const float dt = firstUpdate ? 0 : TimeAsFloat( time - m_previousTime );
 	m_previousTime = time;
 
 	m_emitter.position = XMVector3TransformCoord( m_position, parentTransform );
 
 	float total = m_carryOver + dt * m_rate;
-	if( m_emissionDensity > 0 && m_prevPosition.x != std::numeric_limits<float>::quiet_NaN() )
+	if( m_emissionDensity > 0 && !firstUpdate )
 	{
 		Vector3 move = m_emitter.position - m_prevPosition;
 		total += XMVectorGetX( XMVector3Length( move ) ) * m_emissionDensity;
@@ -69,7 +70,7 @@ void Tr2GpuSharedEmitter::Update( Be::Time time, Tr2GpuParticleSystem& system, c
 	if( m_emitter.count )
 	{
 		Vector3 velocity = Vector3( 0.f, 0.f, 0.f );
-		if( m_prevPosition.x == std::numeric_limits<float>::quiet_NaN() )
+		if( firstUpdate )
 		{
 			m_emitter.positionPrevious = m_emitter.position;
 		}
