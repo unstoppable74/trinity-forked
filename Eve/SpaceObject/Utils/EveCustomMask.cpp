@@ -15,10 +15,8 @@ EveCustomMask::EveCustomMask( IRoot* lockobj ) :
 	m_position( 0.f, 0.f, 0.f ),
 	m_scaling( 1.f, 1.f, 1.f ),
 	m_rotation( 0.f, 0.f, 0.f, 1.f ),
-	m_isMirrored( false ),
-	m_isForMaskMap( false ),
-	m_isForSubmaskMap( false ),
-	m_isForMaterial( false )
+	m_materialMask( 1.f, 1.f, 1.f, 1.f ),
+	m_isMirrored( false )
 {
 }
 
@@ -40,7 +38,7 @@ void EveCustomMask::GetDebugDrawMatrix( Matrix* matrix, float objectRadius ) con
 	Vector3 finalScale( 0.1f * objectRadius, m_scaling.y * objectRadius, m_scaling.z * objectRadius );
 
 	// build matrix
-	D3DXMatrixTransformation( matrix, NULL, NULL, &finalScale, NULL, &m_rotation, &m_position );
+	D3DXMatrixTransformation( matrix, nullptr, nullptr, &finalScale, nullptr, &m_rotation, &m_position );
 }
 
 // --------------------------------------------------------------------------------
@@ -50,8 +48,8 @@ void EveCustomMask::GetDebugDrawMatrix( Matrix* matrix, float objectRadius ) con
 void EveCustomMask::GetInvCustomMaskTransform( Matrix* matrix ) const
 {
 	Matrix customMaskTransform, invCustomMaskTransform;
-	D3DXMatrixTransformation( &customMaskTransform, NULL, NULL, &m_scaling, NULL, &m_rotation, &m_position );
-	D3DXMatrixInverse( &invCustomMaskTransform, NULL, &customMaskTransform );
+	D3DXMatrixTransformation( &customMaskTransform, nullptr, nullptr, &m_scaling, nullptr, &m_rotation, &m_position );
+	D3DXMatrixInverse( &invCustomMaskTransform, nullptr, &customMaskTransform );
 	D3DXMatrixTranspose( matrix, &invCustomMaskTransform );
 }
 
@@ -62,12 +60,16 @@ void EveCustomMask::GetInvCustomMaskTransform( Matrix* matrix ) const
 void EveCustomMask::GetExtendedData( Vector4* data ) const
 {
 	// some additional features
-	*data = Vector4(
-		m_isMirrored ? 1.f : 0.f,
-		m_isForMaskMap ? 1.f : 0.f,
-		m_isForSubmaskMap ? 1.f : 0.f,
-		m_isForMaterial ? 1.f : 0.f );
+	*data = Vector4( m_isMirrored ? 1.f : 0.f, 0.f, 0.f, 0.f );
 }
 
+// --------------------------------------------------------------------------------
+// Description:
+//   Hands out the four influences on the actual four materials
+// --------------------------------------------------------------------------------
+void EveCustomMask::GetMaterialMask( Vector4* data ) const
+{
+	*data = m_materialMask;
+}
 
 

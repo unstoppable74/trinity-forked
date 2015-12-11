@@ -939,7 +939,7 @@ uint32_t EveSpaceObject2::GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType
 		uint32_t sz = sizeof( m_psData ); // m_spaceObjectMiscData + m_spaceObjectClipData + m_spaceObjectClipDataEx
 		if( m_customMask )
 		{
-			sz += 64 + 16;  // customMask data is optional for now
+			sz += 64 + 16 + 16;  // customMask data is optional for now
 		}
 		return sz;
 	}
@@ -972,7 +972,8 @@ void EveSpaceObject2::UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType sh
 		{
 			m_customMask->GetInvCustomMaskTransform( (Matrix*)perObjectPS );
 			perObjectPS += sizeof( Matrix );
-
+			m_customMask->GetMaterialMask( (Vector4*)perObjectPS );
+			perObjectPS += sizeof( Vector4 );
 			m_customMask->GetExtendedData( (Vector4*)perObjectPS );
 			perObjectPS += sizeof( Vector4 );
 		}
