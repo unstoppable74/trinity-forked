@@ -108,21 +108,12 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	m_positionDelta.CreateInstance();
 
 	m_decalCache = CCP_NEW( "EveSpaceObject2::m_decalCache" ) EveSpaceObjectDecalCache;
-	m_damageLocatorsUpdatedThisFrame = false;
-	m_impactDirectionsUpdatedThisFrame = false;
-	m_allocatedDamageLocatorCount = 0;
-	m_transformedDamageLocators = NULL;
-	m_damageLocatorPositions = NULL;
-	m_transformedImpactDirections = NULL;
-	m_alignedTransformMatrix = (XMMATRIX*)CCP_ALIGNED_MALLOC( "EveSpaceObject2/m_alignedTransformMatrix", sizeof(XMMATRIX), 16);
-
+	
 	m_animationUpdater.CreateInstance();
 	m_persistedDamageLocators.SetStructureDefinition( EveDamageLocatorStructureDef );
 
 	memset( &m_psData, 0, sizeof( EveSpaceObjectPSData ) );
 	memset( &m_vsData, 0, sizeof( EveSpaceObjectVSData ) );
-
-	GetObjectMutex();
 }
 
 EveSpaceObject2::~EveSpaceObject2()
@@ -134,29 +125,11 @@ EveSpaceObject2::~EveSpaceObject2()
 		m_geometryResFromMesh->RemoveNotifyTarget( this );
 	}
 
-	if( m_transformedDamageLocators )
-	{
-		CCP_ALIGNED_FREE( m_transformedDamageLocators );
-	}
-
-	if( m_transformedImpactDirections )
-	{
-		CCP_ALIGNED_FREE( m_transformedImpactDirections );
-	}
-
-	if( m_damageLocatorPositions )
-	{
-		CCP_ALIGNED_FREE( m_damageLocatorPositions );
-	}
-
-	CCP_ALIGNED_FREE( m_alignedTransformMatrix );
 	CCP_DELETE m_decalCache;
 }
 
 bool EveSpaceObject2::Initialize()
 {
-	RebuildDamageLocatorCache();
-
 	// Disallow LOD selection until it's been established we have LODs.
 	m_allowLodSelection = false;
 
@@ -191,7 +164,8 @@ void EveSpaceObject2::UnregisterSecondaryLightSource( Tr2ShLightingManager& mana
 void EveSpaceObject2::UpdateSyncronous( EveUpdateContext& updateContext )
 {
 	Be::Time time = updateContext.GetTime();
-	D3DXMatrixTranspose( &m_vsData.worldTransformLast, &m_worldTransform );;
+	D3DXMatrixTranspose( &m_vsData.worldTransformLast, &m_worldTransform );
+	D3DXMatrixInverse( &m_invWorldTransform, NULL, &m_worldTransform );
 
 	UpdateWorldTransform( time );
 
@@ -204,11 +178,7 @@ void EveSpaceObject2::UpdateSyncronous( EveUpdateContext& updateContext )
 	{
 		UnloadLodIfNeeded( time );
 	}
-
-	// Reset this so we do a transformed damage locator update if needed
-	m_damageLocatorsUpdatedThisFrame = false;
-	m_impactDirectionsUpdatedThisFrame = false;
-
+	
 	// Particle Systems
 	// Get the reference position
 	Vector3d referencePosition( 0.0, 0.0, 0.0 );
@@ -465,7 +435,7 @@ void EveSpaceObject2::RenderDebugInfo( Tr2RenderContext& renderContext )
 
 	if( m_debugShowDamageLocators )
 	{
-		for( unsigned i = 0; i < m_allocatedDamageLocatorCount; i++ )
+		for( unsigned i = 0; i < m_persistedDamageLocatorCount; i++ )
 		{
 			Vector3 pos;
 			GetDamageLocatorPosition( &pos, i );
@@ -763,35 +733,6 @@ void EveSpaceObject2::GetBatchesFromOverlayVector( ITriRenderBatchAccumulator* b
 				}
 			}
 		}
-	}
-}
-
-void EveSpaceObject2::RebuildDamageLocatorCache()
-{
-	if( m_transformedDamageLocators )
-	{
-		CCP_ALIGNED_FREE( m_transformedDamageLocators );
-	}
-
-	if( m_damageLocatorPositions )
-	{
-		CCP_ALIGNED_FREE( m_damageLocatorPositions );
-	}
-
-	// We still need to ensure the data lives in aligned memory for runtime use
-	m_allocatedDamageLocatorCount = (unsigned int)m_persistedDamageLocators.size();
-	m_persistedImpactDirectionCount = (unsigned int)m_persistedDamageLocators.size();
-	
-	unsigned int memSize = m_allocatedDamageLocatorCount*sizeof(XMVECTOR);
-	m_damageLocatorPositions = (XMVECTOR*)CCP_ALIGNED_MALLOC( "EveSpaceObject2/m_damageLocatorPositions", memSize, 16 );
-	m_transformedDamageLocators = (XMVECTOR*)CCP_ALIGNED_MALLOC( "EveSpaceObject2/m_transformedDamageLocators", memSize, 16 );
-	m_transformedImpactDirections = (XMVECTOR*)CCP_ALIGNED_MALLOC( "EveSpaceObject2/m_transformedImpactDirections", memSize, 16 );
-
-
-	for ( unsigned int i = 0; i <  m_allocatedDamageLocatorCount; ++i )
-	{
-		// Use the implicit conversion of Vector3 to XMVECTOR
-		m_damageLocatorPositions[i] = m_persistedDamageLocators[i].m_position;
 	}
 }
 
@@ -1468,23 +1409,18 @@ void EveSpaceObject2::ClearAnimations()
 
 int EveSpaceObject2::GetClosestDamageLocatorIndex( const Vector3* position )
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
 	// Run a single pass on the transformed damage locator positions and select the closest
 	float max = std::numeric_limits<float>::max();
 	XMVECTOR closestLength = XMVectorSet( max, max, max, 0.0 );
 	int closestIndex = -1;
 
-	{
-		CcpAutoMutex lock( GetObjectMutex() );
-		if( !m_damageLocatorsUpdatedThisFrame )
-		{
-			UpdateDamageLocatorPositions();
-		}
-	}
+	Vector3 posInObjectSpace = ( Vector3 )XMVector3Transform( *position, m_invWorldTransform );
 
-	for( unsigned int i = 0; i < m_allocatedDamageLocatorCount ; ++i )
+	for( unsigned int i = 0; i < m_persistedDamageLocatorCount; ++i )
 	{
-		XMVECTOR thisLength = *position;
-		thisLength = m_transformedDamageLocators[i] - thisLength;
+		XMVECTOR thisLength = Vector3( posInObjectSpace );
+		thisLength = GetObjectSpaceDamageLocatorPosition( i ) - thisLength;
 		thisLength = XMVector3LengthEst( thisLength );
 		if ( XMVector3Less( thisLength, closestLength ) )
 		{
@@ -1492,34 +1428,10 @@ int EveSpaceObject2::GetClosestDamageLocatorIndex( const Vector3* position )
 			closestLength = thisLength;
 		}
 	}
-
+	
 	return closestIndex;
 }
 
-int EveSpaceObject2::GetInterestingDamageLocatorIndex( const Vector3 &position ) const
-{
-	const static XMVECTOR reference = XMVectorSet( 0.7f, 0.7f, 0.7f, 0.7f );
-	XMVECTOR offset, centre;
-	if( m_ballPosition ) {
-		centre = XMVectorSet( m_worldTransform._41, m_worldTransform._42, m_worldTransform._43, 0 );
-		offset = XMVector3Normalize( position - centre );
-	} else {
-		centre = XMVectorSet(0,0,0,0);
-		offset = XMVector3Normalize( position );
-	}
-
-	std::vector<unsigned> validIndices;
-	for( unsigned i = 0; i < m_allocatedDamageLocatorCount; ++i ) {
-		auto local = XMVector3Normalize( m_damageLocatorPositions[i] - centre );
-		if( XMVector3Greater( XMVector3Dot( offset, local ), reference ) ) {
-			validIndices.push_back(i);
-		}
-	}
-
-	if( validIndices.size() )
-		return validIndices[ rand() % validIndices.size() ];
-	return -1;
-}
 
 static float GetDistanceFit( float minDist, float fitScale, Vector3& vec )
 {
@@ -1550,60 +1462,41 @@ static float GetDirectionFit( const Vector3& v0, const Vector3& v1 )
 
 int EveSpaceObject2::GetGoodDamageLocatorIndex( const Vector3& position )
 {
-	bool validImpactDirections = m_persistedImpactDirectionCount == m_allocatedDamageLocatorCount;
-
+	CCP_STATS_ZONE( __FUNCTION__ );
+	
 	float minDistance = FLT_MAX;
 	float maxDistance = FLT_MIN;
 	float bestDirectionFit = 0.0f;
-	if( !validImpactDirections )
-	{
-		bestDirectionFit = 1.0f;
-	}
-
-	{
-		CcpAutoMutex lock( GetObjectMutex() );
-		if( !m_damageLocatorsUpdatedThisFrame )
-		{
-			UpdateDamageLocatorPositions();
-		}
-		if( !m_impactDirectionsUpdatedThisFrame )
-		{
-			UpdateDamageLocatorDirections();
-		}
-	}
-
+		
+	Vector3 posInObjectSpace = (Vector3) XMVector3Transform( position, m_invWorldTransform );
+	std::vector<Vector3> damageLocatorPositions;
 	Vector3 v;
-	for( unsigned i = 0; i < m_allocatedDamageLocatorCount; ++i )
+
+	for( unsigned i = 0; i < m_persistedDamageLocatorCount; ++i )
 	{
-		v = XMVectorSubtract( m_transformedDamageLocators[i], position );
+		Vector3 damageLocatorPosition = GetObjectSpaceDamageLocatorPosition(i);
+		damageLocatorPositions.push_back(damageLocatorPosition);
+		v = XMVectorSubtract( damageLocatorPosition, posInObjectSpace );
 		float length = D3DXVec3Length( &v );
 		minDistance = min( minDistance, length );
 		maxDistance = max( maxDistance, length );
 		D3DXVec3Normalize( &v, &v );
-		if( validImpactDirections )
-		{
-			float directionFit = GetDirectionFit( (Vector3)m_transformedImpactDirections[i], v );
-			bestDirectionFit = max( bestDirectionFit, directionFit );
-		}
+		float directionFit = GetDirectionFit( (Vector3)damageLocatorPosition , v );
+		bestDirectionFit = max( bestDirectionFit, directionFit );
 	}
 
 	float desiredFit = TriRand() * ( 0.25f - ( 1.0f - bestDirectionFit ) ) + 0.75f;
 	float bestFit = 1.0f;
-	int bestLocator = GetClosestDamageLocatorIndex( &position );
-	for( unsigned i = 0; i < m_allocatedDamageLocatorCount; ++i )
+	
+	int bestLocator = GetClosestDamageLocatorIndex( &posInObjectSpace );
+	for( unsigned i = 0; i < m_persistedDamageLocatorCount; ++i )
 	{
-		v = XMVectorSubtract( m_transformedDamageLocators[i], position );
+		Vector3 damageLocatorPos = damageLocatorPositions[i];
+		Vector3 damageLocatorDir = GetObjectSpaceDamageLocatorDirection(i);
+		v = XMVectorSubtract( damageLocatorPos, posInObjectSpace );
 		float fitValue = GetDistanceFit( minDistance, maxDistance - minDistance, v );
 		D3DXVec3Normalize( &v, &v );
-		if( validImpactDirections )
-		{
-			fitValue *= GetDirectionFit( (Vector3)m_transformedImpactDirections[i], v );
-		}
-		else
-		{
-			Vector3 tmp( m_transformedImpactDirections[i] );
-			fitValue *= D3DXVec3Dot( &tmp, &v ) < 0.f ? 1.0f : 0.1f;
-		}
+		fitValue *= GetDirectionFit( damageLocatorDir, v );
 		if( std::abs( fitValue - desiredFit ) < bestFit )
 		{
 			bestFit = std::abs( fitValue - desiredFit );
@@ -1621,22 +1514,15 @@ float EveSpaceObject2::GetRadius() const
 
 bool EveSpaceObject2::GetDamageLocatorPosition( Vector3* out, int index )
 {
-	if( (index < 0) || ((unsigned int)index >= m_allocatedDamageLocatorCount) || !m_damageLocatorPositions || !m_transformedDamageLocators )
+	CCP_STATS_ZONE( __FUNCTION__ );
+	if( (index < 0) || ((unsigned int)index >= m_persistedDamageLocatorCount) )
 	{
 		*out = m_worldTransform.GetTranslation();
 		return false;
 	}
 
-	{
-		CcpAutoMutex lock( GetObjectMutex() );
-		if( !m_damageLocatorsUpdatedThisFrame )
-		{
-			UpdateDamageLocatorPositions();
-		}
-	}
-
-	*out = m_transformedDamageLocators[ index ];
-
+	*out = GetTransformedDamageLocator( (unsigned int) index);
+	
 	return true;
 }
 
@@ -1681,21 +1567,13 @@ void EveSpaceObject2::GetImpactPosition( Vector3& out, int damageLocatorIndex, c
 
 bool EveSpaceObject2::GetDamageLocatorDirection( Vector3* out, int index )
 {
-	if( ( index < 0 ) || ( (unsigned int)index >= m_allocatedDamageLocatorCount ) || !m_transformedImpactDirections )
+	if( index < 0 || (unsigned int)index >= m_persistedDamageLocatorCount )
 	{
 		*out = Vector3( 0.f, 1.f, 0.f );
 		return false;
 	}
 
-	{
-		CcpAutoMutex lock( GetObjectMutex() );
-		if( !m_impactDirectionsUpdatedThisFrame  )
-		{
-			UpdateDamageLocatorDirections();
-		}
-	}
-
-	*out = m_transformedImpactDirections[ index ];
+	*out = GetTransformedDamageLocatorDirection( (unsigned int) index );
 
 	return true;
 }
@@ -1957,88 +1835,6 @@ bool EveSpaceObject2::DisplayChildren() const
 	return true;
 }
 
-void EveSpaceObject2::UpdateDamageLocatorPositions()
-{
-	if( m_damageLocatorPositions && m_transformedDamageLocators )
-	{
-		// Update the aligned transform matrix
-		*m_alignedTransformMatrix = (XMMATRIX)m_worldTransform;
-		
-		// Granny matrices
-		size_t boneCount = 0;
-		const granny_matrix_3x4* bones = nullptr;
-		if( m_animationUpdater && m_animationUpdater->IsInitialized() )
-		{
-			boneCount = size_t( m_animationUpdater->GetMeshBoneCount() );
-			if( boneCount )
-			{
-				bones = m_animationUpdater->GetMeshBoneMatrixList();
-			}
-		}
-		
-		Matrix boneTF;
-		D3DXMatrixIdentity( &boneTF );
-		// Transform the coordinates
-		for( unsigned i = 0; i < m_allocatedDamageLocatorCount; ++i )
-		{
-			// We're assuming for now that the bone 0 isn't animated for performance reasons.
-			if( bones && m_persistedDamageLocators[i].m_boneIndex > 0 )
-			{
-				TriMatrixCopyFrom3x4( &boneTF, &bones[ m_persistedDamageLocators[i].m_boneIndex ] );
-				m_transformedDamageLocators[i] = XMVector3TransformCoord( m_damageLocatorPositions[i], boneTF );
-				m_transformedDamageLocators[i] = XMVector3TransformCoord( m_transformedDamageLocators[i], *m_alignedTransformMatrix );
-			}
-			else
-			{
-				m_transformedDamageLocators[i] = XMVector3TransformCoord( m_damageLocatorPositions[i], *m_alignedTransformMatrix );
-			}
-		}
-
-		m_damageLocatorsUpdatedThisFrame = true;
-	}
-}
-
-void EveSpaceObject2::UpdateDamageLocatorDirections()
-{
-	if( !m_transformedImpactDirections )
-	{
-		return;
-	}
-
-	// Update the aligned transform matrix
-	*m_alignedTransformMatrix = (XMMATRIX)m_worldTransform;
-
-	// Granny matrices
-	size_t boneCount = 0;
-	const granny_matrix_3x4* bones = nullptr;
-	if( m_animationUpdater && m_animationUpdater->IsInitialized() )
-	{
-		boneCount = size_t( m_animationUpdater->GetMeshBoneCount() );
-		if( boneCount )
-		{
-			bones = m_animationUpdater->GetMeshBoneMatrixList();
-		}
-	}
-
-	Matrix boneTF;
-	D3DXMatrixIdentity( &boneTF );
-	for( unsigned i = 0; i < m_allocatedDamageLocatorCount; ++i )
-	{
-		Quaternion quat;
-		quat = m_persistedDamageLocators[i].m_impactDirection;
-		m_transformedImpactDirections[i] = XMVector3Rotate( Vector3( 0.f, 1.f, 0.f ), quat );
-		// We're assuming for now that the bone 0 isn't animated for performance reasons.
-		if( bones && m_persistedDamageLocators[i].m_boneIndex > 0 )
-		{
-			TriMatrixCopyFrom3x4( &boneTF, &bones[ m_persistedDamageLocators[i].m_boneIndex ] );
-			m_transformedImpactDirections[i] = XMVector3TransformNormal( m_transformedImpactDirections[i], boneTF );
-		}
-		m_transformedImpactDirections[i] = XMVector3TransformNormal( m_transformedImpactDirections[i], *m_alignedTransformMatrix );
-	}
-
-	m_impactDirectionsUpdatedThisFrame = true;
-}
-
 ITriVectorFunctionPtr EveSpaceObject2::GetPositionFunction() 
 { 
 	return m_ballPosition; 
@@ -2118,6 +1914,7 @@ void EveSpaceObject2::SetDamageLocators( const EveDamageLocator* damageLocators,
 	// is a structured list, so we can copy this in one big block
 	m_persistedDamageLocators.Resize( damageLocatorCount );
 	memcpy( &m_persistedDamageLocators[0], damageLocators, damageLocatorCount * sizeof( EveDamageLocator ) );
+	m_persistedDamageLocatorCount = damageLocatorCount;
 }
 
 // --------------------------------------------------------------------------------
@@ -2240,22 +2037,103 @@ bool EveSpaceObject2::UpdateImpact( Vector3& out, const Vector3& direction, int 
 //GPU ship explosion test
 unsigned EveSpaceObject2::GetDamageLocatorCount() const 
 {
-	return m_allocatedDamageLocatorCount;
+	return m_persistedDamageLocatorCount;
 }
 
 Vector3 EveSpaceObject2::GetDamageLocator( unsigned index ) const 
 {
-	if( index > m_allocatedDamageLocatorCount )
+	if( index > m_persistedDamageLocatorCount )
 		return Vector3(0,0,0);
-	return Vector3( (float*)&m_damageLocatorPositions[index] );
+	return Vector3( (float*)&m_persistedDamageLocators[index].m_position );
 }
 
 Vector3 EveSpaceObject2::GetTransformedDamageLocator( unsigned index )
 {
-	Vector3 pos;
-	GetDamageLocatorPosition(&pos, index);
-	return pos;
+	CCP_STATS_ZONE( __FUNCTION__ );
+
+	if( index > m_persistedDamageLocatorCount )
+	{
+		return Vector3(0,0,0);
+	}
+			
+	Vector3 transformedDamageLocator = GetObjectSpaceDamageLocatorPosition( index );
+	transformedDamageLocator = XMVector3TransformCoord( transformedDamageLocator, m_worldTransform );
 	
+	return transformedDamageLocator;	
+}
+
+Vector3 EveSpaceObject2::GetObjectSpaceDamageLocatorPosition( int index )
+{
+	CCP_STATS_ZONE( __FUNCTION__ );
+	EveDamageLocator damageLocator = m_persistedDamageLocators[index];
+
+	Vector3 damageLocatorPosition = damageLocator.m_position;
+	// We're assuming for now that the bone 0 isn't animated for performance reasons.
+	if( damageLocator.m_boneIndex <= 0 )
+	{
+		// damage locator is not attached to a bone, return the position
+		return damageLocator.m_position;
+	}
+	
+	// If the damage locator is animated we extract the bone matrix and apply it to the damage locator position
+	if( m_animationUpdater && m_animationUpdater->IsInitialized() )
+	{
+		size_t boneCount = size_t( m_animationUpdater->GetMeshBoneCount() );
+		if( boneCount )
+		{
+			const granny_matrix_3x4* bones = m_animationUpdater->GetMeshBoneMatrixList();
+			Matrix boneTF;
+			D3DXMatrixIdentity( &boneTF );
+			TriMatrixCopyFrom3x4( &boneTF, &bones[ damageLocator.m_boneIndex ] );
+			damageLocatorPosition = XMVector3TransformCoord( damageLocatorPosition, boneTF );
+		}
+	}
+
+	return damageLocatorPosition;
+}
+
+Vector3 EveSpaceObject2::GetObjectSpaceDamageLocatorDirection( unsigned index )
+{
+	CCP_STATS_ZONE( __FUNCTION__ );
+	EveDamageLocator damageLocator = m_persistedDamageLocators[index];
+
+	Quaternion quat;
+	quat = damageLocator.m_impactDirection;
+	Vector3 damagelocatorDirection = (Vector3)XMVector3Rotate( Vector3( 0.f, 1.f, 0.f ), quat );
+
+	// We're assuming for now that the bone 0 isn't animated for performance reasons.
+	if( damageLocator.m_boneIndex <= 0)
+	{
+		// damage locator is not attached to a bone, return the direction
+		return damagelocatorDirection;
+	}
+	
+	// If the damage locator is animated we extract the bone matrix and apply it to the damage locator direction
+	size_t boneCount = 0;	
+	if( m_animationUpdater && m_animationUpdater->IsInitialized() )
+	{
+		boneCount = size_t( m_animationUpdater->GetMeshBoneCount() );
+		if( boneCount )
+		{
+			const granny_matrix_3x4* bones = m_animationUpdater->GetMeshBoneMatrixList();
+
+			Matrix boneTF;
+			D3DXMatrixIdentity( &boneTF );	
+			TriMatrixCopyFrom3x4( &boneTF, &bones[ damageLocator.m_boneIndex ] );
+			damagelocatorDirection = XMVector3TransformNormal( damagelocatorDirection, boneTF );
+		}
+	}
+
+	return damagelocatorDirection;
+}
+
+
+Vector3 EveSpaceObject2::GetTransformedDamageLocatorDirection( unsigned index )
+{
+	Vector3 transformedImpactDirection;
+	transformedImpactDirection = GetObjectSpaceDamageLocatorDirection( index );
+	transformedImpactDirection = XMVector3TransformNormal( transformedImpactDirection, m_worldTransform );
+	return transformedImpactDirection;	
 }
 
 Be::Result<std::string> EveSpaceObject2::GetLocalBoundingBoxFromScript( std::pair<Vector3, Vector3>& result )
@@ -2406,26 +2284,6 @@ float EveSpaceObject2::GetCurveSetDuration( const std::string& name ) const
 bool EveSpaceObject2::ExecuteAnimationStateCommand( EveAnimationCmd cmd, const std::string& data, const std::map<std::string, float>& parameters )
 {
 	return false;
-}
-
-// --------------------------------------------------------------------------------
-// Description:
-//   Get a mutex for this object that can be used during UpdateAsyncronous call.
-// --------------------------------------------------------------------------------
-CcpMutex& EveSpaceObject2::GetObjectMutex()
-{
-	static const size_t MUTEX_COUNT = 256;
-	static CcpMutex* mutexes[MUTEX_COUNT] = { nullptr, };
-	static char mutexNames[MUTEX_COUNT][64];
-	if( !mutexes[0] )
-	{
-		for( size_t i = 0; i < MUTEX_COUNT; ++i )
-		{
-			sprintf_s( mutexNames[i], "GetObjectMutex_%" CCP_SIZET_FORMAT, i );
-			mutexes[i] = CCP_NEW( "EveSpaceObject2::GetObjectMutex" ) CcpMutex( "EveSpaceObject2", mutexNames[i], 64 );
-		}
-	}
-	return *mutexes[reinterpret_cast<size_t>( this ) & ( MUTEX_COUNT - 1 )];
 }
 
 void EveSpaceObject2::SetMeshLod( Tr2MeshLod* mesh )

@@ -429,7 +429,6 @@ bool EveShip2Builder::Build()
 		CopyDecals( &other->m_decals, &m_ship->m_decals, offsets[moduleIx] );
 	}
 
-	m_ship->RebuildDamageLocatorCache();
 
 	CalculateAudioBooster();
 

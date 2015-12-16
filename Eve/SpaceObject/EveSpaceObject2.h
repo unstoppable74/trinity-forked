@@ -207,7 +207,6 @@ public:
 	bool GetDamageLocatorPosition( Vector3* out, int index );
 	bool GetDamageLocatorDirection( Vector3* out, int index );
 	void GetMissPosition( const Vector3* hit, const Vector3* source, Vector3* out );
-	int GetInterestingDamageLocatorIndex( const Vector3 &position ) const;
 	int GetGoodDamageLocatorIndex( const Vector3& position );
 	float GetRadius() const;
 	int CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size );
@@ -309,8 +308,9 @@ protected:
 	unsigned GetDamageLocatorCount() const;
 	Vector3 GetDamageLocator( unsigned index ) const;
 	Vector3 GetTransformedDamageLocator( unsigned index );
-	void UpdateDamageLocatorPositions();
-	void UpdateDamageLocatorDirections();
+	Vector3 GetTransformedDamageLocatorDirection( unsigned index );
+	Vector3 GetObjectSpaceDamageLocatorPosition( int index );
+	Vector3 GetObjectSpaceDamageLocatorDirection( unsigned index );
 
 	void PrepareForAnimation();
 	void FreeAnimationData();
@@ -336,6 +336,7 @@ protected:
 	bool m_allowLodSelection;
 
 	Matrix m_worldTransform;
+	Matrix m_invWorldTransform;
 	Vector3 m_worldPosition; // used to expose the position of the object to python
 	Vector3 m_worldVelocity;
 	float m_modelScale;
@@ -444,20 +445,14 @@ protected:
 	// efficient per-frame calculations of transformed damage locator positions.
 
 	PEveDamageLocatorStructureList m_persistedDamageLocators;
+	unsigned m_persistedDamageLocatorCount;
+
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// Dynamic lighting
 	PTr2PointLightVector m_lights;
 
-	unsigned m_allocatedDamageLocatorCount;
-	unsigned m_persistedImpactDirectionCount;
-	XMMATRIX* m_alignedTransformMatrix;
-	XMVECTOR* m_damageLocatorPositions;
-	bool m_damageLocatorsUpdatedThisFrame;
-	XMVECTOR* m_transformedDamageLocators;
-	XMVECTOR* m_transformedImpactDirections;
-	bool m_impactDirectionsUpdatedThisFrame;
-
+	
 	Color m_albedoColor;
 	float m_secondaryLightingSphereRadius;
 
@@ -471,14 +466,7 @@ protected:
 	PEveSpriteSetVector m_spriteSets;
 	PEveSpotlightSetVector m_spotlightSets;
 	PEvePlaneSetVector m_planeSets;
-
-	//// Helper function for determining visibility. Tests the bounding sphere of
-	//// the first mesh in m_geometryResource against the given frustum.
-	//bool IsInFrustum( const TriFrustum& frustum );
-
-	void RebuildDamageLocatorCache();
-	//void DisplayShadowMap();
-
+		
 	/////////////////////////////////////////////////////////////////////////////////////
 	// Particle Systems
 	PTr2GPUParticleEmitterVector m_particleEmittersGPU;
@@ -500,9 +488,7 @@ protected:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// dirt levels
 	float m_dirtLevel;
-
-
-
+	
 	Be::Time m_lastCurveUpdateTime;
 	// Children transforms
 
