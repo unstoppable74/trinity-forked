@@ -13,6 +13,7 @@
 // forwards
 BLUE_DECLARE( EveStretch );
 BLUE_DECLARE_VECTOR( EveStretch );
+class EveUpdateContext;
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -53,7 +54,7 @@ public:
 public:
 	bool ReadyToFire() const;
 	// timing and worldspace positioning
-	bool Update( Be::Time time, float deltaT );
+	bool Update( EveUpdateContext& updateContext );
 	// rendering
 	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables );
 	// bounds

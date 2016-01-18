@@ -12,6 +12,7 @@
 #include "TriFrustumOrtho.h"
 #include "TriRenderBatch.h"
 
+#include "Eve/EveUpdateContext.h"
 #include "Eve/Turret/EveTurretTarget.h"
 #include "EveTurretFiringFX.h"
 #include "include/TriMath.h"
@@ -659,15 +660,17 @@ void EveTurretSet::UpdateSyncronous( float deltaT, Be::Time time, const Matrix* 
 // SeeAlso:
 //   SingleTurretData, ModifySystemBoneTransform
 // Arguments:
-//   time - time delta since last frame
-//   parentMatrix - transform of parent object (usually a ship)
+//   updateContext - scene update context
+//   parentData - parent object data
 // --------------------------------------------------------------------------------
-void EveTurretSet::UpdateAsyncronous( float deltaT, Be::Time time, const ParentData* parentData )
+void EveTurretSet::UpdateAsyncronous( EveUpdateContext& updateContext, const ParentData* parentData )
 {
 	if( !m_singleTurrets.size() )
 	{
 		return;
 	}
+
+	float deltaT = updateContext.GetDeltaT();
 
 	// keep parent's transform
 	m_parentData = *parentData;
@@ -779,7 +782,7 @@ void EveTurretSet::UpdateAsyncronous( float deltaT, Be::Time time, const ParentD
 		m_firingEffect->SetEndPosition( m_target->GetTargetPosition() );
 
 		// time update (return value tells us if effect is ready to fire!)
-		if( m_firingEffect->Update( time, deltaT ) )
+		if( m_firingEffect->Update( updateContext ) )
 		{
 			// if we haven't initialised muzzle positions, do it now 
 			// this can happen, and if we don't do this all effects originate from

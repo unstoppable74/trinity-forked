@@ -58,8 +58,8 @@ void EveTurretFiringFX::CleanUp()
 	// shut down the firing effect and send the stop_play
 	this->StopFiring();		
 	// Kick the curves so any sound change will trigger (playing -> stop) 
-	this->Update( BeOS->GetCurrentFrameTime(), 0.0f );
-	
+	EveUpdateContext ctx( BeOS->GetCurrentFrameTime() );
+	this->Update( ctx );
 }
 
 // --------------------------------------------------------------------------------
@@ -381,13 +381,14 @@ bool EveTurretFiringFX::ReadyToFire() const
 // SeeAlso:
 //   EveStretch
 // Arguments:
-//   time - Blue total time
-//   deltaT - time delta since last frame
+//   updateContext - scene update context
 // Return value:
 //   Returns true if the effect has just fired
 // --------------------------------------------------------------------------------
-bool EveTurretFiringFX::Update( Be::Time time, float deltaT )
+bool EveTurretFiringFX::Update( EveUpdateContext& updateContext )
 {
+	Be::Time time = updateContext.GetTime();
+	float deltaT = updateContext.GetDeltaT();
 	bool retVal = false;
 	
 	// check all stretch effects and see if we have to start them
@@ -454,15 +455,13 @@ bool EveTurretFiringFX::Update( Be::Time time, float deltaT )
 					stretchEffect->SetIsNegZForward( true );
 				}
 
-				EveUpdateContext ctx( time );
-				stretchEffect->Update( ctx );
+				stretchEffect->Update( updateContext );
 			}
 			else
 			{
 				// ALWAYS update the stretcher, no matter if it fires ot not, there might be some
 				// curveset animation going on!
-				EveUpdateContext ctx( time );
-				stretchEffect->UpdateCurves( ctx );
+				stretchEffect->UpdateCurves( updateContext );
 			}
 		}
 	}

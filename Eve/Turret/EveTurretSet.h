@@ -20,6 +20,7 @@ class TriFrustum;
 class TriFrustumOrtho;
 struct ITr2Renderable;
 struct ViewDistanceInfo;
+class EveUpdateContext;
 
 BLUE_DECLARE( Tr2Mesh );
 BLUE_DECLARE( Tr2Effect );
@@ -139,7 +140,7 @@ public:
 	void SetLocalTransform( unsigned int turretIndex, const Matrix* localMatrix );
 	// timing and worldspace positioning
 	void UpdateSyncronous( float deltaT, Be::Time time, const Matrix* parentMatrix );
-	void UpdateAsyncronous( float deltaT, Be::Time time, const ParentData* parentData );
+	void UpdateAsyncronous( EveUpdateContext& updateContext, const ParentData* parentData );
 
 	// rendering
 	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Vector4* shLighting );

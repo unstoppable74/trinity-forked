@@ -171,9 +171,6 @@ void EveMobile::PrepareShaderData( EveUpdateContext& updateContext )
 void EveMobile::UpdateAsyncronous( EveUpdateContext& updateContext )
 {
 	EveSpaceObject2::UpdateAsyncronous( updateContext );
-	
-	Be::Time time = updateContext.GetTime();
-	float deltaT = updateContext.GetDeltaT();
 
 	// now prep to get the renderables
 	EveTurretSet::ParentData pd;
@@ -184,7 +181,7 @@ void EveMobile::UpdateAsyncronous( EveUpdateContext& updateContext )
 
 	for( EveTurretSetVector::iterator it = m_turretSets.begin(); it != m_turretSets.end(); ++it )
 	{
-		(*it)->UpdateAsyncronous( deltaT, time, &pd );
+		(*it)->UpdateAsyncronous( updateContext, &pd );
 	}
 }
 
