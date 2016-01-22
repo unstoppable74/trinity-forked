@@ -28,6 +28,7 @@ const Be::ClassInfo* EveAnimationState::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "animation", m_animation, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "curves", m_curves, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "overlayPath", m_overlayPath, "Path to the overlay effect that is applied to the owner for the duration of the state", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "commands", m_commands, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "initCurves", m_initCurves, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "initCommands", m_initCommands, "", Be::READWRITE | Be::PERSIST )

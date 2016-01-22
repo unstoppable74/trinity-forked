@@ -26,6 +26,7 @@ EveAnimationState::EveAnimationState( IRoot* lockobj ) :
 	PARENTLOCK( m_initCommands ),
 	PARENTLOCK( m_initCurves ),
 	PARENTLOCK( m_transitions ),
+	PARENTLOCK( m_overlays ),
 	m_progress( EVE_ANIM_INACTIVE ),
 	m_animationDuration( 0.f ),
 	m_startTime( 0.f ),
@@ -37,6 +38,30 @@ EveAnimationState::EveAnimationState( IRoot* lockobj ) :
 
 EveAnimationState::~EveAnimationState() 
 {
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   If the state has an overlay that is needed to be set on the owner prior to 
+//   playing the state, then it is loaded here.
+// --------------------------------------------------------------------------------
+void EveAnimationState::LoadOverlayEffect()
+{
+	IRootPtr p; 
+	p.Attach( BeResMan->LoadObject( m_overlayPath.c_str() ) );
+	if( p == NULL )
+	{
+		CCP_LOGERR( "EveAnimationState: Couldn't find effect overlay resource file: %s", m_overlayPath.c_str() );
+		return;
+	}
+
+	EveMeshOverlayEffectPtr ptr;
+	if( !p->QueryInterface( BlueInterfaceIID<IInitialize>(), (void**)&ptr ) )
+	{
+		CCP_LOGERR( "EveMobile: Overlay effect resource file %s is not of correct type!", m_overlayPath.c_str() );
+		return;
+	}
+	m_overlays.Append( ptr );
 }
 
 // --------------------------------------------------------------------------------
@@ -82,6 +107,15 @@ void EveAnimationState::Stop( EveAnimationStateMachine* sm, EveSpaceObject2* own
 
 	m_progress = EVE_ANIM_FINALIZING;
 	EndAnimation( sm, owner );
+	
+	if( m_overlays.size() > 0 )
+	{
+		for( auto it = m_overlays.begin(); it != m_overlays.end(); it++ )
+		{
+			owner->RemoveOverlayEffect( *it );
+		}
+		m_overlays.Clear();
+	}
 }
 
 // --------------------------------------------------------------------------------
@@ -97,6 +131,16 @@ void EveAnimationState::Start( EveAnimationStateMachine* sm, EveSpaceObject2* so
 
 	m_startTime = Tr2Renderer::GetAnimationTime();
 	m_animationDuration = 0.f;
+	
+	if( m_overlayPath.length() != 0 && m_overlays.size() == 0 )
+	{
+		LoadOverlayEffect();
+	}
+
+	for( auto it = m_overlays.begin(); it != m_overlays.end(); it++ )
+	{
+		so->AddOverlayEffect( *it );
+	}
 
 	if( mode == EVE_ANIM_START_TRANSITION )
 	{

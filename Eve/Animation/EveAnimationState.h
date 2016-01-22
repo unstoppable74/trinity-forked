@@ -4,9 +4,11 @@
 
 #include "BlueExposure/include/BlueTypes.h"
 #include "EveAnimationData.h"
+#include "Eve/SpaceObject/Attachments/EveMeshOverlayEffect.h"
 
 BLUE_DECLARE( EveSpaceObject2 );
 BLUE_DECLARE( EveAnimationStateMachine );
+BLUE_DECLARE( EveMeshOverlayEffect );
 
 enum EveAnimationStateStartCommand {
 	EVE_ANIM_START_DEFAULT,
@@ -42,16 +44,18 @@ public:
 
 private:
 	std::string m_name;
+	std::string m_overlayPath;
 	
 	bool m_doInitialization;
 
 	EveAnimationPtr m_animation;
 	PEveAnimationCurveVector m_curves;
 	PEveAnimationCommandVector m_commands;
+	PEveMeshOverlayEffectVector m_overlays;
 	
 	PEveAnimationCurveVector m_initCurves;
 	PEveAnimationCommandVector m_initCommands;
-	
+
 	PEveAnimationStateTransitionStructureList m_transitions;
 
 	EveAnimationStateProgress m_progress;
@@ -68,9 +72,12 @@ private:
 	void EndAnimation( EveAnimationStateMachine* sm, EveSpaceObject2* owner );
 	void UpdateDuration( EveAnimationStateMachine* sm, EveSpaceObject2* so );
 
+	void LoadOverlayEffect();
 	void Cleanup( EveSpaceObject2* owner, Be::Time time );
 };
 TYPEDEF_BLUECLASS( EveAnimationState );
 BLUE_DECLARE_VECTOR( EveAnimationState );
+TYPEDEF_BLUECLASS( EveMeshOverlayEffect );
+BLUE_DECLARE_VECTOR( EveMeshOverlayEffect );
 
 #endif

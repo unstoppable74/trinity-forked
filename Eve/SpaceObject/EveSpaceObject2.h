@@ -272,6 +272,9 @@ public:
 	void AddDecal( EveSpaceObjectDecalPtr newDecal );
 	void AddCurveSet( TriCurveSetPtr newCurveSet );
 	void AddLocator( EveLocator2* newLocator );
+	void AddOverlayEffect( EveMeshOverlayEffect* newOverlayEffect );
+	void RemoveOverlayEffect( EveMeshOverlayEffect* newOverlayEffect );
+
 	void SetDamageLocators( const EveDamageLocator* damageLocators, size_t damageLocatorCount );
 	unsigned GetDamageLocatorCount() const;
 	Vector3 GetDamageLocator( uint32_t index ) const;

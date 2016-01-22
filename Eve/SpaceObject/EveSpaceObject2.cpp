@@ -1268,11 +1268,7 @@ void EveSpaceObject2::RebuildCachedData( BlueAsyncRes* p )
 		m_animationUpdater->PrePhysicsAnimation( 0, m );
 	}
 
-	if( m_animationUpdater->IsInitialized() && m_animationSequencer )
-	{
-		m_animationSequencer->SetOwner( this );
-	}
-	else if( m_geometryResFromMesh->GetAnimationCount() == 0 && m_animationSequencer )
+	if( m_animationSequencer )
 	{
 		m_animationSequencer->SetOwner( this );
 	}
@@ -1304,7 +1300,7 @@ void EveSpaceObject2::RebuildCachedData( BlueAsyncRes* p )
 
 bool EveSpaceObject2::OnModified( Be::Var* val )
 {
-	if( IsMatch( val, m_animationSequencer ) && m_animationSequencer && m_animationUpdater->IsInitialized() )
+	if( IsMatch( val, m_animationSequencer ) && m_animationSequencer )
 	{
 		m_animationSequencer->SetOwner( this );
 	}
@@ -1896,6 +1892,25 @@ void EveSpaceObject2::AddCurveSet( TriCurveSetPtr newCurveSet )
 void EveSpaceObject2::AddLocator( EveLocator2* newLocator )
 {
 	m_locators.Append( newLocator );
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Add a new overlayEffect to the space object
+// --------------------------------------------------------------------------------
+void EveSpaceObject2::AddOverlayEffect( EveMeshOverlayEffect* newOverlayEffect )
+{
+	this->m_overlayEffects.Append( newOverlayEffect );
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Remove a specific overlayEffect from the space object
+// --------------------------------------------------------------------------------
+void EveSpaceObject2::RemoveOverlayEffect( EveMeshOverlayEffect* overlayEffectToRemove )
+{	
+	ssize_t index = m_overlayEffects.FindKey( overlayEffectToRemove );	
+	m_overlayEffects.Remove( index );
 }
 
 // --------------------------------------------------------------------------------
