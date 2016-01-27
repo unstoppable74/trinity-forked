@@ -248,6 +248,11 @@ EveAnimationSequencer::~EveAnimationSequencer()
 
 void EveAnimationSequencer::SetOwner( EveSpaceObject2* owner )
 {
+	if( m_owner == owner )
+	{
+		return;
+	}
+
 	m_owner = owner;
 	for( auto it = m_stateMachines.begin(); it != m_stateMachines.end(); it++ )
 	{
