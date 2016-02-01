@@ -726,6 +726,12 @@
     <ClInclude Include="Eve\SpaceObject\Attachments\Sets\EveSpotlightSetItem.h">
       <Filter>Source Files\Eve\SpaceObject\Attachments\Sets</Filter>
     </ClInclude>
+    <ClInclude Include="Eve\SpaceObject\Attachments\Sets\EveSpriteLineSet.h">
+      <Filter>Source Files\Eve\SpaceObject\Attachments\Sets</Filter>
+    </ClInclude>
+    <ClInclude Include="Eve\SpaceObject\Attachments\Sets\EveSpriteLineSetItem.h">
+      <Filter>Source Files\Eve\SpaceObject\Attachments\Sets</Filter>
+    </ClInclude>
     <ClInclude Include="Eve\SpaceObject\Attachments\Sets\EveSpriteSet.h">
       <Filter>Source Files\Eve\SpaceObject\Attachments\Sets</Filter>
     </ClInclude>
@@ -2530,6 +2536,18 @@
       <Filter>Source Files\Eve\SpaceObject\Attachments\Sets</Filter>
     </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpotlightSet_Blue.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Attachments\Sets</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpriteLineSet.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Attachments\Sets</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpriteLineSetItem.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Attachments\Sets</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpriteLineSetItem_Blue.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Attachments\Sets</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpriteLineSet_Blue.cpp">
       <Filter>Source Files\Eve\SpaceObject\Attachments\Sets</Filter>
     </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpriteSet.cpp">

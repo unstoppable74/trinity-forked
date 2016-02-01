@@ -2955,6 +2955,8 @@
     <ClInclude Include="Eve\SpaceObject\Attachments\Sets\EvePlaneSetItem.h"/>
     <ClInclude Include="Eve\SpaceObject\Attachments\Sets\EveSpotlightSet.h"/>
     <ClInclude Include="Eve\SpaceObject\Attachments\Sets\EveSpotlightSetItem.h"/>
+    <ClInclude Include="Eve\SpaceObject\Attachments\Sets\EveSpriteLineSet.h"/>
+    <ClInclude Include="Eve\SpaceObject\Attachments\Sets\EveSpriteLineSetItem.h"/>
     <ClInclude Include="Eve\SpaceObject\Attachments\Sets\EveSpriteSet.h"/>
     <ClInclude Include="Eve\SpaceObject\Attachments\Sets\EveSpriteSetItem.h"/>
     <ClInclude Include="Eve\SpaceObject\Children\EveChildBillboard.h"/>
@@ -3561,6 +3563,10 @@
     <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpotlightSetItem.cpp"/>
     <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpotlightSetItem_Blue.cpp"/>
     <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpotlightSet_Blue.cpp"/>
+    <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpriteLineSet.cpp"/>
+    <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpriteLineSetItem.cpp"/>
+    <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpriteLineSetItem_Blue.cpp"/>
+    <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpriteLineSet_Blue.cpp"/>
     <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpriteSet.cpp"/>
     <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpriteSetItem.cpp"/>
     <ClCompile Include="Eve\SpaceObject\Attachments\Sets\EveSpriteSetItem_Blue.cpp"/>
