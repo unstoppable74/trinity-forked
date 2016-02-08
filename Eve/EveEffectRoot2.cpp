@@ -48,7 +48,7 @@ void EveEffectRoot2::UpdateSyncronous( EveUpdateContext& updateContext )
 
 	for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt ) 
 	{
-		(*ecIt)->UpdateSyncronous( updateContext, this );
+		(*ecIt)->UpdateSyncronous( updateContext, this, nullptr );
 	}
 }
 
@@ -56,7 +56,7 @@ void EveEffectRoot2::UpdateAsyncronous( EveUpdateContext& updateContext )
 {	
 	for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt ) 
 	{
-		(*ecIt)->UpdateAsyncronous( updateContext, this );
+		(*ecIt)->UpdateAsyncronous( updateContext, this, nullptr );
 	}
 }
 

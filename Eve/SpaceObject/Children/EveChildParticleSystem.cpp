@@ -114,48 +114,25 @@ Tr2PerObjectData* EveChildParticleSystem::GetPerObjectData( ITriRenderBatchAccum
 	return data;
 }
 
-void EveChildParticleSystem::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* parent )
+void EveChildParticleSystem::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
 }
 
-void EveChildParticleSystem::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* parent )
+void EveChildParticleSystem::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
 	Matrix localToWorldTransform;
-	parent->GetLocalToWorldTransform( localToWorldTransform );
-	UpdateTransform( localToWorldTransform );
-	
-	Vector3 minBounds, maxBounds;
-	if( m_mesh && m_mesh->GetBoundingBox( minBounds, maxBounds ) )
+	if ( spaceObjectParent )
 	{
-		BoundingSphereFromBox( m_boundingSphere, minBounds, maxBounds, &m_worldTransform );
+		spaceObjectParent ->GetLocalToWorldTransform( localToWorldTransform );
 	}
-
-	for( auto it = m_particleSystems.begin(); it != m_particleSystems.end(); ++it )
+	else if ( childParent )
 	{
-		(*it)->UpdateTransform( m_worldTransform );
+		childParent->GetLocalToWorldTransform( localToWorldTransform );
 	}
-	if( !m_particleEmitters.empty() )
+	else
 	{
-		ITr2GenericEmitter::UpdateArguments args( 
-			updateContext.GetTime(), 
-			updateContext.GetGpuParticleSystem(), 
-			m_worldTransform, 
-			updateContext.GetOriginShift() );
-		for( auto it = m_particleEmitters.begin(); it != m_particleEmitters.end(); ++it )
-		{
-			(*it)->Update( args );
-		}
+		return;
 	}
-}
-
-void EveChildParticleSystem::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObjectChild* parent )
-{
-}
-
-void EveChildParticleSystem::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObjectChild* parent )
-{
-	Matrix localToWorldTransform;
-	parent->GetLocalToWorldTransform( localToWorldTransform );
 	UpdateTransform( localToWorldTransform );
 	
 	Vector3 minBounds, maxBounds;

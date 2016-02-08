@@ -96,35 +96,35 @@ float EveChildBillboard::GetSortValue()
 }
 
 
-void EveChildBillboard::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* parent )
+void EveChildBillboard::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
 }
 
-void EveChildBillboard::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* parent )
+void EveChildBillboard::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
 	Matrix localToWorldTransform;
-	parent->GetLocalToWorldTransform( localToWorldTransform );
+	if( spaceObjectParent )
+	{
+		spaceObjectParent->GetLocalToWorldTransform( localToWorldTransform );
+	}
+	else if ( childParent )
+	{
+		childParent->GetLocalToWorldTransform( localToWorldTransform );
+	}
+	else
+	{
+		return;
+	}
+
 	UpdateTransform( localToWorldTransform );
-}
 
-void EveChildBillboard::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObjectChild* parent )
-{
-}
-
-void EveChildBillboard::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObjectChild* parent )
-{
-	Matrix localToWorldTransform;
-	parent->GetLocalToWorldTransform( localToWorldTransform );
-	
 	// Do the billboard magic
 	Matrix invView = Tr2Renderer::GetInverseViewTransform();
 	invView._41 = 0.0;
 	invView._42 = 0.0;
 	invView._43 = 0.0;
 	invView._44 = 1.0;
-	D3DXMatrixMultiply( &localToWorldTransform, &localToWorldTransform, &invView );
-
-	UpdateTransform( localToWorldTransform );
+	D3DXMatrixMultiply( &m_worldTransform, &m_worldTransform, &invView );
 }
 
 void EveChildBillboard::GetLocalToWorldTransform( Matrix& transform ) const

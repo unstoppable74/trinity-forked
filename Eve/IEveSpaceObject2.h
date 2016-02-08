@@ -5,6 +5,8 @@
 
 struct ITr2Renderable;
 struct ViewDistanceInfo;
+struct EveSpaceObjectVSData;
+struct EveSpaceObjectPSData;
 class TriFrustum;
 class Tr2RenderContext;
 class EveUpdateContext;
@@ -36,6 +38,8 @@ BLUE_INTERFACE( IEveSpaceObject2 ) : public IRoot
 	virtual void AddQuadsToQuadRenderer( Tr2QuadRenderer& quadRenderer ) {}
 
 	virtual void GetLights( Tr2LightManager& lightManager ) const {}
+
+	virtual void GetPerObjectStructs( EveSpaceObjectVSData& vsData, EveSpaceObjectPSData& psData ) const {}
 };
 
 BLUE_DECLARE_IVECTOR( IEveSpaceObject2 );

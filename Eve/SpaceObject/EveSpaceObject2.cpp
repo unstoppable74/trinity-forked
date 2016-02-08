@@ -230,7 +230,7 @@ void EveSpaceObject2::UpdateSyncronous( EveUpdateContext& updateContext )
 	// trigger syncronous update of attachements here
 	for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt ) 
 	{
-		(*ecIt)->UpdateSyncronous( updateContext, this );
+		(*ecIt)->UpdateSyncronous( updateContext, this, nullptr );
 	}
 	if( m_impactOverlay )
 	{
@@ -309,7 +309,7 @@ void EveSpaceObject2::UpdateAsyncronous( EveUpdateContext& updateContext )
 	
 	for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt ) 
 	{
-		(*ecIt)->UpdateAsyncronous( updateContext, this );
+		(*ecIt)->UpdateAsyncronous( updateContext, this, nullptr );
 	}
 
 	if( m_impactOverlay )

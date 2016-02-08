@@ -137,49 +137,33 @@ void EveChildMesh::UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType shade
 	}
 }
 
-void EveChildMesh::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* parent )
-{
-}
-
-void EveChildMesh::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* parent )
+void EveChildMesh::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
 	m_perObjectDataVs.InvalidateBufferData();
 	m_perObjectDataPs.InvalidateBufferData();
 
-	EveSpaceObject2Ptr parentSpaceObject;
-	if( parent->QueryInterface( BlueInterfaceIID<EveSpaceObject2>(), (void**)&parentSpaceObject ) )
+	Matrix localToWorldTransform;
+	if ( spaceObjectParent )
 	{
-		parentSpaceObject->GetPerObjectStructs( m_vsData, m_psData );
+		spaceObjectParent->GetLocalToWorldTransform( localToWorldTransform );
+		spaceObjectParent->GetPerObjectStructs( m_vsData, m_psData );
 		m_vsData.worldTransformLast = m_worldTransform;
 	}
-
-	Matrix localToWorldTransform;
-	parent->GetLocalToWorldTransform( localToWorldTransform );
-	UpdateTransform( localToWorldTransform );
-	D3DXMatrixTranspose( &m_vsData.worldTransform, &m_worldTransform );
-}
-
-void EveChildMesh::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObjectChild* parent )
-{
-}
-
-void EveChildMesh::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObjectChild* parent )
-{
-	m_perObjectDataVs.InvalidateBufferData();
-	m_perObjectDataPs.InvalidateBufferData();
-
-	EveSpaceObject2Ptr parentSpaceObject;
-	if( parent->QueryInterface( BlueInterfaceIID<EveSpaceObject2>(), (void**)&parentSpaceObject ) )
+	else if ( childParent )
 	{
-		parentSpaceObject->GetPerObjectStructs( m_vsData, m_psData );
+		childParent->GetLocalToWorldTransform( localToWorldTransform );
+	}
+	else
+	{
+		return;
 	}
 
-	m_vsData.worldTransformLast = m_worldTransform;
-
-	Matrix localToWorldTransform;
-	parent->GetLocalToWorldTransform( localToWorldTransform );
 	UpdateTransform( localToWorldTransform );
 	D3DXMatrixTranspose( &m_vsData.worldTransform, &m_worldTransform );
+}
+
+void EveChildMesh::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
+{
 }
 
 void EveChildMesh::GetLocalToWorldTransform( Matrix& transform ) const

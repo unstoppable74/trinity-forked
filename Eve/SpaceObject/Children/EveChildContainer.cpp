@@ -49,31 +49,35 @@ bool EveChildContainer::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery 
 	return success;
 }
 	
-void EveChildContainer::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* parent )
+void EveChildContainer::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
 	for( auto it = m_objects.begin(); it != m_objects.end(); it++ )
 	{
-		(*it)->UpdateSyncronous( updateContext, this );
+		(*it)->UpdateSyncronous( updateContext, nullptr, this );
 	}
 }
-void EveChildContainer::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* parent )
+
+void EveChildContainer::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
 	Matrix localToWorldTransform;
-	parent->GetLocalToWorldTransform( localToWorldTransform );
-	UpdateAsyncronous( updateContext, localToWorldTransform );
-}
+	if( spaceObjectParent )
+	{
+		spaceObjectParent->GetLocalToWorldTransform( localToWorldTransform );
+	}
+	else if ( childParent )
+	{
+		childParent->GetLocalToWorldTransform( localToWorldTransform );
+	}
+	else
+	{
+		return;
+	}
 
-void EveChildContainer::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObjectChild* parent )
-{
-}
-
-void EveChildContainer::UpdateAsyncronous( EveUpdateContext& updateContext, Matrix& parentTransform )
-{
-	UpdateTransform( parentTransform );
+	UpdateTransform( localToWorldTransform );
 
 	for( auto it = m_objects.begin(); it != m_objects.end(); it++ )
 	{
-		(*it)->UpdateAsyncronous( updateContext, this );
+		(*it)->UpdateAsyncronous( updateContext, nullptr, this );
 	}
 	
 	Be::Time time = updateContext.GetTime();
@@ -83,13 +87,6 @@ void EveChildContainer::UpdateAsyncronous( EveUpdateContext& updateContext, Matr
 	}
 }
 
-
-void EveChildContainer::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObjectChild* parent )
-{
-	Matrix localToWorldTransform;
-	parent->GetLocalToWorldTransform( localToWorldTransform );
-	UpdateAsyncronous( updateContext, localToWorldTransform );
-}
 
 void EveChildContainer::GetLocalToWorldTransform( Matrix& transform ) const
 {

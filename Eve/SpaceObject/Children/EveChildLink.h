@@ -27,10 +27,8 @@ public:
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	// IEveSpaceObjectChild
-	void UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* parent );
-	void UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* parent );
-	void UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObjectChild* parent );
-	void UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObjectChild* parent );
+	void UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent );
+	void UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent );
 	void GetLocalToWorldTransform( Matrix& transform ) const;
 
 private:
