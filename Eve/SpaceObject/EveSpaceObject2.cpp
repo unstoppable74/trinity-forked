@@ -2091,7 +2091,7 @@ bool EveSpaceObject2::UpdateImpact( Vector3& out, const Vector3& direction, int 
 
 unsigned int EveSpaceObject2::GetDamageLocatorCount() const 
 {
-	return unsigned int( m_persistedDamageLocators.size() );
+	return (unsigned int)m_persistedDamageLocators.size();
 }
 
 Vector3 EveSpaceObject2::GetDamageLocator( uint32_t index ) const
