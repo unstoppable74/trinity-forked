@@ -38,6 +38,8 @@ EveChildBulletStorm::EveChildBulletStorm( IRoot* lockobj ) :
 	m_display( true ),
 	m_objectCount( 0 ),
 	m_multiplier( 1 ),
+	m_range( 1000.f ),
+	m_sourceRadius( 0.f ),
 	m_vertexDeclHandle( Tr2EffectStateManager::UNINITIALIZED_DECLARATION )
 {
 	PrepareResources();
@@ -259,6 +261,17 @@ void EveChildBulletStorm::UpdateAsyncronous( EveUpdateContext& updateContext, IE
 
 		m_targetBlobs[i] = Vector4( targetPosWS, max( targetSize.w, BULLETSTORM_MIN_TARGETSIZE ) );
 	}
+
+
+	// keep the radius of the soutrceobject here
+	if( m_sourceObject )
+	{
+		Vector4 sphere;
+		if( m_sourceObject->GetBoundingSphere( sphere ) )
+		{
+			m_sourceRadius = sphere.w;
+		}
+	}
 }
 
 // --------------------------------------------------------------------------------
@@ -378,7 +391,7 @@ Tr2PerObjectData* EveChildBulletStorm::GetPerObjectData( ITriRenderBatchAccumula
 	}
 
 	perObjectData->m_worldTransform = XMMatrixTranspose( m_worldTransform );
-	perObjectData->m_targetPositionInfo = Vector4( float(m_targetObjects.size()), 0.f, 0.f, 0.f );
+	perObjectData->m_effectInfo = Vector4( float(m_targetObjects.size()), m_sourceRadius + m_range, 0.f, 0.f );
 	for( size_t i = 0; i < m_targetBlobs.size(); ++i )
 	{
 		perObjectData->m_targetPositionsWS[i] = m_targetBlobs[i];

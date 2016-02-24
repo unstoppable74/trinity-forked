@@ -28,7 +28,7 @@ public:
 
 	// vs
 	Matrix m_worldTransform;
-	Vector4 m_targetPositionInfo;
+	Vector4 m_effectInfo;
 	Vector4 m_targetPositionsWS[10];
 };
 
@@ -102,9 +102,11 @@ private:
 	unsigned int m_objectCount;
 	unsigned int m_multiplier;
 	std::string m_sourceLocatorSet;
+	float m_range;
 
 	// source
 	EveSpaceObject2Ptr m_sourceObject;
+	float m_sourceRadius;
 
 	// targets
 	PIEveSpaceObject2Vector m_targetObjects;
