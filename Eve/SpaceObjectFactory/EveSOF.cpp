@@ -849,7 +849,7 @@ void EveSOF::SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, const EveSOFDNA
 		// is it of right type?
 		EveTransformPtr child;
 		IEveSpaceObjectChildPtr effectChild;
-		if( p->QueryInterface( BlueInterfaceIID<EveTransform>(), (void**)&child ) )
+		if( p->QueryInterface( BlueInterfaceIID<EveTransform>(), (void**)&child, BEQI_SILENT ) )
 		{
 			child->SetRotation( childIt->rotation );
 			child->SetScaling( childIt->scaling );
@@ -861,7 +861,7 @@ void EveSOF::SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, const EveSOFDNA
 
 			obj->AddToChildrenList( child );
 		}
-		else if( p->QueryInterface( BlueInterfaceIID<IEveSpaceObjectChild>(), (void**)&effectChild ) )
+		else if( p->QueryInterface( BlueInterfaceIID<IEveSpaceObjectChild>(), (void**)&effectChild, BEQI_SILENT ) )
 		{
 			obj->AddToEffectChildrenList( effectChild );
 			effectChild->Transform( &childIt->scaling, &childIt->rotation, &childIt->translation );
