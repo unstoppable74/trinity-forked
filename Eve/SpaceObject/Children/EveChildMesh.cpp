@@ -15,6 +15,13 @@ EveChildMesh::EveChildMesh( IRoot* lockobj ):
 	m_useSpaceObjectData( true ),
 	EveChildTransform()
 {
+	// init per-object data with default values
+	memset( &m_vsData, 0, sizeof( EveSpaceObjectVSData ) );
+	memset( &m_psData, 0, sizeof( EveSpaceObjectPSData ) );
+	m_vsData.shipData.y = 1.f;
+	m_vsData.shipData.w = 1.f;
+	m_psData.shipData.y = 1.f;
+	m_psData.shipData.w = 1.f;
 }
 
 EveChildMesh::~EveChildMesh()
