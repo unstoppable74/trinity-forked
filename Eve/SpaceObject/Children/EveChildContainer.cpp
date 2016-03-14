@@ -152,8 +152,5 @@ float EveChildContainer::GetCurveSetDuration( const std::string& name ) const
 
 void EveChildContainer::Setup( const Vector3* scale, const Quaternion* rotation, const Vector3* translation, Tr2Lod lowestLodVisible )
 {
-	for( auto it = m_objects.begin(); it != m_objects.end(); it++ )
-	{
-		(*it)->Setup( scale, rotation, translation, lowestLodVisible );
-	}
+	EveChildTransform::Setup( scale, rotation, translation, lowestLodVisible );
 }
