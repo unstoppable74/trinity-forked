@@ -20,7 +20,7 @@ using namespace Tr2RenderContextEnum;
 namespace
 {
 
-class EveCloudPerObjectData : public Tr2PerObjectData
+class EveChildCloudPerObjectData : public Tr2PerObjectData
 {
 public:
 	virtual void SetPerObjectDataToDevice( Tr2ConstantBufferAL** buffers, unsigned constantTypeMask, Tr2RenderContext& renderContext ) const
@@ -153,7 +153,7 @@ void GetProjectedCubeBounds(  AxisAlignedBoundingBox& box, const Matrix& worldVi
 
 
 
-EveCloud::EveCloud( IRoot* lockobj )
+EveChildCloud::EveChildCloud( IRoot* lockobj )
 	:m_localTransform( Tr2Renderer::GetIdentityTransform() ),
 	m_worldTransform( Tr2Renderer::GetIdentityTransform() ),
 	m_scaling( 1.0f, 1.0f, 1.0f ),
@@ -169,18 +169,18 @@ EveCloud::EveCloud( IRoot* lockobj )
 	PrepareResources();
 }
 
-EveCloud::~EveCloud()
+EveChildCloud::~EveChildCloud()
 {
 }
 
-bool EveCloud::Initialize()
+bool EveChildCloud::Initialize()
 {
 	ReleaseResources( TRISTORAGE_ALL );
 	PrepareResources();
 	return true;
 }
 
-bool EveCloud::OnModified( Be::Var* value )
+bool EveChildCloud::OnModified( Be::Var* value )
 {
 	if( IsMatch( value, m_preTesselationLevel ) )
 	{
@@ -190,7 +190,7 @@ bool EveCloud::OnModified( Be::Var* value )
 	return true;
 }
 
-void EveCloud::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform, Tr2Lod parentLod )
+void EveChildCloud::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform, Tr2Lod parentLod )
 {
 	if( !m_display || !frustum.IsSphereVisible( &m_boundingSphere ) )
 	{
@@ -199,30 +199,30 @@ void EveCloud::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Render
 	renderables.push_back( this );
 }
 
-bool EveCloud::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query ) const
+bool EveChildCloud::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query ) const
 {
 	sphere = m_boundingSphere;
 	return true;
 }
 
-void EveCloud::GetLocalToWorldTransform( Matrix &transform ) const 
+void EveChildCloud::GetLocalToWorldTransform( Matrix &transform ) const 
 { 
 	transform = m_worldTransform;
 }
 
-bool EveCloud::HasTransparentBatches()
+bool EveChildCloud::HasTransparentBatches()
 {
 	return true;
 }
 
-float EveCloud::GetSortValue()
+float EveChildCloud::GetSortValue()
 {
 	Vector3 d = Tr2Renderer::GetViewPosition() - m_worldTransform.GetTranslation();
 	float distance = D3DXVec3Length( &d ) - D3DXVec3Length( &m_scaling ) * m_sortingModifier;
 	return distance;
 }
 
-void EveCloud::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData )
+void EveChildCloud::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData )
 {
 	if( batchType != TRIBATCHTYPE_TRANSPARENT )
 	{
@@ -239,7 +239,7 @@ void EveCloud::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType bat
 	}
 }
 
-void EveCloud::ReleaseResources( TriStorage s )
+void EveChildCloud::ReleaseResources( TriStorage s )
 {
 	m_declaration = Tr2EffectStateManager::UNINITIALIZED_DECLARATION;
 	if( m_vertexBuffer.IsValid() && m_vertexBuffer.GetMemoryClass() & s )
@@ -252,7 +252,7 @@ void EveCloud::ReleaseResources( TriStorage s )
 	}
 }
 
-bool EveCloud::OnPrepareResources()
+bool EveChildCloud::OnPrepareResources()
 {
 	USE_MAIN_THREAD_RENDER_CONTEXT();
 
@@ -314,9 +314,9 @@ bool EveCloud::OnPrepareResources()
 	return true;
 }
 
-Tr2PerObjectData* EveCloud::GetPerObjectData( ITriRenderBatchAccumulator* accumulator )
+Tr2PerObjectData* EveChildCloud::GetPerObjectData( ITriRenderBatchAccumulator* accumulator )
 {
-	EveCloudPerObjectData* data = accumulator->Allocate<EveCloudPerObjectData>();
+	EveChildCloudPerObjectData* data = accumulator->Allocate<EveChildCloudPerObjectData>();
 
 	if( !data )
 	{
@@ -365,7 +365,7 @@ Tr2PerObjectData* EveCloud::GetPerObjectData( ITriRenderBatchAccumulator* accumu
 	return data;
 }
 
-void EveCloud::SubmitGeometry( Tr2RenderContext& renderContext )
+void EveChildCloud::SubmitGeometry( Tr2RenderContext& renderContext )
 {
 	renderContext.m_esm.ApplyVertexDeclaration( m_declaration );
 	renderContext.m_esm.ApplyIndexBuffer( m_indexBuffer );
@@ -374,12 +374,12 @@ void EveCloud::SubmitGeometry( Tr2RenderContext& renderContext )
 	renderContext.DrawIndexedPrimitive( m_vertexBuffer.GetTotalSizeInBytes() / sizeof( Vector2 ), 0, m_indexBuffer.GetNumIndices() / 3 );
 }
 
-IRoot* EveCloud::GetID( uint16_t areaId )
+IRoot* EveChildCloud::GetID( uint16_t areaId )
 {
 	return m_volume ? m_volume->GetID( areaId ) : nullptr;
 }
 
-void EveCloud::GetPickingBatches( ITriRenderBatchAccumulator* batches, Tr2PickTypes pickTypes, const Tr2PerObjectData* perObjectData )
+void EveChildCloud::GetPickingBatches( ITriRenderBatchAccumulator* batches, Tr2PickTypes pickTypes, const Tr2PerObjectData* perObjectData )
 {
 	if( ( pickTypes & PICK_TYPE_LOCATORS ) != 0 && m_volume )
 	{
@@ -387,7 +387,7 @@ void EveCloud::GetPickingBatches( ITriRenderBatchAccumulator* batches, Tr2PickTy
 	}
 }
 
-void EveCloud::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
+void EveChildCloud::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
 	if( m_volume )
 	{
@@ -409,20 +409,20 @@ void EveCloud::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObjec
 	BoundingSphereFromBox( m_boundingSphere, m_min, m_max, &m_worldTransform );
 }
 
-void EveCloud::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
+void EveChildCloud::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
 	BoundingSphereFromBox( m_boundingSphere, m_min, m_max, &m_worldTransform );
 }
 
-void EveCloud::PlayCurveSet( const std::string& name )
+void EveChildCloud::PlayCurveSet( const std::string& name )
 {
 }
 
-void EveCloud::StopCurveSet( const std::string& name )
+void EveChildCloud::StopCurveSet( const std::string& name )
 {
 }
 
-float EveCloud::GetCurveSetDuration( const std::string& name ) const
+float EveChildCloud::GetCurveSetDuration( const std::string& name ) const
 {
 	return 0;
 }

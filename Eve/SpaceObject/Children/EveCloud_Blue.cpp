@@ -8,12 +8,12 @@
 #include "EveCloud.h"
 #include "EveCloudEditableVolume.h"
 
-BLUE_DEFINE( EveCloud );
+BLUE_DEFINE( EveChildCloud );
 
-const Be::ClassInfo* EveCloud::ExposeToBlue()
+const Be::ClassInfo* EveChildCloud::ExposeToBlue()
 {
-    EXPOSURE_BEGIN( EveCloud, "Cloud space object" )
-        MAP_INTERFACE( EveCloud )
+    EXPOSURE_BEGIN( EveChildCloud, "Cloud space object child" )
+        MAP_INTERFACE( EveChildCloud )
 		MAP_INTERFACE( ITr2Renderable )
 		MAP_INTERFACE( ITr2Pickable )
 		MAP_INTERFACE( ITr2GeometryProvider )

@@ -24,7 +24,7 @@ BLUE_DECLARE_INTERFACE( ITriQuaternionFunction );
 //   A space object used for rendering volumetric clouds. Renders a camera-aligned
 //   plane at the back of the object's bounding sphere using provided effect.
 // --------------------------------------------------------------------------------
-BLUE_CLASS( EveCloud ) :
+BLUE_CLASS( EveChildCloud ) :
 	public ITr2Renderable,
 	public ITr2Pickable,
 	public ITr2GeometryProvider,
@@ -36,8 +36,8 @@ BLUE_CLASS( EveCloud ) :
 public:
 	EXPOSE_TO_BLUE();
 
-	EveCloud(IRoot* lockobj = NULL);
-	~EveCloud();
+	EveChildCloud(IRoot* lockobj = NULL);
+	~EveChildCloud();
 
 	//////////////////////////////////////////////////////////////////////////
 	// IInitialize
@@ -113,7 +113,7 @@ private:
 	float m_sortingModifier;
 };
 
-TYPEDEF_BLUECLASS( EveCloud );
-BLUE_DECLARE_VECTOR( EveCloud );
+TYPEDEF_BLUECLASS( EveChildCloud );
+BLUE_DECLARE_VECTOR( EveChildCloud );
 
 #endif
