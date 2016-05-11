@@ -2959,13 +2959,13 @@
     <ClInclude Include="Eve\SpaceObject\Attachments\Sets\EveSpriteSetItem.h"/>
     <ClInclude Include="Eve\SpaceObject\Children\EveChildBillboard.h"/>
     <ClInclude Include="Eve\SpaceObject\Children\EveChildBulletStorm.h"/>
+    <ClInclude Include="Eve\SpaceObject\Children\EveChildCloud.h"/>
     <ClInclude Include="Eve\SpaceObject\Children\EveChildContainer.h"/>
     <ClInclude Include="Eve\SpaceObject\Children\EveChildExplosion.h"/>
     <ClInclude Include="Eve\SpaceObject\Children\EveChildLink.h"/>
     <ClInclude Include="Eve\SpaceObject\Children\EveChildMesh.h"/>
     <ClInclude Include="Eve\SpaceObject\Children\EveChildParticleSystem.h"/>
     <ClInclude Include="Eve\SpaceObject\Children\EveChildTransform.h"/>
-    <ClInclude Include="Eve\SpaceObject\Children\EveCloud.h"/>
     <ClInclude Include="Eve\SpaceObject\Children\EveCloudEditableVolume.h"/>
     <ClInclude Include="Eve\SpaceObject\Children\IEveSpaceObjectChild.h"/>
     <ClInclude Include="Eve\SpaceObject\Utils\EveCustomMask.h"/>
