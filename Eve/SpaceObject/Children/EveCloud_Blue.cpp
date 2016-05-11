@@ -5,7 +5,7 @@
 //
 
 #include "StdAfx.h"
-#include "EveCloud.h"
+#include "EveChildCloud.h"
 #include "EveCloudEditableVolume.h"
 
 BLUE_DEFINE( EveChildCloud );

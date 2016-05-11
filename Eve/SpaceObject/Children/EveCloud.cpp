@@ -5,7 +5,7 @@
 //
 
 #include "StdAfx.h"
-#include "EveCloud.h"
+#include "EveChildCloud.h"
 #include "TriFrustum.h"
 #include "TriRenderBatch.h"
 #include "include/ITriFunction.h"
