@@ -440,6 +440,9 @@
     <ClCompile Include="Tr2GpuBufferALDx11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Tr2GpuBufferALGL4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Tr2GpuTelemetry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
