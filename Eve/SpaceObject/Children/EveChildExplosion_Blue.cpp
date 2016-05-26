@@ -25,6 +25,11 @@ const Be::ClassInfo* EveChildExplosion::ExposeToBlue()
 			"Child containing local explosion effect", 
 			Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( 
+			"localExplosions", 
+			m_localExplosions, 
+			"List of children containing versions of local explosion effect", 
+			Be::READ | Be::PERSIST )
+		MAP_ATTRIBUTE( 
 			"localExplosionShared", 
 			m_localExplosionShared, 
 			"Child containing shared parts of the local explosion effect (particle systems etc.)", 

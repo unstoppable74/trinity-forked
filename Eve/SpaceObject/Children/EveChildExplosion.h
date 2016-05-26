@@ -62,6 +62,7 @@ private:
 
 	// Child containing local explosion effect
 	IEveSpaceObjectChildPtr m_localExplosion;
+	PIEveSpaceObjectChildVector m_localExplosions;
 	// Child containing shared parts of the local explosion effect (particle systems etc.)
 	IEveSpaceObjectChildPtr m_localExplosionShared;
 	// Child containing global explosion effect

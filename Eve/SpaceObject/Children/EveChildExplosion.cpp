@@ -11,6 +11,7 @@
 
 EveChildExplosion::EveChildExplosion( IRoot* lockobj )
 	:EveChildContainer( lockobj ),
+	PARENTLOCK( m_localExplosions ),
 	m_localExplosionDelay( 0.f ),
 	m_localExplosionInterval( 1.f ),
 	m_localExplosionIntervalFactor( 1.f ),
@@ -39,7 +40,7 @@ EveChildExplosion::~EveChildExplosion()
 void EveChildExplosion::Play()
 {
 	Stop();
-	if( !m_localExplosion && !m_globalExplosion )
+	if( !m_localExplosion && !m_globalExplosion && m_localExplosions.empty() )
 	{
 		return;
 	}
@@ -98,7 +99,7 @@ void EveChildExplosion::UpdateSyncronous(
 	{
 		auto dt = updateContext.GetDeltaT();
 		m_playTime += dt;
-		if( m_localExplosion )
+		if( m_localExplosion || !m_localExplosions.empty() )
 		{
 			if( m_wreckSwitchTime > 0 && m_playTime > m_wreckSwitchTime )
 			{
@@ -145,7 +146,7 @@ void EveChildExplosion::UpdateSyncronous(
 						m_objects.Append( m_globalExplosionInstance );
 					}
 				}
-				else if( !m_localExplosion && -m_globalExplosionTime > m_globalDuration )
+				else if( !m_localExplosion && m_localExplosions.empty() && -m_globalExplosionTime > m_globalDuration )
 				{
 					Stop();
 				}
@@ -300,7 +301,7 @@ void EveChildExplosion::UpdateEmitter( IRoot* source, IRoot** dest, ICopier* cop
 // --------------------------------------------------------------------------------------
 void EveChildExplosion::SpawnLocalExplosion( const Matrix& transform )
 {
-	if( !m_localExplosion )
+	if( !m_localExplosion && m_localExplosions.empty() )
 	{
 		return;
 	}
@@ -310,7 +311,12 @@ void EveChildExplosion::SpawnLocalExplosion( const Matrix& transform )
 	Vector3 scale;
 	D3DXMatrixDecompose( &scale, &t.rotation, &t.position, &transform );
 
-	if( !BeClasses->CopyTo( m_localExplosion, (IRoot**)&instance.p, &CopyElement, this, &UpdateEmitter, &t ) )
+	auto localExplosion = m_localExplosion;
+	if( !m_localExplosions.empty() )
+	{
+		localExplosion = m_localExplosions[rand() % m_localExplosions.size()];
+	}
+	if( !BeClasses->CopyTo( localExplosion, (IRoot**)&instance.p, &CopyElement, this, &UpdateEmitter, &t ) )
 	{
 		return;
 	}
