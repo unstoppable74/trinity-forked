@@ -15,7 +15,7 @@ EveConnector::EveConnector( IRoot* lockobj ) :
 	m_destPosition( 0.f, 0.f, 0.f ),
 	m_sourcePosition( 0.f, 0.f, 0.f ),
 	m_normal( 0.f, 1.f, 0.f ),
-	m_radius( 1.f ),
+	m_length( 0.f ),
 	m_animationScale( 1.f ),
 	m_animationSpeed( 0.f ),
 	m_width( 1.f ),
@@ -80,11 +80,20 @@ void EveConnector::AddLine( EveCurveLineSet* lineSet )
 		AddCircle( lineSet, m_sourcePosition, length );
 		break;
 	case PointToPoint:
-		m_lineLength = D3DXVec3Length( D3DXVec3Subtract( &v, &m_sourcePosition, &m_destPosition ) );
-		AddStraightLine( lineSet, m_sourcePosition, m_destPosition );
+		m_lineLength = D3DXVec3Length( D3DXVec3Subtract( &v, &m_destPosition, &m_sourcePosition ) );
+		if( m_length && m_lineLength > m_length )
+		{
+			D3DXVec3Scale( &v, D3DXVec3Normalize( &v, &v ), m_length );
+			v += m_sourcePosition;
+		}
+		else
+		{
+			v = m_destPosition;
+		}
+		AddStraightLine( lineSet, m_sourcePosition, v );
 		break;
 	case Orbit:
-		AddOrbit( lineSet, m_destPosition, m_radius, m_normal );
+		AddOrbit( lineSet, m_destPosition, m_length, m_normal );
 		break;
 	default:
 		break;

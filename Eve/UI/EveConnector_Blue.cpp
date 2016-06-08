@@ -70,7 +70,7 @@ const Be::ClassInfo* EveConnector::ExposeToBlue()
 		MAP_ATTRIBUTE( "sourceObject", m_sourceObject, "", Be::READWRITE | Be::PERSIST );
 
 		MAP_ATTRIBUTE( "planeNormal", m_normal, "", Be::READWRITE | Be::PERSIST );
-		MAP_ATTRIBUTE( "radius", m_radius, "", Be::READWRITE | Be::PERSIST );
+		MAP_ATTRIBUTE( "length", m_length, "", Be::READWRITE | Be::PERSIST );
 
 		MAP_ATTRIBUTE_WITH_CHOOSER( "type", m_type, "", Be::READWRITE | Be::PERSIST | Be::ENUM, EveConnectorTypeChooser );
 

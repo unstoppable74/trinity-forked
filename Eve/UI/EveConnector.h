@@ -45,7 +45,7 @@ private:
 	float m_animationScale;
 	float m_width;
 	float m_lineLength;
-	float m_radius;
+	float m_length;
 
 	bool m_isAnimated;
 	bool m_autoScaleAnimation;
