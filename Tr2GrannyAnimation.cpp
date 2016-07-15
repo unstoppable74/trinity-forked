@@ -383,7 +383,7 @@ void Tr2GrannyAnimation::RenderBones( const Matrix& modelTransform )
 		D3DXVec4Transform( &pos, &pos, &mat );
 		pos.w = 2;
 		Tr2Renderer::DrawSphere( pos, 1, 0xffffffff );
-		Tr2Renderer::Printf( TRI_DBG_FONT_SMALL, Vector3( pos.x, pos.y, pos.z ), 0xffffffff, "  %s : %d / %d", m_skeleton->Bones[bi[boneIdx]].Name, bi[boneIdx], boneIdx );
+		Tr2Renderer::Printf( TRI_DBG_FONT_SMALL, Vector3( pos.x, pos.y, pos.z ), 0xffffffff, "  %s : %d", m_skeleton->Bones[bi[boneIdx]].Name, boneIdx );
 	}
 }
 
