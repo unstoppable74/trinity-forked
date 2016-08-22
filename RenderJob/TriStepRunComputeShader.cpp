@@ -41,18 +41,6 @@ TriStepResult TriStepRunComputeShader::Execute( Be::Time realTime, Be::Time simT
 	CCP_STATS_ZONE( __FUNCTION__ );
 	CCP_STATS_INC( rsRunComputeShaderCount );
 
-	// hack
-	Tr2PerFramePSData perFramePS;
-    Tr2PopulatePerFramePSDataTransformations( perFramePS );
-	static Tr2ConstantBufferAL s_perFramePSData;
-	if( !s_perFramePSData.IsValid() )
-	{
-		USE_MAIN_THREAD_RENDER_CONTEXT();
-		s_perFramePSData.Create( sizeof( perFramePS ), renderContext );
-	}
-    FillAndSetConstants( s_perFramePSData, perFramePS, Tr2RenderContextEnum::COMPUTE_SHADER, Tr2Renderer::GetPerFramePSStartRegister(), renderContext );
-
-
 #if TRINITY_PLATFORM == TRINITY_DIRECTX11
 	static ID3D11Query	*timingQuery = nullptr;
 	if( m_logDispatchTime && !timingQuery )
