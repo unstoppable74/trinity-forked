@@ -814,7 +814,7 @@ const Vector4* EveSOFDNA::GetMeshAreaParameter( const BlueSharedString& areaDesi
 	if( GetDnaCommandArgs( CMD_MESH, commandArgs ) )
 	{
 		// indentify material paramater and material index
-		EveSOFUtilsParameterName param( m_genericData, parameterName.c_str() );
+		EveSOFUtilsParameterName param( m_genericData->materialPrefixes, parameterName.c_str() );
 		if( param.IsValid() && ( param.GetMaterialIdx() < (int32_t)commandArgs.size() ) )
 		{
 			// some materials are not flagged as blocked for overrides
@@ -836,16 +836,25 @@ const Vector4* EveSOFDNA::GetMeshAreaParameter( const BlueSharedString& areaDesi
 	}
 
 	// do we have a dna patten command for this?
-	/*
 	if( GetDnaCommandArgs( CMD_PATTERN, commandArgs ) )
 	{
 		// indentify material paramater and material index
-		EveSOFUtilsParameterName param( m_genericData, parameterName.c_str() );
-		if( param.IsValid() && ( param.GetMaterialIdx() < (int32_t)commandArgs.size() ) )
+		EveSOFUtilsParameterName param( m_genericData->patternMaterialPrefixes, parameterName.c_str() );
+		if( param.IsValid() && ( 1 + param.GetMaterialIdx() < (int32_t)commandArgs.size() ) )
 		{
+			// get the material from the lib
+			const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( commandArgs[1 + param.GetMaterialIdx()].c_str() );
+			if( materialData )
+			{
+				BlueSharedString pn( param.GetShortName() );
+				auto parameterIt = materialData->parameters.find( pn );
+				if( parameterIt != materialData->parameters.end() )
+				{
+					return &parameterIt->second;
+				}
+			}
 		}
-	}
-	*/
+                          	}
 
 	// do we have it in the generic data?
 	const Vector4* res = SearchForParameterData( m_genericData->hullAreaParameters, areaDesignation, parameterName );
@@ -866,16 +875,6 @@ const Vector4* EveSOFDNA::GetMeshAreaParameter( const BlueSharedString& areaDesi
 	if( res )
 	{
 		return res;
-	}
-
-	// do we have it in the pattern data?
-	if( m_patternData )
-	{
-		res = SearchForParameterData( m_patternData->areaParameters, areaDesignation, parameterName );
-		if( res )
-		{
-			return res;
-		}
 	}
 
 	// do we have it in the hull data
@@ -900,7 +899,7 @@ const Vector4* EveSOFDNA::GetMeshAreaParameter( const BlueSharedString& areaDesi
 const Vector4* EveSOFDNA::GetFactionTurretParameters( const BlueSharedString& parameterName ) const
 {
 	// must change the material number in the parameter name, is for turrets
-	EveSOFUtilsParameterName paramName( m_genericData, parameterName.c_str() );
+	EveSOFUtilsParameterName paramName( m_genericData->materialPrefixes, parameterName.c_str() );
 	// valid?
 	if( !paramName.IsValid() )
 	{

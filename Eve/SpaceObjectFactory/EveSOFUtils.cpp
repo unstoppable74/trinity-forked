@@ -12,30 +12,17 @@
 // Description:
 //   Initialize data members and do all initial analyzing
 // --------------------------------------------------------------------------------
-EveSOFUtilsParameterName::EveSOFUtilsParameterName( const EveSOFDataMgr::GenericData* genericData, const char* parameterName ) : m_fullname( parameterName ), m_shortname( parameterName ), m_materialIdx( -1 )
+EveSOFUtilsParameterName::EveSOFUtilsParameterName( const std::vector<std::string>& prefixes, const char* parameterName ) : m_fullname( parameterName ), m_shortname( parameterName ), m_materialIdx( -1 )
 {
 	// try to find the material prefix and with that indentify the index
-	for( size_t i = 0; i < genericData->materialPrefixes.size(); ++i )
+	for( size_t i = 0; i < prefixes.size(); ++i )
 	{
-		if( StringStartsWithI( m_shortname.c_str(), genericData->materialPrefixes[i].c_str() ) )
+		if( StringStartsWithI( m_shortname.c_str(), prefixes[i].c_str() ) )
 		{
-			if(i < genericData->materialPrefixes.size() )
+			if(i < prefixes.size() )
 			{
 				m_materialIdx = int32_t(i);
-				StringRemove( m_shortname, genericData->materialPrefixes[i].c_str() );
-				return;
-			}
-		}
-	}
-	// now try to find the custom material prefix and with that indentify the index
-	for( size_t i = 0; i < genericData->customMaterialPrefixes.size(); ++i )
-	{
-		if( StringStartsWithI( m_shortname.c_str(), genericData->customMaterialPrefixes[i].c_str() ) )
-		{
-			if( i < genericData->customMaterialPrefixes.size() )
-			{
-				m_materialIdx = int32_t( i );
-				StringRemove( m_shortname, genericData->customMaterialPrefixes[i].c_str() );
+				StringRemove( m_shortname, prefixes[i].c_str() );
 				return;
 			}
 		}

@@ -1102,21 +1102,6 @@ void EveSOFDataMgr::GeneratePatternData( PatternData& pd, EveSOFDataPatternPtr s
 		}
 	}
 
-	// area parameters
-	pd.areaParameters.clear();
-	for( auto hait = srcData->m_areas.begin(); hait != srcData->m_areas.end(); ++hait )
-	{
-		EveSOFDataFactionHullAreaPtr hullAreaData = ( *hait );
-
-		FactionAreaData ad;
-		for( auto hapit = hullAreaData->m_parameters.begin(); hapit != hullAreaData->m_parameters.end(); ++hapit )
-		{
-			EveSOFDataParameterPtr parameterData = ( *hapit );
-			ad.parameters[parameterData->m_name] = parameterData->m_value;
-		}
-		pd.areaParameters[hullAreaData->m_name] = ad;
-	}
-
 	// projection types, translate to AL enums right here
 	switch( srcData->m_projectionTypeU )
 	{
@@ -1292,12 +1277,12 @@ void EveSOFDataMgr::GenerateGenericData( GenericData& gd, EveSOFDataGenericPtr s
 	}
 
 	// shader custom material name prefixes
-	gd.customMaterialPrefixes.clear();
-	for( auto cmpit = srcData->m_customMaterialPrefixes.begin(); cmpit != srcData->m_customMaterialPrefixes.end(); ++cmpit )
+	gd.patternMaterialPrefixes.clear();
+	for( auto pmpit = srcData->m_patternMaterialPrefixes.begin(); pmpit != srcData->m_patternMaterialPrefixes.end(); ++pmpit )
 	{
-		EveSOFDataGenericStringPtr str = ( *cmpit );
+		EveSOFDataGenericStringPtr str = ( *pmpit );
 
-		gd.customMaterialPrefixes.push_back( str->m_str );
+		gd.patternMaterialPrefixes.push_back( str->m_str );
 	}
 
 	// area shader-specific data

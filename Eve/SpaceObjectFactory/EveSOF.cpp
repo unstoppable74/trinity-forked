@@ -1630,7 +1630,7 @@ void EveSOF::SetupTurretMaterialFromFaction( EveTurretSet* turretSet, const char
 			shader->StartUpdate();
 			for( auto it = shader->m_constParameters.begin(); it != shader->m_constParameters.end(); ++it )
 			{
-				EveSOFUtilsParameterName param( genericData, it->name.c_str() );
+				EveSOFUtilsParameterName param( genericData->materialPrefixes, it->name.c_str() );
 				if( param.IsValid() )
 				{
 					std::string newParamName = param.ChangeMaterialIdx( genericData, factionData->materialUsageList[ param.GetMaterialIdx() ] );
@@ -1648,7 +1648,7 @@ void EveSOF::SetupTurretMaterialFromFaction( EveTurretSet* turretSet, const char
 			// then non-const parameters
 			for( auto it = shader->m_parameters.begin(); it != shader->m_parameters.end(); ++it )
 			{
-				EveSOFUtilsParameterName param( genericData, (*it)->GetParameterName() );
+				EveSOFUtilsParameterName param( genericData->materialPrefixes, (*it)->GetParameterName() );
 				if( param.IsValid() )
 				{
 					std::string newParamName = param.ChangeMaterialIdx( genericData, factionData->materialUsageList[ param.GetMaterialIdx() ] );

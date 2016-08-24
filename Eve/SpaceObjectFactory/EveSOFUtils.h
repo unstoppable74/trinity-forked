@@ -19,7 +19,7 @@
 class EveSOFUtilsParameterName
 {
 public:
-	EveSOFUtilsParameterName( const EveSOFDataMgr::GenericData* genericData, const char* parameterName );
+	EveSOFUtilsParameterName( const std::vector<std::string>& prefixes, const char* parameterName );
 
 	// queries
 	bool IsValid() const;

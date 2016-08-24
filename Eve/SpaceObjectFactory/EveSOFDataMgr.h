@@ -353,8 +353,6 @@ public:
 		std::map<BlueSharedString, TextureData> patternTextures;
 		// non-shared data (per hull)
 		std::map<BlueSharedString, std::vector<PatternProjectionData>> projectionData;
-		// hull area parameter
-		std::map<BlueSharedString, FactionAreaData> areaParameters;
 	};
 
 	// generic data structs
@@ -425,7 +423,7 @@ public:
 		std::string decalShaderLocation;
 		// material perfixes
 		std::vector<std::string> materialPrefixes;
-		std::vector<std::string> customMaterialPrefixes;
+		std::vector<std::string> patternMaterialPrefixes;
 		// shader-specific data
 		std::map<BlueSharedString, GenericShaderData> areaShaderData;
 		std::map<BlueSharedString, GenericShaderData> decalShaderData;
