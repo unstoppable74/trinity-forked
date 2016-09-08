@@ -68,7 +68,7 @@ ITr2ShaderStatePtr Tr2EffectRes::GetShader( const Tr2ShaderOption* options, size
 				}
 				if( val == -1 )
 				{
-					CCP_LOGWARN( "Invalid situation value %s for permutation %s in effect %S", options[k].value.c_str(), m_permutations[i].name, GetPath() );
+					CCP_LOGWARN( "Invalid situation value %s for permutation %s in effect %S", options[k].value.c_str(), m_permutations[i].name.c_str(), GetPath() );
 				}
 				else
 				{
@@ -96,12 +96,12 @@ ITr2ShaderStatePtr Tr2EffectRes::GetShader( const Tr2ShaderOption* options, size
 	auto buffer = reinterpret_cast<const uint8_t*>( m_data.get() ) + offset.offset;
 	if( !shader->GetEffect().Read( buffer, offset.size, m_version, m_stringTable, m_stringTableSize, CW2A( GetPath() ) ) )
 	{
-		return false;
+		return nullptr;
 	}
 	shader->ProcessEffect();
 
 	m_shaders[index] = shader.p;
-	ITr2ShaderStatePtr ss = shader;
+	ITr2ShaderStatePtr ss = shader.p;
 	return ss;
 }
 
