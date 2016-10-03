@@ -114,7 +114,7 @@ public:
 	// ITriFunction
 	void UpdateValue( double time )
 	{
-		m_currentValue = GetValueAt( time );
+		this->m_currentValue = this->GetValueAt( time );
 	}
 };
 
