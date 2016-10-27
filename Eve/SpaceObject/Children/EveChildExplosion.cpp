@@ -80,17 +80,18 @@ void EveChildExplosion::Stop()
 void EveChildExplosion::CalculateExplosionTimes( uint32_t localExplosionCount )
 {
 	m_localExplosionTimes.clear();
-	m_globalExplosionTime = m_localExplosionDelay;
+	float timeUntilLastLocalExplosion = m_localExplosionDelay;
 	for(uint32_t i = 0; i < localExplosionCount; i++)
 	{
 		auto explosionTime = std::pow( m_localExplosionIntervalFactor, float( i ) ) *  
 			m_localExplosionInterval * float( rand() ) / float( RAND_MAX );	
 		
 		m_localExplosionTimes.push_back(explosionTime);
-		m_globalExplosionTime += explosionTime;
+		timeUntilLastLocalExplosion += explosionTime;
 	}
-	
-	m_globalExplosionTime += m_globalExplosionDelay;
+	m_localDuration += timeUntilLastLocalExplosion;	
+	m_globalExplosionTime += timeUntilLastLocalExplosion + m_globalExplosionDelay;
+
 	// max this because we might have explosions that do not have a global explosion
 	m_totalDuration = max(m_localDuration, m_globalExplosionTime + m_globalDuration);
 
@@ -172,11 +173,6 @@ void EveChildExplosion::UpdateSyncronous(
 					SpawnLocalExplosion( transform );
 					m_nextLocalExplosionTime = m_localExplosionTimes[++m_nextLocalExplosion];
 				}
-				else if( -m_nextLocalExplosionTime > m_localDuration && 
-					( !m_globalExplosion || -m_countdownToGlobalExplosionStart > m_totalDuration ) )
-				{
-					shouldStop = true;
-				}
 			}
 		}
 		if( m_globalExplosion)
@@ -199,13 +195,10 @@ void EveChildExplosion::UpdateSyncronous(
 						m_objects.Append( m_globalExplosionContainer );
 					}
 				}
-				else if( !m_localExplosion && m_localExplosions.empty() && -m_countdownToGlobalExplosionStart > m_totalDuration )
-				{
-					shouldStop = true;
-				}
 			}
 		}
-		if(shouldStop)
+		
+		if( m_playTime > m_totalDuration )
 		{
 			Stop();
 		}
