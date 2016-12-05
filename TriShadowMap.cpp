@@ -204,18 +204,21 @@ bool TriShadowMap::OnPrepareResources()
 	if( !m_shadowMapRT->IsValid() )
 	{
 		CR_RETURN_VAL( m_shadowMapRT->Create( m_size, m_size, mipCount, pixelFormat ), false );
-		
-		if( m_filterVsm && !m_filterBlurRT.IsValid() )
-		{
-			CR_RETURN_VAL( 
-				m_filterBlurRT.Create(	m_size, 
-										m_size, 
-										1, 
-										pixelFormat, 
-										renderContext )
-				, false );
-		}
+	}
 
+	if( m_filterVsm && !m_filterBlurRT.IsValid() )
+	{
+		CR_RETURN_VAL( 
+			m_filterBlurRT.Create(	m_size, 
+									m_size, 
+									1, 
+									pixelFormat, 
+									renderContext )
+			, false );
+	}
+
+	if( !m_noShadowTexture->GetTexture() )
+	{
 		// not an RT, just a texture, so should be available as 2x32 bit float.
 		float pixels[2*2*2];
 		for( unsigned i = 0; i != 8; ++i )
@@ -226,7 +229,6 @@ bool TriShadowMap::OnPrepareResources()
 		Tr2SubresourceData init = { pixels, 16, 32 };
 		CR_RETURN_VAL( m_noShadowTexture->GetTexture()->Create2D( 2, 2, 1, PIXEL_FORMAT_R32G32_FLOAT, USAGE_IMMUTABLE, &init, renderContext ), false );
 	}
-
 	if( !m_shadowMapDS.IsValid() )
 	{
 		CR_RETURN_VAL( 
