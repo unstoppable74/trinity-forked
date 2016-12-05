@@ -10,6 +10,7 @@ class TriFrustumOrtho;
 
 BLUE_DECLARE( TriLineSet );
 BLUE_DECLARE( Tr2Effect );
+BLUE_DECLARE( Tr2TextureReference );
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -19,7 +20,6 @@ BLUE_DECLARE( Tr2Effect );
 // --------------------------------------------------------------------------------
 class TriShadowMap :
 	public INotify,
-	public ITr2TextureProvider,
 	public Tr2DeviceResource
 {
 public:
@@ -69,7 +69,7 @@ public:
 	void GetDescription( std::string& desc );
 #endif
 
-	virtual Tr2TextureAL* GetTexture();
+	Tr2TextureAL& GetTexture();
 
 private:
 	bool m_useMips;			// True if we want shadow map to be mipped
@@ -78,7 +78,6 @@ private:
 
 	// of this is disabled this module is nearly empty
 	bool m_enabled;
-	bool m_useBlankTexture;
 
 	// Width and height of shadow map
 	unsigned int m_size;
@@ -111,8 +110,8 @@ private:
 	TriVariable* m_shadowSizeHandle;
 	TriVariable* m_invInputSizeHandle;
 
-	Tr2TextureAL				m_noShadowTexture;
-	Tr2RenderTargetAL			m_shadowMapRT;
+	Tr2TextureReferencePtr		m_noShadowTexture;
+	Tr2RenderTargetPtr			m_shadowMapRT;
 	Tr2DepthStencilAL			m_shadowMapDS;
 
 	Tr2RenderTargetAL			m_filterBlurRT;

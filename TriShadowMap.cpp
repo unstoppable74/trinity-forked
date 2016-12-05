@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "TriShadowMap.h"
 #include "Tr2VariableStore.h"
+#include "Tr2RenderTarget.h"
+#include "Tr2TextureReference.h"
 #include "Tr2Renderer.h"
 #include "TriFrustumOrtho.h"
 #include "Shader/Tr2Effect.h"
@@ -14,7 +16,6 @@ TriShadowMap::TriShadowMap( IRoot* lockobj ) :
 	m_depthBias( 0.002f ),
 	m_lightLeakStep( 0.5f ),
 	m_enabled( true ),
-	m_useBlankTexture( false ),
 	m_useMips( false ),
 	m_generateMips( false ),
 	m_filterVsm( true ),
@@ -25,6 +26,9 @@ TriShadowMap::TriShadowMap( IRoot* lockobj ) :
 {
 	// create some empty debug drawers
 	m_lineSet.CreateInstance();
+
+	m_noShadowTexture.CreateInstance();
+	m_shadowMapRT.CreateInstance();
 
 	m_filterBlurEffect.CreateInstance();
 	m_filterBlurEffect->SetEffectPathName( "res:/graphics/effect/managed/space/system/shadowblur.fx" );
@@ -134,8 +138,7 @@ void TriShadowMap::ReleaseResources( TriStorage s )
 		m_shadowMapHandle->Clear();
 	}
 	// textures
-	m_noShadowTexture.Destroy();
-	m_shadowMapRT.Destroy();
+	m_noShadowTexture->GetTexture()->Destroy();
 	m_shadowMapDS.Destroy();
 	m_filterBlurRT.Destroy();
 }
@@ -198,15 +201,9 @@ bool TriShadowMap::OnPrepareResources()
 		mipCount = 0;
 	}
 
-	if( !m_shadowMapRT.IsValid() )
+	if( !m_shadowMapRT->IsValid() )
 	{
-		CR_RETURN_VAL( 
-				m_shadowMapRT.Create(	m_size, 
-										m_size, 
-										mipCount, 
-										pixelFormat, 
-										renderContext )
-				, false );
+		CR_RETURN_VAL( m_shadowMapRT->Create( m_size, m_size, mipCount, pixelFormat ), false );
 		
 		if( m_filterVsm && !m_filterBlurRT.IsValid() )
 		{
@@ -224,10 +221,10 @@ bool TriShadowMap::OnPrepareResources()
 		for( unsigned i = 0; i != 8; ++i )
 		{
 			pixels[i] = 1.0f;
-		}
+		} 
 		
 		Tr2SubresourceData init = { pixels, 16, 32 };
-		CR_RETURN_VAL( m_noShadowTexture.Create2D( 2, 2, 1, PIXEL_FORMAT_R32G32_FLOAT, USAGE_IMMUTABLE, &init, renderContext ), false );
+		CR_RETURN_VAL( m_noShadowTexture->GetTexture()->Create2D( 2, 2, 1, PIXEL_FORMAT_R32G32_FLOAT, USAGE_IMMUTABLE, &init, renderContext ), false );
 	}
 
 	if( !m_shadowMapDS.IsValid() )
@@ -250,30 +247,29 @@ bool TriShadowMap::OnPrepareResources()
 	return true;
 }
 
-Tr2TextureAL* TriShadowMap::GetTexture()
+Tr2TextureAL& TriShadowMap::GetTexture()
 {
-	if( m_useBlankTexture || !m_enabled )
-	{
-		return &m_noShadowTexture;
-	}
-	else
-	{
-		return &m_shadowMapRT.GetTexture();
-	}
+	return m_shadowMapRT->GetRenderTarget().GetTexture();
 }
 
 void TriShadowMap::SetShadowTexture( bool useBlankTexture )
 {
 	if( m_shadowMapHandle )
 	{
-		m_useBlankTexture = useBlankTexture;
-		m_shadowMapHandle->SetValue( this );
+		if( useBlankTexture || !m_enabled )
+		{
+			m_shadowMapHandle->SetValue( m_noShadowTexture );
+		}
+		else
+		{
+			m_shadowMapHandle->SetValue( m_shadowMapRT );
+		}
 	}
 }
 
 bool TriShadowMap::BeginShadowRendering( Vector3& lightViewPosition, Matrix& lightView, Matrix& lightViewProj, Tr2RenderContext& renderContext )
 {
-	if( !m_shadowMapRT.IsValid() )
+	if( !m_shadowMapRT->IsValid() )
 	{
 		return false;
 	}
@@ -287,7 +283,7 @@ bool TriShadowMap::BeginShadowRendering( Vector3& lightViewPosition, Matrix& lig
 	// Set aside the current render target and depth buffer and set
 	// up the ones to use for generating the shadow map
 	Tr2Renderer::PushViewport();
-	Tr2Renderer::PushRenderTarget( m_shadowMapRT, renderContext );
+	Tr2Renderer::PushRenderTarget( *m_shadowMapRT, renderContext );
 	Tr2Renderer::PushDepthStencilBuffer( m_shadowMapDS, renderContext );
 
 	// viewport is always quadratic
@@ -353,15 +349,15 @@ void TriShadowMap::EndShadowRendering()
 		renderContext.m_esm.UnsetAllTextures();
 		m_invInputSizeHandle->SetValue( Vector2( 1.0f / m_size, 0 ) );
 		Tr2Renderer::SetRenderTarget( 0, m_filterBlurRT, renderContext );
-		Tr2Renderer::DrawTexture( m_filterBlurEffect, m_shadowMapRT.GetTexture() );
+		Tr2Renderer::DrawTexture( m_filterBlurEffect, *m_shadowMapRT->GetTexture() );
 
 		renderContext.m_esm.UnsetAllTextures();
 		m_invInputSizeHandle->SetValue( Vector2( 0, 1.0f / m_size ) );
-		Tr2Renderer::SetRenderTarget( 0, m_shadowMapRT, renderContext );
+		Tr2Renderer::SetRenderTarget( 0, *m_shadowMapRT, renderContext );
 		Tr2Renderer::DrawTexture( m_filterBlurEffect, m_filterBlurRT.GetTexture() );
 	}
 
-	m_shadowMapRT.GenerateMipMaps( renderContext );
+	m_shadowMapRT->GetRenderTarget().GenerateMipMaps( renderContext );
 
 	Tr2Renderer::PopRenderTarget( renderContext );
 	Tr2Renderer::PopDepthStencilBuffer( renderContext );
