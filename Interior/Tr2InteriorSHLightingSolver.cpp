@@ -47,7 +47,6 @@ Tr2InteriorSHLightingSolver::~Tr2InteriorSHLightingSolver()
 void Tr2InteriorSHLightingSolver::ReleaseResources( TriStorage s )
 {
 	m_sampleTexture->GetTexture()->Destroy();
-	m_shTexture->GetTexture()->Destroy();
 
 	// Make sure that these are cleared
 	GlobalStore().RegisterVariable( "SHSampleMap", static_cast<ITr2TextureProvider*>( nullptr ) );
