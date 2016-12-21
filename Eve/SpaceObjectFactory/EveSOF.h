@@ -50,7 +50,8 @@ public:
 	void SetupTurretMaterialFromDNA( EveTurretSet* turretSet, const char* dnaString );
 	void SetupTurretMaterialFromFaction( EveTurretSet* turretSet, const char* factionName );
 
-	EveSOFDataMgr& DataManager() { return m_dataMgr; }
+	bool LoadData( const char* filePath );
+	const EveSOFDataMgr& DataManager() const { return m_dataMgr; }
 private:
 	// creation
 	EveSpaceObject2Ptr CreateSpaceObject( const EveSOFDNAPtr dna ) const;

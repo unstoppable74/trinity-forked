@@ -99,6 +99,11 @@ EveSOF::~EveSOF()
 
 }
 
+bool EveSOF::LoadData( const char* filePath )
+{
+	return m_dataMgr.LoadData( filePath );
+}
+
 // --------------------------------------------------------------------------------
 // Description:
 //   Build a ship from a dna string
