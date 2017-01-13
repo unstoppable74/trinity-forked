@@ -642,6 +642,9 @@
     <ClInclude Include="Eve\EveUpdateContext.h">
       <Filter>Source Files\Eve</Filter>
     </ClInclude>
+    <ClInclude Include="Eve\IEveFiringEffectElement.h">
+      <Filter>Source Files\Eve</Filter>
+    </ClInclude>
     <ClInclude Include="Eve\IEveShadowCaster.h">
       <Filter>Source Files\Eve</Filter>
     </ClInclude>
@@ -672,6 +675,9 @@
     <ClInclude Include="Eve\Renderable\EveSceneStaticParticles.h">
       <Filter>Source Files\Eve\Renderable</Filter>
     </ClInclude>
+    <ClInclude Include="Eve\Renderable\Stretch\EveFiringEffectElementContainer.h">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClInclude>
     <ClInclude Include="Eve\Renderable\Stretch\EveLocalPositionCurve.h">
       <Filter>Source Files\Eve\Renderable\Stretch</Filter>
     </ClInclude>
@@ -679,6 +685,9 @@
       <Filter>Source Files\Eve\Renderable\Stretch</Filter>
     </ClInclude>
     <ClInclude Include="Eve\Renderable\Stretch\EveStretch.h">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClInclude>
+    <ClInclude Include="Eve\Renderable\Stretch\EveStretch2.h">
       <Filter>Source Files\Eve\Renderable\Stretch</Filter>
     </ClInclude>
     <ClInclude Include="Eve\SpaceObject\EveMissile.h">
@@ -2445,6 +2454,12 @@
     <ClCompile Include="Eve\Renderable\EveSceneStaticParticles_Blue.cpp">
       <Filter>Source Files\Eve\Renderable</Filter>
     </ClCompile>
+    <ClCompile Include="Eve\Renderable\Stretch\EveFiringEffectElementContainer.cpp">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Renderable\Stretch\EveFiringEffectElementContainer_Blue.cpp">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClCompile>
     <ClCompile Include="Eve\Renderable\Stretch\EveLocalPositionCurve.cpp">
       <Filter>Source Files\Eve\Renderable\Stretch</Filter>
     </ClCompile>
@@ -2458,6 +2473,12 @@
       <Filter>Source Files\Eve\Renderable\Stretch</Filter>
     </ClCompile>
     <ClCompile Include="Eve\Renderable\Stretch\EveStretch.cpp">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Renderable\Stretch\EveStretch2.cpp">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Renderable\Stretch\EveStretch2_Blue.cpp">
       <Filter>Source Files\Eve\Renderable\Stretch</Filter>
     </ClCompile>
     <ClCompile Include="Eve\Renderable\Stretch\EveStretch_Blue.cpp">

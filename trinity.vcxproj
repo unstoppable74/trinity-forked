@@ -2987,6 +2987,7 @@
     <ClInclude Include="Eve\EveStarfield.h"/>
     <ClInclude Include="Eve\EveTransform.h"/>
     <ClInclude Include="Eve\EveUpdateContext.h"/>
+    <ClInclude Include="Eve\IEveFiringEffectElement.h"/>
     <ClInclude Include="Eve\IEveShadowCaster.h"/>
     <ClInclude Include="Eve\IEveSpaceObject2.h"/>
     <ClInclude Include="Eve\IEveTransform.h"/>
@@ -2997,9 +2998,11 @@
     <ClInclude Include="Eve\Renderable\EveMetaballItem.h"/>
     <ClInclude Include="Eve\Renderable\EveMetaballTables.h"/>
     <ClInclude Include="Eve\Renderable\EveSceneStaticParticles.h"/>
+    <ClInclude Include="Eve\Renderable\Stretch\EveFiringEffectElementContainer.h"/>
     <ClInclude Include="Eve\Renderable\Stretch\EveLocalPositionCurve.h"/>
     <ClInclude Include="Eve\Renderable\Stretch\EveRemotePositionCurve.h"/>
     <ClInclude Include="Eve\Renderable\Stretch\EveStretch.h"/>
+    <ClInclude Include="Eve\Renderable\Stretch\EveStretch2.h"/>
     <ClInclude Include="Eve\SpaceObject\EveMissile.h"/>
     <ClInclude Include="Eve\SpaceObject\EveMissileWarhead.h"/>
     <ClInclude Include="Eve\SpaceObject\EveMobile.h"/>
@@ -3592,11 +3595,15 @@
     <ClCompile Include="Eve\Renderable\EveMetaball_Blue.cpp"/>
     <ClCompile Include="Eve\Renderable\EveSceneStaticParticles.cpp"/>
     <ClCompile Include="Eve\Renderable\EveSceneStaticParticles_Blue.cpp"/>
+    <ClCompile Include="Eve\Renderable\Stretch\EveFiringEffectElementContainer.cpp"/>
+    <ClCompile Include="Eve\Renderable\Stretch\EveFiringEffectElementContainer_Blue.cpp"/>
     <ClCompile Include="Eve\Renderable\Stretch\EveLocalPositionCurve.cpp"/>
     <ClCompile Include="Eve\Renderable\Stretch\EveLocalPositionCurve_Blue.cpp"/>
     <ClCompile Include="Eve\Renderable\Stretch\EveRemotePositionCurve.cpp"/>
     <ClCompile Include="Eve\Renderable\Stretch\EveRemotePositionCurve_Blue.cpp"/>
     <ClCompile Include="Eve\Renderable\Stretch\EveStretch.cpp"/>
+    <ClCompile Include="Eve\Renderable\Stretch\EveStretch2.cpp"/>
+    <ClCompile Include="Eve\Renderable\Stretch\EveStretch2_Blue.cpp"/>
     <ClCompile Include="Eve\Renderable\Stretch\EveStretch_Blue.cpp"/>
     <ClCompile Include="Eve\SpaceObject\EveMissile.cpp"/>
     <ClCompile Include="Eve\SpaceObject\EveMissileWarhead.cpp"/>
