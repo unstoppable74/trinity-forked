@@ -13,10 +13,7 @@ const Be::ClassInfo* Tr2MeshArea::ExposeToBlue()
 		MAP_INTERFACE( Tr2MeshArea )
 
 		MAP_ATTRIBUTE( "name", m_name, "na", Be::READWRITE | Be::PERSIST )
-		MAPHIDEABLE() // Maps to map_attribute so this is ok. See impl in Tr2HideableMixin.h <andrimar-2010.08.20>
-
-		// meshes should have materials now, no excuses!
-
+		MAP_ATTRIBUTE( "display", m_display, "Toggle visibility", Be::READWRITE )
 		MAP_ATTRIBUTE( "index", m_index, "Start index of the area within the mesh to bind to this effect", Be::READWRITE | Be::PERSIST )
         MAP_ATTRIBUTE( "count", m_count, "Number of areas within the mesh to bind to this effect", Be::READWRITE | Be::PERSIST )
         MAP_ATTRIBUTE( "reversed", m_reversed, "Render mesh triangles in reverse order and with reversed culling order", Be::READWRITE | Be::PERSIST )

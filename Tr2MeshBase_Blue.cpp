@@ -13,11 +13,8 @@ BLUE_DEFINE_ABSTRACT( Tr2MeshBase );
 const Be::ClassInfo* Tr2MeshBase::ExposeToBlue()
 {
     EXPOSURE_BEGIN( Tr2MeshBase, "" )
-
-		MAPHIDEABLE()
-
 		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
-
+		MAP_ATTRIBUTE( "display", m_display, "Toggle visibility", Be::READWRITE )
 		MAP_ATTRIBUTE( "meshIndex", m_meshIndex, "The index of the mesh within the granny file to use", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( "opaqueAreas", m_opaqueAreas, "Areas that are rendered sorted by effect", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "decalAreas", m_decalAreas, "Areas that are rendered in the order that they exist, before transparency", Be::READWRITE | Be::PERSIST )

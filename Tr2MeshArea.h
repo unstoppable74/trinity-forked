@@ -3,13 +3,10 @@
 #define Tr2MeshArea_H
 
 
-#include "Tr2HideableMixin.h"
-
 BLUE_DECLARE_INTERFACE( ITr2ShaderMaterial );
 
 BLUE_CLASS ( Tr2MeshArea ) :
-	public IRoot, 
-	public Tr2HideableMixin
+	public IRoot
 {
 public:
 	Tr2MeshArea( IRoot* lockobj = 0 );
@@ -18,28 +15,27 @@ public:
 	Tr2MeshArea& operator=( const Tr2MeshArea& other );
 
 	const std::string& GetName() const;
-	int GetIndex() const;
+	void SetName( const std::string& name );
 
+	int GetIndex() const;
 	void SetIndex( int ix );
 
     int GetCount() const;
-
     void SetCount( int n );
 
     bool GetReversed() const;
-
     void SetReversed( bool reversed );
+
+	bool GetDisplay() const;
+	void SetDisplay( bool display );
 
 	bool GetUseSHLighting() const;
 
 	void SetMaterial( ITr2ShaderMaterial* mat );
 
-	void SetName( const std::string& name );
-
 	ITr2ShaderMaterial* GetMaterialInterface() const;
 
 	unsigned int GetJointCount() const;
-	
 	void SetJointCount( unsigned int val );
 
 
@@ -55,6 +51,7 @@ public:
 private:
 	ITr2ShaderMaterialPtr m_material;
 	std::string m_name;
+	bool m_display;
 	int m_index;
     int m_count;
 	// Request reversed order of rendering triangles and reversed cull order 

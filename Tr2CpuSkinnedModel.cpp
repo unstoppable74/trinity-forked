@@ -148,7 +148,7 @@ void Tr2CpuSkinnedModel::deform( const float* deformMatrices, unsigned int numOf
 // ------------------------------------------------------------------------------------------------------
 void Tr2CpuSkinnedModel::GetBatchesForAreaDynamic( Tr2MeshAreaVector* areas, Tr2DynamicMesh* mesh, ITriRenderBatchAccumulator* batches, const Matrix* pm, const Tr2PerObjectData* data )
 {
-	if( mesh->IsHidden() )
+	if( !mesh->GetDisplay() )
 	{
 		return;
 	}
@@ -171,7 +171,7 @@ void Tr2CpuSkinnedModel::GetBatchesForAreaDynamic( Tr2MeshAreaVector* areas, Tr2
 		Tr2MeshArea* area = *it;
 		ITr2ShaderMaterial* material = area->GetMaterialInterface();
 
-		if( area->IsHidden() || !material )
+		if( !area->GetDisplay() || !material )
 		{
 			continue;
 		}

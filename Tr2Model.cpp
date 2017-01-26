@@ -50,14 +50,13 @@ void Tr2Model::GetBatches( ITriRenderBatchAccumulator* batches,
 		for( unsigned int meshIx = 0; meshIx < meshCount; ++meshIx )
 		{
 			Tr2Mesh* pMesh = m_meshes[meshIx];
-			if( pMesh->IsHidden() )
+			if( pMesh->GetDisplay() )
 			{
-				continue;
+				Tr2MeshItem item;
+				item.m_mesh = pMesh;
+				item.m_distance = pMesh->CalcMeshSortValue( m );
+				meshesToSort.push_back( item );
 			}
-			Tr2MeshItem item;
-			item.m_mesh = pMesh;
-			item.m_distance = pMesh->CalcMeshSortValue( m );
-			meshesToSort.push_back( item );
 		}
 
 		// Sort the list back to front
@@ -151,7 +150,7 @@ void Tr2Model::GetBatchesFromMesh( Tr2Mesh* mesh,
 								   Matrix* pm, 
 								   const Tr2PerObjectData* data )
 {
-	if( mesh->IsHidden() )
+	if( !mesh->GetDisplay() )
 	{
 		return;
 	}
@@ -176,7 +175,7 @@ void Tr2Model::GetBatchesFromMesh( Tr2Mesh* mesh,
 		Tr2MeshArea* area = *it;
 		ITr2ShaderMaterial* shader = area->GetMaterialInterface();
 
-		if( area->IsHidden() )
+		if( !area->GetDisplay() )
 		{
 			continue;
 		}

@@ -9,7 +9,6 @@
 #define Tr2MeshBase_h
 
 #include "Tr2MeshArea.h"
-#include "Tr2HideableMixin.h"
 #include "ITr2Renderable.h"
 #include "TriRenderBatch.h"
 
@@ -44,8 +43,7 @@ struct ITr2MeshBatchCallback
 };
 
 BLUE_CLASS( Tr2MeshBase ):
-	public IListNotify,
-	public Tr2HideableMixin
+	public IListNotify
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -78,6 +76,8 @@ public:
 	const char* GetName() const { return m_name.c_str(); }
 	const wchar_t* GetGeometryResPath() const;
 
+	bool GetDisplay() const;
+
 	virtual TriGeometryRes* GetGeometryResource() const = 0;
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -97,6 +97,7 @@ protected:
 
 protected:
 	std::string m_name;
+	bool m_display;
 	int	m_meshIndex;
 
 	PTr2MeshAreaVector m_opaqueAreas;

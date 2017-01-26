@@ -421,7 +421,7 @@ void Tr2InteriorPlaceable::GetBatches( ITriRenderBatchAccumulator* batches,
 						mesh->ExecutePendingLowLevelShaderBind();
 					}
 
-					if( mesh->IsHidden() )
+					if( !mesh->GetDisplay() )
 					{
 						continue;
 					}
@@ -435,8 +435,7 @@ void Tr2InteriorPlaceable::GetBatches( ITriRenderBatchAccumulator* batches,
 						Tr2MeshArea* area = *it;
 						ITr2ShaderMaterial* shader = area->GetMaterialInterface();
 
-						if( area->IsHidden() || !shader || 
-							( area->GetIndex() != m_stencilParams.m_areaIx ) )
+						if( !area->GetDisplay() || !shader || ( area->GetIndex() != m_stencilParams.m_areaIx ) )
 						{
 							continue;
 						}
@@ -504,7 +503,7 @@ void Tr2InteriorPlaceable::GetBatches( ITriRenderBatchAccumulator* batches,
 					Tr2Mesh* mesh = model->GetMesh( i );
 
 					// Only gather transparent batches if the mesh isn't hidden
-					if( !mesh->IsHidden() )
+					if( mesh->GetDisplay() )
 					{
 						// Get the transparent areas
 						Tr2MeshAreaVector* areas = mesh->GetAreas( batchType );
@@ -518,7 +517,7 @@ void Tr2InteriorPlaceable::GetBatches( ITriRenderBatchAccumulator* batches,
 								ITr2ShaderMaterial* shader = area->GetMaterialInterface();
 
 								// If the area isn't hidden & has an effect
-								if( area->IsHidden() || !shader )
+								if( !area->GetDisplay() || !shader )
 								{
 									continue;
 								}

@@ -1344,7 +1344,7 @@ void Tr2SkinnedModelBuilder::CopyAreas( Tr2MeshAreaVector* src, Tr2MeshAreaVecto
 			// source area...
 			Tr2MeshAreaPtr srcArea = *itArea;
 
-			if( srcArea->IsHidden() )
+			if( !srcArea->GetDisplay() )
 			{
 				continue;
 			}

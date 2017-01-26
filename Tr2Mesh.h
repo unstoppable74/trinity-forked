@@ -4,7 +4,6 @@
 
 #include "Tr2MeshBase.h"
 #include "Tr2MeshArea.h"
-#include "Tr2HideableMixin.h"
 #include "ITr2Renderable.h"
 #include "TriRenderBatch.h"
 

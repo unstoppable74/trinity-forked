@@ -605,7 +605,7 @@ void Tr2InteriorStatic::GetTransparentBatches( ITriRenderBatchAccumulator* batch
 											   const Tr2PerObjectData* data )
 {
 	// Only gather transparent batches if the mesh isn't hidden
-	if( !mesh->IsHidden() )
+	if( mesh->GetDisplay() )
 {
 		// Get the transparent areas
 		Tr2MeshAreaVector* areas = mesh->GetAreas( TRIBATCHTYPE_TRANSPARENT );
@@ -617,19 +617,19 @@ void Tr2InteriorStatic::GetTransparentBatches( ITriRenderBatchAccumulator* batch
 
 			// Loop over the transparent areas
 			for( Tr2MeshAreaVector::const_iterator it = areas->begin(); it != areas->end(); ++it )
-{
+			{
 				Tr2MeshArea* area = *it;
 				ITr2ShaderMaterial* shaderMat = area->GetMaterialInterface();
 
-				if( area->IsHidden() )
+				if( !area->GetDisplay() )
 				{
 					continue;
-}
+				}
 
 				if( !shaderMat )
-{
+				{
 					continue;
-}
+				}
 
 				// Compute the depth
 				Vector3 bbMin, bbMax;

@@ -346,7 +346,7 @@ void Tr2IntSkinnedObject::GetBatches( ITriRenderBatchAccumulator* batches,
 			Tr2MeshAreaVector* areas = mesh->GetAreas( batchType );
 			if( areas )
 			{
-				if( mesh->IsHidden() )
+				if( !mesh->GetDisplay() )
 				{
 					continue;
 				}
@@ -368,7 +368,7 @@ void Tr2IntSkinnedObject::GetBatches( ITriRenderBatchAccumulator* batches,
 				{
 					Tr2MeshArea* area = *it;
 					ITr2ShaderMaterial* shader = area->GetMaterialInterface();
-					if( area->IsHidden() || ( !shader ) )
+					if( !area->GetDisplay() || ( !shader ) )
 					{
 						continue;
 					}

@@ -2,6 +2,7 @@
 #include "Tr2MeshArea.h"
 
 Tr2MeshArea::Tr2MeshArea( IRoot* lockobj ):
+	m_display( true ),
 	m_index( 0 ),
     m_count( 1 ),
 	m_reversed( false ),
@@ -63,6 +64,18 @@ int Tr2MeshArea::GetCount() const
 void Tr2MeshArea::SetCount( int n )
 {
 	m_count = n;
+}
+
+// --------------------------------------------------------------------------------
+bool Tr2MeshArea::GetDisplay() const
+{
+	return m_display;
+}
+
+// --------------------------------------------------------------------------------
+void Tr2MeshArea::SetDisplay( bool display )
+{
+	m_display = display;
 }
 
 // -------------------------------------------------------------

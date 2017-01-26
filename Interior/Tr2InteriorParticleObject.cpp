@@ -262,7 +262,7 @@ void Tr2InteriorParticleObject::GetBatches( ITriRenderBatchAccumulator* batches,
 	for( auto mit = m_meshes.begin(); mit != m_meshes.end(); ++mit )
 	{
 		Tr2Mesh* mesh = *mit;
-		if( !mesh->IsHidden() )
+		if( mesh->GetDisplay() )
 		{
 			Tr2MeshAreaVector* areas = mesh->GetAreas( batchType );
 			if( areas )

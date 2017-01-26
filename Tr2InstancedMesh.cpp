@@ -421,7 +421,7 @@ void Tr2InstancedMesh::GetBatches( ITriRenderBatchAccumulator* batches,
 					const Tr2PerObjectData* data,
 					ITr2MeshBatchCallback* callback ) const
 {
-	if( IsHidden() )
+	if( !GetDisplay() )
 	{
 		return;
 	}
@@ -443,7 +443,7 @@ void Tr2InstancedMesh::GetBatches( ITriRenderBatchAccumulator* batches,
 		Tr2MeshArea* area = *it;
 		ITr2ShaderMaterial* shadMat = area->GetMaterialInterface();
 
-		if( area->IsHidden())
+		if( !area->GetDisplay())
 		{
 			continue;
 		}

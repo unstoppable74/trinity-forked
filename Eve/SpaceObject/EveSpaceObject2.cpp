@@ -74,7 +74,7 @@ void GetSortedBatchesFromMeshAreaVector( const Tr2MeshAreaVector* areas,
 	for( Tr2MeshAreaVector::const_iterator it = areas->begin(); it != areas->end(); ++it )
 	{
 		Tr2MeshAreaPtr meshArea = *it;
-		if( !meshArea->IsHidden() )
+		if( meshArea->GetDisplay() )
 		{
 			// get center of this area in object-space
 			Vector3 minBBox, maxBBox, centerBBox( 0.f, 0.f, 0.f );
@@ -102,7 +102,7 @@ void GetSortedBatchesFromMeshAreaVector( const Tr2MeshAreaVector* areas,
 	{
 		Tr2MeshArea* area = it->m_meshArea;
 		ITr2ShaderMaterial* material = area->GetMaterialInterface();
-		if( area->IsHidden() || !material )
+		if( !area->GetDisplay() || !material )
 		{
 			continue;
 		}
@@ -646,7 +646,7 @@ void EveSpaceObject2::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchT
 		return;
 	}
 
-	if( m_mesh->IsHidden() )
+	if( !m_mesh->GetDisplay() )
 	{
 		return;
 	}
@@ -713,7 +713,7 @@ void EveSpaceObject2::GetShadowBatches( ITriRenderBatchAccumulator* batches, con
 		mesh = m_mesh;
 	}
 
-	if( !mesh || mesh->IsHidden() )
+	if( !mesh || !mesh->GetDisplay() )
 	{
 		return;
 	}
@@ -728,7 +728,7 @@ void EveSpaceObject2::GetShadowBatches( ITriRenderBatchAccumulator* batches, con
 		Tr2MeshArea* area = *it;
 		ITr2ShaderMaterial* material = area->GetMaterialInterface();
 
-		if( area->IsHidden() || !material )
+		if( !area->GetDisplay() || !material )
 		{
 			continue;
 		}
@@ -2704,7 +2704,7 @@ void EveSpaceObject2::GetPickingBatches( ITriRenderBatchAccumulator* batches, Tr
 	}
 	if( ( pickTypes & PICK_TYPE_TRANSPARENT ) != 0 )
 	{
-		if( !m_mesh || m_mesh->IsHidden() )
+		if( !m_mesh || !m_mesh->GetDisplay() )
 		{
 			return;
 		}

@@ -10,7 +10,7 @@
 
 CCP_STATS_DECLARE( tr2MeshBindToRig, "Trinity/BindToRig", true, CST_COUNTER_LOW, "Number of times a mesh executed bind to a new rig" );
 
-Tr2MeshBase::Tr2MeshBase( IRoot* lockobj ) : 
+Tr2MeshBase::Tr2MeshBase( IRoot* lockobj ) :
 	PARENTLOCK( m_opaqueAreas ),
 	PARENTLOCK( m_decalAreas ),
 	PARENTLOCK( m_depthAreas ),
@@ -18,13 +18,14 @@ Tr2MeshBase::Tr2MeshBase( IRoot* lockobj ) :
 	PARENTLOCK( m_additiveAreas ),
 	PARENTLOCK( m_pickableAreas ),
 	PARENTLOCK( m_mirrorAreas ),
-    PARENTLOCK( m_geometryEraserAreas ),
+	PARENTLOCK( m_geometryEraserAreas ),
 	PARENTLOCK( m_decalNormalAreas ),
 	PARENTLOCK( m_depthNormalAreas ),
 	PARENTLOCK( m_opaquePrepassAreas ),
 	PARENTLOCK( m_decalPrepassAreas ),
 	PARENTLOCK( m_flareAreas ),
 	PARENTLOCK( m_distortionAreas ),
+	m_display( true ),
 	m_meshIndex( 0 ),
 	m_areBoundsValid( false ),
     m_pBoneList(NULL),
@@ -215,6 +216,12 @@ bool Tr2MeshBase::GetBoundingSphere( Vector4& sphere )
 	return true;
 }
 
+// --------------------------------------------------------------------------------
+bool Tr2MeshBase::GetDisplay() const
+{
+	return m_display;
+}
+
 bool Tr2MeshBase::GetAreaBoundingBox( unsigned int areaIx, Vector3& min, Vector3& max ) const
 {
 	// Bail out if we don't have a geometry resource
@@ -244,7 +251,7 @@ void Tr2MeshBase::GetBatches( ITriRenderBatchAccumulator* batches,
 	const Tr2PerObjectData* data,
 	ITr2MeshBatchCallback* callback ) const
 {
-	if( IsHidden() )
+	if( !GetDisplay() )
 	{
 		return;
 	}
@@ -254,7 +261,7 @@ void Tr2MeshBase::GetBatches( ITriRenderBatchAccumulator* batches,
 		Tr2MeshArea* area = *it;
 		ITr2ShaderMaterial* shadMat = area->GetMaterialInterface();
 
-		if( area->IsHidden())
+		if( !area->GetDisplay())
 		{
 			continue;
 		}

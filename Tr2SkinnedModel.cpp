@@ -27,7 +27,7 @@ Tr2SkinnedModel::~Tr2SkinnedModel()
 
 void Tr2SkinnedModel::GetBatchesForArea( Tr2MeshAreaVector* areas, Tr2Mesh* mesh, ITriRenderBatchAccumulator* batches, const Matrix* pm, Tr2PerObjectDataSkinned* skinnedData )
 {
-	if( mesh->IsHidden() )
+	if( !mesh->GetDisplay() )
 	{
 		return;
 	}
@@ -49,7 +49,7 @@ void Tr2SkinnedModel::GetBatchesForArea( Tr2MeshAreaVector* areas, Tr2Mesh* mesh
 	{
 		Tr2MeshArea* area = *it;
 		ITr2ShaderMaterial* shader = area->GetMaterialInterface();
-		if( area->IsHidden() || ( !shader ) )
+		if( !area->GetDisplay() || ( !shader ) )
 		{
 			continue;
 		}
