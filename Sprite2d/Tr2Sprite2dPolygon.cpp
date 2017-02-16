@@ -42,17 +42,57 @@ void Tr2Sprite2dPolygon::GatherSprites( Tr2Sprite2dScene* renderer )
 			dest.texCoord[1] = source.texCoord[1];
 		}
 
-		m_indices = std::vector<unsigned short>( m_triangles.size() * 3 );
-		int ix = 0;
-		for( Tr2Sprite2dTriangleVector::iterator it = m_triangles.begin(); it != m_triangles.end(); ++it )
-		{
-			m_indices[ix++] = (*it)->m_index[0];
-			m_indices[ix++] = (*it)->m_index[1];
-			m_indices[ix++] = (*it)->m_index[2];
-		}
+		auto maxTriangles = renderer->GetMaxIndexCountPerDrawCall() / 3;
+		m_indices.resize( ( m_triangles.size() + maxTriangles - 1 ) / maxTriangles );
+		m_renderVertices.resize( m_indices.size() );
 
-		m_renderVertices = std::vector<Tr2Sprite2dD3DVertex>( m_vertices.size() );
-		renderer->PrepareTriangleVerts( &m_renderVertices[0], &verts[0], sizeof( Tr2Sprite2dVertexBase ), (unsigned int)m_vertices.size() );
+		if( m_indices.size() == 1 )
+		{
+			auto& indices = m_indices[0];
+			indices.resize( m_triangles.size() * 3 );
+			int ix = 0;
+			for( Tr2Sprite2dTriangleVector::iterator it = m_triangles.begin(); it != m_triangles.end(); ++it )
+			{
+				indices[ix++] = ( *it )->m_index[0];
+				indices[ix++] = ( *it )->m_index[1];
+				indices[ix++] = ( *it )->m_index[2];
+			}
+
+			m_renderVertices[0].resize( m_vertices.size() );
+			renderer->PrepareTriangleVerts( &m_renderVertices[0][0], &verts[0], sizeof( Tr2Sprite2dVertexBase ), unsigned( m_vertices.size() ) );
+		}
+		else
+		{
+			const uint16_t INVALID_INDEX = 0xffff;
+			Tr2Sprite2dTriangleVector::iterator it = m_triangles.begin();
+			std::vector<uint16_t> indexMap( m_triangles.size() * 3 );
+			std::vector<Tr2Sprite2dVertexBase> localVerts;
+
+			for( size_t i = 0; i < m_indices.size(); ++i )
+			{
+				std::fill( indexMap.begin(), indexMap.end(), INVALID_INDEX );
+				localVerts.clear();
+
+				auto& indices = m_indices[i];
+				indices.reserve( maxTriangles * 3 );
+				indices.clear();
+				while( it != m_triangles.end() && indices.size() / 3 < maxTriangles )
+				{
+					for( uint32_t j = 0; j < 3; ++j )
+					{
+						if( indexMap[( *it )->m_index[j]] == INVALID_INDEX )
+						{
+							localVerts.push_back( verts[( *it )->m_index[j]] );
+							indexMap[( *it )->m_index[j]] = uint16_t( localVerts.size() ) - 1;
+						}
+						indices.push_back( indexMap[( *it )->m_index[j]] );
+					}
+					++it;
+				}
+				m_renderVertices[i].resize( localVerts.size() );
+				renderer->PrepareTriangleVerts( &m_renderVertices[i][0], &localVerts[0], sizeof( Tr2Sprite2dVertexBase ), unsigned( localVerts.size() ) );
+			}
+		}
 		m_isDirty = false;
 	}
 
@@ -61,7 +101,10 @@ void Tr2Sprite2dPolygon::GatherSprites( Tr2Sprite2dScene* renderer )
 		SetValidatedTextures( renderer );
 
 		renderer->PushTranslation( m_translation );
-		renderer->RenderTriangleVerts( &m_renderVertices[0], (unsigned int)m_vertices.size(), &m_indices[0], (unsigned short)m_indices.size() );
+		for( size_t i = 0; i < m_indices.size(); ++i )
+		{
+			renderer->RenderTriangleVerts( &m_renderVertices[i][0], unsigned( m_renderVertices[i].size() ), &m_indices[i][0], uint16_t( m_indices[i].size() ) );
+		}
 		renderer->PopTranslation();
 	}
 }

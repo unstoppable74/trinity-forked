@@ -84,8 +84,8 @@ private:
 	PTr2Sprite2dVertexVector m_vertices;
 	PTr2Sprite2dTriangleVector m_triangles;
 
-	std::vector<unsigned short> m_indices;
-	std::vector<Tr2Sprite2dD3DVertex> m_renderVertices;
+	std::vector<std::vector<unsigned short>> m_indices;
+	std::vector<std::vector<Tr2Sprite2dD3DVertex>> m_renderVertices;
 };
 
 TYPEDEF_BLUECLASS( Tr2Sprite2dPolygon );
