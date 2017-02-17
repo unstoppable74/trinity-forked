@@ -283,6 +283,11 @@ BlueAsyncRes::LoadingResult Tr2EffectRes::DoLoad()
 
 bool Tr2EffectRes::DoPrepare()
 {
+	if( !Tr2Renderer::IsResourceCreationAllowed() )
+	{
+		return false;
+	}
+
 	return true;
 }
 
