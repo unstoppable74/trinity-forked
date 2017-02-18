@@ -456,6 +456,8 @@ public:
 
 	struct GenericData
 	{
+		// default textures
+		std::string resPathDefaultAlliance;
 		// shader locations
 		std::string shaderPrefix, shaderPrefixAnimated;
 		std::string areaShaderLocation;

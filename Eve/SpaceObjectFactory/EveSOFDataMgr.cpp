@@ -1211,6 +1211,9 @@ bool EveSOFDataMgr::LoadGenericData( EveSOFDataPtr srcData )
 // --------------------------------------------------------------------------------
 void EveSOFDataMgr::GenerateGenericData( GenericData& gd, EveSOFDataGenericPtr srcData ) const
 {
+	// default textures
+	gd.resPathDefaultAlliance = srcData->m_resPathDefaultAlliance;
+
 	// shader locations
 	gd.shaderPrefix = srcData->m_shaderPrefix;
 	gd.shaderPrefixAnimated = srcData->m_shaderPrefixAnimated;

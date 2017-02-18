@@ -1113,6 +1113,9 @@ public:
 	EveSOFDataGeneric( IRoot* lockobj = NULL );
 	~EveSOFDataGeneric() {}
 
+	// default textures
+	std::string m_resPathDefaultAlliance;
+
 	// shader locations
 	std::string m_shaderPrefix;
 	std::string m_shaderPrefixAnimated;
