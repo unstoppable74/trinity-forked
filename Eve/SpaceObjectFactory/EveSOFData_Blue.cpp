@@ -937,7 +937,15 @@ const Be::ClassInfo* EveSOFDataGeneric::ExposeToBlue()
     EXPOSURE_BEGIN( EveSOFDataGeneric, "" )
         MAP_INTERFACE( EveSOFDataGeneric )
 
-		MAP_ATTRIBUTE( "resPathDefaultAlliance", m_resPathDefaultAlliance, "The texture for the default alliance logo\n:jessica-group: DefaultTextures", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE(
+			"resPathDefaultAlliance", 
+			m_resPathDefaultAlliance, 
+			"The texture for the default alliance logo\n"
+			":jessica-group: DefaultTextures\n"
+			":jessica-widget: filepath\n"
+			":jessica-file-filter: texture",
+			Be::READWRITE | Be::PERSIST
+		)
 		MAP_ATTRIBUTE( "areaShaderLocation", m_areaShaderLocation, "The location of all the area shaders\n:jessica-group: ShaderInfo", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "decalShaderLocation", m_decalShaderLocation, "The location of all the decal shaders\n:jessica-group: ShaderInfo", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "shaderPrefix", m_shaderPrefix, "A prefix for all shaders\n:jessica-group: ShaderInfo", Be::READWRITE | Be::PERSIST )
