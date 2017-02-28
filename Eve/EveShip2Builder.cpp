@@ -172,21 +172,24 @@ void EveShip2Builder::CopyLocators( EveLocator2Vector& locators, const Vector3& 
 	m_turretLocatorCount += turretLocatorCount / 2;
 }
 
-#if BLUE_WITH_PYTHON
-void EveShip2Builder::CopyDamageLocators( EveDamageLocatorStructureList& locators, const Vector3& offset )
+void EveShip2Builder::CopyLocatorSets( EveLocatorSetsVector& locatorSets, const Vector3& offset )
 {
-	CCP_STATS_ZONE( __FUNCTION__ );
+	CCP_STATS_ZONE(__FUNCTION__); 
 
-	for( unsigned i = 0; i < locators.size(); ++i )
-	{		
-		EveDamageLocator loc = locators[i];
-		loc.m_position += offset;
+	for( EveLocatorSetsVector::iterator sit = locatorSets.begin(); sit != locatorSets.end(); ++sit )
+	{
+		// move the locators by the offset
+		EveLocatorSets* locatorSet = *sit;
+		Locator* locators = ( Locator* ) &( *locatorSet->GetLocators() )[0];
+		
+		for( size_t i = 0; i < locatorSet->GetLocators()->size(); ++i )
+		{
+			locators[i].position += offset;
+		}
 
-		m_ship->m_persistedDamageLocators.Append( &loc );
+		m_ship->MergeToLocatorSet( *locatorSet );
 	}
 }
-#endif
-
 
 void EveShip2Builder::CopySpriteSets( EveSpriteSetVector* src, EveSpriteSetVector* dst, const Vector3& offset )
 {
@@ -423,9 +426,7 @@ bool EveShip2Builder::Build()
 	{
 		EveShip2Ptr other = m_module[moduleIx];
 		CopyLocators( other->m_locators, offsets[moduleIx] );
-#if BLUE_WITH_PYTHON
-		CopyDamageLocators( other->m_persistedDamageLocators, offsets[moduleIx] );
-#endif
+		CopyLocatorSets( other->m_locatorSets, offsets[moduleIx] );
 
 		CopySpriteSets( &other->m_spriteSets, &m_ship->m_spriteSets, offsets[moduleIx] );
 		CopySpotlightSets( &other->m_spotlightSets, &m_ship->m_spotlightSets, offsets[moduleIx] );

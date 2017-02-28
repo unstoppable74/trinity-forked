@@ -45,13 +45,8 @@ CCP_STATS_DECLARE( eveHighDetailObjects, "Trinity/EveSpaceObject2/highDetailObje
 float g_secondaryLightingRadiusCutoffFactor = 0.3;
 TRI_REGISTER_SETTING( "secondaryLightingRadiusCutoffFactor", g_secondaryLightingRadiusCutoffFactor );
 
-static BlueStructureDefinition EveDamageLocatorStructureDef[] =
-{ 
-	{ "position", Be::FLOAT32_3, 0 }, 
-	{ "impactDirection", Be::FLOAT32_4, 12 }, 
-	{ "boneIndex", Be::INT32_1, 28 }, 
-	{0} 
-};
+const char* DAMAGE_LOCATOR_SET_NAME = "damage";
+
 
 void GetSortedBatchesFromMeshAreaVector( const Tr2MeshAreaVector* areas, 
 										 ITriRenderBatchAccumulator* batches, 
@@ -125,7 +120,6 @@ void GetSortedBatchesFromMeshAreaVector( const Tr2MeshAreaVector* areas,
 //   The base class for most of the objects in a space scene
 // --------------------------------------------------------------------------------
 EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
-	PARENTLOCK( m_persistedDamageLocators ),
 	PARENTLOCK( m_decals ),
 	PARENTLOCK( m_locators ),
 	PARENTLOCK( m_observers ),
@@ -180,7 +174,6 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	m_positionDelta.CreateInstance();
 
 	m_animationUpdater.CreateInstance();
-	m_persistedDamageLocators.SetStructureDefinition( EveDamageLocatorStructureDef );
 
 	memset( &m_psData, 0, sizeof( EveSpaceObjectPSData ) );
 	memset( &m_vsData, 0, sizeof( EveSpaceObjectVSData ) );
@@ -431,7 +424,6 @@ void EveSpaceObject2::GetDebugOptions( Tr2DebugRendererOptions& options )
 	options.insert( "Names" );
 	options.insert( "Children" );
 	options.insert( "Decals" );
-	options.insert( "Damage Locators" );
 	options.insert( "Sprite Sets" );
 	options.insert( "Spotlight Sets" );
 	options.insert( "Plane Sets" );
@@ -535,43 +527,6 @@ void EveSpaceObject2::RenderDebugInfo( Tr2DebugRenderer& renderer )
 			{
 				(*it)->RenderDebugInfo( renderer, m_worldTransform );
 			}
-		}
-	}
-
-	if( renderer.HasOption( GetRawRoot(), "Damage Locators" ) )
-	{
-		float radius = m_boundingSphereRadius;
-		if( m_mesh )
-		{
-			unsigned area = 0;
-			Vector3 areaMin, areaMax;
-			Vector3 bbMin, bbMax;
-			while( m_mesh->GetAreaBoundingBox( area, areaMin, areaMax ) )
-			{
-				if( area == 0 )
-				{
-					bbMin = areaMin;
-					bbMax = areaMax;
-				}
-				else
-				{
-					BoundingBoxUpdate( bbMin, bbMax, areaMin, areaMax );
-				}
-				area++;
-			}
-			if( area )
-			{
-				radius = XMVectorGetX( XMVector3Length( bbMax - bbMin ) ) * 0.5f;
-			}
-		}
-		for( unsigned i = 0; i < m_persistedDamageLocators.size(); i++ )
-		{
-			Vector3 pos;
-			GetDamageLocatorPosition( &pos, i, true );
-			Vector3 dir;
-			GetDamageLocatorDirection( &dir, i, true );
-
-			renderer.DrawSphereArrow( Tr2DebugObjectReference( &m_persistedDamageLocators, i ), pos, dir, radius / 50.f, 8, Tr2DebugRenderer::Lit, 0xffff0088 );
 		}
 	}
 
@@ -1619,7 +1574,7 @@ int EveSpaceObject2::GetClosestDamageLocatorIndex( const Vector3* position )
 
 	Vector3 posInObjectSpace = ( Vector3 )XMVector3Transform( *position, m_invWorldTransform );
 
-	for( unsigned int i = 0; i < m_persistedDamageLocators.size(); ++i )
+	for( unsigned int i = 0; i < GetDamageLocatorCount(); ++i )
 	{
 		if( IsDamageLocatorFacingPosition( i, posInObjectSpace ) )
 		{
@@ -1673,8 +1628,13 @@ int EveSpaceObject2::GetGoodDamageLocatorIndex( const Vector3& position )
 	float bestDirectionFit = 0.0f;
 		
 	Vector3 posInObjectSpace = (Vector3) XMVector3Transform( position, m_invWorldTransform );
+	auto damageLocators = GetLocatorsForSet( DAMAGE_LOCATOR_SET_NAME );
+	if( damageLocators == nullptr )
+	{
+		return 0;
+	}
 
-	for( unsigned i = 0; i < m_persistedDamageLocators.size(); ++i )
+	for( unsigned i = 0; i < damageLocators->size(); ++i )
 	{
 		if( IsDamageLocatorFacingPosition( i, posInObjectSpace ) )
 		{
@@ -1695,7 +1655,7 @@ int EveSpaceObject2::GetGoodDamageLocatorIndex( const Vector3& position )
 	float bestFit = 1.0f;
 	
 	int bestLocator = GetClosestDamageLocatorIndex( &position );
-	for( unsigned i = 0; i < m_persistedDamageLocators.size(); ++i )
+	for( unsigned i = 0; i < damageLocators->size(); ++i )
 	{
 		if( IsDamageLocatorFacingPosition( i, posInObjectSpace ) )
 		{
@@ -1725,7 +1685,7 @@ float EveSpaceObject2::GetRadius() const
 bool EveSpaceObject2::GetDamageLocatorPosition( Vector3* out, int index, bool inWorldSpace )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
-	if( ( index < 0 ) || ( index >= int( m_persistedDamageLocators.size() ) ) )
+	if( ( index < 0 ) || ( index >= int( GetDamageLocatorCount() ) ) )
 	{
 		*out = inWorldSpace ? m_worldTransform.GetTranslation() : Vector3( 0.f, 0.f, 0.f );
 		return false;
@@ -1764,6 +1724,27 @@ const LocatorStructureList* EveSpaceObject2::GetLocatorsForSet( const char* setN
 
 // --------------------------------------------------------------------------------
 // Description:
+//  Merges the locatorSets into the locator sets of the space object
+// --------------------------------------------------------------------------------
+void EveSpaceObject2::MergeToLocatorSet( const EveLocatorSets& locatorSet )
+{
+	const Locator* locators = ( const Locator* ) &( *locatorSet.GetLocators() )[0];	
+
+	for( auto it = m_locatorSets.cbegin(); it != m_locatorSets.cend(); ++it )
+	{
+		if( ( *it )->HasName( locatorSet.GetName() ) )
+		{
+			( *it )->Append( locators, locatorSet.GetLocators()->size() );
+			return;
+		}
+	}
+
+	AddLocatorSet( locatorSet.GetName(), locators, locatorSet.GetLocators()->size() );
+}
+
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Add a new custom mask/projection patter from the outside
 // --------------------------------------------------------------------------------
 void EveSpaceObject2::AddCustomMask( EveCustomMaskPtr newCustomMask )
@@ -1796,7 +1777,7 @@ void EveSpaceObject2::GetImpactPosition( Vector3& out, int damageLocatorIndex, c
 
 bool EveSpaceObject2::GetDamageLocatorDirection( Vector3* out, int index, bool inWorldSpace )
 {
-	if( ( index < 0 ) || ( index >= int( m_persistedDamageLocators.size() ) ) )
+	if( ( index < 0 ) || ( index >= int( GetDamageLocatorCount() ) ) )
 	{
 		*out = Vector3( 0.f, 1.f, 0.f );
 		return false;
@@ -2189,17 +2170,6 @@ void EveSpaceObject2::RemoveOverlayEffect( EveMeshOverlayEffect* overlayEffectTo
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Set a whole new set of damage locators
-// --------------------------------------------------------------------------------
-void EveSpaceObject2::SetDamageLocators( const EveDamageLocator* damageLocators, size_t damageLocatorCount )
-{
-	// is a structured list, so we can copy this in one big block
-	m_persistedDamageLocators.Resize( damageLocatorCount );
-	memcpy( &m_persistedDamageLocators[0], damageLocators, damageLocatorCount * sizeof( EveDamageLocator ) );
-}
-
-// --------------------------------------------------------------------------------
-// Description:
 //   Add a whole new set of locators, id'ed by name
 // --------------------------------------------------------------------------------
 void EveSpaceObject2::AddLocatorSet( const char* name, const Locator* locators, size_t locatorCount )
@@ -2355,12 +2325,17 @@ bool EveSpaceObject2::UpdateImpact( Vector3& out, const Vector3& direction, int 
 
 unsigned int EveSpaceObject2::GetDamageLocatorCount() const 
 {
-	return (unsigned int)m_persistedDamageLocators.size();
+	auto damageLocators = GetLocatorsForSet( DAMAGE_LOCATOR_SET_NAME );
+	if( damageLocators )
+	{
+		return ( unsigned int ) damageLocators->size();
+	}
+	return 0;
 }
 
 Vector3 EveSpaceObject2::GetDamageLocator( uint32_t index ) const
 {
-	if( size_t( index ) > m_persistedDamageLocators.size() )
+	if( size_t( index ) > GetDamageLocatorCount() )
 	{
 		return Vector3( 0, 0, 0 );
 	}
@@ -2369,7 +2344,7 @@ Vector3 EveSpaceObject2::GetDamageLocator( uint32_t index ) const
 
 Vector3 EveSpaceObject2::GetDamageLocatorDirection( uint32_t index ) const
 {
-	if( size_t( index ) > m_persistedDamageLocators.size() )
+	if( size_t( index ) > GetDamageLocatorCount() )
 	{
 		return Vector3( 0, 0, 0 );
 	}
@@ -2384,7 +2359,7 @@ Vector3 EveSpaceObject2::GetTransformedDamageLocator( uint32_t index )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
-	if( size_t( index ) > m_persistedDamageLocators.size() )
+	if( size_t( index ) > GetDamageLocatorCount() )
 	{
 		return Vector3( 0, 0, 0 );
 	}
@@ -2402,14 +2377,20 @@ Vector3 EveSpaceObject2::GetTransformedDamageLocator( uint32_t index )
 Vector3 EveSpaceObject2::GetObjectSpaceDamageLocatorPosition( uint32_t index ) const
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
-	EveDamageLocator damageLocator = m_persistedDamageLocators[index];
-
-	Vector3 damageLocatorPosition = damageLocator.m_position;
+	auto damageLocators = GetLocatorsForSet( DAMAGE_LOCATOR_SET_NAME );
+	if( !damageLocators )
+	{
+		return Vector3( 0, 0, 0 );
+	}
+	
+	const Locator& damageLocator = (*damageLocators)[index]; 	
+	
+	Vector3 damageLocatorPosition = damageLocator.position;
 	// We're assuming for now that the bone 0 isn't animated for performance reasons.
-	if( damageLocator.m_boneIndex <= 0 )
+	if( damageLocator.boneIndex <= 0 )
 	{
 		// damage locator is not attached to a bone, return the position
-		return damageLocator.m_position;
+		return damageLocator.position;
 	}
 	
 	// If the damage locator is animated we extract the bone matrix and apply it to the damage locator position
@@ -2421,7 +2402,7 @@ Vector3 EveSpaceObject2::GetObjectSpaceDamageLocatorPosition( uint32_t index ) c
 			const granny_matrix_3x4* bones = m_animationUpdater->GetMeshBoneMatrixList();
 			Matrix boneTF;
 			D3DXMatrixIdentity( &boneTF );
-			TriMatrixCopyFrom3x4( &boneTF, &bones[ damageLocator.m_boneIndex ] );
+			TriMatrixCopyFrom3x4( &boneTF, &bones[ damageLocator.boneIndex ] );
 			damageLocatorPosition = XMVector3TransformCoord( damageLocatorPosition, boneTF );
 		}
 	}
@@ -2436,14 +2417,19 @@ Vector3 EveSpaceObject2::GetObjectSpaceDamageLocatorPosition( uint32_t index ) c
 Vector3 EveSpaceObject2::GetObjectSpaceDamageLocatorDirection( uint32_t index ) const
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
-	EveDamageLocator damageLocator = m_persistedDamageLocators[index];
-
+	auto damageLocators = GetLocatorsForSet( DAMAGE_LOCATOR_SET_NAME );
+	if( damageLocators == nullptr )
+	{
+		return Vector3( 0, 0, 0 );
+	}
+	const Locator& damageLocator = (*damageLocators)[index]; 
+		
 	Quaternion quat;
-	quat = damageLocator.m_impactDirection;
+	quat = damageLocator.direction;
 	Vector3 damagelocatorDirection = (Vector3)XMVector3Rotate( Vector3( 0.f, 1.f, 0.f ), quat );
 
 	// We're assuming for now that the bone 0 isn't animated for performance reasons.
-	if( damageLocator.m_boneIndex <= 0)
+	if( damageLocator.boneIndex <= 0)
 	{
 		// damage locator is not attached to a bone, return the direction
 		return damagelocatorDirection;
@@ -2459,7 +2445,7 @@ Vector3 EveSpaceObject2::GetObjectSpaceDamageLocatorDirection( uint32_t index ) 
 
 			Matrix boneTF;
 			D3DXMatrixIdentity( &boneTF );	
-			TriMatrixCopyFrom3x4( &boneTF, &bones[ damageLocator.m_boneIndex ] );
+			TriMatrixCopyFrom3x4( &boneTF, &bones[ damageLocator.boneIndex ] );
 			damagelocatorDirection = XMVector3TransformNormal( damagelocatorDirection, boneTF );
 		}
 	}
@@ -2473,7 +2459,7 @@ Vector3 EveSpaceObject2::GetObjectSpaceDamageLocatorDirection( uint32_t index ) 
 // --------------------------------------------------------------------------------
 Vector3 EveSpaceObject2::GetTransformedDamageLocatorDirection( uint32_t index )
 {
-	if( size_t( index ) > m_persistedDamageLocators.size() )
+	if( size_t( index ) > GetDamageLocatorCount() )
 	{
 		return Vector3( 0, 1, 0 );
 	}

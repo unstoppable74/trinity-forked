@@ -962,7 +962,7 @@ bool EveSwarm::GetDamageLocatorPosition( Vector3* out, int index, bool inWorldSp
 	{
 		return EveShip2::GetDamageLocatorPosition( out, index, inWorldSpace );
 	}
-	if( ( index < 0 ) || ( index >= int( m_persistedDamageLocators.size() ) ) )
+	if( ( index < 0 ) || ( index >= int( GetLocatorsForSet( "damage" )->size() ) ) )
 	{
 		if( inWorldSpace )
 		{

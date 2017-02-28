@@ -565,6 +565,22 @@ const std::vector<EveSOFDataMgr::LocatorData>& EveSOFDNA::GetHullTurretLocators(
 // Description:
 //   Return an array to all the damage locators on this hull
 // --------------------------------------------------------------------------------
+const std::vector<BlueSharedString> EveSOFDNA::GetHullLocatorSetNames() const
+{
+	std::vector<BlueSharedString> locatorNames;
+
+	for( auto locatorSet = m_hullData->locatorSets.begin(); locatorSet != m_hullData->locatorSets.end(); ++locatorSet )
+	{
+		locatorNames.push_back( locatorSet->first );
+	}
+	return locatorNames;
+}
+
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Return an array to all the damage locators on this hull
+// --------------------------------------------------------------------------------
 const std::vector<EveSOFDataMgr::LocatorDirectionData>* EveSOFDNA::GetHullLocators( const char* setName ) const
 {
 	auto locatorSet = m_hullData->locatorSets.find( BlueSharedString( setName ) );

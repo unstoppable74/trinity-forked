@@ -78,16 +78,6 @@ class TriFrustum;
 class EveSpaceObjectDecalCache;
 struct Locator;
 
-
-struct EveDamageLocator
-{
-	Vector3 m_position;
-	Quaternion m_impactDirection;
-	int m_boneIndex;
-};
-
-BLUE_DECLARE_STRUCTURE_LIST( EveDamageLocator );
-
 // --------------------------------------------------------------------------------
 // Description:
 //   This struct holds the per vs data for spaceobjects, excluding bones.
@@ -328,11 +318,12 @@ public:
 	void AddOverlayEffect( EveMeshOverlayEffect* newOverlayEffect );
 	void RemoveOverlayEffect( EveMeshOverlayEffect* newOverlayEffect );
 	void AddLocatorSet( const char* name, const Locator* locators, size_t locatorCount );
-	void SetDamageLocators( const EveDamageLocator* damageLocators, size_t damageLocatorCount );
 	Vector3 GetDamageLocator( uint32_t index ) const;
 	Vector3 GetDamageLocatorDirection( uint32_t index ) const;
 	Vector3 GetDamageLocatorDirectionLocal( uint32_t index ) const { return GetDamageLocatorDirection( index ); }
 	const LocatorStructureList* GetLocatorsForSet( const char* setName ) const;
+	void MergeToLocatorSet( const EveLocatorSets& locatorSet );
+
 	void AddCustomMask( EveCustomMaskPtr newCustomMask );
 
 	// access to shadows
@@ -506,7 +497,6 @@ protected:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// locator sets
 	PEveLocatorSetsVector m_locatorSets;
-	PEveDamageLocatorStructureList m_persistedDamageLocators;
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	// Dynamic lighting

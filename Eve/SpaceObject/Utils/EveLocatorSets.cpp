@@ -47,6 +47,17 @@ void EveLocatorSets::Set( const char* name, const Locator* locators, size_t coun
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Merge this locatorset with another set
+// --------------------------------------------------------------------------------
+void EveLocatorSets::Append( const Locator* locators, size_t count )
+{
+	size_t originalSize = m_locators.size();
+	m_locators.Resize( originalSize + count );
+	memcpy( &m_locators[ originalSize ], locators, count * sizeof( Locator ) );
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Compare names
 // --------------------------------------------------------------------------------
 bool EveLocatorSets::HasName( const char* name ) const

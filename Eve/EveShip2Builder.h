@@ -27,10 +27,8 @@ public:
 
 protected:
 	void CopyLocators( EveLocator2Vector& locators, const Vector3& offset );
-#if BLUE_WITH_PYTHON
-	void CopyDamageLocators( EveDamageLocatorStructureList& locators, const Vector3& offset );
-#endif
-
+	void CopyLocatorSets( EveLocatorSetsVector& src, const Vector3& offset );
+	
 	void CopyAreas( Tr2MeshAreaVector* src, Tr2MeshAreaVector* dst );
 	void CopySpriteSets( EveSpriteSetVector* src, EveSpriteSetVector* dst, const Vector3& offset );
 	void CopySpotlightSets( const EveSpotlightSetVector* src, EveSpotlightSetVector* dst, const Vector3& offset );

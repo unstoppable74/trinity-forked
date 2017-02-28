@@ -61,25 +61,6 @@ PyObject* EveSpaceObject2::PyTransformLocators( PyObject* self, PyObject* args )
 		}
 		return result;
 	}
-	else if( auto locators = BluePythonCast<EveDamageLocatorStructureList*>( pyLocators ) )
-	{
-		PyObject* result = PyList_New( ssize_t( locators->GetSize() ) );
-		for( size_t i = 0; i < locators->GetSize(); ++i )
-		{
-			auto& locator = ( *locators )[i];
-
-			Vector3 position = locator.m_position;
-			Quaternion rotation = locator.m_impactDirection;
-			TransformLocator( position, rotation, locator.m_boneIndex, pThis->m_animationUpdater );
-
-			PyObject* tuple = PyTuple_New( 3 );
-			PyTuple_SetItem( tuple, 0, Py_BuildValue( "(fff)", position.x, position.y, position.z ) );
-			PyTuple_SetItem( tuple, 1, Py_BuildValue( "(ffff)", rotation.x, rotation.y, rotation.z, rotation.w ) );
-			PyTuple_SetItem( tuple, 2, PyInt_FromLong( locator.m_boneIndex ) );
-			PyList_SetItem( result, ssize_t( i ), tuple );
-		}
-		return result;
-	}
 	else if( PySequence_Check( pyLocators ) )
 	{
 		PyObject* result = PyList_New( ssize_t( locators->GetSize() ) );
@@ -179,16 +160,6 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 			"shadowEffect",  
 			m_shadowEffect, 
 			"Effect used to render into shadow map. If not set, object can't cast shadows.", 
-			Be::READWRITE | Be::PERSIST
-		)
-
-		MAP_ATTRIBUTE
-		( 
-			"damageLocators",    
-			m_persistedDamageLocators,
-			"Blue structure list of EveDamageLocators (Vector3 and a Quaternion) that are read\n"
-			"into the class and transformed with the ship frame-by-frame to give new turrets\n"
-			"locations to shoot at on it.", 
 			Be::READWRITE | Be::PERSIST
 		)
 
@@ -444,7 +415,7 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 			FreezeHighDetailMesh,
 			"Freezes the high detail mesh and prevents LOD selection or resource unloading."
 		)
-
+		
 		MAP_ATTRIBUTE
 		(
 			"overlayEffects",

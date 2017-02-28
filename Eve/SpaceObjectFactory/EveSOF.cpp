@@ -1570,28 +1570,11 @@ void EveSOF::SetupLocators( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) con
 		obj->AddLocator( loc );
 	}
 
-	// set whole block of damage locators, they are a structered list
-	const std::vector<EveSOFDataMgr::LocatorDirectionData>* damageLocators = dna->GetHullLocators( "damage" );
-	if( damageLocators )
+	const std::vector<BlueSharedString> locatorSetsNames = dna->GetHullLocatorSetNames();
+	for( auto locatorSetName = locatorSetsNames.begin(); locatorSetName != locatorSetsNames.end(); ++locatorSetName)
 	{
-		obj->SetDamageLocators( (const EveDamageLocator*)&(*damageLocators)[0], damageLocators->size() );
-	}
-
-	// set a special block of optional locators (this will be more generic when we have moved over the damage locators!!!)
-	const std::vector<EveSOFDataMgr::LocatorDirectionData>* pdbLocators = dna->GetHullLocators( "defensebattery" );
-	if( pdbLocators )
-	{
-		obj->AddLocatorSet( "defensebattery", (const Locator*)&( *pdbLocators )[0], pdbLocators->size() );
-	}
-	const std::vector<EveSOFDataMgr::LocatorDirectionData>* explosionsLocators = dna->GetHullLocators( "explosions" );
-	if( explosionsLocators )
-	{
-		obj->AddLocatorSet( "explosions", (const Locator*)&( *explosionsLocators )[0], explosionsLocators->size() );
-	}
-	const std::vector<EveSOFDataMgr::LocatorDirectionData>* globalExplosionOffsetLocators = dna->GetHullLocators( "globalExplosionOffset" );
-	if( globalExplosionOffsetLocators )
-	{
-		obj->AddLocatorSet( "globalExplosionOffset", (const Locator*)&( *globalExplosionOffsetLocators )[0], globalExplosionOffsetLocators->size() );
+		auto locators = dna->GetHullLocators( locatorSetName->c_str() );
+		obj->AddLocatorSet( locatorSetName->c_str(), ( const Locator* ) &( *locators )[0], locators->size() );
 	}
 
 	// create and setup the audio locator
