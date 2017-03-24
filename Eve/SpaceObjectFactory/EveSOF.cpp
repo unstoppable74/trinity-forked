@@ -1380,6 +1380,8 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 
 	// per-race data
 	const EveSOFDataMgr::RaceBoosterData* rdata = dna->GetRaceBoosterData();
+	// each booster is a locator with an index, keep track
+	uint32_t boosterLocatorIndex = 0;
 	// cycle over all hulls in the multi-hull list
 	Vector3 hullOffset( 0.f, 0.f, 0.f );
 	for( size_t hullIdx = 0; hullIdx < dna->GetMultiHullCount(); ++hullIdx )
@@ -1442,6 +1444,7 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 		// create and setup glows
 		EveSpriteSetPtr glow;
 		glow.CreateInstance();
+
 		Tr2EffectPtr glowEffect;
 		glowEffect.CreateInstance();
 		glowEffect->StartUpdate();
@@ -1471,17 +1474,23 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 		}
 
 		// add all the indiviual items
-		int index = 0;
 		for( auto biit = hdata->items.begin(); biit != hdata->items.end(); ++biit )
 		{
 			EveLocator2Ptr locator;
 			locator.CreateInstance();
+
+			// locator naming is important
 			char name[128];
-			sprintf_s( name, "locator_booster_%i", ++index );
+			sprintf_s( name, "locator_booster_%i", ++boosterLocatorIndex );
 			locator->SetName( name );
-			locator->SetTransform( biit->transform );
+
+			// locator position tells where it is
+			Matrix m;
+			TriMatrixTranslate( &m, &biit->transform, &hullOffset );
+			locator->SetTransform( m );
+
 			ship->AddLocator( locator );
-			set->Add( &biit->transform, &biit->functionality, biit->hasTrail, biit->atlasIndex0, biit->atlasIndex1 );
+			set->Add( &m, &biit->functionality, biit->hasTrail, biit->atlasIndex0, biit->atlasIndex1 );
 		}
 		glow->Rebuild();
 
