@@ -74,6 +74,7 @@ public:
 	bool IsHullAnimated() const;
 	bool DynamicBoundingSphereEnabled() const;
 	const EveSOFDataMgr::HullBoosterData* GetHullBoosterData( size_t n = 0 ) const;
+	size_t GetHullBoosterCount() const;
 	const Vector3* GetHullAudioPosition( size_t n = 0 ) const;
 	std::string GetHullGeometryResPath() const;
 	const char* GetModelRotationCurvePath() const;

@@ -366,8 +366,6 @@ public:
 		float lightFlickerFrequency;
 		Color lightColor;
 		Color lightWarpColor;
-
-		bool volumetric;
 	};
 
 	struct RaceData

@@ -1018,7 +1018,6 @@ void EveSOFDataMgr::GenerateRaceData( RaceData& rd, EveSOFDataRacePtr srcData ) 
 	rd.boosters.lightFlickerFrequency = srcData->m_booster->m_lightFlickerFrequency;
 	rd.boosters.lightColor = srcData->m_booster->m_lightColor;
 	rd.boosters.lightWarpColor = srcData->m_booster->m_lightWarpColor;
-	rd.boosters.volumetric = srcData->m_booster->m_volumetric;
 
 	// shader data
 	rd.areaMaterials.generalParameters.clear();

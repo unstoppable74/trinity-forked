@@ -188,8 +188,7 @@ EveSOFDataBooster::EveSOFDataBooster( IRoot* lockobj ) :
 	m_lightFlickerAmplitude( 0.f ),
 	m_lightFlickerFrequency( 0.f ),
 	m_lightColor( 0.f, 0.f, 0.f, 0.f ),
-	m_lightWarpColor( 0.f, 0.f, 0.f, 0.f ),
-	m_volumetric( false )
+	m_lightWarpColor( 0.f, 0.f, 0.f, 0.f )
 {
 	m_shape0.CreateInstance();
 	m_shape1.CreateInstance();

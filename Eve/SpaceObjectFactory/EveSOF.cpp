@@ -1368,13 +1368,8 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
-	// per-race data
-	const EveSOFDataMgr::RaceBoosterData* rdata = dna->GetRaceBoosterData();
-	// pre-hull data
-	const EveSOFDataMgr::HullBoosterData* hdata = dna->GetHullBoosterData();
-
 	// does this hull have boosters at all?
-	if( hdata->items.empty() )
+	if( dna->GetHullBoosterCount() == 0 )
 	{
 		return;
 	}
@@ -1383,111 +1378,120 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 	EveBoosterSet2Ptr set;
 	set.CreateInstance();
 
-	// set the booster set's internal data
-	set->SetData( 
-		rdata->glowScale, 
-		&rdata->glowColor, 
-		&rdata->warpGlowColor,
-		rdata->symHaloScale, 
-		rdata->haloScaleX, 
-		rdata->haloScaleY, 
-		&rdata->haloColor, 
-		&rdata->warpHaloColor,
-		hdata->alwaysOn );
-	set->SetLightData( rdata->lightOffset, rdata->lightFlickerAmplitude, rdata->lightFlickerFrequency, rdata->lightRadius, rdata->lightColor, rdata->lightWarpRadius, rdata->lightWarpColor );
-
-	// create and setup booster effect
-	Tr2EffectPtr effect;
-	effect.CreateInstance();
-	effect->StartUpdate();
-
-	effect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/Booster/BoosterVolumetric.fx" );
-	effect->AddParameterFloat( BlueSharedString("NoiseSpeed0"), rdata->shape0.noiseSpeed );
-	effect->AddParameterVector4( BlueSharedString("NoiseAmplitudeStart0"), &rdata->shape0.noiseAmplitureStart );
-	effect->AddParameterVector4( BlueSharedString("NoiseAmplitudeEnd0"), &rdata->shape0.noiseAmplitureEnd );
-	effect->AddParameterVector4( BlueSharedString("NoiseFrequency0"), &rdata->shape0.noiseFrequency );
-	effect->AddParameterColor( BlueSharedString("Color0"), &rdata->shape0.color );
-	effect->AddParameterFloat( BlueSharedString("NoiseSpeed1"), rdata->shape1.noiseSpeed );
-	effect->AddParameterVector4( BlueSharedString("NoiseAmplitudeStart1"), &rdata->shape1.noiseAmplitureStart );
-	effect->AddParameterVector4( BlueSharedString("NoiseAmplitudeEnd1"), &rdata->shape1.noiseAmplitureEnd );
-	effect->AddParameterColor( BlueSharedString("Color1"), &rdata->shape1.color );
-
-	effect->AddParameterFloat( BlueSharedString("WarpNoiseSpeed0"), rdata->warpShape0.noiseSpeed );
-	effect->AddParameterVector4( BlueSharedString("WarpNoiseAmplitudeStart0"), &rdata->warpShape0.noiseAmplitureStart );
-	effect->AddParameterVector4( BlueSharedString("WarpNoiseAmplitudeEnd0"), &rdata->warpShape0.noiseAmplitureEnd );
-	effect->AddParameterVector4( BlueSharedString("WarpNoiseFrequency0"), &rdata->warpShape0.noiseFrequency );
-	effect->AddParameterColor( BlueSharedString("WarpColor0"), &rdata->warpShape0.color );
-	effect->AddParameterFloat( BlueSharedString("WarpNoiseSpeed1"), rdata->warpShape1.noiseSpeed );
-	effect->AddParameterVector4( BlueSharedString("WarpNoiseAmplitudeStart1"), &rdata->warpShape1.noiseAmplitureStart );
-	effect->AddParameterVector4( BlueSharedString("WarpNoiseAmplitudeEnd1"), &rdata->warpShape1.noiseAmplitureEnd );
-	effect->AddParameterColor( BlueSharedString("WarpColor1"), &rdata->warpShape1.color );
-
-	Vector4 shapeAtlasSize( float( rdata->shapeAtlasHeight ), float( rdata->shapeAtlasCount ), 0, 0 );
-	effect->AddParameterVector4( BlueSharedString("ShapeAtlasSize"), &shapeAtlasSize );
-	effect->AddParameterVector4( BlueSharedString("BoosterScale"), &rdata->scale );
-
-	effect->AddResourceTexture2D( BlueSharedString("ShapeMap"), rdata->shapeAtlasResPath.c_str() );
-	effect->AddResourceTexture2D( BlueSharedString("GradientMap0"), rdata->gradient0ResPath.c_str() );
-	effect->AddResourceTexture2D( BlueSharedString("GradientMap1"), rdata->gradient1ResPath.c_str() );
-	effect->AddResourceTexture2D( BlueSharedString("NoiseMap"), "res:/Texture/Global/noise32cube_volume.dds" );
-
-	// finish effect and set it
-	effect->EndUpdate();
-	set->SetEffect( effect );
-
-	// create and setup glows
-	EveSpriteSetPtr glow;
-	glow.CreateInstance();
-	Tr2EffectPtr glowEffect;
-	glowEffect.CreateInstance();
-	glowEffect->StartUpdate();
-	if( rdata->volumetric )
+	// per-race data
+	const EveSOFDataMgr::RaceBoosterData* rdata = dna->GetRaceBoosterData();
+	// cycle over all hulls in the multi-hull list
+	Vector3 hullOffset( 0.f, 0.f, 0.f );
+	for( size_t hullIdx = 0; hullIdx < dna->GetMultiHullCount(); ++hullIdx )
 	{
+		// per-hull data
+		const EveSOFDataMgr::HullBoosterData* hdata = dna->GetHullBoosterData( hullIdx );
+
+		// set the booster set's internal data
+		set->SetData(
+			rdata->glowScale,
+			&rdata->glowColor,
+			&rdata->warpGlowColor,
+			rdata->symHaloScale,
+			rdata->haloScaleX,
+			rdata->haloScaleY,
+			&rdata->haloColor,
+			&rdata->warpHaloColor,
+			hdata->alwaysOn );
+		set->SetLightData( rdata->lightOffset, rdata->lightFlickerAmplitude, rdata->lightFlickerFrequency, rdata->lightRadius, rdata->lightColor, rdata->lightWarpRadius, rdata->lightWarpColor );
+
+		// create and setup booster effect
+		Tr2EffectPtr effect;
+		effect.CreateInstance();
+		effect->StartUpdate();
+
+		effect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/Booster/BoosterVolumetric.fx" );
+		effect->AddParameterFloat( BlueSharedString( "NoiseSpeed0" ), rdata->shape0.noiseSpeed );
+		effect->AddParameterVector4( BlueSharedString( "NoiseAmplitudeStart0" ), &rdata->shape0.noiseAmplitureStart );
+		effect->AddParameterVector4( BlueSharedString( "NoiseAmplitudeEnd0" ), &rdata->shape0.noiseAmplitureEnd );
+		effect->AddParameterVector4( BlueSharedString( "NoiseFrequency0" ), &rdata->shape0.noiseFrequency );
+		effect->AddParameterColor( BlueSharedString( "Color0" ), &rdata->shape0.color );
+		effect->AddParameterFloat( BlueSharedString( "NoiseSpeed1" ), rdata->shape1.noiseSpeed );
+		effect->AddParameterVector4( BlueSharedString( "NoiseAmplitudeStart1" ), &rdata->shape1.noiseAmplitureStart );
+		effect->AddParameterVector4( BlueSharedString( "NoiseAmplitudeEnd1" ), &rdata->shape1.noiseAmplitureEnd );
+		effect->AddParameterColor( BlueSharedString( "Color1" ), &rdata->shape1.color );
+
+		effect->AddParameterFloat( BlueSharedString( "WarpNoiseSpeed0" ), rdata->warpShape0.noiseSpeed );
+		effect->AddParameterVector4( BlueSharedString( "WarpNoiseAmplitudeStart0" ), &rdata->warpShape0.noiseAmplitureStart );
+		effect->AddParameterVector4( BlueSharedString( "WarpNoiseAmplitudeEnd0" ), &rdata->warpShape0.noiseAmplitureEnd );
+		effect->AddParameterVector4( BlueSharedString( "WarpNoiseFrequency0" ), &rdata->warpShape0.noiseFrequency );
+		effect->AddParameterColor( BlueSharedString( "WarpColor0" ), &rdata->warpShape0.color );
+		effect->AddParameterFloat( BlueSharedString( "WarpNoiseSpeed1" ), rdata->warpShape1.noiseSpeed );
+		effect->AddParameterVector4( BlueSharedString( "WarpNoiseAmplitudeStart1" ), &rdata->warpShape1.noiseAmplitureStart );
+		effect->AddParameterVector4( BlueSharedString( "WarpNoiseAmplitudeEnd1" ), &rdata->warpShape1.noiseAmplitureEnd );
+		effect->AddParameterColor( BlueSharedString( "WarpColor1" ), &rdata->warpShape1.color );
+
+		Vector4 shapeAtlasSize( float( rdata->shapeAtlasHeight ), float( rdata->shapeAtlasCount ), 0, 0 );
+		effect->AddParameterVector4( BlueSharedString( "ShapeAtlasSize" ), &shapeAtlasSize );
+		effect->AddParameterVector4( BlueSharedString( "BoosterScale" ), &rdata->scale );
+
+		effect->AddResourceTexture2D( BlueSharedString( "ShapeMap" ), rdata->shapeAtlasResPath.c_str() );
+		effect->AddResourceTexture2D( BlueSharedString( "GradientMap0" ), rdata->gradient0ResPath.c_str() );
+		effect->AddResourceTexture2D( BlueSharedString( "GradientMap1" ), rdata->gradient1ResPath.c_str() );
+		effect->AddResourceTexture2D( BlueSharedString( "NoiseMap" ), "res:/Texture/Global/noise32cube_volume.dds" );
+
+		// finish effect and set it
+		effect->EndUpdate();
+		set->SetEffect( effect );
+
+		// create and setup glows
+		EveSpriteSetPtr glow;
+		glow.CreateInstance();
+		Tr2EffectPtr glowEffect;
+		glowEffect.CreateInstance();
+		glowEffect->StartUpdate();
 		glowEffect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/Booster/BoosterGlowAnimated.fx" );
-		glowEffect->AddResourceTexture2D( BlueSharedString("NoiseMap"), "res:/Texture/global/noise.dds" );
-	}
-	else
-	{
-		glowEffect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/Booster/BoosterGlowPool.fx" );
-	}
-	glowEffect->AddResourceTexture2D( BlueSharedString("DiffuseMap"), "res:/Texture/Particle/whitesharp.dds" );
-	// finish effect and set it
-	glowEffect->EndUpdate();
-	glow->SetEffect( glowEffect );
-	set->SetGlow( glow );
+		glowEffect->AddResourceTexture2D( BlueSharedString( "NoiseMap" ), "res:/Texture/global/noise.dds" );
+		glowEffect->AddResourceTexture2D( BlueSharedString( "DiffuseMap" ), "res:/Texture/Particle/whitesharp.dds" );
+		// finish effect and set it
+		glowEffect->EndUpdate();
+		glow->SetEffect( glowEffect );
+		set->SetGlow( glow );
 
-	if( hdata->hasTrails )
-	{
-		Tr2EffectPtr trailEffect;
-		trailEffect.CreateInstance();
-		trailEffect->StartUpdate();
-		EveTrailsSetPtr trail;
-		trail.CreateInstance();
-		trailEffect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/Booster/VolumetricTrails.fx" );
-		trailEffect->AddParameterVector4( BlueSharedString("TrailSize"), &rdata->trailSize );
-		trailEffect->AddParameterColor( BlueSharedString("TrailColor"), &rdata->trailColor );
-		trailEffect->AddParameterFloat( BlueSharedString( "TrailFadeIn" ), rdata->volumetric ? 0.15f : 0.0f );
-		trailEffect->EndUpdate();
-		trail->SetEffect( trailEffect );
-		trail->SetMeshResPath( "res:/dx9/model/ship/booster/volumetricTrail.gr2" );
-		set->SetTrail( trail );
-	}
+		if( hdata->hasTrails )
+		{
+			Tr2EffectPtr trailEffect;
+			trailEffect.CreateInstance();
+			trailEffect->StartUpdate();
+			EveTrailsSetPtr trail;
+			trail.CreateInstance();
+			trailEffect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/Booster/VolumetricTrails.fx" );
+			trailEffect->AddParameterVector4( BlueSharedString( "TrailSize" ), &rdata->trailSize );
+			trailEffect->AddParameterColor( BlueSharedString( "TrailColor" ), &rdata->trailColor );
+			trailEffect->AddParameterFloat( BlueSharedString( "TrailFadeIn" ), 0.15f );
+			trailEffect->EndUpdate();
+			trail->SetEffect( trailEffect );
+			trail->SetMeshResPath( "res:/dx9/model/ship/booster/volumetricTrail.gr2" );
+			set->SetTrail( trail );
+		}
 
-	// add all the indiviual items
-	int index = 0;
-	for( auto biit = hdata->items.begin(); biit != hdata->items.end(); ++biit )
-	{
-		EveLocator2Ptr locator;
-		locator.CreateInstance();
-		char name[128];
-		sprintf_s( name, "locator_booster_%i", ++index );
-		locator->SetName( name );
-		locator->SetTransform( biit->transform );
-		ship->AddLocator( locator );
-		set->Add( &biit->transform, &biit->functionality, biit->hasTrail, biit->atlasIndex0, biit->atlasIndex1 );
-	}
-	glow->Rebuild();
+		// add all the indiviual items
+		int index = 0;
+		for( auto biit = hdata->items.begin(); biit != hdata->items.end(); ++biit )
+		{
+			EveLocator2Ptr locator;
+			locator.CreateInstance();
+			char name[128];
+			sprintf_s( name, "locator_booster_%i", ++index );
+			locator->SetName( name );
+			locator->SetTransform( biit->transform );
+			ship->AddLocator( locator );
+			set->Add( &biit->transform, &biit->functionality, biit->hasTrail, biit->atlasIndex0, biit->atlasIndex1 );
+		}
+		glow->Rebuild();
 
+		// next hull needs offset update from hull's locator
+		const Vector3* nextSubsystemOffset = dna->GetHullNextSubsystemOffset( hullIdx );
+		if( nextSubsystemOffset )
+		{
+			hullOffset += *nextSubsystemOffset;
+		}
+	}
 	// add it to ship
 	set->PrepareResources();
 	ship->SetBoosterSet( set );

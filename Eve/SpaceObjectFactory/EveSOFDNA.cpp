@@ -1050,6 +1050,17 @@ const EveSOFDataMgr::HullBoosterData* EveSOFDNA::GetHullBoosterData( size_t n ) 
 }
 
 // --------------------------------------------------------------------------------
+size_t EveSOFDNA::GetHullBoosterCount() const
+{
+	size_t cntr = 0;
+	for( auto it = m_hullDatas.begin(); it != m_hullDatas.end(); ++it )
+	{
+		cntr += ( *it )->boosters.items.size();
+	}
+	return cntr;
+}
+
+// --------------------------------------------------------------------------------
 // Description:
 //   Return the number of layers of this pattern
 // --------------------------------------------------------------------------------

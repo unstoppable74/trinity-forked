@@ -894,8 +894,6 @@ public:
 	float m_lightFlickerFrequency;
 	Color m_lightColor;
 	Color m_lightWarpColor;
-
-	bool m_volumetric;
 };
 TYPEDEF_BLUECLASS( EveSOFDataBooster );
 

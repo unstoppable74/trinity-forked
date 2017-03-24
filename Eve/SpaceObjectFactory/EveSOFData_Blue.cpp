@@ -104,7 +104,6 @@ const Be::ClassInfo* EveSOFDataBooster::ExposeToBlue()
 		MAP_ATTRIBUTE( "lightFlickerFrequency", m_lightFlickerFrequency, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "lightColor", m_lightColor, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "lightWarpColor", m_lightWarpColor, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "volumetric", m_volumetric, "", Be::READWRITE | Be::PERSIST )
     EXPOSURE_END()
 }
 
