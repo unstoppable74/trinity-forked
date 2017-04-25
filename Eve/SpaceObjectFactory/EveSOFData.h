@@ -648,7 +648,6 @@ public:
 	PEveSOFDataHullAreaVector m_decalAreas;
 	PEveSOFDataHullAreaVector m_transparentAreas;
 	PEveSOFDataHullAreaVector m_additiveAreas;
-	PEveSOFDataHullAreaVector m_depthAreas;
 	PEveSOFDataHullAreaVector m_distortionAreas;
 
 	// patterns
