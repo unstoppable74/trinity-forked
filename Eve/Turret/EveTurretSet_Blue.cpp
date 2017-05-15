@@ -95,6 +95,7 @@ const Be::ClassInfo* EveTurretSet::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "firingEffect", m_firingEffect, "The module for the firing effect of this turret", Be::READWRITE | Be::NOTIFY )
 		MAP_ATTRIBUTE( "firingEffectResPath", m_firingEffectResPath, "A res path to the redfile containing the primary firing effect", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "firingEffectSecondaryResPath", m_firingEffectSecondaryResPath, "A res path to the redfile containing the primary firing effect", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "laserMissBehaviour", m_laserMissBehaviour, "Whether or not to use laser-like properties when this turret misses", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "projectileMissBehaviour", m_projectileMissBehaviour, "Whether or not to use projectile properties when this turret misses", Be::READWRITE | Be::PERSIST )
