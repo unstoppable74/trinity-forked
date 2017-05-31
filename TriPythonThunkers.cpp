@@ -165,12 +165,12 @@ PyObject* ITriVectorFunction_Thunk::PyGetVectorAt(PyObject* args)
 	
 	if (PyLong_Check(t))
 	{		
-		Vector3 tmpResult;
+		Vector3 tmpResult( 0, 0, 0 );
 		q->SetVector( GetValueAt(&tmpResult, Be::Time(PyLong_AsLongLong(t))) );		
 	}
 	else if (PyFloat_Check(t))
 	{
-		Vector3 tmpResult;
+		Vector3 tmpResult( 0, 0, 0 );
 		q->SetVector( GetValueAt(&tmpResult, PyFloat_AS_DOUBLE(t)) );		
 	}
 	else
