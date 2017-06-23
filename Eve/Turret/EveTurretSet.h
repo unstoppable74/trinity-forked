@@ -230,6 +230,7 @@ private:
 		SYSBONE_SCALED_PITCH04,
 		SYSBONE_SCALED_PITCH05,
 		SYSBONE_SCALED_PITCH06,
+		POS_EFFECT,
 		SYSBONE_MAX,
 	};
 
@@ -387,7 +388,6 @@ private:
 	float m_sysBonePitch02Factor;
 	float m_sysBonePitch03Offset;
 	float m_sysBonePitch03Factor;
-	unsigned int m_effectBoneID;
 	
 	Matrix GetTurretBoneTransform( uint32_t closestTurret, uint32_t boneID ) const;
 

@@ -40,9 +40,8 @@ static std::string s_systemBoneSkeletonNames[] = {
 	"Sys_Pitch_Arm04",		// SYSBONE_SCALED_PITCH04
 	"Sys_Pitch_Arm05",		// SYSBONE_SCALED_PITCH05
 	"Sys_Pitch_Arm06",		// SYSBONE_SCALED_PITCH06
+	"Pos_Effect",           // POS_EFFECT
 };
-
-const static std::string s_effectBoneName = "Pos_Effect";
 
 // invalids
 const unsigned int INVALID_BONE_INDEX = 0xffffffff;
@@ -125,8 +124,7 @@ EveTurretSet::EveTurretSet( IRoot* lockobj ) :
 	m_slotNumber( -1 ),
 	m_swarmID( 0 ),
 	m_parentShLighting( nullptr ),
-	m_possibleTurretDisplayAmount( 0 ),
-	m_effectBoneID( INVALID_BONE_INDEX )
+	m_possibleTurretDisplayAmount( 0 )
 {
 	// 0
 	memset( &m_parentData, 0, sizeof( ParentData ) );
@@ -313,7 +311,6 @@ void EveTurretSet::InitializeFiringEffect()
 					// in case we don't find positional bone, ::FindJoint() returns 0xffffffff
 					m_firingEffect->SetMuzzleBoneID( i, skeletonData->FindJoint( boneNameBuffer ) );
 				}
-				m_effectBoneID = skeletonData->FindJoint( s_effectBoneName.c_str() );
 			}
 		}
 	}
@@ -635,7 +632,6 @@ void EveTurretSet::RebuildCachedData( BlueAsyncRes* p )
 
 				// try to link an existing firing effect to skeleton's bones
 				InitializeFiringEffect();
-				m_effectBoneID = skeletonData->FindJoint( s_effectBoneName.c_str() );
 			}
 		}
 
@@ -1118,7 +1114,7 @@ Matrix EveTurretSet::GetEffectBoneWorldTransform() const
 		return Tr2Renderer::GetIdentityTransform();
 	}
 
-	return GetTurretBoneTransform( closestTurret, m_effectBoneID );
+	return GetTurretBoneTransform( closestTurret, m_systemBoneID[POS_EFFECT] );
 }
 
 
