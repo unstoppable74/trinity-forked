@@ -75,12 +75,8 @@ public:
 	virtual bool GetLocalBoundingBox( Vector3& min, Vector3& max ) const;
 	virtual bool GetWorldBoundingBox( Vector3& min, Vector3& max ) const;
 	virtual bool IsBoundingBoxReady( void ) const;
-	virtual bool GetShProbePosition( Vector3& position ) const;
 	virtual void PrePhysicsUpdate( Be::Time time );
 	virtual void PostPhysicsUpdate( Be::Time time, Tr2ApexScene *apexScene );
-	virtual Matrix& GetRedLightProbeMatrix( void ) { return m_SHMatrixRed; }
-	virtual Matrix& GetGreenLightProbeMatrix( void ) { return m_SHMatrixGreen; }
-	virtual Matrix& GetBlueLightProbeMatrix( void ) { return m_SHMatrixBlue; }
 
 	virtual bool TestCellIntersectionAndAdd( Tr2InteriorCell* cell );
 	virtual bool IsDirty( void ) const { return m_isDirty; }
@@ -112,8 +108,6 @@ public:
 		const Matrix& objectToWorldMatrix, 
 		const Matrix& mirrorToWorldMatrix 
 	);
-
-	virtual void SetSHLightingSolver( ITr2InteriorSHLightingSolver* solver ) { m_shSolver = solver; }
 
 	// Set stencil parameters
 	void SetStencilParameters( const WodStencilBatchParams& params )
@@ -206,16 +200,8 @@ private:
 		VISIBILITYMODE_HIDDEN,
 	} m_visibilityMode;
 
-	// interpolated light probe matrices
-	Matrix m_SHMatrixRed;
-	Matrix m_SHMatrixGreen;
-	Matrix m_SHMatrixBlue;
-
 	// Bounding sphere
 	Vector4 m_boundingSphere;
-
-	// SH lighting solver for transparent rendering
-	ITr2InteriorSHLightingSolver *m_shSolver;
 
 	// Bounding box overrides
 	Vector3 m_minBounds;

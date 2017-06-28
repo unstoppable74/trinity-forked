@@ -616,7 +616,6 @@ void Tr2Apex::ApexGatherBatches( Tr2ClothingActorVector& clothMeshes,
 					    ITriRenderBatchAccumulator* batches, 
 						int batchType, 
 						const Tr2PerObjectData* perObjectData, 
-						ITr2InteriorSHLightingSolver* shSolver,
 						unsigned int depth )
 {
 	g_apexRenderer.SetAccumulator( batches );

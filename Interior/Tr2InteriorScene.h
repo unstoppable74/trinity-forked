@@ -108,11 +108,6 @@ public:
 	// Remove a dynamic from the scene
 	void RemoveDynamic( ITr2InteriorDynamic* dynamic );
 
-	void ReorderDynamic( ITr2InteriorDynamic* object, ITr2InteriorDynamic* insertAfter );
-
-	// Forces update on all spotlight shadows
-	void UpdateSpotlightShadows();
-
 protected:
 
 	void OnQueryBegin( void );
@@ -162,7 +157,6 @@ private:
 	// Update dynamics, adding to cells as needed
 	void UpdateDynamics( void );
 	void UpdateCells();
-	void UpdateSecondaryLighting();
 
 	// Handle list-changed events for the lights list
 	bool OnLightsListModified( long event, ssize_t key, ssize_t key2, IRoot* currvalue );
@@ -189,8 +183,6 @@ private:
 	ITriRenderBatchAccumulator* m_primaryRenderBatches;
 	// Stores transparent batches during scene traversal for later insertion into primary batch list
 	ITriRenderBatchAccumulator* m_transparentBatchStore;
-	// Holds the batches for the scene shadowcasters
-	ITriRenderBatchAccumulator* m_shadowBatches;
 	// Holds the opaque batches for pickable objects during a picking operation
 	ITriRenderBatchAccumulator* m_opaquePickingBatches;
 	// Holds the opaque batches for pickable objects during a picking operation
@@ -238,7 +230,6 @@ private:
 	enum VisibilityQueryType
 	{
 		PRIMARY_QUERY,
-		SHADOW_QUERY,
 		PICKING_QUERY
 	};
 	VisibilityQueryType m_visibilityQueryType;
@@ -266,23 +257,8 @@ private:
 	Tr2ApexScenePtr	m_apexScene;
 
 	void SetBackgroundCubemapResPath();
-	// Update each cell SH scale factor
-	void UpdateSHScaleFactor();
-
-	// shadows
-	void RenderShadowMaps( Tr2RenderContext& renderContext );
-	bool UpdateShadowMap( 
-		ITr2InteriorLight::LightSourceItem& item, 
-		TriPoolAllocator* allocator, 
-		Tr2PerFrameVSData shadowPerFrameVS, 
-		Tr2PerFrameShadowPSData shadowPerFramePS,
-		Tr2RenderContext& renderContext );
-	unsigned ReRenderShadowMaps( Tr2RenderContext& renderContext );
 
 	void RenderGeometry( ITr2ShaderMaterial* overrideEffect, Tr2RenderContext& renderContext );
-
-	// Clears the visibility results
-	void ClearVisibilityResults( void );
 
 	void SetupTransformsForPicking( float fx, float fy, TriProjection* proj, TriView* view, TriViewport* viewport );
 	const std::vector<ITr2Renderable*>& GetPickingObjectsToRender( const Vector3& dirWorld );
@@ -346,38 +322,11 @@ private:
 	bool m_renderDebugInfo;
     TriLineSetPtr m_debugLines;
 
-	bool m_displayDynamics;
-	// Used during shadow rendering to skip statics for certain lights
-	bool m_displayStatics;
-
-	// Set when generating the shadows for a particular light
-	ITr2InteriorLight* m_lightGeneratingShadows;
-
 	// visualization
 	VisualizeMethod m_visualizeMethod;
 
-	// SH scale factor
-	float m_shScale;
-
 	// Ragdoll simulation
 	ITr2PhysicsUpdaterPtr m_ragdollScene;
-
-	// Maximum number of shadows to update per frame (including LOD switches)
-	unsigned int m_shadowsUpdatesPerFrame;
-	// Maximum number of shadow LOD switches per frame
-	unsigned int m_shadowsLODSwitchesPerFrame;
-	// Enable shadow resolution LODs
-	bool m_useShadowLOD;
-	// Depth buffer used during spot light shadow updates
-	Tr2DepthStencilAL m_shadowMapDepthBuffer;
-	// Temporary textures to use for shadow map rendering/blurring
-	Tr2RenderTargetAL m_shadowMapTemporaryRTs[2];
-	// Filter effect used for shadow map blurring
-	Tr2EffectPtr m_shadowFilter;
-	// Filter size variable handle used for shadow map blurring
-	Tr2Variable m_shadowFilterVar;
-	// Texture area variable handle used for shadow map blurring
-	Tr2Variable m_shadowFilterAreaVar;
 
 	// N dot L lookup texture (used during lighting pass)
 	TriTextureResPtr m_nDotLTexture;
@@ -393,55 +342,11 @@ private:
 	// Fog color
 	Color m_fogColor;
 
-	PTr2TextureAtlasVector m_shadowAtlases;
-
-	// --------------------------------------------------------------------------------------
-	// Description:
-	//   Per-shadow map information to enable shadow re-rendering on SLI architectures. 
-	// --------------------------------------------------------------------------------------
-	struct ShadowReRenderInfo
-	{
-		// Light source generating shadow
-		BlueWeakRef<ITr2InteriorLight> lightSource;
-		// Index of the shadow map in light source
-		unsigned shadowMapIndex;
-
-		// --------------------------------------------------------------------------------------
-		// Description:
-		//   Comparison operator (so that the structure can be used as a key in std::map. 
-		// Arguments:
-		//   info - Object to compare with
-		// Return Value:
-		//   true If this is less than info in some ordering
-		//   false Otherwise
-		// --------------------------------------------------------------------------------------
-		bool operator<( const ShadowReRenderInfo& info ) const
-		{
-			if( lightSource < info.lightSource )
-			{
-				return true;
-			}
-			if( shadowMapIndex < info.shadowMapIndex )
-			{
-				return true;
-			}
-			return false;
-		}
-	};
-
-	// Number of SLI (AFR) GPU groups
-	unsigned int m_numSLIGroups;
-
-	// Per-shadow map information (+number of GPUs updated) for shadow re-rendering on SLI architectures
-	std::map<ShadowReRenderInfo, unsigned> m_shadowReRenderInfo;
-
 	// Enable/disable Umbra regions of influence for light sources
 	bool m_enableROIs;
 
-	bool	m_debugInsideSetLOD;
-
-	Tr2ConstantBufferAL	m_perFramePSBuffer, m_perFrameShadowPSBuffer;
-	Tr2ConstantBufferAL	m_perFrameVSBuffer, m_perFrameShadowVSBuffer;
+	Tr2ConstantBufferAL	m_perFramePSBuffer;
+	Tr2ConstantBufferAL	m_perFrameVSBuffer;
 
 
 };

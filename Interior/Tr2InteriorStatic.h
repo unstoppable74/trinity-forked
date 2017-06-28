@@ -81,7 +81,6 @@ public:
     // ITr2Interior
     virtual void RemoveFromCell();
 	virtual const std::string& GetName( void ) const { return m_name; }
-	virtual void SetSHLightingSolver( ITr2InteriorSHLightingSolver* solver ) { m_shSolver = solver; }
 
 	// Set the parent cell with a weak reference, used to track cell visibility
 	void SetParentCell( Tr2InteriorCell* parentCell );
@@ -169,9 +168,6 @@ protected:
 
 	// Current visualize override method
 	VisualizeMethod m_visualizeMethod;
-
-	// SH lighting solver for transparent rendering
-	ITr2InteriorSHLightingSolver *m_shSolver;
 
 	PTriCurveSetVector m_curveSets;
 

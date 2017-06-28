@@ -413,7 +413,6 @@ const Be::ClassInfo* Tr2InteriorScene::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "renderDebugInfo", m_renderDebugInfo, "If true, objects are given a chance to render debugging info.", Be::READWRITE )
 
-		MAP_ATTRIBUTE( "shScale", m_shScale, "Global scaling factor for spherical harmonics lighting from light probes", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( "sunDiffuseColor", m_sunDiffuseColor, "Sun diffuse color", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "sunSpecularColor", m_sunSpecularColor, "Sun specular color", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "sunDirection", m_sunDirection, "Sun direction", Be::READWRITE | Be::PERSIST )
@@ -427,10 +426,6 @@ const Be::ClassInfo* Tr2InteriorScene::ExposeToBlue()
 		MAP_ATTRIBUTE_WITH_CHOOSER( "backgroundCubemapPath", m_backgroundCubeMapPath, "The path used to load the background environment map", Be::READWRITE | Be::PERSIST | Be::NOTIFY, TriTextureChooser )
 		MAP_ATTRIBUTE( "backgroundCubemapRes", m_backgroundCubeMapRes, "The background environment map", Be::READ )
         MAP_ATTRIBUTE( "ragdollScene", m_ragdollScene, "ITr2PhysicsUpdater object which simulates ragdoll during the animation update.", Be::READWRITE | Be::PERSIST )
-
-        MAP_ATTRIBUTE( "shadowUpdatesPerFrame", m_shadowsUpdatesPerFrame, "Maximum number of shadows to update per frame (including LOD switches).", Be::READWRITE | Be::PERSIST )
-        MAP_ATTRIBUTE( "shadowsLODSwitchesPerFrame", m_shadowsLODSwitchesPerFrame, "Maximum number of shadow LOD switches per frame.", Be::READWRITE | Be::PERSIST )
-        MAP_ATTRIBUTE( "useShadowLOD", m_useShadowLOD, "Enable shadow resolution LODs.", Be::READWRITE | Be::PERSIST )
 		
 		MAP_ATTRIBUTE_WITH_CHOOSER( "visualizeMethod", m_visualizeMethod, "Changes rendering to a visualizing method instead of normal rendering", Be::READWRITE | Be::ENUM | Be::NOTIFY, VisualizerChooser )
 
@@ -438,8 +433,6 @@ const Be::ClassInfo* Tr2InteriorScene::ExposeToBlue()
         MAP_ATTRIBUTE( "maxFogAmount", m_maxFogAmount, "Maximum fog density amount (from 0 to 1)", Be::READWRITE | Be::PERSIST )
         MAP_ATTRIBUTE( "minFogDistance", m_minFogDistance, "Distance where fog density starts to grow from 0", Be::READWRITE | Be::PERSIST )
         MAP_ATTRIBUTE( "maxFogDistance", m_maxFogDistance, "Distance where fog reaches maximum density", Be::READWRITE | Be::PERSIST )
-
-		MAP_ATTRIBUTE( "shadowAtlases", m_shadowAtlases, "Shadow map atlases used for this scene (readonly for debugging)", Be::READ )
 
 		MAP_METHOD( 
 			"Pick", 
@@ -526,8 +519,6 @@ const Be::ClassInfo* Tr2InteriorScene::ExposeToBlue()
 
 		MAP_METHOD_AND_WRAP( "RebuildSceneData", RebuildSceneData, "Rebuilds the internal data in all cells" )
 
-		MAP_METHOD_AND_WRAP( "ClearVisibilityResults", ClearVisibilityResults, "Clears the visibility result set")
-
 		 MAP_METHOD_AND_WRAP( 
 			"AddLightSource", 
 			AddLightSource, 
@@ -552,8 +543,6 @@ const Be::ClassInfo* Tr2InteriorScene::ExposeToBlue()
 			"Remove an interior dynamic (avatar, placeable, etc.) from the scene"
 			"\n:param object: The ITr2InteriorDynamic (Tr2InteriorPlaceable or Tr2InteriorAvatar) to remove")
 
-		MAP_METHOD_AND_WRAP( "UpdateSpotlightShadows", UpdateSpotlightShadows, "Forces update on all spotlight shadows" )
-
 #if APEX_ENABLED
 		MAP_ATTRIBUTE(
 			"apexScene",
@@ -563,12 +552,6 @@ const Be::ClassInfo* Tr2InteriorScene::ExposeToBlue()
 		)
 #endif
 		MAP_ATTRIBUTE( "visibilityResults", m_visibilityResults, "Results of the visibility query", Be::READ )
-
-		MAP_METHOD_AND_WRAP( "ReorderDynamic", ReorderDynamic,
-			"\nMoves the dynamic object in the dynamics list. This affects the order of updates.\n"
-			"\n:param dynamic: Dynamic object to move in the list (needs to be in the dynamics list)"
-			"\n:param insertAfter: Dynamic object to put the fist object after in the list (needs to be in the dynamics list)" 
-			)
 
 	EXPOSURE_END()
 }

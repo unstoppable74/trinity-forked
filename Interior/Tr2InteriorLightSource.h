@@ -93,8 +93,6 @@ public:
 
 	// Determine overall scene influence
 	float GetCurrentViewImportance( const Vector3& viewerPos ) const;
-	// Determine overall scene influence
-	float GetCurrentShadowImportance( unsigned int shadowMapIndex, const Vector3& viewerPos ) const;
 
 	// Add the light to the scene
 	void AddToScene( void );
@@ -108,44 +106,6 @@ public:
 	// (when CellIntersectionType is IT_MANUAL)
 	void AddCellToManualList( Tr2InteriorCell* cell );
 
-	// Get batches for an instanced light
-	void GetBatches( ITriRenderBatchAccumulator* batches, const Matrix& mirrorToWorldMatrix );
-
-	// Returns the number of frames since the shadow was updated for spot lights
-	unsigned int GetFramesSinceShadowUpdate( unsigned int shadowMapIndex ) const;
-	// Sets the number of frames since the shadow was updated for spot lights
-	void SetFramesSinceShadowUpdate( unsigned int shadowMapIndex, unsigned int framesSinceShadowUpdate );
-
-	// Set flag if the shadow map is empty
-	void SetEmptyShadow( unsigned int shadowMapIndex, bool emptyShadow );
-	// Returns a flag if the shadow map is empty
-	bool IsShadowEmpty( unsigned int shadowMapIndex ) const;
-
-	unsigned int GetRequiredShadowMapCount() const;
-	void CacheShadowMapResolution();
-	void GetRequiredShadowMapResolution( unsigned int index, bool maximumResolution, unsigned int& width, unsigned int& height ) const;
-	Tr2AtlasTexture* GetShadowAtlasTexture( unsigned int index ) const;
-	void SetShadowAtlasTexture( unsigned int index, Tr2AtlasTexture* texture );
-
-	// Setup device, fill per-frame data for shadow map rendering
-	bool BeginShadowUpdate( unsigned int shadowMapIndex, Tr2PerFrameVSData* vsData, 
-		Tr2PerFrameShadowPSData* psData, Tr2RenderContext& renderContext );
-	// Restore device after shadow map rendering
-	void EndShadowUpdate( unsigned int shadowMapIndex );
-	// Return shadow map view matrix
-	const Matrix& GetViewMatrix( unsigned int shadowMapIndex ) const;
-	// Return shadow map projection transform matrix
-	const Matrix& GetProjectionMatrix( unsigned int shadowMapIndex ) const;
-
-	// Mark shadow dirty if it is affected by bounds
-	void MarkShadowsDirtyForBounds( const Vector3 &minBounds, const Vector3 &maxBounds );
-	// Mark shadow map as dirty
-	void MarkShadowDirty( unsigned int shadowMapIndex, bool dirty );
-	// Return if the shadow map is dirty
-	bool IsShadowDirty( unsigned int shadowMapIndex ) const;
-	// Return shadow caster object types
-	ShadowCasterTypes GetShadowCasterTypes() const;
-
 	void Update( Be::Time time );
 
 protected:
@@ -155,13 +115,6 @@ protected:
 	// Is this a spotlight?
 	bool IsSpotLight()					const { return ( m_coneAlphaOuter < 89.f ); }
 protected:
-	void RecalculateUnitToWorldMatrix();
-	// Re-creates shadow map if light source owns a shadow map
-	void CreateShadowMap();
-	// Updates shadow map frustum
-	void UpdateSpotlightFrustum();
-	// Rebuilds light geometry
-	void RebuildGeometry();
 
 	// Light names
 	std::string m_name;
@@ -177,8 +130,6 @@ protected:
 	float m_falloff;
 	// Specular intensity
 	float m_specularIntensity;
-	// Shadow casting importance
-	float m_shadowImportance;
 	// Outer spotlight angle
 	float m_coneAlphaOuter;
 	// Inner spotlight angle
@@ -212,48 +163,10 @@ protected:
 	// Orientation quat for xnamath OBB representation
 	Quaternion m_collisionOrientation;
 
-	// Vertex declaration for light geometry (for light accumulation pass)
-	unsigned int m_lightVertexDecl;
-
 	// Cached unit to world light geometry transform for light accumulation pass
 	Matrix m_unitToWorldTransform;
 
-	// Shadow texture for spot lights if light uses atlas
-	Tr2AtlasTexturePtr m_shadowAtlasTexture[6];
-	// Shadow texture resolution for spot lights
-	unsigned int m_shadowResolution;
-	// Cached shadow map resolution to the current frame
-	unsigned int m_currentShadowResolution;
-	// Enable shadow resolution LODs
-	bool m_enableShadowLOD;
-	// Number of frames the shadow texture was not updated
-	unsigned int m_framesSinceShadowUpdate[6];
-	// Flag indicating that light's shadow is updated
-	bool m_emptyShadow[6];
-	// Spotlight view matrix
-	Matrix m_viewMatrix[6];
-	// Spotlight projection matrix
-	Matrix m_projectionMatrix;
-	// Spotlight projection frustum
-	TriFrustum m_frustum[6];
-	// Flag indicating that the spotlight shadow is dirty and needs updating
-	bool m_dirtySpotLightShadow[6];
-	// Filter on type of objects rendered into the shadow map
-	ShadowCasterTypes m_shadowCasterTypes;
-
-	// Path to light's projected texture
-	std::string m_projectedTexturePath;
-	// Light's projected texture
-	TriTextureResPtr m_projectedTextureRes;
-
 	PTriCurveSetVector m_curveSets;
-
-	// Shared vertex buffer for unclipped lights
-	Tr2VertexBufferAL* m_sharedVB;
-	// Shared index buffer for unclipped lights
-	Tr2IndexBufferAL* m_sharedIB;
-
-	class PerLightData;
 };
 
 TYPEDEF_BLUECLASS( Tr2InteriorLightSource );

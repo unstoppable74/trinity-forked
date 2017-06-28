@@ -142,24 +142,16 @@ Tr2InteriorScene::Tr2InteriorScene( IRoot* lockobj /*= NULL */ ):
 	m_apexLODResourceBudgetConsumed( 0.0f ),
 	m_visualizeMethod( VM_NONE ),
 	m_pickBuffer( NULL, Tr2RenderContextEnum::PIXEL_FORMAT_R32G32B32A32_FLOAT, 1 ),
-	m_shadowsUpdatesPerFrame( 2 ),
-	m_shadowsLODSwitchesPerFrame( 1 ),
-	m_useShadowLOD( true ),	
 	m_maxFogAmount( 0.0f ),
 	m_maxFogDistance( 1000.0f ),
 	m_minFogDistance( 0.0f ),
 	m_fogColor( 1.0f, 1.0f, 1.0f, 1.0f ),
 	m_renderBackgroundCubeMap( true ),
-	PARENTLOCK( m_shadowAtlases ),
-	m_debugInsideSetLOD( false ),
-	m_enableROIs( true ),
-	m_numSLIGroups( 1 )
+	m_enableROIs( true )
 	, m_sunDiffuseColorVar( "Sun.WodDiffuseColor", m_sunDiffuseColor )
 	, m_sunSpecularColorVar( "Sun.SpecularColor", m_sunSpecularColor )	
 	, m_ambientColorVar( "Scene.AmbientColor", m_ambientColor )
 	, m_cameraPosVar( "Camera.eyePosWorld", Vector3( 0.0f, 0.0f, 0.0f ) )
-	, m_shadowFilterVar( "ShadowFilterTexelSize", Vector4( 0.0, 0.0, 0.0, 0.0 ) )
-	, m_shadowFilterAreaVar( "ShadowFilterTextureArea", Vector4( 0.0, 0.0, 1.0f, 1.0f ) )
 {
 	m_backgroundCubeMapVar.Register( "EnvMap1", m_backgroundCubeMapRes );
 
@@ -172,7 +164,6 @@ Tr2InteriorScene::Tr2InteriorScene( IRoot* lockobj /*= NULL */ ):
 	TriPoolAllocator* allocator = Tr2Renderer::GetPoolAllocator();
 	m_primaryRenderBatches = CCP_NEW( "Tr2InteriorScene/m_primaryRenderBatches" ) TriRenderBatchAccumulator<Tr2IntKeyGenerator>( allocator );
 	m_transparentBatchStore = CCP_NEW( "Tr2InteriorScene/m_transparentBatchStore" ) TriRenderBatchStore( allocator );
-	m_shadowBatches = CCP_NEW( "Tr2InteriorScene/m_shadowBatches" ) TriRenderBatchAccumulator<Tr2IntKeyGenerator>( allocator );
 	m_opaquePickingBatches = CCP_NEW( "Tr2InteriorScene/m_opaquePickingBatches" ) TriRenderBatchAccumulator<>( allocator );
 	m_pickingBatches = CCP_NEW( "Tr2InteriorScene/m_pickingBatches" ) TriRenderBatchAccumulator<>( allocator );
 
@@ -199,22 +190,12 @@ Tr2InteriorScene::Tr2InteriorScene( IRoot* lockobj /*= NULL */ ):
 	// create debug renderer
 	m_debugLines.CreateInstance();
 
-	m_displayDynamics = true;
-	m_displayStatics = true;
-	m_lightGeneratingShadows = NULL;
-
 	// List notify
 	m_lights.SetNotify( this );
 	m_dynamics.SetNotify( this );
 	m_cells.SetNotify( this );
 
-	// Initialize SH scale factor
-	m_shScale = 1.0f;
-
 	PrepareResources();
-
-	m_shadowFilter.CreateInstance();
-	m_shadowFilter->SetEffectPathName( "res:/Graphics/Effect/Managed/Interior/Shadows/ShadowFilter.fx" );
 
 	BeResMan->GetResource( "res:/Texture/Global/NdotLLibrary.png", "", m_nDotLTexture );
 	m_nDotLTextureHandle = GlobalStore().RegisterVariable( "ColorNdotLLookupMap", static_cast<ITr2TextureProvider*>( nullptr ) );
@@ -239,7 +220,6 @@ Tr2InteriorScene::~Tr2InteriorScene()
 #endif
 	CCP_DELETE( m_primaryRenderBatches );
 	CCP_DELETE( m_transparentBatchStore );
-	CCP_DELETE( m_shadowBatches );
 	CCP_DELETE( m_pickingBatches );
 	CCP_DELETE( m_opaquePickingBatches );
 	CCP_DELETE( m_prepassBatches );
@@ -272,10 +252,6 @@ bool Tr2InteriorScene::OnModified( Be::Var* value )
 	{
 		SetBackgroundCubemapResPath();
 	}
-	else if( IsMatch( value, m_shScale ) )
-	{
-		UpdateSHScaleFactor();
-	}
 
     return true;
 }
@@ -289,7 +265,6 @@ void Tr2InteriorScene::OnListModified( long event, ssize_t key, ssize_t key2, IR
 	}
 	else if( theList == &m_dynamics )
 	{
-		CCP_ASSERT( !m_debugInsideSetLOD );
 		OnDynamicsListModified( event, key, key2, currvalue );
 	}
 	else if( theList == &m_cells )
@@ -315,63 +290,13 @@ void Tr2InteriorScene::ReleaseResources( TriStorage s )
 	if( ( s & TRISTORAGE_ALL ) == TRISTORAGE_ALL )
 	{
 		m_perFramePSBuffer.Destroy();
-		m_perFrameShadowPSBuffer.Destroy();
 		m_perFrameVSBuffer.Destroy();
-		m_perFrameShadowVSBuffer.Destroy();
-	
-		m_shadowMapDepthBuffer.Destroy();
-		m_shadowMapTemporaryRTs[0].Destroy();
-		m_shadowMapTemporaryRTs[1].Destroy();
 	}
 }
 
 bool Tr2InteriorScene::OnPrepareResources()
 {
 	USE_MAIN_THREAD_RENDER_CONTEXT();
-
-	if( !m_shadowMapDepthBuffer.IsValid() )
-	{
-		CR_RETURN_VAL( 
-				m_shadowMapDepthBuffer.Create( 
-							INTERIOR_SHADOW_MAP_MAX_RESOLUTION, 
-							INTERIOR_SHADOW_MAP_MAX_RESOLUTION, 
-							DSFMT_D24S8, 
-							1, 
-							0, 
-							renderContext )
-				, false );
-	}
-	if( !m_shadowMapTemporaryRTs[0].IsValid() )
-	{
-		CR_RETURN_VAL( 
-				m_shadowMapTemporaryRTs[0].Create( 
-							INTERIOR_SHADOW_MAP_MAX_RESOLUTION, 
-							INTERIOR_SHADOW_MAP_MAX_RESOLUTION, 
-							1, 
-							PIXEL_FORMAT_R16G16_UNORM, 
-							1, 
-							0, 
-							renderContext )
-				, false );
-	}
-	if( !m_shadowMapTemporaryRTs[1].IsValid() )
-	{
-		CR_RETURN_VAL( 
-				m_shadowMapTemporaryRTs[1].Create( 
-							INTERIOR_SHADOW_MAP_MAX_RESOLUTION, 
-							INTERIOR_SHADOW_MAP_MAX_RESOLUTION, 
-							1, 
-							PIXEL_FORMAT_R16G16_UNORM, 
-							1, 
-							0, 
-							renderContext )
-				, false );
-	}
-
-	m_numSLIGroups = 1;
-	CR_RETURN_VAL( 
-		renderContext.GetAFRGroupCount( m_numSLIGroups )
-		, false );
 
 	return true;
 }
@@ -464,7 +389,6 @@ void Tr2InteriorScene::Update( Be::Time realTime, Be::Time simTime )
 	UpdateLights();
 	UpdateDynamics();
 	UpdateCells();
-	UpdateSecondaryLighting();
 
 	{
 		CCP_STATS_ZONE( "CellUpdate" );
@@ -539,49 +463,6 @@ float GetCellDistance( Tr2InteriorCell* cell, const Vector3& point )
 }
 }
 
-void Tr2InteriorScene::UpdateSecondaryLighting()
-{
-	for( auto di = m_dynamics.begin(); di != m_dynamics.end(); ++di )
-	{
-		Vector3 position;
-		if( !( *di )->GetShProbePosition( position ) )
-		{
-			continue;
-		}
-		Matrix& red = ( *di )->GetRedLightProbeMatrix();
-		Matrix& green = ( *di )->GetGreenLightProbeMatrix();
-		Matrix& blue = ( *di )->GetBlueLightProbeMatrix();
-		memset( &red, 0, sizeof( Matrix ) );
-		memset( &green, 0, sizeof( Matrix ) );
-		memset( &blue, 0, sizeof( Matrix ) );
-		float totalDistance = 0;
-		for( auto ci = m_cells.begin(); ci != m_cells.end(); ++ci )
-		{
-			if( !( *ci )->HasSHProbes() )
-			{
-				continue;
-			}
-			float distance = GetCellDistance( *ci, position );
-			if( distance > 0 )
-			{
-				Matrix r, g, b;
-				( *ci )->GetSHProbe( position, r, g, b );
-				red += r * distance;
-				green += g * distance;
-				blue += b * distance;
-				totalDistance += distance;
-			}
-		}
-		if( totalDistance > 0 )
-		{
-			totalDistance = 1.f / totalDistance;
-			red *= totalDistance;
-			green *= totalDistance;
-			blue *= totalDistance;
-		}
-	}
-}
-
 void Tr2InteriorScene::Render( Tr2RenderContext& renderContext )
 {
 	D3DPERF_EVENT( L"Tr2InteriorScene::Render" );
@@ -600,8 +481,6 @@ void Tr2InteriorScene::Render( Tr2RenderContext& renderContext )
 		m_apexScene->PreRender( m_lastUpdateTime, m_apexLODResourceBudget, m_apexLODResourceBudgetConsumed );
 	}
 #endif
-	// Only render the cubemaps here
-	//RenderShadowMaps();
 
 	// Do the full-forward render
 	RenderFullForward( renderContext );
@@ -661,8 +540,6 @@ void Tr2InteriorScene::VisibilityQuery( Tr2VisibilityResults* results )
     //The bools are here just in case logging breaks during the crash
     const size_t dynamicsSize = m_dynamics.size();
 
-	m_debugInsideSetLOD = true;
-
 	for( PITr2InteriorDynamicVector::iterator it = m_dynamics.begin(); it != m_dynamics.end(); ++it )
 	{
         if( dynamicsSize != m_dynamics.size() )
@@ -679,8 +556,6 @@ void Tr2InteriorScene::VisibilityQuery( Tr2VisibilityResults* results )
             CCP_LOGERR("VisibilityQuery-m_dynamics changed size while we iterated over it! (after setlod)");
         }
 	}
-
-	m_debugInsideSetLOD = false;
 
 	m_visibilityQueryType = PRIMARY_QUERY;
 
@@ -800,7 +675,6 @@ void Tr2InteriorScene::BeginRender( Tr2RenderContext& renderContext )
 		m_apexScene->PreRender( m_lastUpdateTime, m_apexLODResourceBudget, m_apexLODResourceBudgetConsumed );
 	}
 #endif
-	RenderShadowMaps( renderContext );
 }
 
 void Tr2InteriorScene::RenderPrePass( Tr2RenderContext& renderContext )
@@ -1107,14 +981,6 @@ void Tr2InteriorScene::RenderGeometry( ITr2ShaderMaterial* overrideEffect, Tr2Re
 	renderContext.m_esm.EndManagedRendering();
 }
 
-void Tr2InteriorScene::ClearVisibilityResults( void )
-{
-	if( m_visibilityResults )
-	{
-		m_visibilityResults->Clear();
-	}
-}
-
 // -------------------------------------------------------------
 // Description:
 //   Helper function to render parts of a given box faces that
@@ -1321,745 +1187,6 @@ void Tr2InteriorScene::RenderDebugInfo( Tr2RenderContext& renderContext )
 #endif
 }
 
-// --------------------------------------------------------------------------------------
-// Description:
-//   Re-renders shadows on different GPUs on SLI architecture.
-// Return Value:
-//   Number of shadow maps re-rendered.
-// --------------------------------------------------------------------------------------
-unsigned Tr2InteriorScene::ReRenderShadowMaps( Tr2RenderContext& renderContext )
-{
-	CCP_STATS_ZONE( "ReRenderShadowMaps" );
-
-	if( m_numSLIGroups <= 1 )
-	{
-		return 0;
-	}
-
-	for( std::map<ShadowReRenderInfo, unsigned>::iterator it = m_shadowReRenderInfo.begin(); it != m_shadowReRenderInfo.end(); )
-	{
-		if( !it->first.lightSource || !it->first.lightSource->GetShadowAtlasTexture( it->first.shadowMapIndex ) )
-		{
-			std::map<ShadowReRenderInfo, unsigned>::iterator erase = it;
-			++it;
-			m_shadowReRenderInfo.erase( erase );
-		}
-		else
-		{
-			++it;
-		}
-	}
-
-	if( m_shadowReRenderInfo.empty() )
-	{
-		return 0;
-	}
-
-	Tr2PerFrameVSData shadowPerFrameVS;
-	Tr2PerFrameShadowPSData shadowPerFramePS;
-	memset( &shadowPerFrameVS, 0, sizeof( shadowPerFrameVS ) );
-	memset( &shadowPerFramePS, 0, sizeof( shadowPerFramePS ) );
-
-	Tr2Renderer::PushViewport();
-	ON_BLOCK_EXIT( &Tr2Renderer::PopViewport );
-
-	Tr2PushPopDS pushPopDS( m_shadowMapDepthBuffer, renderContext );
-	Tr2PushPopRT pushPopRT( renderContext );
-
-	Tr2Renderer::PushProjection();
-	ON_BLOCK_EXIT( &Tr2Renderer::PopProjection );
-
-	Tr2Renderer::PushViewTransform();
-	ON_BLOCK_EXIT( &Tr2Renderer::PopViewTransform );
-
-	m_activePrimaryRenderBatches  = m_shadowBatches;
-	m_activeTransparentBatchStore = NULL;
-	m_visibilityQueryType = SHADOW_QUERY;
-
-	unsigned shadowsUpdated = 0;
-
-	for( std::map<ShadowReRenderInfo, unsigned>::iterator it = m_shadowReRenderInfo.begin(); it != m_shadowReRenderInfo.end(); )
-	{
-		CCP_STATS_ZONE( "ShadowMapUpdate" );
-		Tr2AtlasTexture* texture = it->first.lightSource->GetShadowAtlasTexture( it->first.shadowMapIndex );
-
-		if( !texture->GetRenderTarget() )
-		{
-			continue;
-		}
-
-		Tr2Renderer::SetRenderTarget( 0, m_shadowMapTemporaryRTs[0], renderContext );
-
-		CTriViewport viewport;
-		viewport.x = 0;
-		viewport.y = 0;
-		viewport.width = texture->GetWidth();
-		viewport.height = texture->GetHeight();
-		Tr2Renderer::SetViewport( viewport );
-
-		it->first.lightSource->BeginShadowUpdate( it->first.shadowMapIndex, &shadowPerFrameVS, &shadowPerFramePS, renderContext );
-
-		bool oldDisplayDynamics = m_displayDynamics;
-		m_displayDynamics = ( it->first.lightSource->GetShadowCasterTypes() & ITr2InteriorLight::ST_DYNAMICS_ONLY ) != 0;
-		m_displayStatics = ( it->first.lightSource->GetShadowCasterTypes() & ITr2InteriorLight::ST_STATICS_ONLY ) != 0;
-
-		m_visibilityQueryType = SHADOW_QUERY;
-		m_lightGeneratingShadows = it->first.lightSource;
-		ResolveVisibility( 
-			it->first.lightSource->GetViewMatrix( it->first.shadowMapIndex ), 
-			it->first.lightSource->GetProjectionMatrix( it->first.shadowMapIndex ), 
-			false );
-
-		m_displayDynamics = oldDisplayDynamics;
-		m_displayStatics = true;
-
-		// Finalize batches
-		m_shadowBatches->Finalize();
-
-		// Set new perframe data
-		{
-			D3DPERF_EVENT( L"Set per-frame shader constants" );
-			FillAndSetConstants( m_perFrameShadowVSBuffer, shadowPerFrameVS, VERTEX_SHADER, Tr2Renderer::GetPerFrameVSStartRegister(), renderContext );
-			FillAndSetConstants( m_perFrameShadowPSBuffer, shadowPerFramePS, PIXEL_SHADER , Tr2Renderer::GetPerFramePSStartRegister(), renderContext );
-		}
-
-		// Render opaques and decals
-		{
-			D3DPERF_EVENT( L"Render opaques" );
-			renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
-			renderContext.RenderBatches( m_shadowBatches );
-		}
-
-		it->first.lightSource->EndShadowUpdate( it->first.shadowMapIndex );
-
-		m_shadowBatches->Clear();
-
-		// Blur the shadow
-		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_FULLSCREEN );
-
-		CTriViewport viewport0;
-		viewport0.x = texture->GetX();
-		viewport0.y = texture->GetY();
-		viewport0.width = texture->GetWidth();
-		viewport0.height = texture->GetHeight();
-
-		// horizontal filtering
-		Vector2 tl( 0.0f, 0.0f );
-		Vector2 br = Vector2( float( texture->GetWidth() ), float( texture->GetHeight() ) ) / INTERIOR_SHADOW_MAP_MAX_RESOLUTION;
-		float offset = 0.5f / INTERIOR_SHADOW_MAP_MAX_RESOLUTION;
-
-		m_shadowFilterAreaVar = Vector4( tl.x + offset, tl.y + offset, br.x - offset, br.y - offset );
-		m_shadowFilterVar = Vector4( 1.f / float( INTERIOR_SHADOW_MAP_MAX_RESOLUTION ), 0.f, 0.f, 0.f );
-		Tr2Renderer::SetRenderTarget( 0, m_shadowMapTemporaryRTs[1], renderContext );
-		Tr2Renderer::SetViewport( viewport );
-		Tr2Renderer::DrawTexture( m_shadowFilter, m_shadowMapTemporaryRTs[0].GetTexture(), tl, br );
-
-		// vertical filtering
-		m_shadowFilterAreaVar = Vector4( tl.x + offset, tl.y + offset, br.x - offset, br.y - offset );
-		m_shadowFilterVar = Vector4( 0.f, 1.f / float( INTERIOR_SHADOW_MAP_MAX_RESOLUTION ), 0.f, 0.f );
-		Tr2Renderer::SetRenderTarget( 0, *texture->GetRenderTarget(), renderContext );
-		Tr2Renderer::PushDepthStencilBuffer( nullDS, renderContext );
-		Tr2Renderer::SetViewport( viewport0 );
-		Tr2Renderer::DrawTexture( m_shadowFilter, m_shadowMapTemporaryRTs[1].GetTexture(), tl, br );
-		Tr2Renderer::PopDepthStencilBuffer( renderContext );
-
-		m_shadowFilterAreaVar = Vector4( 0.0f, 0.0f, 1.f, 1.f );
-
-		if( ++it->second >= m_numSLIGroups )
-		{
-			std::map<ShadowReRenderInfo, unsigned>::iterator erase = it;
-			++it;
-			m_shadowReRenderInfo.erase( erase );
-		}
-		else
-		{
-			++it;
-		}
-
-		shadowsUpdated++;
-		if( shadowsUpdated >= m_shadowsUpdatesPerFrame )
-		{
-			break;
-		}
-	}
-
-	m_lightGeneratingShadows = NULL;
-	m_visibilityQueryType = PRIMARY_QUERY;
-
-	return shadowsUpdated;
-}
-
-void Tr2InteriorScene::RenderShadowMaps( Tr2RenderContext& renderContext )
-{
-	D3DPERF_EVENT( L"Tr2InteriorScene::RenderShadowMaps" );
-	CCP_STATS_ZONE( "RenderShadowMaps" );
-
-	renderContext.m_esm.BeginManagedRendering();
-	ON_BLOCK_EXIT( [&]{ renderContext.m_esm.EndManagedRendering(); } );
-
-	TriPoolAllocator* allocator = Tr2Renderer::GetPoolAllocator();
-	if( !allocator )
-	{
-		return;
-	}
-
-	if( !m_shadowMapTemporaryRTs[0].IsValid() || !m_shadowMapTemporaryRTs[1].IsValid() )
-	{
-		return;
-	}
-
-	if( m_shadowsUpdatesPerFrame > 0 && Tr2Renderer::IsResourceCreationAllowed() )
-	{
-		unsigned updateCount = ReRenderShadowMaps( renderContext );
-		if( updateCount >= m_shadowsUpdatesPerFrame )
-		{
-			return;
-		}
-
-		Vector3 focalPosition = Tr2Renderer::GetViewPosition();
-		// put all lightsources in vector with sorting values
-		std::vector<ITr2InteriorLight::LightSourceItem> sortedLightSources;
-		std::vector<ITr2InteriorLight::LightSourceItem> sortedLightLODSources;
-		for( PITr2InteriorLightVector::const_iterator it = m_lights.begin(); it != m_lights.end(); ++it )
-		{
-			if( m_visibleLights.find( *it ) == m_visibleLights.end() )
-			{
-				continue;
-			}
-
-			( *it )->CacheShadowMapResolution();
-			for( unsigned i = 0; i < ( *it )->GetRequiredShadowMapCount(); ++i )
-			{
-				unsigned width, height;
-				( *it )->GetRequiredShadowMapResolution( i, !m_useShadowLOD, width, height );
-				if( width == 0 || height == 0 )
-				{
-					( *it )->SetShadowAtlasTexture( i, NULL );
-					( *it )->MarkShadowDirty( i, false );
-					( *it )->SetFramesSinceShadowUpdate( i, 0 );
-				}
-				else if( ( *it )->IsShadowDirty( i ) )
-				{
-					unsigned frames = ( *it )->GetFramesSinceShadowUpdate( i );
-					( *it )->SetFramesSinceShadowUpdate( i, frames + 1 );
-					ITr2InteriorLight::LightSourceItem item;
-					item.lightSource = ( *it );
-					item.importance = ( *it )->GetCurrentShadowImportance( i, focalPosition ) * frames;
-					item.shadowMapIndex = i;
-					sortedLightSources.push_back( item );
-				}
-				else if( !( *it )->IsShadowEmpty( i ) )
-				{
-					Tr2AtlasTexture* texture = ( *it )->GetShadowAtlasTexture( i );
-					unsigned width, height;
-					( *it )->GetRequiredShadowMapResolution( i, !m_useShadowLOD, width, height );
-					if( width > 0 && height > 0 )
-					{
-						if( texture == NULL || width != texture->GetWidth() || height != texture->GetHeight() )
-						{
-							// Give a chance for shadow update to shadow maps that require shadow resolution
-							// change (although with lower priority than dirty shadows).
-							static const float CHANGE_RESOLUTION_IMPORTANCE_FACTOR = 0.1f;
-
-							unsigned frames = ( *it )->GetFramesSinceShadowUpdate( i );
-							( *it )->SetFramesSinceShadowUpdate( i, frames + 1 );
-							ITr2InteriorLight::LightSourceItem item;
-							item.lightSource = ( *it );
-							item.importance = ( *it )->GetCurrentShadowImportance( i, focalPosition ) *
-								frames * CHANGE_RESOLUTION_IMPORTANCE_FACTOR;
-							item.shadowMapIndex = i;
-							sortedLightLODSources.push_back( item );
-						}
-					}
-					else
-					{
-						( *it )->SetFramesSinceShadowUpdate( i, 0 );
-					}
-				}
-				else
-				{
-					( *it )->SetFramesSinceShadowUpdate( i, 0 );
-				}
-			}
-		}
-
-		if( !sortedLightSources.empty() || !sortedLightLODSources.empty() )
-		{
-			CCP_STATS_ADD( wodInteriorSceneShadowsNeedUpdating, sortedLightSources.size() + sortedLightLODSources.size() );
-
-			// sort!
-			std::sort( sortedLightSources.begin(), sortedLightSources.end() );
-			std::sort( sortedLightLODSources.begin(), sortedLightLODSources.end() );
-
-			Tr2PerFrameVSData shadowPerFrameVS;
-			Tr2PerFrameShadowPSData shadowPerFramePS;
-			memset( &shadowPerFrameVS, 0, sizeof( shadowPerFrameVS ) );
-			memset( &shadowPerFramePS, 0, sizeof( shadowPerFramePS ) );
-
-			Tr2Renderer::PushViewport();
-			ON_BLOCK_EXIT( &Tr2Renderer::PopViewport );
-
-			Tr2PushPopDS pushPopDS( renderContext );
-			Tr2PushPopRT pushPopRT( renderContext );
-
-			Tr2Renderer::PushProjection();
-			ON_BLOCK_EXIT( &Tr2Renderer::PopProjection );
-
-			Tr2Renderer::PushViewTransform();
-			ON_BLOCK_EXIT( &Tr2Renderer::PopViewTransform );
-
-			m_activePrimaryRenderBatches  = m_shadowBatches;
-			m_activeTransparentBatchStore = NULL;
-			m_visibilityQueryType = SHADOW_QUERY;
-			unsigned lodSwitches = std::min( m_shadowsLODSwitchesPerFrame, (unsigned int)sortedLightLODSources.size() );
-
-			for( std::vector<ITr2InteriorLight::LightSourceItem>::iterator it = sortedLightSources.begin(); it != sortedLightSources.end(); ++it )
-			{
-				// Give a chance for LOD switches (no more than m_shadowsLODSwitchesPerFrame at a time)
-				if( updateCount + lodSwitches >= m_shadowsUpdatesPerFrame && !sortedLightLODSources.empty() )
-				{
-					if( it->importance < sortedLightLODSources.front().importance )
-					{
-						break;
-					}
-				}
-
-				if( UpdateShadowMap( *it, allocator, shadowPerFrameVS, shadowPerFramePS, renderContext ) )
-				{
-					updateCount++;
-					if( updateCount >= m_shadowsUpdatesPerFrame )
-					{
-						break;
-					}
-				}
-			}
-
-			for( std::vector<ITr2InteriorLight::LightSourceItem>::iterator it = sortedLightLODSources.begin(); it != sortedLightLODSources.end(); ++it )
-			{
-				if( UpdateShadowMap( *it, allocator, shadowPerFrameVS, shadowPerFramePS, renderContext ) )
-				{
-					updateCount++;
-					if( updateCount >= m_shadowsUpdatesPerFrame )
-					{
-						break;
-					}
-				}
-			}
-
-			m_lightGeneratingShadows = NULL;
-			m_visibilityQueryType = PRIMARY_QUERY;
-		}
-	}
-	else
-	{
-		for( PITr2InteriorLightVector::const_iterator it = m_lights.begin(); it != m_lights.end(); ++it )
-		{
-			for( unsigned int i = 0; i < ( *it )->GetRequiredShadowMapCount(); ++i )
-			{
-				( *it )->SetShadowAtlasTexture( i, NULL );
-				( *it )->MarkShadowDirty( i, true );
-			}
-		}
-	}
-	for( size_t i = 0; i < m_shadowAtlases.size(); ++i )
-	{
-		if( m_shadowAtlases[i]->GetTexturesInAtlasCount() == 0 )
-		{
-			m_shadowAtlases.Remove( i-- );
-		}
-	}
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Updates a single shadow from a light source.
-// Arguments:
-//   item - Light source shadow information
-//   allocator - Render batch allocator
-//   shadowMapTemporarySurface - Temporary DirectX surfaces used for rendering a shadow
-//   shadowPerFrameVS - Per-frame VS data
-//   shadowPerFramePS - Per-frame VS data
-// Return Value:
-//   true If shadow was successfully rendered
-//   false Otherwise
-// --------------------------------------------------------------------------------------
-bool Tr2InteriorScene::UpdateShadowMap(
-									   ITr2InteriorLight::LightSourceItem& item,
-									   TriPoolAllocator* allocator,
-									   Tr2PerFrameVSData shadowPerFrameVS,
-									   Tr2PerFrameShadowPSData shadowPerFramePS,
-									   Tr2RenderContext& renderContext )
-{
-	CCP_STATS_ZONE( "PerLightSource" );
-
-	Tr2AtlasTexture* texture = item.lightSource->GetShadowAtlasTexture( item.shadowMapIndex );
-	if( texture != NULL )
-	{
-		unsigned width, height;
-		item.lightSource->GetRequiredShadowMapResolution( item.shadowMapIndex, !m_useShadowLOD, width, height );
-		if( width != texture->GetWidth() || height != texture->GetHeight() )
-		{
-			item.lightSource->SetShadowAtlasTexture( item.shadowMapIndex, NULL );
-			texture = NULL;
-		}
-	}
-	if( texture == NULL )
-	{
-		unsigned width, height;
-		item.lightSource->GetRequiredShadowMapResolution( item.shadowMapIndex, !m_useShadowLOD, width, height );
-		CCP_ASSERT( width < INTERIOR_SHADOW_ATLAS_RESOLUTION && height < INTERIOR_SHADOW_ATLAS_RESOLUTION );
-
-		// First try to insert a new texture into the same atlas as any other texture of the same light
-		unsigned count = item.lightSource->GetRequiredShadowMapCount();
-		bool firstTexture = true;
-		for( unsigned int i = 0; i < count; ++i )
-		{
-			if( item.lightSource->GetShadowAtlasTexture( i ) != NULL )
-			{
-				firstTexture = false;
-				for( PTr2TextureAtlasVector::iterator atlas = m_shadowAtlases.begin(); atlas != m_shadowAtlases.end(); ++atlas )
-				{
-					if( ( *atlas )->GetRenderTarget() == item.lightSource->GetShadowAtlasTexture( i )->GetRenderTarget() )
-					{
-						( *atlas )->CreateTexture( width, height, Tr2TextureAtlas::ATT_DEFAULT, &texture );
-						if( texture )
-						{
-							item.lightSource->SetShadowAtlasTexture( item.shadowMapIndex, texture );
-							texture->GetRawRoot()->Unlock();
-						}
-						break;
-					}
-				}
-				break;
-			}
-		}
-
-		if( texture == NULL )
-		{
-			if( firstTexture )
-			{
-				// This is the first texture for this light - insert it into any atlas
-				for( PTr2TextureAtlasVector::iterator atlas = m_shadowAtlases.begin();
-					atlas != m_shadowAtlases.end(); ++atlas )
-				{
-					( *atlas )->CreateTexture( width, height, Tr2TextureAtlas::ATT_DEFAULT, &texture );
-					if( texture )
-					{
-						break;
-					}
-				}
-				if( texture == NULL )
-				{
-					Tr2TextureAtlasPtr ta;
-					ta.CreateInstance();
-					ta->InitializeRenderTarget(
-						PIXEL_FORMAT_R16G16_UNORM,
-						INTERIOR_SHADOW_ATLAS_RESOLUTION,
-						INTERIOR_SHADOW_ATLAS_RESOLUTION );
-					ta->SetPaintEmptyAreas( false );
-					ta->SetMargin( 0 );
-					ta->SetCreateOutsiders( false );
-					ta->SetMaxTextureArea(
-						INTERIOR_SHADOW_ATLAS_RESOLUTION * INTERIOR_SHADOW_ATLAS_RESOLUTION );
-					m_shadowAtlases.Append( ta );
-					ta->CreateTexture( width, height, Tr2TextureAtlas::ATT_DEFAULT, &texture );
-				}
-				if( texture == NULL )
-				{
-					CCP_LOGERR( "Could not fit shadow map into any atlas texture" );
-					return false;
-				}
-				else
-				{
-					item.lightSource->SetShadowAtlasTexture( item.shadowMapIndex, texture );
-					texture->GetRawRoot()->Unlock();
-				}
-			}
-			else
-			{
-				// We already have textures for this light, so we need to allocate all of
-				// them in some other atlas (that can fit them + new texture) and copy
-				// texture contents into a new place
-				Tr2AtlasTexturePtr *textures = new Tr2AtlasTexturePtr[count];
-				for( unsigned int i = 0; i < count; ++i )
-				{
-					textures[i] = 0;
-				}
-				bool failed = true;
-				for( PTr2TextureAtlasVector::iterator atlas = m_shadowAtlases.begin();
-					failed && atlas != m_shadowAtlases.end(); ++atlas )
-				{
-					failed = false;
-					for( unsigned int i = 0; i < count; ++i )
-					{
-						if( item.lightSource->GetShadowAtlasTexture( i ) || i == item.shadowMapIndex )
-						{
-							unsigned width, height;
-							if( i == item.shadowMapIndex )
-							{
-								item.lightSource->GetRequiredShadowMapResolution(
-									i,
-									!m_useShadowLOD,
-									width,
-									height );
-							}
-							else
-							{
-								width = item.lightSource->GetShadowAtlasTexture( i )->GetWidth();
-								height = item.lightSource->GetShadowAtlasTexture( i )->GetHeight();
-							}
-							CCP_ASSERT( width < INTERIOR_SHADOW_ATLAS_RESOLUTION && height < INTERIOR_SHADOW_ATLAS_RESOLUTION );
-							textures[i] = nullptr;
-							( *atlas )->CreateTexture( width, height, Tr2TextureAtlas::ATT_DEFAULT, &textures[i] );
-							if( textures[i] == NULL )
-							{
-								failed = true;
-								break;
-							}
-						}
-					}
-				}
-				if( failed )
-				{
-					failed = false;
-					Tr2TextureAtlasPtr ta;
-					ta.CreateInstance();
-					ta->InitializeRenderTarget(
-						PIXEL_FORMAT_R16G16_UNORM,
-						INTERIOR_SHADOW_ATLAS_RESOLUTION,
-						INTERIOR_SHADOW_ATLAS_RESOLUTION );
-					ta->SetPaintEmptyAreas( false );
-					ta->SetMargin( 0 );
-					ta->SetCreateOutsiders( false );
-					ta->SetMaxTextureArea(
-						INTERIOR_SHADOW_ATLAS_RESOLUTION * INTERIOR_SHADOW_ATLAS_RESOLUTION );
-					m_shadowAtlases.Append( ta );
-					for( unsigned int i = 0; i < count; ++i )
-					{
-						if( item.lightSource->GetShadowAtlasTexture( i ) || i == item.shadowMapIndex )
-						{
-							unsigned width, height;
-							if( i == item.shadowMapIndex )
-							{
-								item.lightSource->GetRequiredShadowMapResolution(
-									i,
-									!m_useShadowLOD,
-									width,
-									height );
-							}
-							else
-							{
-								width = item.lightSource->GetShadowAtlasTexture( i )->GetWidth();
-								height = item.lightSource->GetShadowAtlasTexture( i )->GetHeight();
-							}
-							CCP_ASSERT( width < INTERIOR_SHADOW_ATLAS_RESOLUTION &&
-								height < INTERIOR_SHADOW_ATLAS_RESOLUTION );
-							textures[i] = nullptr;
-							m_shadowAtlases.back()->CreateTexture( width, height, Tr2TextureAtlas::ATT_DEFAULT, &textures[i] );
-							CCP_ASSERT( textures[i] );
-							if( textures[i] == NULL )
-							{
-								failed = true;
-								break;
-							}
-						}
-					}
-				}
-				if( failed )
-				{
-					CCP_LOGERR( "Could not fit all shadow maps of a light into any atlas texture" );
-					delete []textures;
-					return false;
-				}
-				else
-				{
-					// Copy textures into new locations
-					bool copySuccess = true;
-					bool setRTs = false;
-					for( unsigned int i = 0; i < count; ++i )
-					{
-						if( textures[i] )
-						{
-							Tr2AtlasTexture *srcTexture = item.lightSource->GetShadowAtlasTexture( i );
-							if( srcTexture )
-							{
-								if( !setRTs )
-								{
-									setRTs = true;
-									Tr2Renderer::SetRenderTarget( 0, *textures[i]->GetRenderTarget(), renderContext );
-									Tr2Renderer::SetDepthStencilBuffer( nullDS, renderContext );
-								}
-								CTriViewport viewport;
-								viewport.x = textures[i]->GetX();
-								viewport.y = textures[i]->GetY();
-								viewport.width = textures[i]->GetWidth();
-								viewport.height = textures[i]->GetHeight();
-								Tr2Renderer::SetViewport( viewport );
-								Vector4 window;
-								srcTexture->GetTextureWindow( window );
-								Tr2Renderer::DrawTexture(
-									*srcTexture->GetTexture(),
-									Vector2( window.x, window.y ),
-									Vector2( window.x + window.z, window.y + window.w ) );
-							}
-						}
-					}
-					if( copySuccess )
-					{
-						for( unsigned int i = 0; i < count; ++i )
-						{
-							if( textures[i] )
-							{
-								item.lightSource->SetShadowAtlasTexture( i, textures[i] );
-							}
-						}
-						texture = textures[item.shadowMapIndex];
-						delete []textures;
-					}
-					else
-					{
-						delete []textures;
-						return false;
-					}
-				}
-			}
-		}
-	}
-
-	CTriViewport viewport;
-
-	{
-		CCP_STATS_ZONE( "Setup" );
-
-		if( !texture->GetRenderTarget() )
-		{
-			return false;
-		}
-
-		Tr2Renderer::SetRenderTarget( 0, m_shadowMapTemporaryRTs[0], renderContext );
-		Tr2Renderer::SetDepthStencilBuffer( m_shadowMapDepthBuffer, renderContext );
-
-		viewport.x = 0;
-		viewport.y = 0;
-		viewport.width = texture->GetWidth();
-		viewport.height = texture->GetHeight();
-		Tr2Renderer::SetViewport( viewport );
-
-		item.lightSource->SetFramesSinceShadowUpdate( item.shadowMapIndex, 0 );
-		item.lightSource->MarkShadowDirty( item.shadowMapIndex, false );
-
-		item.lightSource->BeginShadowUpdate( item.shadowMapIndex, &shadowPerFrameVS, &shadowPerFramePS, renderContext );
-
-		bool oldDisplayDynamics = m_displayDynamics;
-		m_displayDynamics = ( item.lightSource->GetShadowCasterTypes() & ITr2InteriorLight::ST_DYNAMICS_ONLY ) != 0;
-		m_displayStatics = ( item.lightSource->GetShadowCasterTypes() & ITr2InteriorLight::ST_STATICS_ONLY ) != 0;
-
-		m_visibilityQueryType = SHADOW_QUERY;
-		m_lightGeneratingShadows = item.lightSource;
-		ResolveVisibility( 
-			item.lightSource->GetViewMatrix( item.shadowMapIndex ),
-			item.lightSource->GetProjectionMatrix( item.shadowMapIndex ), 
-			false );
-
-		m_displayDynamics = oldDisplayDynamics;
-		m_displayStatics = true;
-
-		// Finalize batches
-		m_shadowBatches->Finalize();
-	}
-
-	{
-		CCP_STATS_ZONE( "Render" );
-
-		bool hasRenderBatches = false;
-		for( TriRenderBatch* batch = m_shadowBatches->GetFirstBatch(); batch != NULL; batch = batch->GetNext() )
-		{
-			ITr2ShaderState* shaderForThisBatch = batch->GetShaderStateInterface();
-
-			if( shaderForThisBatch )
-			{
-				hasRenderBatches = true;
-				break;
-			}
-		}
-		item.lightSource->SetEmptyShadow( item.shadowMapIndex, !hasRenderBatches );
-		if( !hasRenderBatches )
-		{
-			item.lightSource->SetShadowAtlasTexture( item.shadowMapIndex, NULL );
-			item.lightSource->MarkShadowDirty( item.shadowMapIndex, false );
-			item.lightSource->EndShadowUpdate( item.shadowMapIndex );
-			m_shadowBatches->Clear();
-			return false;
-		}
-
-		// Set new perframe data
-		{
-			D3DPERF_EVENT( L"Set per-frame shader constants" );
-			FillAndSetConstants( m_perFrameShadowVSBuffer, shadowPerFrameVS, VERTEX_SHADER, Tr2Renderer::GetPerFrameVSStartRegister(), renderContext );
-			FillAndSetConstants( m_perFrameShadowPSBuffer, shadowPerFramePS, PIXEL_SHADER , Tr2Renderer::GetPerFramePSStartRegister(), renderContext );
-		}
-
-		// Render opaques and decals
-		{
-			D3DPERF_EVENT( L"Render opaques" );
-			renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
-			renderContext.RenderBatches( m_shadowBatches );
-		}
-
-		item.lightSource->EndShadowUpdate( item.shadowMapIndex );
-
-		m_shadowBatches->Clear();
-	}
-
-	// Blur the shadow
-	{
-		CCP_STATS_ZONE( "Blur" );
-
-		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_FULLSCREEN );
-		Tr2Renderer::SetDepthStencilBuffer( nullDS, renderContext );
-
-		CTriViewport viewport0;
-		viewport0.x = texture->GetX();
-		viewport0.y = texture->GetY();
-		viewport0.width = texture->GetWidth();
-		viewport0.height = texture->GetHeight();
-
-		// horizontal filtering
-		Vector2 tl( 0.0f, 0.0f );
-		Vector2 br = Vector2( float( texture->GetWidth() ), float( texture->GetHeight() ) ) / INTERIOR_SHADOW_MAP_MAX_RESOLUTION;
-		float offset = 0.5f / INTERIOR_SHADOW_MAP_MAX_RESOLUTION;
-
-		m_shadowFilterAreaVar = Vector4( tl.x + offset, tl.y + offset, br.x - offset, br.y - offset );
-		m_shadowFilterVar = Vector4( 1.f / float( INTERIOR_SHADOW_MAP_MAX_RESOLUTION ), 0.f, 0.f, 0.f );
-		Tr2Renderer::SetRenderTarget( 0, m_shadowMapTemporaryRTs[1], renderContext );
-		Tr2Renderer::SetViewport( viewport );
-		Tr2Renderer::DrawTexture( m_shadowFilter, m_shadowMapTemporaryRTs[0].GetTexture(), tl, br );
-
-		// vertical filtering
-		m_shadowFilterAreaVar = Vector4( tl.x + offset, tl.y + offset, br.x - offset, br.y - offset );
-		m_shadowFilterVar = Vector4( 0.f, 1.f / float( INTERIOR_SHADOW_MAP_MAX_RESOLUTION ), 0.f, 0.f );
-		Tr2Renderer::SetRenderTarget( 0, *texture->GetRenderTarget(), renderContext );
-		Tr2Renderer::SetViewport( viewport0 );
-		Tr2Renderer::DrawTexture( m_shadowFilter, m_shadowMapTemporaryRTs[1].GetTexture(), tl, br );
-	}
-
-	{
-		CCP_STATS_ZONE( "Finalize" );
-
-		m_shadowFilterAreaVar = Vector4( 0.0f, 0.0f, 1.f, 1.f );
-
-		if( m_numSLIGroups > 1 )
-		{
-			ShadowReRenderInfo reRenderInfo;
-			reRenderInfo.lightSource = item.lightSource;
-			reRenderInfo.shadowMapIndex = item.shadowMapIndex;
-			m_shadowReRenderInfo[reRenderInfo] = 1;
-		}
-		CCP_STATS_INC( wodInteriorSceneShadowsUpdated );
-	}
-	return true;
-}
-
 //---------------------------------------------------------------------------------------
 void Tr2InteriorScene::SetRenderBackgroundCubeMap( bool renderBackgroundCubeMap )
 {
@@ -2151,8 +1278,6 @@ void Tr2InteriorScene::AddDynamic( ITr2InteriorDynamic* dynamic )
 	ssize_t pos = m_dynamics.FindKey( dynamic );
 	if( pos == -1 )
 	{
-		CCP_ASSERT( !m_debugInsideSetLOD );
-
 		if( !dynamic->AddToScene( m_apexScene ) && ( m_dynamicsPendingLoad.FindKey( dynamic ) == -1 ) )
 		{
 			m_dynamicsPendingLoad.Insert( -1, dynamic );
@@ -2181,8 +1306,6 @@ void Tr2InteriorScene::RemoveDynamic( ITr2InteriorDynamic* dynamic )
 		return;
 	}
 
-	CCP_ASSERT( !m_debugInsideSetLOD );
-
 	dynamic->RemoveFromScene();
 
 	// Remove the dynamic from all the cells
@@ -2198,49 +1321,6 @@ void Tr2InteriorScene::RemoveDynamic( ITr2InteriorDynamic* dynamic )
 	if( pos != -1 )
 	{
 		m_dynamicsPendingLoad.Remove( pos );
-	}
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Moves the dynamic object in the dynamics list. This affects the order of updates .
-// Arguments:
-//   object - Dynamic object to move in the list (needs to be in the dynamics list)
-//   insertAfter - Dynamic object to put the fist object after in the list (needs to be
-//		in the dynamics list)
-// --------------------------------------------------------------------------------------
-void Tr2InteriorScene::ReorderDynamic( ITr2InteriorDynamic* object, ITr2InteriorDynamic* insertAfter )
-{
-	ssize_t originalPos = m_dynamics.FindKey( object );
-	if( originalPos == -1 )
-	{
-		CCP_LOGERR("Tr2InteriorScene::ReorderDynamic() - object not found in the scene!" );
-		return;
-	}
-	ssize_t newPos = m_dynamics.FindKey( insertAfter );
-	if( newPos == -1 )
-	{
-		CCP_LOGERR("Tr2InteriorScene::ReorderDynamic() - insertAfter not found in the scene!" );
-		return;
-	}
-
-	CCP_ASSERT( !m_debugInsideSetLOD );
-	m_dynamics.Move( originalPos, newPos );
-}
-
-// ------------------------------------------------------------------------------------------------------
-// Description
-//   This function marks all spotlight shadows as dirty to force their update during subsequent render
-//	 calls.
-// ------------------------------------------------------------------------------------------------------
-void Tr2InteriorScene::UpdateSpotlightShadows()
-{
-	for( PITr2InteriorLightVector::iterator it = m_lights.begin(); it != m_lights.end(); ++it )
-	{
-		for( unsigned int i = 0; i < ( *it )->GetRequiredShadowMapCount(); ++i )
-		{
-			( *it )->MarkShadowDirty( i, true );
-		}
 	}
 }
 
@@ -2266,13 +1346,7 @@ void Tr2InteriorScene::UpdateCells()
 		{
 			for( PITr2InteriorLightVector::iterator lit = m_lights.begin(); lit != m_lights.end(); ++lit )
 			{
-				if( ( *lit )->TestCellIntersectionAndAdd( cell ) )
-				{
-					for( unsigned int i = 0; i < ( *lit )->GetRequiredShadowMapCount(); ++i )
-					{
-						( *lit )->MarkShadowDirty( i, true );
-					}
-				}
+				( *lit )->TestCellIntersectionAndAdd( cell );
 			}
 			for( PITr2InteriorDynamicVector::iterator dit = m_dynamics.begin(); dit != m_dynamics.end(); ++dit )
 			{
@@ -2303,10 +1377,6 @@ void Tr2InteriorScene::OnQueryBegin( void )
 		m_visibleLights.clear();
 		m_visibilityResults->AddVisibilityEvent( event );
 	}
-	else if( m_visibilityQueryType == SHADOW_QUERY )
-	{
-		DoQueryBegin( event, IMMEDIATE_GATHER );
-	}
 }
 
 // --------------------------------------------------------------------------------------
@@ -2323,10 +1393,6 @@ void Tr2InteriorScene::OnQueryEnd( void )
 	if( m_visibilityQueryType == PRIMARY_QUERY )
 	{
 		m_visibilityResults->AddVisibilityEvent( event );
-	}
-	else if( m_visibilityQueryType == SHADOW_QUERY )
-	{
-		DoQueryEnd( event, IMMEDIATE_GATHER );
 	}
 }
 
@@ -2345,10 +1411,6 @@ void Tr2InteriorScene::OnInstanceVisible( ITr2InteriorCullable* cullable, const 
 			m_visibleLights.insert( light );
 		}
 		m_visibilityResults->AddVisibilityEvent( event );
-	}
-	else if( m_visibilityQueryType == SHADOW_QUERY )
-	{
-		DoInstanceVisible( event, IMMEDIATE_GATHER );
 	}
 	else if( m_visibilityQueryType == PICKING_QUERY )
 	{
@@ -2507,7 +1569,7 @@ void Tr2InteriorScene::DoViewParametersChanged( const Tr2VisibilityEvent& event,
 		return;
 	}
 
-	if( gatherType == FLARE_GATHER || m_visibilityQueryType == SHADOW_QUERY )
+	if( gatherType == FLARE_GATHER )
 	{
 		return;
 	}
@@ -2585,7 +1647,6 @@ void Tr2InteriorScene::DoInstanceVisible( const Tr2VisibilityEvent& event,
 		}
 
 		m_activeTransparentBatchStore->SetRenderingMode( Tr2EffectStateManager::RM_LIGHT );
-		light->GetBatches( m_activeTransparentBatchStore, m_mirrorToWorldMatrix );
 
 		// Update batch count to indicate the range of transparent batches gathered
 		// for this cell
@@ -2599,44 +1660,6 @@ void Tr2InteriorScene::DoInstanceVisible( const Tr2VisibilityEvent& event,
 
 		if( interior && renderable )
 		{
-			if( m_visibilityQueryType == SHADOW_QUERY )
-			{
-				ITr2InteriorDynamic* dynamic = dynamic_cast<ITr2InteriorDynamic*>( interior );
-
-				if( dynamic )
-				{
-					if( !m_lightGeneratingShadows->IsDynamicContributingToShadows( dynamic ) )
-					{
-						return;
-					}
-				}
-				else
-				{
-					// Skip static objects when rendering to a shadow map for certain lights
-					if( !m_displayStatics )
-					{
-						Tr2InteriorStatic* staticObject = dynamic_cast<Tr2InteriorStatic*>( interior );
-						if( staticObject )
-						{
-							return;
-						}
-					}
-				}
-			}
-			else
-			{
-				if( !m_displayDynamics )
-				{
-					ITr2InteriorDynamic* dynamic = dynamic_cast<ITr2InteriorDynamic*>( interior );
-					if( dynamic )
-					{
-						return;
-					}
-				}
-			}
-
-			interior->SetSHLightingSolver( NULL );
-
 			// Get the per-object data for opaque batches
 			Tr2PerObjectData* perObjectOpaque =
 				interior->GetPerObjectDataWithPerInstanceLighting(
@@ -2654,36 +1677,29 @@ void Tr2InteriorScene::DoInstanceVisible( const Tr2VisibilityEvent& event,
 	batches->SetUserData( ConstructKey( m_currentObjectGroup, key ) );		\
 	renderable->GetBatches( batches, batchType, perObjectOpaque );
 
-				if( m_visibilityQueryType == SHADOW_QUERY )
+				if( gatherType == PREPASS_GATHER )
 				{
-					DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_OPAQUE, WODINTBATCHGROUP_OPAQUE, TRIBATCHTYPE_DEPTH );
+					DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_OPAQUE, WODINTBATCHGROUP_OPAQUE, TRIBATCHTYPE_DEPTHNORMAL );
+					DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_DECAL_NO_DEPTH, WODINTBATCHGROUP_DECAL, TRIBATCHTYPE_DECALNORMAL );
+				}
+				else if( gatherType == PREPASS_FORWARD_GATHER )
+				{
+					DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_OPAQUE, WODINTBATCHGROUP_OPAQUE, TRIBATCHTYPE_OPAQUE_PREPASS );
+					DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_DECAL, WODINTBATCHGROUP_DECAL, TRIBATCHTYPE_DECAL_PREPASS );
+				}
+				else if( gatherType == FLARE_GATHER )
+				{
+					DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_OPAQUE, WODINTBATCHGROUP_OPAQUE, TRIBATCHTYPE_FLARE );
 				}
 				else
 				{
-					if( gatherType == PREPASS_GATHER )
-					{
-						DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_OPAQUE, WODINTBATCHGROUP_OPAQUE, TRIBATCHTYPE_DEPTHNORMAL );
-						DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_DECAL_NO_DEPTH, WODINTBATCHGROUP_DECAL, TRIBATCHTYPE_DECALNORMAL );
-					}
-					else if( gatherType == PREPASS_FORWARD_GATHER )
-					{
-						DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_OPAQUE, WODINTBATCHGROUP_OPAQUE, TRIBATCHTYPE_OPAQUE_PREPASS );
-						DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_DECAL, WODINTBATCHGROUP_DECAL, TRIBATCHTYPE_DECAL_PREPASS );
-					}
-					else if( gatherType == FLARE_GATHER )
-					{
-						DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_OPAQUE, WODINTBATCHGROUP_OPAQUE, TRIBATCHTYPE_FLARE );
-					}
-					else
-					{
-						DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_OPAQUE, WODINTBATCHGROUP_OPAQUE, TRIBATCHTYPE_OPAQUE );
-						DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_DECAL, WODINTBATCHGROUP_DECAL, TRIBATCHTYPE_DECAL );
-					}
+					DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_OPAQUE, WODINTBATCHGROUP_OPAQUE, TRIBATCHTYPE_OPAQUE );
+					DO_GET_BATCHES( m_activePrimaryRenderBatches, RM_DECAL, WODINTBATCHGROUP_DECAL, TRIBATCHTYPE_DECAL );
 				}
 			}
 
 			// Gather transparent batches
-			if( !opaqueOnly && m_activeTransparentBatchStore && m_visibilityQueryType != SHADOW_QUERY && gatherType != FLARE_GATHER )
+			if( !opaqueOnly && m_activeTransparentBatchStore && gatherType != FLARE_GATHER )
 			{
 				DO_GET_BATCHES( m_activeTransparentBatchStore, RM_ALPHA, WODINTBATCHGROUP_BLEND, TRIBATCHTYPE_TRANSPARENT );
 
@@ -3222,7 +2238,7 @@ void Tr2InteriorScene::PopulatePerFramePSData( Tr2PerFramePSData &data )
 	data.sunDirWorld.y = vec.y;
 	data.sunDirWorld.z = vec.z;
 	data.cullDirection = 1.0f;
-	data.shScale = m_shScale;
+	data.shScale = 0;
 
 	data.sceneFogColor = m_fogColor;
 	data.maxFogAmount = m_maxFogAmount;
@@ -3350,15 +2366,4 @@ void Tr2InteriorScene::RebuildSceneData( void )
 			m_dynamicsPendingLoad.Insert( -1, ( *it ) );
 		}
 	}
-
-	UpdateSHScaleFactor();
 }
-
-void Tr2InteriorScene::UpdateSHScaleFactor()
-{
-	for( PTr2InteriorCellVector::iterator it = m_cells.begin(); it != m_cells.end(); ++it )
-	{
-		(*it)->SetSHScale( m_shScale );
-	}
-}
-

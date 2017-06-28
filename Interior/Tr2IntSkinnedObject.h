@@ -40,9 +40,6 @@ public:
 	//
 	virtual void PrePhysicsUpdate( Be::Time time );
 	virtual void PostPhysicsUpdate( Be::Time time, Tr2ApexScene* apexScene );
-	virtual Matrix& GetRedLightProbeMatrix( void ) { return m_SHMatrixRed; }
-	virtual Matrix& GetGreenLightProbeMatrix( void ) { return m_SHMatrixGreen; }
-	virtual Matrix& GetBlueLightProbeMatrix( void ) { return m_SHMatrixBlue; }
 
     //////////////////////////////////////////////////////////////////////////
     // ITr2InteriorCullable
@@ -60,8 +57,6 @@ public:
 		const Matrix& objectToWorldMatrix, 
 		const Matrix& mirrorToWorldMatrix 
 		);
-
-	virtual void SetSHLightingSolver( ITr2InteriorSHLightingSolver* solver ) { m_shSolver = solver; }
 
 	virtual void SetPosition(const Vector3 &pos);
 	virtual void SetRotation( const Quaternion& rotQuat );
@@ -98,7 +93,6 @@ public:
 	// sizes
 	virtual bool GetWorldBoundingBox( Vector3& min, Vector3& max ) const;
 	virtual bool IsBoundingBoxReady( void ) const;
-	virtual bool GetShProbePosition( Vector3& position ) const;
 	
 	// Apex
 	void AddToApexScene( Tr2ApexScene* apexScene );
@@ -124,11 +118,6 @@ protected:
 	// lightsources on this avatar
 	Tr2InteriorLightSet m_lightSet;
 
-	// interpolated light probe matrices
-	Matrix m_SHMatrixRed;
-	Matrix m_SHMatrixGreen;
-	Matrix m_SHMatrixBlue;
-
 	bool m_isDirty;
 
 	Vector3 m_currentPosition;
@@ -153,9 +142,6 @@ protected:
 		const Matrix& objectToWorldMatrix, 
 		const Matrix& mirrorToWorldMatrix );
 
-	// SH lighting solver for transparent rendering
-	ITr2InteriorSHLightingSolver *m_shSolver;
-
 	// Per-cell reflection maps
 	TriTextureResPtr m_cellReflectionMaps[2];
 	// Time since last per-cell reflection map change
@@ -166,8 +152,6 @@ protected:
 	// Local variable store for this object
 	Tr2VariableStorePtr m_variableStore;
 
-	// Offset for SH probe position (in world space)
-	Vector3 m_probeOffset;
 	// Depth offset for transparency sorting
 	float m_depthOffset;
 

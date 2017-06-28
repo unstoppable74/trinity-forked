@@ -7,7 +7,6 @@ BLUE_DECLARE( BlueAsyncRes );
 BLUE_DECLARE_VECTOR( Tr2ClothingActor );
 class ITriRenderBatchAccumulator;
 class Tr2PerObjectData;
-struct ITr2InteriorSHLightingSolver;
 
 BLUE_DECLARE( Tr2Apex );
 
@@ -98,7 +97,6 @@ public:
 												ITriRenderBatchAccumulator* batches, 
 												int batchType, 
 												const Tr2PerObjectData* perObjectData, 
-												ITr2InteriorSHLightingSolver* shSolver = NULL,
 												unsigned int depth = 0xFFFFFFFF );
 	unsigned int					ApexGetFrameDelay();
 	bool							ApexSceneIsParallel();

@@ -25,11 +25,7 @@ Tr2InteriorPlaceable::Tr2InteriorPlaceable( IRoot* lockobj ) :
 	m_placeableRes(),
 	m_lightSet(),
 	m_visibilityMode( VISIBILITYMODE_NORMAL ),
-	m_SHMatrixRed(),
-	m_SHMatrixGreen(),
-	m_SHMatrixBlue(),
 	m_boundingSphere( 0.f, 0.f, 0.f, 0.f ),
-	m_shSolver( NULL ),
 	m_isStatic( false ),
 	m_isBoundingBoxModified( false ),
 	m_cellReflectionTime( 0.0f ),
@@ -145,14 +141,6 @@ bool Tr2InteriorPlaceable::GetWorldBoundingBox( Vector3& min, Vector3& max ) con
 bool Tr2InteriorPlaceable::IsBoundingBoxReady( void ) const
 {
 	return( m_placeableRes && m_placeableRes->IsReady() );
-}
-
-bool Tr2InteriorPlaceable::GetShProbePosition( Vector3& position ) const
-{
-	Vector3 min, max;
-	GetWorldBoundingBox( min, max );
-	position = ( min + max ) * 0.5f + m_probeOffset;
-	return true;
 }
 
 void Tr2InteriorPlaceable::PrePhysicsUpdate( Be::Time time )
@@ -442,30 +430,8 @@ void Tr2InteriorPlaceable::GetBatches( ITriRenderBatchAccumulator* batches,
 						// Note that this can fail if the accumulator can't add more batches!
 						if( batch )
 						{
-							const Tr2PerObjectData* perAreaData = data;
-							if( m_shSolver && area->GetUseSHLighting() )
-							{
-								Tr2PerAreaSHLightingData* areaData = batches->Allocate<Tr2PerAreaSHLightingData>();
-								if( areaData )
-								{
-									Vector3 minBounds, maxBounds;
-									mesh->GetAreaBoundingBox( area->GetIndex(), minBounds, maxBounds );
-									for( int i = 1; i < area->GetCount(); ++i )
-									{
-										Vector3 min, max;
-										mesh->GetAreaBoundingBox( area->GetIndex() + i, min, max );
-										BoundingBoxUpdate( minBounds, maxBounds, min, max );
-									}
-
-									areaData->SetPerObjectData( data );
-									m_shSolver->AddVolume( minBounds, maxBounds, m_transform, areaData );
-									perAreaData = areaData;
-								}
-							}
-
-
 							batch->SetShaderMaterial( shader );
-							batch->SetPerObjectData( perAreaData );
+							batch->SetPerObjectData( data );
 							batch->SetGeometryResource( geomRes );
 							batch->SetMeshParameters( meshIx, area->GetIndex(), area->GetCount(), area->GetReversed() );
 
@@ -542,41 +508,12 @@ void Tr2InteriorPlaceable::GetBatches( ITriRenderBatchAccumulator* batches,
 									depth = ( unsigned int )( ( float )0xFFFFFFF * ( 1.0f - z ) );
 								}
 
-								const Tr2PerObjectData *perAreaData = data;
-
-								if( m_shSolver && area->GetUseSHLighting() )
-								{
-									Tr2PerAreaSHLightingData* areaData = batches->Allocate<Tr2PerAreaSHLightingData>();
-									if( areaData )
-									{
-										Vector3 minBounds, maxBounds;
-										if( m_isBoundingBoxModified )
-										{
-											minBounds = m_minBounds;
-											maxBounds = m_maxBounds;
-										}
-										else
-										{
-											mesh->GetAreaBoundingBox( area->GetIndex(), minBounds, maxBounds );
-											for( int i = 1; i < area->GetCount(); ++i )
-											{
-												Vector3 min, max;
-												mesh->GetAreaBoundingBox( area->GetIndex() + i, min, max );
-												BoundingBoxUpdate( minBounds, maxBounds, min, max );
-											}
-										}
-
-										areaData->SetPerObjectData( data );
-										m_shSolver->AddVolume( minBounds, maxBounds, m_transform, areaData );
-										perAreaData = areaData;
-									}
-								}
 								TriGeometryBatch* batch = batches->Allocate<TriGeometryBatch>();
 								// Note that this can fail if the accumulator can't add more batches!
 								if( batch )
 								{
 									batch->SetShaderMaterial( shader );
-									batch->SetPerObjectData( perAreaData );
+									batch->SetPerObjectData( data );
 									batch->SetGeometryResource( mesh->GetGeometryResource() );
 
 									batch->SetMeshParameters( mesh->GetMeshIndex(), area->GetIndex(), area->GetCount(), area->GetReversed() );
@@ -806,9 +743,7 @@ Tr2PerObjectData* Tr2InteriorPlaceable::GetPerObjectDataWithLightSet( ITriRender
 	}
 
 	// Copy the SH matrices
-	D3DXMatrixTranspose( &perObjectPSBuffer.redMat, &m_SHMatrixRed );
-	D3DXMatrixTranspose( &perObjectPSBuffer.greenMat, &m_SHMatrixGreen );
-	D3DXMatrixTranspose( &perObjectPSBuffer.blueMat, &m_SHMatrixBlue );
+	memset( &perObjectPSBuffer.redMat, 0, sizeof( perObjectPSBuffer.redMat ) * 3 );
 
 	// Copy the mirror-to-world matrix
 	perObjectPSBuffer.mirrorToWorldMatrix = mirrorToWorldMatrix;

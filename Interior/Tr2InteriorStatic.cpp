@@ -22,7 +22,6 @@ Tr2InteriorStatic::Tr2InteriorStatic( IRoot* lockobj ):
 	m_position( 0.0f, 0.0f, 0.0f ),
 	m_rotation( 0.0f, 0.0f, 0.0f, 1.0f ),
 	m_parentCell( nullptr ),
-	m_shSolver( NULL ),
 	PARENTLOCK( m_curveSets ),
 	m_depthOffset( 0.f ),
 	m_transform( Tr2Renderer::GetIdentityTransform() )
@@ -641,34 +640,12 @@ void Tr2InteriorStatic::GetTransparentBatches( ITriRenderBatchAccumulator* batch
 
 				unsigned int depth = ( unsigned int )( ( float )0xFFFFFFF * ( 1.0f - z ) );
 
-				const Tr2PerObjectData *perAreaData = data;
-
-				if( m_shSolver && area->GetUseSHLighting() )
-				{
-					Tr2PerAreaSHLightingData* areaData = batches->Allocate<Tr2PerAreaSHLightingData>();
-					if( areaData )
-					{
-						Vector3 minBounds, maxBounds;
-						mesh->GetAreaBoundingBox( area->GetIndex(), minBounds, maxBounds );
-						for( int i = 1; i < area->GetCount(); ++i )
-						{
-							Vector3 min, max;
-							mesh->GetAreaBoundingBox( area->GetIndex() + i, min, max );
-							BoundingBoxUpdate( minBounds, maxBounds, min, max );
-						}
-
-						areaData->SetPerObjectData( data );
-						m_shSolver->AddVolume( minBounds, maxBounds, m_transform, areaData );
-						perAreaData = areaData;
-					}
-				}
-
 				TriGeometryBatch* batch = batches->Allocate<TriGeometryBatch>();
 				// Note that this can fail if the accumulator can't add more batches!
 				if( batch )
 				{
 					batch->SetShaderMaterial( shaderMat ); 
-					batch->SetPerObjectData( perAreaData );
+					batch->SetPerObjectData( data );
 					batch->SetGeometryResource( mesh->GetGeometryResource() );
 
 					batch->SetMeshParameters( mesh->GetMeshIndex(), area->GetIndex(), area->GetCount(), area->GetReversed() );

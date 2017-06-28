@@ -21,15 +21,10 @@ Tr2IntSkinnedObject::Tr2IntSkinnedObject( IRoot* lockobj ) :
 	Tr2SkinnedObject( lockobj ),
 	m_boundingSphere( 0.f, 0.f, 0.f, 0.f ),
 	m_lightSet(),
-	m_SHMatrixRed(),
-	m_SHMatrixGreen(),
-	m_SHMatrixBlue(),
 	m_isDirty( true ),
 	m_isInApexScene( false ),
-	m_shSolver( NULL ),
 	m_cellReflectionTime( 0.0f ),
 	m_previousUpdateTime( 0 ),
-	m_probeOffset( 0.f, 0.f, 0.f ),
 	m_depthOffset( 0.f ),
 	m_currentPosition( 0.0f, 0.0f, 0.0f ),
 	m_currentScaling( 1.0f, 1.0f, 1.0f ),
@@ -219,14 +214,6 @@ bool Tr2IntSkinnedObject::IsBoundingBoxReady( void ) const
 	return GetWorldBoundingBox( min, max );
 }
 
-bool Tr2IntSkinnedObject::GetShProbePosition( Vector3& position ) const
-{
-	Vector3 min, max;
-	GetWorldBoundingBox( min, max );
-	position = ( min + max ) * 0.5f + m_probeOffset;
-	return true;
-}
-
 void Tr2IntSkinnedObject::AddToApexScene( Tr2ApexScene* apexScene )
 {
 	if( !m_isInApexScene )
@@ -319,7 +306,7 @@ void Tr2IntSkinnedObject::GetBatches( ITriRenderBatchAccumulator* batches,
 			 batchType == TRIBATCHTYPE_DEPTH )
 		)
 	{
-		g_Tr2Apex->ApexGatherBatches( m_clothMeshes, batches, batchType, perObjectData, m_shSolver, depth );
+		g_Tr2Apex->ApexGatherBatches( m_clothMeshes, batches, batchType, perObjectData, depth );
 	}
 #endif
 	Matrix* pm = batches->Allocate<Matrix>();
@@ -434,58 +421,8 @@ void Tr2IntSkinnedObject::GetBatches( ITriRenderBatchAccumulator* batches,
 						}
 						areaData->SetPerObjectData( *skinnedData );
 
-						Tr2PerObjectData *perAreaData = areaData;
-
-						if( m_shSolver && area->GetUseSHLighting() )
-						{
-							Tr2PerAreaSHLightingData* shAreaData = batches->Allocate<Tr2PerAreaSHLightingData>();
-							if( shAreaData )
-							{
-								// Calculate area bounding box
-								XMVECTOR boundsMin = areaRes->m_minBounds;
-								XMVECTOR boundsMax = areaRes->m_maxBounds;
-
-								if( areaData->GetJointCount() )
-								{
-									XMVECTOR corners[8];
-									corners[0] = areaRes->m_minBounds;
-									corners[1] = Vector3( areaRes->m_minBounds.x, areaRes->m_minBounds.y, areaRes->m_maxBounds.z );
-									corners[2] = Vector3( areaRes->m_minBounds.x, areaRes->m_maxBounds.y, areaRes->m_minBounds.z );
-									corners[3] = Vector3( areaRes->m_minBounds.x, areaRes->m_maxBounds.y, areaRes->m_maxBounds.z );
-									corners[4] = Vector3( areaRes->m_maxBounds.x, areaRes->m_minBounds.y, areaRes->m_minBounds.z );
-									corners[5] = Vector3( areaRes->m_maxBounds.x, areaRes->m_minBounds.y, areaRes->m_maxBounds.z );
-									corners[6] = Vector3( areaRes->m_maxBounds.x, areaRes->m_maxBounds.y, areaRes->m_minBounds.z );
-									corners[7] = areaRes->m_maxBounds;
-
-									for( unsigned joint = 0; joint < areaData->GetJointCount(); ++joint )
-									{
-										XMMATRIX transform;
-										memcpy( &transform, areaData->GetMatrices() + joint * 12, 12 * sizeof( float ) );
-										transform.r[3] = Vector4( 0.0f, 0.0f, 0.0f, 1.0f );
-										transform = XMMatrixTranspose( transform );
-
-										for( int i = 0; i < 8; ++i )
-										{
-											XMVECTOR cornerTransformed = XMVector3Transform( corners[i], transform );
-											XMVECTOR compare = XMVectorLess( cornerTransformed, boundsMin );
-											boundsMin = XMVectorSelect( boundsMin, cornerTransformed, compare );
-											compare = XMVectorGreater( cornerTransformed, boundsMax );
-											boundsMax = XMVectorSelect( boundsMax, cornerTransformed, compare );
-										}
-									}
-								}
-
-								Vector3 minBounds( boundsMin );
-								Vector3 maxBounds( boundsMax );
-
-								shAreaData->SetPerObjectData( areaData );
-								m_shSolver->AddVolume( minBounds, maxBounds, m_transform, shAreaData );
-								perAreaData = shAreaData;
-							}
-						}
-
 						batch->SetShaderMaterial( shader );
-						batch->SetPerObjectData( perAreaData );
+						batch->SetPerObjectData( areaData );
 						batch->SetGeometryResource( geomRes );
 						batch->SetMeshParameters( meshIx, area->GetIndex(), area->GetCount(), area->GetReversed() );
 						batch->SetDepth( depth );
@@ -545,9 +482,7 @@ Tr2PerObjectData* Tr2IntSkinnedObject::GetPerObjectDataCpuSkinning(
 	}
 
 	// Copy the SH matrices
-	D3DXMatrixTranspose( &perObjectPSBuffer.redMat, &m_SHMatrixRed );
-	D3DXMatrixTranspose( &perObjectPSBuffer.greenMat, &m_SHMatrixGreen );
-	D3DXMatrixTranspose( &perObjectPSBuffer.blueMat, &m_SHMatrixBlue );
+	memset( &perObjectPSBuffer.redMat, 0, sizeof( perObjectPSBuffer.redMat ) * 3 );
 
 	// Copy the mirror-to-world matrix
 	perObjectPSBuffer.mirrorToWorldMatrix = mirrorToWorldMatrix;
@@ -612,9 +547,7 @@ Tr2PerObjectData* Tr2IntSkinnedObject::GetPerObjectDataGpuSkinning(
 	}
 
 	// Copy the SH matrices
-	D3DXMatrixTranspose( &perObjectPSBuffer.redMat, &m_SHMatrixRed );
-	D3DXMatrixTranspose( &perObjectPSBuffer.greenMat, &m_SHMatrixGreen );
-	D3DXMatrixTranspose( &perObjectPSBuffer.blueMat, &m_SHMatrixBlue );
+	memset( &perObjectPSBuffer.redMat, 0, sizeof( perObjectPSBuffer.redMat ) * 3 );
 
 	// Copy the mirror-to-world matrix
 	perObjectPSBuffer.mirrorToWorldMatrix = mirrorToWorldMatrix;

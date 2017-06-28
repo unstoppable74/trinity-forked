@@ -499,19 +499,6 @@ void Tr2InteriorCell::RemoveLight( ITr2InteriorLight* light )
 // --------------------------------------------------------------------------------------
 void Tr2InteriorCell::MarkShadowsDirtyForDynamic( ITr2InteriorDynamic* dynamic )
 {
-	if( !dynamic->IsShadowCaster() )
-	{
-		return;
-	}
-	for( ITr2InteriorLightVector::iterator it = m_lights.begin(); it != m_lights.end(); ++it )
-	{
-		if( (*it)->IsDynamicContributingToShadows( dynamic ) )
-		{
-			Vector3 min, max;
-			dynamic->GetWorldBoundingBox( min, max );
-			(*it)->MarkShadowsDirtyForBounds( min, max );
-		}
-	}
 }
 
 // --------------------------------------------------------------------------------------

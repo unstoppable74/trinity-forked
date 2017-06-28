@@ -26,7 +26,6 @@ const Be::ClassInfo* Tr2IntSkinnedObject::ExposeToBlue()
 
 		MAP_METHOD_AND_WRAP( "BindLowLevelShaders", BindLowLevelShaders, "Binds low level shaders for all meshes of the skinned object." );
 
-		MAP_ATTRIBUTE( "probeOffset", m_probeOffset, "Offset for SH probe position (in world space)", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "depthOffset", m_depthOffset, "Depth offset for transparency sorting", Be::READWRITE | Be::PERSIST )
 	EXPOSURE_CHAINTO( Tr2SkinnedObject )
 }
