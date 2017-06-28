@@ -5,7 +5,6 @@
 #include "Apex.h"
 
 #include "Tr2ApexScene.h"
-#include "Interior/Tr2InteriorSHLightingSolver.h"
 
 
 #include "Tr2ApexRenderer.h"
@@ -13,6 +12,7 @@
 #include "include/ITr2DebugRenderer.h"
 #include "TriSettingsRegistrar.h"
 #include "TriRenderBatch.h"
+#include "ITr2Renderable.h"
 
 #define USE_PLATFORM_ANALYZER CCP_STATS_ENABLED
 
@@ -655,19 +655,6 @@ void Tr2Apex::ApexGatherBatches( Tr2ClothingActorVector& clothMeshes,
 				continue;
 			}
 			g_apexRenderer.SetPerObjectData( perObjectData );
-			if( shSolver && ( *it )->GetUseTransparentBatches() && ( *it )->GetUseSHLighting() )
-			{
-				Tr2PerAreaSHLightingData* shAreaData = batches->Allocate<Tr2PerAreaSHLightingData>();
-				if( shAreaData )
-				{
-					AxisAlignedBoundingBox aabb = ( *it )->GetWorldBoundingBox();
-
-					shAreaData->SetPerObjectData( perObjectData );
-					shSolver->AddVolume( aabb.m_min, aabb.m_max, Tr2Renderer::GetIdentityTransform(), shAreaData );
-
-					g_apexRenderer.SetPerObjectData( shAreaData );
-				}
-			}
 
 			g_apexRenderer.SetEffect( (*it)->GetEffect() );
 			g_apexRenderer.SetReversedEffect( (*it)->GetEffectReversed() );
