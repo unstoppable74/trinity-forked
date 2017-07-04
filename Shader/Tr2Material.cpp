@@ -65,20 +65,20 @@ Tr2Material::~Tr2Material()
 {
 }
 
-uint32_t Tr2Material::ApplyMaterialDataForPass( unsigned int passIndex, Tr2RenderContext& renderContext ) const
+uint32_t Tr2Material::ApplyMaterialDataForPass( uint32_t techniqueIndex, unsigned int passIndex, Tr2RenderContext& renderContext ) const
 {
 	if( !m_shader )
 	{
 		return 0;
 	}
-	unsigned mask = m_shader->GetShaderTypeMask();
+	unsigned mask = m_shader->GetShaderTypeMask( techniqueIndex );
 	uint32_t samplersChangedMask = 0;
 	for( unsigned i = 0; i != Tr2RenderContextEnum::SHADER_TYPE_COUNT && mask; ++i )
 	{
 		if( mask & ( 1 << i ) )
 		{
 			bool samplersChanged = false;
-			ApplyShaderInputs( passIndex, Tr2RenderContextEnum::ShaderType( i ), samplersChanged, renderContext );
+			ApplyShaderInputs( techniqueIndex, passIndex, Tr2RenderContextEnum::ShaderType( i ), samplersChanged, renderContext );
 			mask &= ~( 1 << i );
 			if( samplersChanged )
 			{
@@ -89,15 +89,15 @@ uint32_t Tr2Material::ApplyMaterialDataForPass( unsigned int passIndex, Tr2Rende
 	return samplersChangedMask;
 }
 
-void Tr2Material::ApplyShaderInputs( unsigned int passIndex, Tr2RenderContextEnum::ShaderType shaderType, Tr2RenderContext& renderContext ) const
+void Tr2Material::ApplyShaderInputs( uint32_t techniqueIndex, unsigned int passIndex, Tr2RenderContextEnum::ShaderType shaderType, Tr2RenderContext& renderContext ) const
 {
 	bool samplersChanged;
-	ApplyShaderInputs( passIndex, shaderType, samplersChanged, renderContext );
+	ApplyShaderInputs( techniqueIndex, passIndex, shaderType, samplersChanged, renderContext );
 }
 
-void Tr2Material::ApplyShaderInputs( unsigned int passIndex, Tr2RenderContextEnum::ShaderType shaderType, bool& samplersChanged, Tr2RenderContext& renderContext ) const
+void Tr2Material::ApplyShaderInputs( uint32_t techniqueIndex, unsigned int passIndex, Tr2RenderContextEnum::ShaderType shaderType, bool& samplersChanged, Tr2RenderContext& renderContext ) const
 {
-	auto& pp = *m_parametersForPasses[0][passIndex];
+	auto& pp = *m_parametersForPasses[techniqueIndex][passIndex];
 	auto& input = pp.m_stageInput[shaderType];
 
 	auto cb = input.m_constantBuffer.get();

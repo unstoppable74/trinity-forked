@@ -1280,44 +1280,15 @@ void Tr2Effect::Render( IRenderCallback* cb, Tr2RenderContext& renderContext )
 
 	CCP_ASSERT( cb );
 
-	unsigned int passCount = effectResource->GetPassCount();
+	unsigned int passCount = effectResource->GetPassCount( 0 );
 
 	for( uint32_t passIx = 0; passIx < passCount; ++passIx )
 	{
-		effectResource->ApplyAllStateForPass( passIx, renderContext );
-		ApplyMaterialDataForPass( passIx, renderContext );
+		effectResource->ApplyAllStateForPass( 0, passIx, renderContext );
+		ApplyMaterialDataForPass( 0, passIx, renderContext );
 		cb->SubmitGeometry( renderContext );
 	}
 
-}
-
-void Tr2Effect::RenderForPicking( IRenderCallback* cb, int objId, Tr2RenderContext& renderContext )
-{
-	CCP_STATS_ZONE( __FUNCTION__ );
-
-	auto effectResource = GetShaderStateInterface();
-
-	if( !effectResource )
-	{
-		return;
-	}
-
-	CCP_ASSERT( cb );
-
-	TriVariable* objIdVariable = renderContext.GetObjectIdVariable();
-	if( objIdVariable )
-	{
-		objIdVariable->SetValue( (float)objId );
-	}
-
-	unsigned int passCount = effectResource->GetPassCount();
-
-	for( uint32_t passIx = 0; passIx < passCount; ++passIx )
-	{
-		effectResource->ApplyAllStateForPass( passIx, renderContext );
-		ApplyMaterialDataForPass( passIx, renderContext );
-		cb->SubmitGeometry( renderContext );
-	}
 }
 
 // --------------------------------------------------------------------------------------

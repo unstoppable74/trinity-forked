@@ -12,6 +12,7 @@ BLUE_DECLARE( Tr2RenderContext );
 
 #include "TrinityAL/ITr2RenderContextEvents.h"
 #include "Shader/Tr2EffectStateManager.h"
+#include "Shader/Tr2EffectDescription.h"
 
 BLUE_DECLARE( Tr2VariableStore );
 BLUE_DECLARE( Tr2RenderContext );
@@ -54,22 +55,21 @@ struct Tr2RenderContextBase: public IRoot, public ITr2RenderContextEvents
 
 	TriVariable* GetObjectIdVariable();
 
-	void RenderBatches( ITriRenderBatchAccumulator* batches );
-	void RenderLightBatches( ITriRenderBatchAccumulator* batches );
-	void RenderBatchesWithOverride( ITriRenderBatchAccumulator* batches, Tr2Material* overrideEffect, OverrideMode overrideMode );
-	void RenderBatchesForPicking( Tr2Material* effect, TriRenderBatch* &p, int &objectNum );
-	void RenderBatchesForPickingWithoutOverride( ITriRenderBatchAccumulator* batches, int &objectNum );
+	void RenderBatches( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName = DEFAULT_TECHNIQUE );
+	void RenderBatchesWithOverride( ITriRenderBatchAccumulator* batches, Tr2Material* overrideEffect, OverrideMode overrideMode, const BlueSharedString& techniqueName = DEFAULT_TECHNIQUE );
+	void RenderBatchesForPicking( Tr2Material* effect, TriRenderBatch* &p, const BlueSharedString& techniqueName, int &objectNum );
+	void RenderBatchesForPickingWithoutOverride( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName, int &objectNum );
 
 	// Render batches from an accumulator that was not set up for sorting by effect,
 	// so they are rendered in whatever order they were added to the accumulator.
 	// This is usually used for rendering transparent objects where the application
 	// sorted by object.
-	void RenderBatchesInOrder( ITriRenderBatchAccumulator* batches );
+	void RenderBatchesInOrder( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName = DEFAULT_TECHNIQUE );
 
 	// Render batches from an accumulator that was set up for sorting by effect.
 	// This is normally used for opaque or additive batches. State settings can
 	// be minimized by taking advantage of sorting that has been done.
-	void RenderBatchesSortedByEffect( ITriRenderBatchAccumulator* batches, BatchesRenderHints hints = HINT_DEFAULT );
+	void RenderBatchesSortedByEffect( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName = DEFAULT_TECHNIQUE, BatchesRenderHints hints = HINT_DEFAULT );
 
 	Tr2ConstantBufferAL* GetConstantBuffer( int buffer ) { return &m_perObjectConstantBuffers[buffer]; }
 protected:

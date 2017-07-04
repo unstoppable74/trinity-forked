@@ -766,8 +766,8 @@ Tr2DebugObjectReference Tr2DebugRenderer::Pick( float& depth, Tr2RenderContext& 
 
 	auto handle = GetVertexDeclarationHandle( renderContext );
 
-	shader->ApplyAllStateForPass( 0, renderContext );
-	m_pickingEffect->ApplyMaterialDataForPass( 0, renderContext );
+	shader->ApplyAllStateForPass( 0, 0, renderContext );
+	m_pickingEffect->ApplyMaterialDataForPass( 0, 0, renderContext );
 	renderContext.m_esm.ApplyVertexDeclaration( handle );
 
 	if( !m_objectLineOffsets.empty() )
@@ -866,12 +866,12 @@ void Tr2DebugRenderer::EndRender( Tr2RenderContext& renderContext )
 		renderContext.m_esm.ApplyVertexDeclaration( handle );
 		renderContext.SetTopology( Tr2RenderContextEnum::TOP_LINES );
 
-		uint32_t passCount = shader->GetPassCount();
+		uint32_t passCount = shader->GetPassCount( 0 );
 
 		for( uint32_t passIx = 0; passIx < passCount; ++passIx )
 		{
-			shader->ApplyAllStateForPass( passIx, renderContext );
-			m_effect->ApplyMaterialDataForPass( passIx, renderContext );
+			shader->ApplyAllStateForPass( 0, passIx, renderContext );
+			m_effect->ApplyMaterialDataForPass( 0, passIx, renderContext );
 			renderContext.DrawPrimitiveUP( uint32_t( m_lines.size() / 2 ), &m_lines[0], uint32_t( sizeof( Vertex ) ) );
 		}
 	}
@@ -880,12 +880,12 @@ void Tr2DebugRenderer::EndRender( Tr2RenderContext& renderContext )
 		renderContext.m_esm.ApplyVertexDeclaration( handle );
 		renderContext.SetTopology( Tr2RenderContextEnum::TOP_TRIANGLES );
 
-		uint32_t passCount = shader->GetPassCount();
+		uint32_t passCount = shader->GetPassCount( 0 );
 
 		for( uint32_t passIx = 0; passIx < passCount; ++passIx )
 		{
-			shader->ApplyAllStateForPass( passIx, renderContext );
-			m_effect->ApplyMaterialDataForPass( passIx, renderContext );
+			shader->ApplyAllStateForPass( 0, passIx, renderContext );
+			m_effect->ApplyMaterialDataForPass( 0, passIx, renderContext );
 			renderContext.DrawPrimitiveUP( uint32_t( m_triangles.size() / 3 ), &m_triangles[0], uint32_t( sizeof( Vertex ) ) );
 		}
 	}

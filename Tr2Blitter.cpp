@@ -174,12 +174,12 @@ bool Tr2Blitter::DrawHelper( Tr2Shader* shader, Tr2Material* material,
 		GlobalStore().GetVariable( "BlitSource" )->SetValue( &textureReference );
 	}
 
-	unsigned int passCount = shader->GetPassCount();
+	unsigned int passCount = shader->GetPassCount( 0 );
 
 	for( unsigned int passIx = 0; passIx < passCount; ++passIx )
 	{
-		shader->ApplyAllStateForPass( passIx, renderContext );
-		material->ApplyMaterialDataForPass( passIx, renderContext );
+		shader->ApplyAllStateForPass( 0, passIx, renderContext );
+		material->ApplyMaterialDataForPass( 0, passIx, renderContext );
 		{
 			renderContext.SetTopology( TOP_TRIANGLE_STRIP );
 			renderContext.DrawPrimitive( 0, 2 );

@@ -120,7 +120,7 @@ TriVariable* Tr2RenderContextBase::GetObjectIdVariable( void )
 	return m_objectIdVariable;
 }
 
-void Tr2RenderContextBase::RenderBatchesInOrder( ITriRenderBatchAccumulator* batches )
+void Tr2RenderContextBase::RenderBatchesInOrder( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 	D3DPERF_EVENT( L"Tr2RenderContext::RenderBatchesInOrder" );
@@ -150,6 +150,11 @@ void Tr2RenderContextBase::RenderBatchesInOrder( ITriRenderBatchAccumulator* bat
 			continue;
 		}
 
+		uint32_t technique;
+		if( !shader->GetTechniqueIndex( techniqueName, technique ) )
+		{
+			continue;
+		}
 
 		const Tr2PerObjectData* perObjectData = it->GetPerObjectData();
 		Tr2RenderContext* renderContext = reinterpret_cast<Tr2RenderContext*>( this );
@@ -158,17 +163,17 @@ void Tr2RenderContextBase::RenderBatchesInOrder( ITriRenderBatchAccumulator* bat
 		{
 			D3DPERF_EVENT(L"RenderBatchesInOrder::Set per-object data to device");
 			
-			perObjectData->SetPerObjectDataToDevice( perObjectConstantBuffers, shader->GetShaderTypeMask(), *renderContext );
+			perObjectData->SetPerObjectDataToDevice( perObjectConstantBuffers, shader->GetShaderTypeMask( technique ), *renderContext );
 			curPerObjectData = perObjectData;
 		}
 
-		uint32_t passCount = shader->GetPassCount();
+		uint32_t passCount = shader->GetPassCount( technique );
 
 		for( uint32_t passIx = 0; passIx < passCount; ++passIx )
 		{
 			D3DPERF_EVENT1( L"Pass %i", passIx );
-			shader->ApplyAllStateForPass( passIx, *renderContext );
-			material->ApplyMaterialDataForPass( passIx, *renderContext );
+			shader->ApplyAllStateForPass( technique, passIx, *renderContext );
+			material->ApplyMaterialDataForPass( technique, passIx, *renderContext );
 			it->SubmitGeometry( *renderContext );
 
 			CCP_STATS_INC( batchCount );
@@ -176,7 +181,7 @@ void Tr2RenderContextBase::RenderBatchesInOrder( ITriRenderBatchAccumulator* bat
 	}
 }
 
-void Tr2RenderContextBase::RenderBatchesSortedByEffect( ITriRenderBatchAccumulator* batches, BatchesRenderHints hints )
+void Tr2RenderContextBase::RenderBatchesSortedByEffect( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName, BatchesRenderHints hints )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 	D3DPERF_EVENT(L"Tr2EffectStateManager::RenderBatchesSortedByEffect");
@@ -220,8 +225,17 @@ void Tr2RenderContextBase::RenderBatchesSortedByEffect( ITriRenderBatchAccumulat
 			continue;
 		}
 
+		uint32_t technique;
+		if( !currentShader->GetTechniqueIndex( techniqueName, technique ) )
+		{
+			batch = batch->GetNext();
+			continue;
+		}
+
+		const auto currentShaderMask = currentShader->GetShaderTypeMask( technique );
+
 		// Get the number of passes (must be at least 1 to SubmitGeometry)
-		const uint32_t passCount = currentShader->GetPassCount();
+		const uint32_t passCount = currentShader->GetPassCount( technique );
 		if( passCount == 0)
 		{
 			batch = batch->GetNext();
@@ -242,7 +256,7 @@ void Tr2RenderContextBase::RenderBatchesSortedByEffect( ITriRenderBatchAccumulat
 			{
 				D3DPERF_EVENT1( L"Begin Pass %i", passIx );
 
-				currentShader->ApplyAllStateForPass( passIx, *renderContext );
+				currentShader->ApplyAllStateForPass( technique, passIx, *renderContext );
 			}
 
 			batch = startOfPass;
@@ -285,27 +299,27 @@ void Tr2RenderContextBase::RenderBatchesSortedByEffect( ITriRenderBatchAccumulat
 					if( hasPerEffectData && samplersDirtyMask )
 					{
 						// We have to apply sampler states in case any of the batches override them
-						const uint32_t shaderMask = currentShader->GetShaderTypeMask() & Tr2RenderContext::SHADER_TYPE_MASK & samplersDirtyMask;
+						const uint32_t shaderMask = currentShaderMask & Tr2RenderContext::SHADER_TYPE_MASK & samplersDirtyMask;
 						for( uint32_t shaderType = SHADER_TYPE_FIRST; shaderType < SHADER_TYPE_COUNT; ++shaderType )
 						{
 							if( shaderMask & ( 1 << shaderType ) )
 							{
-								currentShader->ApplySamplerStates( passIx, ShaderType( shaderType ), *renderContext );
+								currentShader->ApplySamplerStates( technique, passIx, ShaderType( shaderType ), *renderContext );
 							}
 						}
 					}
 					// Set the data from the material, i.e constants and samplers for this pass
-					samplersDirtyMask = batch->GetShaderMaterialInterface()->ApplyMaterialDataForPass( passIx, *renderContext );
+					samplersDirtyMask = batch->GetShaderMaterialInterface()->ApplyMaterialDataForPass( technique, passIx, *renderContext );
 				}
 
 				// If the batch has per-object data, set it to the device
 				const Tr2PerObjectData* const perObjectData = batch->GetPerObjectData();
-				if( perObjectData && ( ( perObjectData != curPerObjectData ) || ( currentShader->GetShaderTypeMask() != curShaderTypeMask ) ) )
+				if( perObjectData && ( ( perObjectData != curPerObjectData ) || ( currentShaderMask != curShaderTypeMask ) ) )
 				{
 					D3DPERF_EVENT( L"Object - RenderBatchesSortedByEffect::SetPerObjectDataToDevice" );
 					curPerObjectData = perObjectData;
-					curShaderTypeMask = currentShader->GetShaderTypeMask();
-					perObjectData->SetPerObjectDataToDevice( perObjectConstantBuffers, currentShader->GetShaderTypeMask(), *renderContext );
+					curShaderTypeMask = currentShaderMask;
+					perObjectData->SetPerObjectDataToDevice( perObjectConstantBuffers, currentShaderMask, *renderContext );
 				}
 
 				CCP_STATS_INC( batchCount );
@@ -319,30 +333,25 @@ void Tr2RenderContextBase::RenderBatchesSortedByEffect( ITriRenderBatchAccumulat
 	}
 }
 
-void Tr2RenderContextBase::RenderBatches( ITriRenderBatchAccumulator* batches )
+void Tr2RenderContextBase::RenderBatches( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName )
 {
 	if( batches->IsChainedByEffect() )
 	{
-		RenderBatchesSortedByEffect( batches );
+		RenderBatchesSortedByEffect( batches, techniqueName );
 	}
 	else
 	{
-		RenderBatchesInOrder( batches );
+		RenderBatchesInOrder( batches, techniqueName );
 	}
 }
 
-void Tr2RenderContextBase::RenderLightBatches( ITriRenderBatchAccumulator* batches )
-{
-	RenderBatchesSortedByEffect( batches, Tr2RenderContext::HINT_NO_PER_EFFECT_DATA );
-}
-
-void Tr2RenderContextBase::RenderBatchesWithOverride( ITriRenderBatchAccumulator* batches, Tr2Material* overrideEffect, OverrideMode overrideMode )
+void Tr2RenderContextBase::RenderBatchesWithOverride( ITriRenderBatchAccumulator* batches, Tr2Material* overrideEffect, OverrideMode overrideMode, const BlueSharedString& techniqueName )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
 	if( !overrideEffect )
 	{
-		RenderBatches( batches );
+		RenderBatches( batches, techniqueName );
 		return;
 	}
 
@@ -372,7 +381,12 @@ void Tr2RenderContextBase::RenderBatchesWithOverride( ITriRenderBatchAccumulator
 		auto materialForThisBatch = it->GetShaderMaterialInterface();
 		auto shaderForThisBatch = it->GetShaderStateInterface();
 
-		if( !shaderForThisBatch || shaderForThisBatch->GetPassCount() == 0 )
+		uint32_t technique;
+		if( !shaderForThisBatch->GetTechniqueIndex( techniqueName, technique ) )
+		{
+			continue;
+		}
+		if( !shaderForThisBatch || shaderForThisBatch->GetPassCount( technique ) == 0 )
 		{
 			continue;
 		}
@@ -385,44 +399,44 @@ void Tr2RenderContextBase::RenderBatchesWithOverride( ITriRenderBatchAccumulator
 		// Get the per-object data
 		const Tr2PerObjectData* perObjectData = it->GetPerObjectData();
 
-		uint32_t passCount = overrideShader->GetPassCount();
+		uint32_t passCount = overrideShader->GetPassCount( 0 );
 
 		for( uint32_t passIx = 0; passIx < passCount; ++passIx )
 		{
 			D3DPERF_EVENT1(L"Pass %i", passIx);
 
 			const uint32_t shaderMaskAS = mode == TriRenderBatch::DO_NOT_USE_OVERRIDE_SHADERS ? Tr2RenderContext::SHADER_TYPE_MASK : ( Tr2RenderContext::SHADER_TYPE_MASK & ~( 1 << PIXEL_SHADER ) );
-			const uint32_t shaderMask = shaderMaskAS & shaderForThisBatch->GetShaderTypeMask();
+			const uint32_t shaderMask = shaderMaskAS & shaderForThisBatch->GetShaderTypeMask( technique );
 			for( uint32_t shaderType = SHADER_TYPE_FIRST; shaderType < SHADER_TYPE_COUNT; ++shaderType )
 			{
 				if( shaderMaskAS & ( 1 << shaderType ) )
 				{
-					shaderForThisBatch->ApplyShader( 0, ShaderType( shaderType ), *renderContext );
+					shaderForThisBatch->ApplyShader( technique, 0, ShaderType( shaderType ), *renderContext );
 				}
 				if( shaderMask & ( 1 << shaderType ) )
 				{
-					shaderForThisBatch->ApplySamplerStates( 0, ShaderType( shaderType ), *renderContext );
-					materialForThisBatch->ApplyShaderInputs( 0, ShaderType( shaderType ), *renderContext );
+					shaderForThisBatch->ApplySamplerStates( technique, 0, ShaderType( shaderType ), *renderContext );
+					materialForThisBatch->ApplyShaderInputs( technique, 0, ShaderType( shaderType ), *renderContext );
 				}
 			}
 			if( overrideMode != OM_DO_NOT_SET_ORIGINAL_PS && mode != TriRenderBatch::DO_NOT_USE_OVERRIDE_SHADERS )
 			{
-				materialForThisBatch->ApplyShaderInputs( 0, PIXEL_SHADER, *renderContext );
+				materialForThisBatch->ApplyShaderInputs( technique, 0, PIXEL_SHADER, *renderContext );
 			}
 
 			if( mode != TriRenderBatch::DO_NOT_USE_OVERRIDE_SHADERS )
 			{
-				overrideShader->ApplyShader( passIx, PIXEL_SHADER, *renderContext );
-				overrideShader->ApplyRenderStates( passIx, *renderContext );
-				overrideShader->ApplySamplerStates( passIx, PIXEL_SHADER, *renderContext );
+				overrideShader->ApplyShader( 0, passIx, PIXEL_SHADER, *renderContext );
+				overrideShader->ApplyRenderStates( 0, passIx, *renderContext );
+				overrideShader->ApplySamplerStates( 0, passIx, PIXEL_SHADER, *renderContext );
 
 				// The override may need specific data. 
 				// This isn't guaranteed to play well together.
-				overrideMaterial->ApplyShaderInputs( 0, PIXEL_SHADER, *renderContext );
+				overrideMaterial->ApplyShaderInputs( 0, 0, PIXEL_SHADER, *renderContext );
 			}
 			else
 			{
-				shaderForThisBatch->ApplyRenderStates( passIx, *renderContext );
+				shaderForThisBatch->ApplyRenderStates( technique, passIx, *renderContext );
 			}
 
 
@@ -439,12 +453,12 @@ void Tr2RenderContextBase::RenderBatchesWithOverride( ITriRenderBatchAccumulator
 			if( perObjectData )
 			{
 				D3DPERF_EVENT(L"Tr2RenderContextBase::RenderBatchesWithOverride - SetPerObjectDataToDevice");
-				perObjectData->SetPerObjectDataToDevice( perObjectConstantBuffers, overrideShader->GetShaderTypeMask(), *renderContext );
+				perObjectData->SetPerObjectDataToDevice( perObjectConstantBuffers, overrideShader->GetShaderTypeMask( 0 ), *renderContext );
 			}
 
 			if( mode != TriRenderBatch::DO_NOT_USE_OVERRIDE_SHADERS && overrideEffect && overrideMode == OM_APPLY_PS )
 			{
-				overrideEffect->ApplyShaderInputs( passIx, PIXEL_SHADER, *renderContext );
+				overrideEffect->ApplyShaderInputs( 0, passIx, PIXEL_SHADER, *renderContext );
 			}
 
 			it->SubmitGeometry( *renderContext );
@@ -454,7 +468,7 @@ void Tr2RenderContextBase::RenderBatchesWithOverride( ITriRenderBatchAccumulator
 	}
 }
 
-void Tr2RenderContextBase::RenderBatchesForPicking( Tr2Material* effect, TriRenderBatch* &p, int &objectNum )
+void Tr2RenderContextBase::RenderBatchesForPicking( Tr2Material* effect, TriRenderBatch* &p, const BlueSharedString& techniqueName, int &objectNum )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 	CCP_ASSERT( effect );
@@ -468,7 +482,7 @@ void Tr2RenderContextBase::RenderBatchesForPicking( Tr2Material* effect, TriRend
 		return;
 	}
 
-	uint32_t passCount = shader->GetPassCount();
+	uint32_t passCount = shader->GetPassCount( 0 );
 	CCP_ASSERT( passCount == 1 );
 	if( passCount == 0 )
 	{
@@ -477,9 +491,9 @@ void Tr2RenderContextBase::RenderBatchesForPicking( Tr2Material* effect, TriRend
 
 	Tr2RenderContext *renderContext = reinterpret_cast<Tr2RenderContext*>( this );
 
-	shader->ApplyShader( 0, PIXEL_SHADER, *renderContext );
-	shader->ApplyRenderStates( 0, *renderContext );
-	shader->ApplySamplerStates( 0, PIXEL_SHADER, *renderContext );
+	shader->ApplyShader( 0, 0, PIXEL_SHADER, *renderContext );
+	shader->ApplyRenderStates( 0, 0, *renderContext );
+	shader->ApplySamplerStates( 0, 0, PIXEL_SHADER, *renderContext );
 
 	Tr2ConstantBufferAL*	perObjectConstantBuffers[CBUFFER_COUNT];
 	for( uint32_t i = 0; i != CBUFFER_COUNT; ++i )
@@ -493,7 +507,7 @@ void Tr2RenderContextBase::RenderBatchesForPicking( Tr2Material* effect, TriRend
 
 		if( perObjectData )
 		{
-			perObjectData->SetPerObjectDataToDevice( perObjectConstantBuffers, shader->GetShaderTypeMask(), *renderContext );
+			perObjectData->SetPerObjectDataToDevice( perObjectConstantBuffers, shader->GetShaderTypeMask( 0 ), *renderContext );
 			uint32_t id = perObjectData->GetUserData();
 			if( id != objectNum )
 			{
@@ -521,20 +535,27 @@ void Tr2RenderContextBase::RenderBatchesForPicking( Tr2Material* effect, TriRend
 				continue;
 			}
 
-			if( originalShader && originalShader->GetPassCount() > 0 )
+			uint32_t technique;
+			if( !originalShader->GetTechniqueIndex( techniqueName, technique ) )
+			{
+				p = p->GetNext();
+				continue;
+			}
+
+			if( originalShader && originalShader->GetPassCount( technique ) > 0 )
 			{
 				for( uint32_t shaderType = SHADER_TYPE_FIRST; shaderType < SHADER_TYPE_COUNT; ++shaderType )
 				{
 					if( shaderType != PIXEL_SHADER && SHADER_TYPE_EXISTS( shaderType ) )
 					{
-						originalShader->ApplyShader( 0, ShaderType( shaderType ), *renderContext );
-						originalShader->ApplySamplerStates( 0, ShaderType( shaderType ), *renderContext );
-						originalMaterial->ApplyShaderInputs( 0, ShaderType( shaderType ), *renderContext );
+						originalShader->ApplyShader( technique, 0, ShaderType( shaderType ), *renderContext );
+						originalShader->ApplySamplerStates( technique, 0, ShaderType( shaderType ), *renderContext );
+						originalMaterial->ApplyShaderInputs( technique, 0, ShaderType( shaderType ), *renderContext );
 					}
 				}
 
 				// Apply pixel shader inputs from the pick effect
-				effect->ApplyShaderInputs( 0, PIXEL_SHADER, *renderContext );
+				effect->ApplyShaderInputs( 0, 0, PIXEL_SHADER, *renderContext );
 
 				p->SubmitGeometry( *renderContext );
 
@@ -547,7 +568,7 @@ void Tr2RenderContextBase::RenderBatchesForPicking( Tr2Material* effect, TriRend
 
 }
 
-void Tr2RenderContextBase::RenderBatchesForPickingWithoutOverride( ITriRenderBatchAccumulator* batches, int &objectNum )
+void Tr2RenderContextBase::RenderBatchesForPickingWithoutOverride( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName, int &objectNum )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 	D3DPERF_EVENT(L"Tr2EffectStateManager::RenderBatchesForPickingWithoutOverride");
@@ -581,12 +602,18 @@ void Tr2RenderContextBase::RenderBatchesForPickingWithoutOverride( ITriRenderBat
 
 		const Tr2PerObjectData* perObjectData = it->GetPerObjectData();
 
+		uint32_t technique;
+		if( !shader->GetTechniqueIndex( techniqueName, technique ) )
+		{
+			continue;
+		}
+
 		if( perObjectData )
 		{
 			if( perObjectData != curPerObjectData )
 			{
 				D3DPERF_EVENT(L"Set per-object data to device");
-				perObjectData->SetPerObjectDataToDevice( perObjectConstantBuffers, shader->GetShaderTypeMask(), *renderContext );
+				perObjectData->SetPerObjectDataToDevice( perObjectConstantBuffers, shader->GetShaderTypeMask( technique ), *renderContext );
 				curPerObjectData = perObjectData;
 			}
 
@@ -607,11 +634,11 @@ void Tr2RenderContextBase::RenderBatchesForPickingWithoutOverride( ITriRenderBat
 			}
 		}
 
-		uint32_t passCount = shader->GetPassCount();
+		uint32_t passCount = shader->GetPassCount( technique );
 		CCP_ASSERT( passCount == 1 );
 
-		shader->ApplyAllStateForPass( 0, *renderContext );
-		material->ApplyMaterialDataForPass( 0, *renderContext );
+		shader->ApplyAllStateForPass( technique, 0, *renderContext );
+		material->ApplyMaterialDataForPass( technique, 0, *renderContext );
 		it->SubmitGeometry( *renderContext );
 		CCP_STATS_INC( batchCount );
 

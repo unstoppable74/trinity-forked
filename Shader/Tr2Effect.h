@@ -100,7 +100,6 @@ public:
 	bool HasParameter( const char* name ) const;
 
 	void Render( IRenderCallback* cb, Tr2RenderContext& renderContext );
-	void RenderForPicking( IRenderCallback* cb, int objId, Tr2RenderContext& renderContext );
 
 	unsigned GetHashValue() const;
 

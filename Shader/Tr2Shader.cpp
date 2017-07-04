@@ -21,19 +21,36 @@ Tr2Shader::~Tr2Shader()
 {
 }
 
+bool Tr2Shader::GetTechniqueIndex( const BlueSharedString& name, uint32_t& index ) const
+{
+	if( m_effect.techniques.empty() )
+	{
+		return false;
+	}
+	if( name == ANY_TECHNIQUE )
+	{
+		index = 0;
+		return true;
+	}
+	for( size_t i = 0; i < m_effect.techniques.size(); ++i )
+	{
+		if( m_effect.techniques[i].name == name )
+		{
+			index = uint32_t( i );
+			return true;
+		}
+	}
+	return false;
+}
+
 // --------------------------------------------------------------------------------------
-// Description:
-//   Gets the number of passes in the shader.
-// Return Value:
-//   The number of passes supported by the shader
-// --------------------------------------------------------------------------------------
-unsigned int Tr2Shader::GetPassCount() const
+unsigned int Tr2Shader::GetPassCount( uint32_t techniqueIndex ) const
 {
 	if( m_effect.techniques.empty() )
 	{
 		return 0;
 	}
-	return static_cast<unsigned int>( m_effect.techniques[0].passes.size() );
+	return static_cast<unsigned int>( m_effect.techniques[techniqueIndex].passes.size() );
 }
 
 // --------------------------------------------------------------------------------------
@@ -137,15 +154,9 @@ const Tr2EffectDescription& Tr2Shader::GetEffectDescription() const
 }
 
 // --------------------------------------------------------------------------------------
-// Description:
-//   Applies the vertex and pixel shaders, and all the sampler and render states for the
-//   given pass.
-// Arguments:
-//   passIndex - The index of the pass for which to apply state.
-// --------------------------------------------------------------------------------------
-void Tr2Shader::ApplyAllStateForPass( uint32_t passIndex, Tr2RenderContext &renderContext ) const
+void Tr2Shader::ApplyAllStateForPass( uint32_t techniqueIndex, uint32_t passIndex, Tr2RenderContext &renderContext ) const
 {
-	auto& technique = m_effect.techniques[0];
+	auto& technique = m_effect.techniques[techniqueIndex];
 
 	const Tr2Pass& pass = technique.passes[passIndex];
 
@@ -169,28 +180,18 @@ void Tr2Shader::ApplyAllStateForPass( uint32_t passIndex, Tr2RenderContext &rend
 }
 
 // --------------------------------------------------------------------------------------
-// Description:
-//   Applies all the render states for the given pass.
-// Arguments:
-//   passIndex - The index of the pass for which to apply render state.
-// --------------------------------------------------------------------------------------
-void Tr2Shader::ApplyRenderStates( uint32_t passIndex, Tr2RenderContext &renderContext ) const
+void Tr2Shader::ApplyRenderStates( uint32_t techniqueIndex, uint32_t passIndex, Tr2RenderContext &renderContext ) const
 {
-	auto& technique = m_effect.techniques[0];
+	auto& technique = m_effect.techniques[techniqueIndex];
 	auto& pass = technique.passes[passIndex];
 
 	renderContext.m_esm.ApplyRenderStates( pass.renderStates );
 }
 
 // --------------------------------------------------------------------------------------
-// Description:
-//   Applies all the sampler states for the given pass.
-// Arguments:
-//   passIndex - The index of the pass for which to apply sampler state.
-// --------------------------------------------------------------------------------------
-void Tr2Shader::ApplySamplerStates( uint32_t passIndex, Tr2RenderContextEnum::ShaderType type, Tr2RenderContext &renderContext ) const
+void Tr2Shader::ApplySamplerStates( uint32_t techniqueIndex, uint32_t passIndex, Tr2RenderContextEnum::ShaderType type, Tr2RenderContext &renderContext ) const
 {
-	auto& technique = m_effect.techniques[0];
+	auto& technique = m_effect.techniques[techniqueIndex];
 	auto& pass = technique.passes[passIndex];
 
 	for( Tr2SamplerSetupMap::const_iterator it = pass.stageInputs[type].samplers.begin(); 
@@ -204,33 +205,23 @@ void Tr2Shader::ApplySamplerStates( uint32_t passIndex, Tr2RenderContextEnum::Sh
 }
 
 // --------------------------------------------------------------------------------------
-// Description:
-//   Applies the shader for the given pass.
-// Arguments:
-//   passIndex - The index of the pass for which to apply the shader.
-//   type - Shader type to apply
-// --------------------------------------------------------------------------------------
-void Tr2Shader::ApplyShader( uint32_t passIndex, Tr2RenderContextEnum::ShaderType type, Tr2RenderContext &renderContext ) const
+void Tr2Shader::ApplyShader( uint32_t techniqueIndex, uint32_t passIndex, Tr2RenderContextEnum::ShaderType type, Tr2RenderContext &renderContext ) const
 {
-	auto& technique = m_effect.techniques[0];
+	auto& technique = m_effect.techniques[techniqueIndex];
 	auto& pass = technique.passes[passIndex];
 	renderContext.m_esm.ApplyShader( type, pass.stageInputs[type].m_shader );
 }
 
-unsigned Tr2Shader::GetShaderTypeMask() const
+// --------------------------------------------------------------------------------------
+unsigned Tr2Shader::GetShaderTypeMask( uint32_t techniqueIndex ) const
 {
 	if( m_effect.techniques.empty() )
 	{
 		return 0;
 	}
-	return m_effect.techniques[0].shaderTypeMask;
+	return m_effect.techniques[techniqueIndex].shaderTypeMask;
 }
 
-// --------------------------------------------------------------------------------------
-// Description:
-//   Sets the compiled D3DX effect for this shader and rebuilds annotation map.
-// Arguments:
-//   effect - The compiled effect
 // --------------------------------------------------------------------------------------
 Tr2EffectDescription& Tr2Shader::GetEffect()
 {

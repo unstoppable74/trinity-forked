@@ -4,6 +4,7 @@
 #define Tr2EffectDescription_H
 
 extern const BlueSharedString DEFAULT_TECHNIQUE;
+extern const BlueSharedString ANY_TECHNIQUE;
 
 // --------------------------------------------------------------------------------------
 // Description:

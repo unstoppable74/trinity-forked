@@ -2,6 +2,7 @@
 #include "Tr2EffectDescription.h"
 
 const BlueSharedString DEFAULT_TECHNIQUE = BlueSharedString( "Main" );
+const BlueSharedString ANY_TECHNIQUE = BlueSharedString();
 
 
 Tr2EffectStageInput::Tr2EffectStageInput()

@@ -371,7 +371,7 @@ bool ITr2PickableScene::RenderPicking( ITriRenderBatchAccumulator* pOpaquePickin
     if( p != NULL )
     {
         renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_PICKING );
-        renderContext.RenderBatchesForPicking( GetPickingEffect( pass ), p, objectNum );
+        renderContext.RenderBatchesForPicking( GetPickingEffect( pass ), p, DEFAULT_TECHNIQUE, objectNum );
     }
 
     if( pPickingBatches && RenderPickingAreasForComponents( pass ) )
@@ -379,7 +379,7 @@ bool ITr2PickableScene::RenderPicking( ITriRenderBatchAccumulator* pOpaquePickin
         pPickingBatches->Finalize();
 
         renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_PICKING );
-		renderContext.RenderBatchesForPickingWithoutOverride( pPickingBatches, objectNum );
+		renderContext.RenderBatchesForPickingWithoutOverride( pPickingBatches, DEFAULT_TECHNIQUE, objectNum );
     }
 
     if( !pickBuffer.EndRendering( renderContext ) )

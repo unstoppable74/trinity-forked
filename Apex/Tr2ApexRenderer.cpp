@@ -795,7 +795,7 @@ public:
 		if( m_skinned && g_apexRenderer.m_skinnedVS && g_apexRenderer.m_skinnedVS->GetShaderStateInterface() )
 		{
 			//g_apexRenderer.m_skinnedVS->ApplyVertexShaderInputs( 0 );
-			g_apexRenderer.m_skinnedVS->GetShaderStateInterface()->ApplyShader( 0, Tr2RenderContextEnum::VERTEX_SHADER, renderContext );
+			g_apexRenderer.m_skinnedVS->GetShaderStateInterface()->ApplyShader( 0, 0, Tr2RenderContextEnum::VERTEX_SHADER, renderContext );
 		}
 
 		if( !reverseOrder )

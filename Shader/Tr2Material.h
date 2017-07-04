@@ -84,8 +84,8 @@ public:
 
 	EXPOSE_TO_BLUE();
 
-	uint32_t ApplyMaterialDataForPass( unsigned int passIndex, Tr2RenderContext& renderContext ) const;
-	void ApplyShaderInputs( unsigned int passIndex, Tr2RenderContextEnum::ShaderType shaderType, Tr2RenderContext& renderContext ) const;
+	uint32_t ApplyMaterialDataForPass( uint32_t techniqueIndex, unsigned int passIndex, Tr2RenderContext& renderContext ) const;
+	void ApplyShaderInputs( uint32_t techniqueIndex, unsigned int passIndex, Tr2RenderContextEnum::ShaderType shaderType, Tr2RenderContext& renderContext ) const;
 	uint32_t GetSortValue() const;
 	Tr2Shader* GetShaderStateInterface() const;
 
@@ -96,7 +96,7 @@ protected:
 	Tr2EffectTechniqueParametersVector m_parametersForPasses;
 	uint32_t m_sortValue;
 private:
-	void ApplyShaderInputs( unsigned int passIndex, Tr2RenderContextEnum::ShaderType shaderType, bool& samplersChanged, Tr2RenderContext& renderContext ) const;
+	void ApplyShaderInputs( uint32_t techniqueIndex, unsigned int passIndex, Tr2RenderContextEnum::ShaderType shaderType, bool& samplersChanged, Tr2RenderContext& renderContext ) const;
 };
 
 TYPEDEF_BLUECLASS( Tr2Material );

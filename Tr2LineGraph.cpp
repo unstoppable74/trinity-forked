@@ -295,8 +295,8 @@ void Tr2LineGraph::Render( float scale )
 	s_lineGraphScale->SetValue( scale );
 	s_lineGraphColor->SetValue( m_color );
 
-	effectRes->ApplyAllStateForPass( 0, renderContext );
-	s_lineGraphEffect->ApplyMaterialDataForPass( 0, renderContext );
+	effectRes->ApplyAllStateForPass( 0, 0, renderContext );
+	s_lineGraphEffect->ApplyMaterialDataForPass( 0, 0, renderContext );
 
 	renderContext.m_esm.ApplyVertexDeclaration( m_vertexDeclaration );
 	renderContext.m_esm.ApplyStreamSource( 0, m_vertexBuffer, 0, sizeof( LineGraphVertex ) );
