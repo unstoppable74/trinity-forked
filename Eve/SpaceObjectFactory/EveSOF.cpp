@@ -1195,10 +1195,14 @@ void EveSOF::SetupInstancedMeshes( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr
 				newShader->AddResourceTexture2D( it->first, resPath.c_str() );
 			}
 
-			// default shader textures from the generic data
+			// default shader textures & parameters from the generic data
 			for( auto gtit = shaderData->defaultTextures.begin(); gtit != shaderData->defaultTextures.end(); ++gtit )
 			{
 				newShader->AddResourceTexture2D( gtit->first, gtit->second.resFilePath.c_str() );
+			}
+			for( auto gpit = shaderData->defaultParameters.begin(); gpit != shaderData->defaultParameters.end(); ++gpit )
+			{
+				newShader->AddParameterVector4( gpit->first, &gpit->second );
 			}
 
 			// that's it for setting up this shader, must rebuild cache on it!
@@ -1635,7 +1639,7 @@ void EveSOF::SetupDecals( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
 			const EveSOFDataMgr::GenericShaderData* shaderData = dna->GetGenericDecalShaderData( BlueSharedString( hdit->shader ) );
 			if( shaderData )
 			{
-				// default shader textures from the generic data
+				// default shader textures & parameters from the generic data
 				for( auto gtit = shaderData->defaultTextures.begin(); gtit != shaderData->defaultTextures.end(); ++gtit )
 				{
 					shader->AddResourceTexture2D( gtit->first, gtit->second.resFilePath.c_str() );
