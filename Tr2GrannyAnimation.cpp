@@ -33,6 +33,8 @@ Tr2GrannyAnimation::Tr2GrannyAnimation( IRoot* lockobj ) :
 
 Tr2GrannyAnimation::~Tr2GrannyAnimation()
 {
+	Cleanup();
+
 	if( m_grannyRes )
 	{
 		m_grannyRes->RemoveNotifyTarget( this );
@@ -811,24 +813,38 @@ void Tr2GrannyAnimation::Cleanup()
 		it->second.Cleanup();
 	}
 	
-	GrannyFreeLocalPose( m_localPose );
-	m_localPose = nullptr;
+	if ( m_localPose ) {
+		GrannyFreeLocalPose( m_localPose );
+		m_localPose = nullptr;
+	}
 	
-	GrannyFreeLocalPose( m_compositePose );
-	m_compositePose = nullptr;
+	if ( m_compositePose )
+	{
+		GrannyFreeLocalPose( m_compositePose );
+		m_compositePose = nullptr;
+	}
 
-	GrannyFreeWorldPose( m_worldPose );
-	m_worldPose = nullptr;
+	if ( m_worldPose )
+	{
+		GrannyFreeWorldPose( m_worldPose );
+		m_worldPose = nullptr;
+	}
 
-	GrannyFreeMeshBinding( m_meshBinding );
-	m_meshBinding = nullptr;
+	if ( m_meshBinding )
+	{
+		GrannyFreeMeshBinding( m_meshBinding );
+		m_meshBinding = nullptr;
+	}
 
 	m_skeleton = nullptr;
 
 	m_boneList.clear();
 
-	CCP_ALIGNED_FREE( m_meshBoneMatrixList );
-	m_meshBoneMatrixList = nullptr;
+	if ( m_meshBoneMatrixList )
+	{
+		CCP_ALIGNED_FREE( m_meshBoneMatrixList );
+		m_meshBoneMatrixList = nullptr;
+	}
 }
 
 bool Tr2GrannyAnimation::FindBoneByName( const char* name, unsigned int& ix ) const
