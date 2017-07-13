@@ -33,6 +33,7 @@ void EveFiringEffectElementContainer::UpdateSyncronous( EveUpdateContext& update
 		{
 			m_element->SetFiringTransform( m_source.GetTranslation(), m_destination );
 		}
+		m_element->SetDestObjectScale( m_destinationScale );
 		m_element->DisplayEndPoints( m_displaySource, m_displayDestination );
 		if( m_isActive )
 		{
