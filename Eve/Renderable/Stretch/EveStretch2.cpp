@@ -363,6 +363,10 @@ bool EveStretch2::OnPrepareResources()
 
 void EveStretch2::GetLights( Tr2LightManager& lightManager ) const
 {
+	if( m_visible )
+	{
+		return;
+	}
 	if( m_sourceLight )
 	{
 		m_sourceLight->AddLight( lightManager, XMMatrixTranslation( m_source.x, m_source.y, m_source.z ), 1.0f );
