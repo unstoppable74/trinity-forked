@@ -363,7 +363,7 @@ bool EveStretch2::OnPrepareResources()
 
 void EveStretch2::GetLights( Tr2LightManager& lightManager ) const
 {
-	if( m_visible )
+	if( !m_visible )
 	{
 		return;
 	}
