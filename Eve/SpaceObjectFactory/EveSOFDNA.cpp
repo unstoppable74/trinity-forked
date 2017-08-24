@@ -629,6 +629,26 @@ const Vector3* EveSOFDNA::GetHullNextSubsystemOffset( size_t n ) const
 }
 
 // --------------------------------------------------------------------------------
+bool EveSOFDNA::GetHullTextureWithMeshIndex( std::string& resPath, const BlueSharedString& textureName, int32_t meshIndex, size_t n ) const
+{
+	// find the textures with the meshindex lookup map
+	auto hullFinder = m_hullDatas[n]->meshIndexToOpaqueAreaLookup.find( meshIndex );
+	if( hullFinder != m_hullDatas[n]->meshIndexToOpaqueAreaLookup.end() )
+	{
+		auto textures = m_hullDatas[n]->opaqueAreas[hullFinder->second].textures;
+		// find the right texture with it's name
+		auto texFinder = textures.find( textureName );
+		if( texFinder != textures.end() )
+		{
+			resPath = texFinder->second.resFilePath;
+			ModifyTextureResPath( resPath, textureName.c_str() );
+			return true;
+		}
+	}
+	return false;
+}
+
+// --------------------------------------------------------------------------------
 // Description:
 //   Return an array to all the damage locators on this hull
 // --------------------------------------------------------------------------------

@@ -264,6 +264,7 @@ public:
 		std::vector<HullAnimation> animations;
 		std::string modelRotationCurvePath;
 		std::string modelTranslationCurvePath;
+		std::map<int32_t, size_t> meshIndexToOpaqueAreaLookup;
 	};
 
 	// faction data structs

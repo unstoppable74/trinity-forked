@@ -678,6 +678,13 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 		hd.distortionAreas.push_back( LoadHullAreaData( areaData ) );
 	}
 
+	// build a lookup for textures via meshIndices
+	hd.meshIndexToOpaqueAreaLookup.clear();
+	for( size_t i = 0; i < hd.opaqueAreas.size(); ++i )
+	{
+		hd.meshIndexToOpaqueAreaLookup[hd.opaqueAreas[i].index] = i;
+	}
+
 	// turret locators
 	hd.locatorTurrets.clear();
 	for( auto tlit = srcData->m_locatorTurrets.begin(); tlit != srcData->m_locatorTurrets.end(); ++tlit )
