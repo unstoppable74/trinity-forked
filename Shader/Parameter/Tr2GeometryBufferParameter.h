@@ -53,7 +53,7 @@ public:
 
 	void SetGpuBuffer( ITr2GpuBuffer* buffer );
 
-	std::string m_name;
+	BlueSharedString m_name;
 
 	// Initial count for append/consume UAVs
 	uint32_t m_initialCount;
