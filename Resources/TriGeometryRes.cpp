@@ -1389,12 +1389,12 @@ bool TriGeometryRes::GetIntersectionPointAndNormal( const Vector3* pos, const Ve
 	return GetIntersectionPoints( pos, dir, hitpoint, normal, &farPoint, &farPointNormal, &nearBoneIndex, &farBoneIndex );
 }
 
-bool TriGeometryRes::GetIntersectionPointNormalBone( const Vector3* pos, const Vector3* dir, Vector3* hitpoint, Vector3* normal, int* boneIndex )
+bool TriGeometryRes::GetIntersectionPointNormalBone( const Vector3* pos, const Vector3* dir, Vector3* hitpoint, Vector3* normal, int* boneIndex, unsigned int areaIx )
 {
 	Vector3 farPoint;
 	Vector3 farPointNormal;
 	int farBoneIndex;
-	return GetIntersectionPoints( pos, dir, hitpoint, normal, &farPoint, &farPointNormal, boneIndex, &farBoneIndex );
+	return GetIntersectionPoints( pos, dir, hitpoint, normal, &farPoint, &farPointNormal, boneIndex, &farBoneIndex, areaIx );
 }
 
 std::pair<bool, std::pair<Vector3, Vector3>> TriGeometryRes::GetIntersectionPointAndNormalFromScript( const Vector3& pos, const Vector3& dir )
@@ -1414,6 +1414,15 @@ std::pair<bool, std::pair<int, std::pair<Vector3, Vector3>>> TriGeometryRes::Get
 	return std::make_pair( result, std::make_pair( boneIndex, std::make_pair( hitpoint, normal ) ) );
 }
 
+std::pair<bool, std::pair<int, std::pair<Vector3, Vector3>>> TriGeometryRes::GetAreaIntersectionPointNormalBoneFromScript( const Vector3& pos, const Vector3& dir, unsigned int areaIx )
+{
+	Vector3 hitpoint( 0.0f, 0.0f, 0.0f );
+	Vector3 normal( 0.0f, 0.0f, 0.0f );
+	int boneIndex;
+	bool result = GetIntersectionPointNormalBone( &pos, &dir, &hitpoint, &normal, &boneIndex, areaIx );
+	return std::make_pair( result, std::make_pair( boneIndex, std::make_pair( hitpoint, normal ) ) );
+}
+
 static bool GetBoneIndex( Tr2VertexDefinition::DataType elementType, void* src, int& dest )
 {
 	if( elementType != Tr2VertexDefinition::UBYTE_4 )
@@ -1427,7 +1436,7 @@ static bool GetBoneIndex( Tr2VertexDefinition::DataType elementType, void* src, 
 	return true;
 }
 
-bool TriGeometryRes::GetIntersectionPoints( const Vector3* pos, const Vector3*dir, Vector3* hitpointNear, Vector3* hitpointNearNormal, Vector3* hitpointFar, Vector3* hitpointFarNormal, int* boneIndexNear, int* boneIndexFar )
+bool TriGeometryRes::GetIntersectionPoints( const Vector3* pos, const Vector3*dir, Vector3* hitpointNear, Vector3* hitpointNearNormal, Vector3* hitpointFar, Vector3* hitpointFarNormal, int* boneIndexNear, int* boneIndexFar, unsigned int areaIx )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
@@ -1460,7 +1469,6 @@ bool TriGeometryRes::GetIntersectionPoints( const Vector3* pos, const Vector3*di
 			return false;
 		}
 		ON_BLOCK_EXIT( [&]{ m_meshes[i]->m_indexBuffer.Unlock( renderContext ); } );
-
 		
 		uint16_t* pShortIndices = (uint16_t*)pIndices;
 		uint32_t* pLongIndices = (uint32_t*)pIndices;
@@ -1478,6 +1486,17 @@ bool TriGeometryRes::GetIntersectionPoints( const Vector3* pos, const Vector3*di
 		
 		const Tr2VertexDefinition::Item* const blendIndices = decl.Find( decl.BLENDINDICES );
 		int numPrim = m_meshes[i]->m_primitiveCount;
+		auto currentIndex = 0;
+		if ( areaIx != -1 )
+		{
+			if ( areaIx >= m_meshes[i]->m_areas.size() )
+			{
+				continue;
+			}
+			currentIndex = m_meshes[i]->m_areas[areaIx].m_firstIndex;
+			numPrim = m_meshes[i]->m_areas[areaIx].m_primitiveCount;
+		}
+
 		for ( int j = 0; j < numPrim; j++ )
 		{
 			unsigned int index1 = 0;
@@ -1489,15 +1508,15 @@ bool TriGeometryRes::GetIntersectionPoints( const Vector3* pos, const Vector3*di
 			float pu, pv, dist;
 			if( m_meshes[i]->m_indexBuffer.Is16Bit() )
 			{
-				index1 = pShortIndices[j*3];
-				index2 = pShortIndices[(j*3)+1];
-				index3 = pShortIndices[(j*3)+2];
+				index1 = pShortIndices[++currentIndex];
+				index2 = pShortIndices[++currentIndex];
+				index3 = pShortIndices[++currentIndex];
 			}
 			else
 			{
-				index1 = pLongIndices[j*3];
-				index2 = pLongIndices[(j*3)+1];
-				index3 = pLongIndices[(j*3)+2];
+				index1 = pLongIndices[++currentIndex];
+				index2 = pLongIndices[++currentIndex];
+				index3 = pLongIndices[++currentIndex];
 			}
 
 			ConvertTriangleData( position->m_dataType, vertSize, pVertices, index1, index2, index3, &p1, &p2, &p3 );

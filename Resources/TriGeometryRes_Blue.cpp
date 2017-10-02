@@ -235,6 +235,16 @@ const Be::ClassInfo* TriGeometryRes::ExposeToBlue()
 
 		MAP_METHOD_AND_WRAP
 		(
+			"GetAreaIntersectionPointNormalBone", 
+			GetAreaIntersectionPointNormalBoneFromScript,
+			"( pos, dir ) ->( near, far )\nGet the near intersection points and the normal between a ray and the geometry.\n"
+			":param pos: ray origin\n"
+			":param direction: ray direction\n"
+			":param areaIx: the mesh area index\n"
+		)
+
+		MAP_METHOD_AND_WRAP
+		(
 			"GetClosestVertex", 
 			GetClosestVertex,
 			"( pos ) ->( dist, pos )\nGet the closest vertex of this model to the given point.\n"
