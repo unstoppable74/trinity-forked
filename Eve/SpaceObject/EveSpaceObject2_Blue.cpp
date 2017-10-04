@@ -32,6 +32,24 @@ namespace
 			}
 		}
 	}
+
+	void ApplyModelTransform( Vector3& position, Quaternion& rotation, ITriVectorFunctionPtr modelTranslationCurve, ITriQuaternionFunctionPtr modelRotationCurve )
+	{
+		if( modelTranslationCurve )
+		{
+			Vector3 pos( 0, 0, 0 );
+			modelTranslationCurve->GetValueAt( &pos, Be::Time() );
+			position += pos;
+		}
+
+		if( modelRotationCurve )
+		{
+			Quaternion quat( 0, 0, 0, 1 );
+			modelRotationCurve->GetValueAt( &quat, Be::Time() );
+			position = XMVector3Rotate( position, quat );
+			rotation = XMQuaternionMultiply( rotation, quat );
+		}
+	}
 }
 
 PyObject* EveSpaceObject2::PyTransformLocators( PyObject* self, PyObject* args )
@@ -42,6 +60,10 @@ PyObject* EveSpaceObject2::PyTransformLocators( PyObject* self, PyObject* args )
 	{
 		return nullptr;
 	}
+
+	auto modelTranslationCurve = pThis->GetModelTranslationCurve();
+	auto modelRotationCurve = pThis->GetModelRotationCurve();
+
 	if( auto locators = BluePythonCast<LocatorStructureList*>( pyLocators ) )
 	{
 		PyObject* result = PyList_New( ssize_t( locators->GetSize() ) );
@@ -51,7 +73,10 @@ PyObject* EveSpaceObject2::PyTransformLocators( PyObject* self, PyObject* args )
 
 			Vector3 position = locator.position;
 			Quaternion rotation = locator.direction;
+
 			TransformLocator( position, rotation, locator.boneIndex, pThis->m_animationUpdater );
+			if( modelTranslationCurve || modelRotationCurve )
+				ApplyModelTransform( position, rotation, modelTranslationCurve, modelRotationCurve );
 
 			PyObject* tuple = PyTuple_New( 3 );
 			PyTuple_SetItem( tuple, 0, Py_BuildValue( "(fff)", position.x, position.y, position.z ) );
@@ -82,8 +107,10 @@ PyObject* EveSpaceObject2::PyTransformLocators( PyObject* self, PyObject* args )
 				return PyErr_SetString( PyExc_TypeError, "arument must be a sequence of (position, rotation, boneIndex) tuples" ), nullptr;
 			}
 			int boneIndex = int( PyInt_AsLong( PyTuple_GET_ITEM( item, 2 ) ) );
-			
+
 			TransformLocator( position, rotation, boneIndex, pThis->m_animationUpdater );
+			if( modelTranslationCurve || modelRotationCurve )
+				ApplyModelTransform( position, rotation, modelTranslationCurve, modelRotationCurve );
 
 			PyObject* tuple = PyTuple_New( 3 );
 			PyTuple_SetItem( tuple, 0, Py_BuildValue( "(fff)", position.x, position.y, position.z ) );
