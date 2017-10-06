@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
 //    Created:   September 2017
-//    Copyright: CCP 2010
+//    Copyright: CCP 2017
 //
 
 #include "StdAfx.h"
