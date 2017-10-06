@@ -166,7 +166,8 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	m_useSunColorWithDynamicLights( false ),
 	m_nebulaBrightnessOverride( 0.f ),
 	m_nebulaBrightnessOverrideVar( "NebulaBrightnessOverride", m_nebulaBrightnessOverride ),
-	m_hasDepthPass( false )
+	m_hasDepthPass( false ),
+	m_msaaSamples( 0 )
 {
 	TriPoolAllocator* allocator = Tr2Renderer::GetPoolAllocator();
 	m_primaryBatches[TRIBATCHTYPE_OPAQUE] = CCP_NEW( "EveSpaceScene/m_batches" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
@@ -2248,7 +2249,7 @@ void EveSpaceScene::PopulatePerFramePSData( PerFramePSData &data )
 		data.ShadowMapSettings = Vector4( 1.f, 1.f, 0.f, 0.f );
 	}
 	data.ShadowLightness = 0;
-	data.DepthMapSampleCount = float( m_depthMap ? m_depthMap->m_depthStencil.GetMsaaType() : 0 );
+	data.DepthMapSampleCount = float( m_msaaSamples );
 
 	const Matrix& projection = Tr2Renderer::GetReversedDepthProjectionTransform();
 	data.ProjectionToView.x = projection._43;

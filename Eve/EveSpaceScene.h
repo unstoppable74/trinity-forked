@@ -513,6 +513,8 @@ private:
 
 	float m_taaPixelOffsetScale;
 
+	size_t m_msaaSamples;
+
 	float m_nebulaBrightnessOverride;
 	Tr2Variable m_nebulaBrightnessOverrideVar;
 	void TAAOffset();

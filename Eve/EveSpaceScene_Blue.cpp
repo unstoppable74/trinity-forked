@@ -644,6 +644,12 @@ const Be::ClassInfo* EveSpaceScene::ExposeToBlue()
 			"\n 3 - 3x pattern"
 			"\n 4 - 4x pattern",
 			Be::READWRITE )
+			
+		MAP_ATTRIBUTE(
+			"msaaSamples",
+			m_msaaSamples,
+			"Number of msaa samples",
+			Be::READWRITE )
 
 		MAP_PROPERTY_READONLY(
 			"quadRenderer",
