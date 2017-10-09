@@ -722,9 +722,14 @@ void EveSOF::SetupPlaneSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) co
 
 			// Select the planeset's data based on the usage
 			std::string effectResPath, imageMapResPath, externalParamName;
+			float angularFadeOut = 0.f;
 			switch( planeSetData->usage )
 			{
 			case EveSOFDataHullPlaneSet::USAGE_STANDARD:
+				effectResPath = planeSetData->skinned ? "res:/graphics/effect/managed/space/spaceobject/fx/skinned_planeglow.fx" : "res:/graphics/effect/managed/space/spaceobject/fx/planeglow.fx";
+				break;
+			case EveSOFDataHullPlaneSet::USAGE_HAZE:
+				angularFadeOut = 1.f;
 				effectResPath = planeSetData->skinned ? "res:/graphics/effect/managed/space/spaceobject/fx/skinned_planeglow.fx" : "res:/graphics/effect/managed/space/spaceobject/fx/planeglow.fx";
 				break;
 			case EveSOFDataHullPlaneSet::USAGE_VIDEO:
@@ -774,7 +779,8 @@ void EveSOF::SetupPlaneSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) co
 			}
 
 			// parameters
-			planeEffect->AddParameterVector4( BlueSharedString( "PlaneData" ), &planeSetData->planeData );
+			Vector4 planeData( angularFadeOut, (float)planeSetData->atlasSize, 0.f, 0.f );
+			planeEffect->AddParameterVector4( BlueSharedString( "PlaneData" ), &planeData );
 
 			// finish up shader and set it
 			planeEffect->EndUpdate();

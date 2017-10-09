@@ -554,6 +554,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 		hpsd.layer1MapResPath = planeSetData->m_layer1MapResPath;
 		hpsd.layer2MapResPath = planeSetData->m_layer2MapResPath;
 		hpsd.maskMapResPath = planeSetData->m_maskMapResPath;
+		hpsd.atlasSize = planeSetData->m_atlasSize;
 		hpsd.planeData = planeSetData->m_planeData;
 		hpsd.skinned = planeSetData->m_skinned;
 		hpsd.usage = planeSetData->m_usage;

@@ -129,6 +129,7 @@ public:
 		std::string layer2MapResPath;
 		std::string maskMapResPath;
 		EveSOFDataHullPlaneSet::Usage usage;
+		uint32_t atlasSize;
 		Vector4 planeData;
 		std::vector<HullPlaneSetItemData> items;
 	};

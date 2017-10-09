@@ -331,6 +331,7 @@ public:
 		USAGE_VIDEO,
 		USAGE_CORP_LOGO,
 		USAGE_CEO_PORTRAIT,
+		USAGE_HAZE,
 	};
 
 	// data
@@ -340,6 +341,7 @@ public:
 	std::string m_layer2MapResPath;
 	std::string m_maskMapResPath;
 	Usage m_usage;
+	uint32_t m_atlasSize;
 	Vector4 m_planeData;
 	// items
 	PEveSOFDataHullPlaneSetItemVector m_items;

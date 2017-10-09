@@ -192,6 +192,7 @@ Be::VarChooser EveSOFDataHullPlaneSetUsageChooser[] =
 	{ "Video", BeCast( EveSOFDataHullPlaneSet::USAGE_VIDEO ), "Video planeset" },
 	{ "CorpLogo", BeCast( EveSOFDataHullPlaneSet::USAGE_CORP_LOGO ), "Corporation logo planeset" },
 	{ "CeoPortrait", BeCast( EveSOFDataHullPlaneSet::USAGE_CEO_PORTRAIT ), "Ceo portrait planeset" },
+	{ "Haze", BeCast( EveSOFDataHullPlaneSet::USAGE_HAZE ), "Fake haze planeset" },
 	{ 0 }
 };
 BLUE_REGISTER_ENUM_EX( "HullPlanesetUsage", EveSOFDataHullPlaneSet::Usage, EveSOFDataHullPlaneSetUsageChooser, ENUM_REG_ENUM_OBJECT_ON_MODULE );
@@ -206,6 +207,7 @@ const Be::ClassInfo* EveSOFDataHullPlaneSet::ExposeToBlue()
 		MAP_ATTRIBUTE( "layer2MapResPath", m_layer2MapResPath, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "maskMapResPath", m_maskMapResPath, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE_WITH_CHOOSER("usage", m_usage, "Choose the usage of this planeSet", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFDataHullPlaneSetUsageChooser )
+		MAP_ATTRIBUTE( "atlasSize", m_atlasSize, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "planeData", m_planeData, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "skinned", m_skinned, "", Be::READWRITE | Be::PERSIST )
 
