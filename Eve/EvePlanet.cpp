@@ -3,14 +3,13 @@
 #include "EveTransform.h"
 #include "TriFrustum.h"
 #include "TriDevice.h"
-#include "TriSettingsRegistrar.h"
 #include "EveUpdateContext.h"
 
 const float EvePlanet::SCALE = 1000000.0f;
 static int s_evePlanetTextureQuality = 0;
 
 // Temporary variables, should be set by whatever module controls fov
-const float FOV_MIN = 0.05f;
+const float FOV_MIN = 0.65f;
 
 // global spacescene thresholds for loding, options dependent
 extern float g_eveSpaceSceneMediumDetailThreshold;
