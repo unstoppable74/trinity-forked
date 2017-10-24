@@ -29,7 +29,6 @@ Tr2TextureAtlas::Tr2TextureAtlas( IRoot* lockobj ) :
 	m_optimizationWarranted( false ),
 	m_areasFreedSinceLastCollapse( 0 ),
 	m_hasMipMaps( false ),
-	m_isRenderTarget( false ),
 	m_freeTexels( 0 ),
 	m_mipLevels( 0 )
 {
@@ -48,34 +47,12 @@ void Tr2TextureAtlas::Initialize( PixelFormat fmt, unsigned int width, unsigned 
 	m_height = height;
 	m_usage = usage;
 	m_hasMipMaps = hasMipMaps;
-	m_isRenderTarget = false;
-
-	PrepareResources();
-}
-
-void Tr2TextureAtlas::InitializeRenderTarget( PixelFormat fmt, unsigned int width, unsigned int height, bool hasMipMaps )
-{
-	ReleaseResources( TRISTORAGE_ALL );
-
-	m_format = fmt;
-	m_width = width;
-	m_height = height;
-	m_usage = Tr2RenderContextEnum::USAGE_CPU_READ;
-	m_hasMipMaps = hasMipMaps;
-	m_isRenderTarget = true;
-
-	m_paintEmptyAreas = false;
-	m_createOutsiders = false;
 
 	PrepareResources();
 }
 
 void Tr2TextureAtlas::ReleaseResources( TriStorage s )
 {
-	if( m_isRenderTarget )
-	{
-		m_texture.Destroy();
-	}
 	if( s & TRISTORAGE_MANAGEDMEMORY ) 
 	{
 		m_texture.Destroy();
@@ -92,12 +69,8 @@ void Tr2TextureAtlas::ReleaseResources( TriStorage s )
 // This gets called after a device reset
 bool Tr2TextureAtlas::OnPrepareResources()
 {
-	if( m_texture.IsValid() || m_renderTarget.IsValid() )
+	if( m_texture.IsValid() )
 	{
-		if( m_isRenderTarget && m_renderTarget.IsValid() && !m_texture.IsValid() )
-		{
-			m_texture = m_renderTarget.GetTexture();
-		}
 		return true;
 	}
 	
@@ -108,32 +81,17 @@ bool Tr2TextureAtlas::OnPrepareResources()
 		if( m_height <= 1 || m_width <= 1 )
 		{
 			return false;
-			}
+		}
 		
 		m_mipLevels = m_hasMipMaps ? unsigned( 0.5 + log(double(std::max(m_height, m_width))) / log(2.0) ) : 1;
-		if( m_isRenderTarget )
-		{
-			USE_MAIN_THREAD_RENDER_CONTEXT();
-			hr = m_renderTarget.Create(		m_width, 
-											m_height, 
-											m_mipLevels, 
-											m_format, 
-											1, 
-											0, 
-											renderContext );
-			m_texture = m_renderTarget.GetTexture();
-		}
-		else
-		{
-			USE_MAIN_THREAD_RENDER_CONTEXT();
-			hr = m_texture.Create2D(	m_width, 
-										m_height, 
-										m_mipLevels, 
-										m_format, 
-										m_usage, 
-										nullptr, 
-										renderContext );
-		}
+		USE_MAIN_THREAD_RENDER_CONTEXT();
+		hr = m_texture.Create2D(	m_width, 
+									m_height, 
+									m_mipLevels, 
+									m_format, 
+									m_usage, 
+									nullptr, 
+									renderContext );
 
 		if( FAILED(hr) )
 		{
@@ -211,16 +169,15 @@ bool Tr2TextureAtlas::DoPrepare( Tr2AtlasTexture* tex )
 	tex->m_textureWidth = m_width;
 	tex->m_textureHeight = m_height;
 
-	if( !m_isRenderTarget )
+	Tr2ImageIOHelpers::CopyToTexture( *tex->m_loadedBitmap, m_texture, area->rect.left, area->rect.top, m_margin, renderContext );
+
+	if( m_hasMipMaps ) 
 	{
-		Tr2ImageIOHelpers::CopyToTexture( *tex->m_loadedBitmap, m_texture, area->rect.left, area->rect.top, m_margin, renderContext );
-
-		if( m_hasMipMaps ) {
-			m_dirtyMipRegions.push_back( area->rect );
-		}
-
-		RegisterInsider( tex );
+		m_dirtyMipRegions.push_back( area->rect );
 	}
+
+	RegisterInsider( tex );
+
 	return true;	
 }
 
@@ -1004,18 +961,6 @@ Tr2TextureAL* Tr2TextureAtlas::GetTexture()
 	return m_texture.IsValid() ? &m_texture : nullptr; 
 }
 
-// --------------------------------------------------------------------------------------
-// Description:
-//   Returns texture atlas render target if the atlas was created for render targets or
-//   nullptr otherwise.
-// Return Value:
-//   texture atlas render target
-// --------------------------------------------------------------------------------------
-Tr2RenderTargetAL* Tr2TextureAtlas::GetRenderTarget()
-{
-	return m_renderTarget.IsValid() ? &m_renderTarget : nullptr; 
-}
-
 int Tr2TextureAtlas::GetTexturesInAtlasCount()
 {
 	return (int)m_texturesInAtlas.size();
@@ -1074,7 +1019,7 @@ void Tr2TextureAtlas::PullInOutsiders( bool optimiseInsertion )
 			{
 				// Set up the texture window into the atlas
 				tex->m_texture = m_texture;
-				tex->m_renderTarget = &m_renderTarget;
+				tex->m_renderTarget = nullptr;
 				tex->m_x = area->rect.left + m_margin;
 				tex->m_y = area->rect.top + m_margin;
 				tex->m_textureWidth = m_width;
@@ -1165,7 +1110,7 @@ ALResult Tr2TextureAtlas::CreateTexture( unsigned int width, unsigned int height
 
 		// Set up the texture window into the atlas
 		tex->m_texture = m_texture;
-		tex->m_renderTarget = &m_renderTarget;
+		tex->m_renderTarget = nullptr;
 		tex->m_x = area->rect.left + m_margin;
 		tex->m_y = area->rect.top + m_margin;
 		tex->m_width = width;
@@ -1602,8 +1547,6 @@ bool Tr2TextureAtlas::HasALObject( int type, size_t object )
 	{
 	case OT_TEXTURE:
 		return m_texture == *reinterpret_cast<Tr2TextureAL*>( object );
-	case OT_RENDER_TARGET:
-		return m_renderTarget == *reinterpret_cast<Tr2RenderTargetAL*>( object );
 	}
 	return false;
 }

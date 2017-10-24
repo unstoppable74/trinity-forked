@@ -39,7 +39,6 @@ public:
 	~Tr2TextureAtlas();
 
 	void Initialize( Tr2RenderContextEnum::PixelFormat fmt, unsigned int width, unsigned int height, Tr2RenderContextEnum::BufferUsage usage = Tr2RenderContextEnum::USAGE_CPU_READ, bool hasMipMaps = false );
-	void InitializeRenderTarget( Tr2RenderContextEnum::PixelFormat fmt, unsigned int width, unsigned int height, bool hasMipMaps = false );
 	void CollapseFreeAreas();
 	void ConsolidateFreeAreas();
 	void PullInOutsiders( bool optimiseInsertion = false );
@@ -64,7 +63,6 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// ITr2TextureProvider
 	Tr2TextureAL* GetTexture();
-	Tr2RenderTargetAL* GetRenderTarget();
 
 	//////////////////////////////////////////////////////////////////////////
 	// ITriDeviceResource
@@ -136,11 +134,6 @@ private:
 	unsigned int m_width;
 	unsigned int m_height;
 	Tr2RenderContextEnum::BufferUsage m_usage;
-
-	// If the atlas was created for render targets
-	bool m_isRenderTarget;
-	// Render target if the atlas was created for render targets
-	Tr2RenderTargetAL m_renderTarget;
 	
 
 	typedef TrackableStdSet<Tr2AtlasTexture*> Tr2AtlasTextureSet_t;
