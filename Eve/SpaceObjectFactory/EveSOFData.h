@@ -342,7 +342,6 @@ public:
 	std::string m_maskMapResPath;
 	Usage m_usage;
 	uint32_t m_atlasSize;
-	Vector4 m_planeData;
 	// items
 	PEveSOFDataHullPlaneSetItemVector m_items;
 };

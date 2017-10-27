@@ -383,8 +383,7 @@ EveSOFDataHullPlaneSet::EveSOFDataHullPlaneSet( IRoot* lockobj ) :
 	PARENTLOCK( m_items ),
 	m_skinned( false ),
 	m_usage( USAGE_STANDARD ),
-	m_atlasSize( 1 ),
-	m_planeData( 1.f, 0.f, 0.f, 0.f )
+	m_atlasSize( 1 )
 {}
 
 

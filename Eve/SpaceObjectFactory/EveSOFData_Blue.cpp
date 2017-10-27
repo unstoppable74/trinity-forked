@@ -208,7 +208,6 @@ const Be::ClassInfo* EveSOFDataHullPlaneSet::ExposeToBlue()
 		MAP_ATTRIBUTE( "maskMapResPath", m_maskMapResPath, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE_WITH_CHOOSER("usage", m_usage, "Choose the usage of this planeSet", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFDataHullPlaneSetUsageChooser )
 		MAP_ATTRIBUTE( "atlasSize", m_atlasSize, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "planeData", m_planeData, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "skinned", m_skinned, "", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "items", m_items, "The items in this planeset", Be::READWRITE | Be::PERSIST )
