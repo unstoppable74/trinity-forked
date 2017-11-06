@@ -142,11 +142,12 @@ ALResult Tr2GpuStructuredBuffer::CreateBuffer()
 
 	
 	USE_MAIN_THREAD_RENDER_CONTEXT();
-	return m_buffer.CreateStructured( 
+	return m_buffer.Create( 
 		m_count, 
 		m_stride, 
 		usage,
 		gpuBufferUsage,
+		EX_NONE,
 		nullptr, 
 		renderContext );
 }

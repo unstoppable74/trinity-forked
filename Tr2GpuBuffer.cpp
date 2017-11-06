@@ -161,12 +161,12 @@ ALResult Tr2GpuBuffer::CreateBuffer()
 	}
 	
 	USE_MAIN_THREAD_RENDER_CONTEXT();
-	return m_buffer.CreateEx( 
+	return m_buffer.Create( 
 		m_count, 
 		static_cast<PixelFormat>( m_format ), 
 		usage,
-		nullptr, 
-		( m_creationFlags & DRAW_INDIRECT ) ? EX_DRAW_INDIRECT : 0,
+		( m_creationFlags & DRAW_INDIRECT ) ? EX_DRAW_INDIRECT : EX_NONE,
+		nullptr,
 		renderContext );
 }
 

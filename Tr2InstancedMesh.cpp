@@ -334,7 +334,7 @@ Tr2GpuBufferAL* Tr2InstancedMesh::GetIndirectBuffer( const AreaKey& key )
 	}
 
 	Tr2GpuBufferAL* buffer = new Tr2GpuBufferAL;
-	if( FAILED( buffer->CreateEx( 5, Tr2RenderContextEnum::PIXEL_FORMAT_R32_UINT, 0, data, Tr2RenderContextEnum::EX_DRAW_INDIRECT, renderContext ) ) )
+	if( FAILED( buffer->Create( 5, Tr2RenderContextEnum::PIXEL_FORMAT_R32_UINT, 0, Tr2RenderContextEnum::EX_DRAW_INDIRECT, data, renderContext ) ) )
 	{
 		delete buffer;
 		return nullptr;

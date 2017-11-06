@@ -2506,12 +2506,12 @@ bool TriGeometryRes::CreateMeshFromGrannyMesh( granny_mesh* myMesh, TriGeometryR
 			granny_data_type_definition* pSrcFmt = GrannyGetMeshVertexType( myMesh );
 			GrannyConvertVertexLayouts( vertexCount, pSrcFmt, pSrc, grannyVertexDecl, &tempBuffer[0] );
 			USE_MAIN_THREAD_RENDER_CONTEXT();
-			CR_RETURN_VAL( pMesh->m_shaderResourceBuffer.CreateStructured( vertexCount, bytesPerVertex, usage, 0, &tempBuffer[0], renderContext ), false );
+			CR_RETURN_VAL( pMesh->m_shaderResourceBuffer.Create( vertexCount, bytesPerVertex, usage, 0, EX_NONE, &tempBuffer[0], renderContext ), false );
 		}
 		else
 		{
 			USE_MAIN_THREAD_RENDER_CONTEXT();
-			CR_RETURN_VAL( pMesh->m_shaderResourceBuffer.CreateStructured( vertexCount, bytesPerVertex, usage, 0, pSrc, renderContext ), false );
+			CR_RETURN_VAL( pMesh->m_shaderResourceBuffer.Create( vertexCount, bytesPerVertex, usage, 0, EX_NONE, pSrc, renderContext ), false );
 		}
 
 		pMesh->m_bytesPerVertex = bytesPerVertex;
