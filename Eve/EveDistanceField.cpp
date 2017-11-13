@@ -39,7 +39,7 @@ float EveDistanceField::CalculateFieldCoverageAndDistance( Be::Time t, const Vec
 	if( m_objects.empty() )
 	{
 		m_middle += originShift;
-		return m_maxDistance;
+		return Length( posRef );
 	}
 	
 	const float oneOverCount = 1.f / (float)m_objects.size();
