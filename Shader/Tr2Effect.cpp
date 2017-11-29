@@ -622,23 +622,23 @@ BlueSharedString Tr2Effect::GetOption( const BlueSharedString& name ) const
 	return BlueSharedString();
 }
 
-static Tr2SamplerDescription&& CreateSamplerDescription( const Tr2SamplerOverride& samplerOverride )
+static Tr2SamplerDescription CreateSamplerDescription( const Tr2SamplerOverride& samplerOverride )
 {
-	return std::move( Tr2SamplerDescription(
-							samplerOverride.filter,
-							samplerOverride.filter,
-							samplerOverride.mipFilter,
-							false,
-							samplerOverride.addressU,
-							samplerOverride.addressV,
-							samplerOverride.addressW,
-							samplerOverride.lodBias,
-							samplerOverride.maxAnisotropy,
-							Tr2RenderContextEnum::CMP_NEVER,
-							Color( 0.f, 0.f, 0.f, 0.f ),
-							float( samplerOverride.maxMipLevel ),
-							FLT_MAX
-							) );
+	return Tr2SamplerDescription(
+		samplerOverride.filter,
+		samplerOverride.filter,
+		samplerOverride.mipFilter,
+		false,
+		samplerOverride.addressU,
+		samplerOverride.addressV,
+		samplerOverride.addressW,
+		samplerOverride.lodBias,
+		samplerOverride.maxAnisotropy,
+		Tr2RenderContextEnum::CMP_NEVER,
+		Color( 0.f, 0.f, 0.f, 0.f ),
+		float( samplerOverride.maxMipLevel ),
+		FLT_MAX
+		);
 }
 
 void Tr2Effect::RebuildSamplerOverrides()
