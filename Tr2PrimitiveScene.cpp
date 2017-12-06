@@ -23,7 +23,6 @@ struct PerFrameVSData
 Tr2PrimitiveScene::Tr2PrimitiveScene( IRoot* lockobj ) :
 	PARENTLOCK( m_primitives ),
 	PARENTLOCK( m_textLabels ),
-	PARENTLOCK( m_excludedPickingPrimitives ),
 	m_pickBuffer( NULL, Tr2RenderContextEnum::PIXEL_FORMAT_R32G32B32A32_FLOAT, 1 )
 {
 	m_pickBuffer.PrepareResources();	
@@ -46,12 +45,13 @@ Tr2PrimitiveScene::~Tr2PrimitiveScene()
 // --------------------------------------------------------------------------------------
 void Tr2PrimitiveScene::Render( Tr2RenderContext& renderContext )
 {
-	// We render everything since it is so cheap
-	m_visibleRenderObjects.clear();		
+    std::vector<ITr2Renderable*> visibleRenderObjects;
+    // We render everything since it is so cheap
+	visibleRenderObjects.clear();		
 	for( PrimitiveIterator it = m_primitives.begin(); it != m_primitives.end(); ++it )
 	{
 		(*it)->UpdateTransform();
-		m_visibleRenderObjects.push_back((*it));
+		visibleRenderObjects.push_back((*it));
 	}
 
 	if( m_manipulator != NULL )
@@ -60,13 +60,13 @@ void Tr2PrimitiveScene::Render( Tr2RenderContext& renderContext )
 		std::vector<ITr2Renderable*> manipPrims = m_manipulator->GetPrimitivesToRender();
 		for( RenderableIterator it = manipPrims.begin(); it != manipPrims.end(); ++it )
 		{			
-			m_visibleRenderObjects.push_back((*it));
+			visibleRenderObjects.push_back((*it));
 		}
 	}
 
 	// Sort the list before we render since the primitives might not write to z
 	Tr2RenderableSortList sortList;
-	for( RenderableIterator it = m_visibleRenderObjects.begin(); it != m_visibleRenderObjects.end(); ++it )
+	for( RenderableIterator it = visibleRenderObjects.begin(); it != visibleRenderObjects.end(); ++it )
 	{
 		ITr2RenderableEntry entry;
 		entry.m_object = (*it);
@@ -202,28 +202,6 @@ void Tr2PrimitiveScene::SetPerFrameDataForPicking( void )
 	SetupPerFrameData();
 }
 
-const std::vector<ITr2Renderable*>& Tr2PrimitiveScene::GetObjectsInsideFrustum( )
-{
-	m_visibleRenderObjects.clear();
-
-	TriFrustum frustum;
-	frustum.DeriveFrustum( &Tr2Renderer::GetViewTransform(), 
-							&Tr2Renderer::GetViewPosition(), 
-							&Tr2Renderer::GetProjectionTransform(), 
-							Tr2Renderer::GetViewport() );
-	for( PrimitiveIterator it = m_primitives.begin(); it != m_primitives.end(); ++it )
-	{
-		(*it)->UpdateTransform();
-		Vector4 bs = (*it)->GetBoundingSphere();
-		if( frustum.IsSphereVisible( &bs ) )
-		{
-			m_visibleRenderObjects.push_back((*it));	
-		}	
-	}
-	return m_visibleRenderObjects;
-
-}
-
 bool Tr2PrimitiveScene::RenderPicking( 
 	ITriRenderBatchAccumulator* pOpaquePickingBatches,
 	ITriRenderBatchAccumulator* pPickingBatches,
@@ -275,24 +253,21 @@ const std::vector<ITr2Renderable*>& Tr2PrimitiveScene::GetPickingObjectsToRender
 	// get rendered for picking
 	bool found = false;
 	// Be sure that view dependant data is updated before we render for picking
-	for( RenderableIterator it = m_visibleRenderObjects.begin(); it != m_visibleRenderObjects.end(); ++it )
+	for( auto it = m_primitives.begin(); it != m_primitives.end(); ++it )
 	{		
 		((Tr2PrimitiveSet*)(*it))->UpdateTransform();
-		for( PrimitiveIterator pit = m_excludedPickingPrimitives.begin(); pit != m_excludedPickingPrimitives.end(); ++pit )
-		{
-			if( (Tr2PrimitiveSet*)(*it) == (*pit) )
-			{
-				found = true;
-				break;
-			}
-		}
-		if( !found )
-		{
-			m_pickingObjects.push_back((*it));
-		}	
-		found = false;
+		m_pickingObjects.push_back((*it));
 	}
-	
+    if (m_manipulator != NULL)
+    {
+        m_manipulator->Update();
+        std::vector<ITr2Renderable*> manipPrims = m_manipulator->GetPrimitivesToRender();
+        for (RenderableIterator it = manipPrims.begin(); it != manipPrims.end(); ++it)
+        {
+            m_pickingObjects.push_back((*it));
+        }
+    }
+
 	return m_pickingObjects;
 }
 

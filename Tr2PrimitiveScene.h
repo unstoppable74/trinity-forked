@@ -68,7 +68,6 @@ private:
 	void SetPerFrameDataForPicking( void );
 	const std::vector<ITr2Renderable*>& GetPickingObjectsToRender( const Vector3& dirWorld );
 	const std::vector<ITr2Renderable*>& GetPickingObjectsToRender( const Vector3& dirWorld, float fov, float aspect );
-	const std::vector<ITr2Renderable*>& GetObjectsInsideFrustum( );
 
 	// We always render opaque batches for picking
 	ITriRenderBatchAccumulator* GetOpaquePickingBatchAccumulator( void );
@@ -92,8 +91,6 @@ private:
 	typedef std::vector<ITr2Renderable*>::const_iterator RenderableIterator;
 
 	PTr2PrimitiveSetVector m_primitives;
-	PTr2PrimitiveSetVector m_excludedPickingPrimitives;
-	std::vector<ITr2Renderable*> m_visibleRenderObjects;
 	std::vector<ITr2Renderable*> m_pickingObjects;
 
 	PTr2PrimitiveTextVector m_textLabels;
