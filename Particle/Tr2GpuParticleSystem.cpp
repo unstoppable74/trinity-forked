@@ -515,7 +515,6 @@ void Tr2GpuParticleSystem::Update( Be::Time time, const Vector3& originShift, Tr
 	}
 
 	// prepare draw arguments for Render
-	renderContext.m_esm.UnsetAllTextures();
 	Tr2Renderer::RunComputeShader( m_setDrawParameters, 1, 1, 1, renderContext );
 #endif
 }
@@ -933,7 +932,6 @@ void Tr2GpuParticleSystem::Sort( Tr2RenderContext& renderContext )
 	m_sortTimer.Begin( renderContext );
 	ON_BLOCK_EXIT( [&] { m_sortTimer.End( renderContext ); } );
 
-	renderContext.m_esm.UnsetAllTextures();
 	renderContext.CopyBufferCounter( *m_sortParameters, 0, *m_visibleList );
 	Tr2Renderer::RunComputeShader( m_setSortParameters, 1, 1, 1, renderContext );
 	Tr2Renderer::RunComputeShaderIndirect( m_sort, *m_sortParameters, 0, renderContext );

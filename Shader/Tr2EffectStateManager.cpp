@@ -258,14 +258,6 @@ namespace {
 
 void Tr2EffectStateManager::CurrentValues::Reset()
 {
-	for( int j = 0; j < SHADER_TYPE_COUNT; ++j )
-	{
-		for( int i = 0; i < SAMPLER_MAX_COUNT; ++i )
-		{
-			m_samplerTextures[j][i] = std::make_pair( nullptr, Tr2RenderContextEnum::COLOR_SPACE_LINEAR );
-			m_samplerSetupBinding[j][i] = Tr2SamplerStateAL();
-		}
-	}
 	m_shaderProgram = UNKNOWN;
 
 	m_renderingMode = (Tr2EffectStateManager::RenderingMode)UNKNOWN;
@@ -507,7 +499,6 @@ void Tr2EffectStateManager::EndManagedRendering()
 {
 	D3DPERF_EVENT(L"Tr2EffectStateManager::EndManagedRendering");
 
-	UnsetAllTextures();
 	m_isManagedRendering = false;
 }
 
@@ -563,74 +554,6 @@ void Tr2EffectStateManager::DoApplyRenderStates( uint32_t ix )
 	if( !kv.empty() )
 	{
 		m_renderContext.SetRenderStates( &kv[0], (uint32_t)kv.size() / 2 );
-	}
-}
-
-void Tr2EffectStateManager::ForgetTexture( const Tr2TextureAL& texture )
-{
-	using namespace std;
-	for( int type = 0; type < SHADER_TYPE_COUNT; ++type )
-	{
-		for( int i = 0; i < SAMPLER_MAX_COUNT; ++i )
-		{
-			if( m_currentValues.m_samplerTextures[type][i].first == &texture )
-			{
-				m_currentValues.m_samplerTextures[type][i] = std::make_pair( nullptr, Tr2RenderContextEnum::COLOR_SPACE_LINEAR );
-			}
-		}
-	}
-}
-
-void Tr2EffectStateManager::ApplyShaderBuffer( ShaderType inputType, uint32_t samplerIx, const Tr2GpuBufferAL& buffer )
-{
-	
-
-	if( m_isManagedRendering )
-	{
-		auto record = std::make_pair( Tr2ObjectALOpaquePointer( &buffer ), Tr2RenderContextEnum::COLOR_SPACE_LINEAR );
-		if( record == m_currentValues.m_samplerTextures[inputType][samplerIx] )
-		{
-			return;
-		}
-		m_currentValues.m_samplerTextures[inputType][samplerIx] = record;
-	}
-
-	m_renderContext.SetShaderBuffer( inputType, samplerIx, buffer );
-}
-
-void Tr2EffectStateManager::ApplyTexture( ShaderType inputType, uint32_t samplerIx, const Tr2TextureAL& texture, ColorSpace colorSpace )
-{
-	
-
-	if( m_isManagedRendering )
-	{
-		auto record = std::make_pair( Tr2ObjectALOpaquePointer( &texture ), colorSpace );
-		if( record == m_currentValues.m_samplerTextures[inputType][samplerIx] )
-		{
-			return;
-		}
-		m_currentValues.m_samplerTextures[inputType][samplerIx] = record;
-	}
-
-	m_renderContext.SetTexture( inputType, samplerIx, texture, colorSpace );
-}
-
-void Tr2EffectStateManager::UnsetAllTextures()
-{
-	for( int type = 0; type < SHADER_TYPE_COUNT; ++type )
-	{
-		if( SHADER_TYPE_EXISTS( type ) )
-		{
-#if TRINITY_PLATFORM == TRINITY_DIRECTX9
-			const uint32_t maxTextures = type == VERTEX_SHADER ? 4 : 16;
-#else
-			const uint32_t maxTextures = 16;
-#endif
-			for( uint32_t i = 0; i < maxTextures; ++i )
-			{
-				Tr2EffectStateManager::ApplyTexture( ShaderType( type ), i, nullTX );
-			}
-		}
 	}
 }
 
@@ -831,14 +754,6 @@ void Tr2EffectStateManager::ReleaseDeviceResources( TriStorage s )
 	{
 		if( renderContext.IsValid() )
 		{
-			for( int type = 0; type < SHADER_TYPE_COUNT; ++type )
-			{
-				for( uint32_t i = 0; i < SAMPLER_MAX_COUNT; ++i )
-				{
-					m_renderContext.SetTexture( ShaderType( type ), i, nullTX );
-				}
-			}
-		
 			for( uint32_t i = 0; i < VERTEX_STREAM_MAX_COUNT; ++i )
 			{
 				m_renderContext.SetStreamSource( i, nullVB, 0, 0 );

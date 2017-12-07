@@ -556,10 +556,7 @@ void Tr2InteriorScene::RenderGeometry( Tr2Material* overrideEffect, Tr2RenderCon
 		D3DPERF_EVENT( L"Primary render batches" );
 		m_primaryRenderBatches->Finalize();
 		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
-		renderContext.RenderBatchesWithOverride(
-			m_primaryRenderBatches,
-			overrideEffect,
-			Tr2RenderContext::OM_DO_NOTHING );
+		renderContext.RenderBatchesWithOverride( m_primaryRenderBatches, overrideEffect );
 	}
 
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA );

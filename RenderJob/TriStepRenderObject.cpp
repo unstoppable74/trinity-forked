@@ -58,7 +58,7 @@ TriStepResult TriStepRenderObject::Execute( Be::Time realTime, Be::Time simTime,
 		if( m_typeEnabled[i] )
 		{
 			renderContext.m_esm.ApplyStandardStates( s_renderingModes[i] );
-			renderContext.RenderBatchesWithOverride( m_batches[s_allTypes[i]], m_effectOverride, Tr2RenderContext::OM_DO_NOTHING );
+			renderContext.RenderBatchesWithOverride( m_batches[s_allTypes[i]], m_effectOverride );
 		}
 	}
 

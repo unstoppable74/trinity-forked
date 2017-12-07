@@ -189,7 +189,7 @@ void EveOccluder::RunQuery( Tr2RenderContext& renderContext, const TriFrustum& f
 	if( issueQueries )
 	{
 		CR_RETURN( m_actualQuery.Begin( renderContext ) );
-		renderContext.RenderBatchesWithOverride( m_batches, m_actualEffect, Tr2RenderContext::OM_DO_NOTHING );
+		renderContext.RenderBatchesWithOverride( m_batches, m_actualEffect );
 		CR_RETURN( m_actualQuery.End( renderContext ) );
 		m_isActualQueryIssued = true;
 	}

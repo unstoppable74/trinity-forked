@@ -275,9 +275,6 @@ bool TriShadowMap::BeginShadowRendering( Vector3& lightViewPosition, Matrix& lig
 	// empty our debug drawer here at shadow rendering beginning
 	m_lineSet->Clear();
 
-	// set 0 to all texture stages, so we the shaodwmap is not bound any more
-	renderContext.m_esm.UnsetAllTextures();
-
 	// Set aside the current render target and depth buffer and set
 	// up the ones to use for generating the shadow map
 	Tr2Renderer::PushViewport();
@@ -349,12 +346,10 @@ void TriShadowMap::EndShadowRendering()
 		viewport0.height = m_size;
 		Tr2Renderer::SetViewport( viewport0 );
 
-		renderContext.m_esm.UnsetAllTextures();
 		m_invInputSizeHandle->SetValue( Vector2( 1.0f / m_size, 0 ) );
 		Tr2Renderer::SetRenderTarget( 0, m_filterBlurRT, renderContext );
 		Tr2Renderer::DrawTexture( m_filterBlurEffect, *m_shadowMapRT->GetTexture() );
 
-		renderContext.m_esm.UnsetAllTextures();
 		m_invInputSizeHandle->SetValue( Vector2( 0, 1.0f / m_size ) );
 		Tr2Renderer::SetRenderTarget( 0, *m_shadowMapRT, renderContext );
 		Tr2Renderer::DrawTexture( m_filterBlurEffect, m_filterBlurRT.GetTexture() );

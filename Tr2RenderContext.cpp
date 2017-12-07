@@ -40,21 +40,6 @@ void Tr2RenderContextBase::OnContextCreated( Tr2RenderContextAL& renderContext )
 
 // --------------------------------------------------------------------------------------
 // Description:
-//   Called by DX11 Tr2RenderContextAL when a texture is set as a render target. In this 
-//   case DX11 runtime will unset this texture from texture sampling registers (if it's
-//   bound for read). Informs Tr2EffectStateManager instance of this so that it can 
-//   update its state accordingly.
-// Arguments:
-//   texture - Texture that is unset from reading register
-//   renderContext - Unused
-// --------------------------------------------------------------------------------------
-void Tr2RenderContextBase::OnTextureUnset( const Tr2TextureAL& texture, Tr2RenderContextAL& )
-{
-	m_esm.ForgetTexture( texture );
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
 //   Returns back buffer render target as Blue-exposed Tr2RenderTarget. Exposed to 
 //   script.
 // Return Value:
@@ -181,7 +166,7 @@ void Tr2RenderContextBase::RenderBatchesInOrder( ITriRenderBatchAccumulator* bat
 	}
 }
 
-void Tr2RenderContextBase::RenderBatchesSortedByEffect( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName, BatchesRenderHints hints )
+void Tr2RenderContextBase::RenderBatchesSortedByEffect( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 	D3DPERF_EVENT(L"Tr2EffectStateManager::RenderBatchesSortedByEffect");
@@ -197,7 +182,6 @@ void Tr2RenderContextBase::RenderBatchesSortedByEffect( ITriRenderBatchAccumulat
 		perObjectConstantBuffers[i] = &m_perObjectConstantBuffers[i];
 	}
 
-	const bool hasPerEffectData = ( hints & HINT_NO_PER_EFFECT_DATA ) == 0;
 	Tr2RenderContext *renderContext = reinterpret_cast<Tr2RenderContext*>( this );
 
 	TriRenderBatch* batch = batches->GetFirstBatch();
@@ -292,11 +276,8 @@ void Tr2RenderContextBase::RenderBatchesSortedByEffect( ITriRenderBatchAccumulat
 			{
 				D3DPERF_EVENT( CA2W( batch->GetBatchTypeName().c_str() ) );
 
-				if( hasPerEffectData || batch == startOfPass )
-				{
-					// Set the data from the material, i.e constants and samplers for this pass
-					batch->GetShaderMaterialInterface()->ApplyMaterialDataForPass( technique, passIx, *renderContext );
-				}
+				// Set the data from the material, i.e constants and samplers for this pass
+				batch->GetShaderMaterialInterface()->ApplyMaterialDataForPass( technique, passIx, *renderContext );
 
 				// If the batch has per-object data, set it to the device
 				const Tr2PerObjectData* const perObjectData = batch->GetPerObjectData();
@@ -331,7 +312,7 @@ void Tr2RenderContextBase::RenderBatches( ITriRenderBatchAccumulator* batches, c
 	}
 }
 
-void Tr2RenderContextBase::RenderBatchesWithOverride( ITriRenderBatchAccumulator* batches, Tr2Material* overrideEffect, OverrideMode overrideMode, const BlueSharedString& techniqueName )
+void Tr2RenderContextBase::RenderBatchesWithOverride( ITriRenderBatchAccumulator* batches, Tr2Material* overrideEffect, const BlueSharedString& techniqueName )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 

@@ -223,6 +223,8 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	m_taaSamplingPatterns[7] = Vector2( .1f, .67f );
 	m_taaSamplingPatterns[8] = Vector2( .67f, -.67f );
 
+	m_visualizerEffects[VW_LIGHT_COUNT].type = VisualizerEffect::FULL_SCREEN_QUAD_OVERLAY;
+
 	Tr2LightManager::ResetVariableStore();
 }
 
@@ -846,11 +848,21 @@ void EveSpaceScene::RenderBatch(	ITriRenderBatchAccumulator* batch,
 									Tr2EffectStateManager::RenderingMode rm, 
 									Tr2RenderContext &renderContext )
 {
-	Tr2Effect* visualizerEffect = m_visualizerEffects[m_visualizeMethod];
+	auto& visualizerEffect = m_visualizerEffects[m_visualizeMethod];
 
 	batch->Finalize();
 	renderContext.m_esm.ApplyStandardStates( rm );
-	renderContext.RenderBatchesWithOverride( batch, visualizerEffect, Tr2RenderContext::OM_DO_NOTHING );
+	switch( visualizerEffect.type )
+	{
+	case VisualizerEffect::PIXEL_SHADER_REPLACEMENT:
+		renderContext.RenderBatchesWithOverride( batch, visualizerEffect.effect );
+		break;
+	case VisualizerEffect::FULL_SCREEN_QUAD_OVERLAY:
+		renderContext.RenderBatches( batch );
+		break;
+	default:
+		break;
+	}
 	batch->Clear();
 }
 
@@ -865,13 +877,25 @@ void EveSpaceScene::RenderOpaqueBatches( BatchMap& batches, Tr2RenderContext &re
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
-	Tr2Effect* visualizerEffect = m_visualizerEffects[m_visualizeMethod];
+	auto& visualizerEffect = m_visualizerEffects[m_visualizeMethod];
 
-	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
-	renderContext.RenderBatchesWithOverride( batches[TRIBATCHTYPE_OPAQUE], visualizerEffect, Tr2RenderContext::OM_DO_NOTHING );
-
-	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_DECAL );
-	renderContext.RenderBatchesWithOverride( batches[TRIBATCHTYPE_DECAL], visualizerEffect, Tr2RenderContext::OM_DO_NOTHING );
+	switch( visualizerEffect.type )
+	{
+	case VisualizerEffect::PIXEL_SHADER_REPLACEMENT:
+		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
+		renderContext.RenderBatchesWithOverride( batches[TRIBATCHTYPE_OPAQUE], visualizerEffect.effect );
+		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_DECAL );
+		renderContext.RenderBatchesWithOverride( batches[TRIBATCHTYPE_DECAL], visualizerEffect.effect );
+		break;
+	case VisualizerEffect::FULL_SCREEN_QUAD_OVERLAY:
+		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
+		renderContext.RenderBatches( batches[TRIBATCHTYPE_OPAQUE] );
+		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_DECAL );
+		renderContext.RenderBatches( batches[TRIBATCHTYPE_DECAL] );
+		break;
+	default:
+		break;
+	}
 }
 
 // --------------------------------------------------------------------------------------
@@ -885,13 +909,25 @@ void EveSpaceScene::RenderTransparentBatches( BatchMap& batches, Tr2RenderContex
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
-	Tr2Effect* visualizerEffect = m_visualizerEffects[m_visualizeMethod];
+	auto& visualizerEffect = m_visualizerEffects[m_visualizeMethod];
 
-	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA );
-	renderContext.RenderBatchesWithOverride( batches[TRIBATCHTYPE_TRANSPARENT], visualizerEffect, Tr2RenderContext::OM_DO_NOTHING );
-
-	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA_ADDITIVE );
-	renderContext.RenderBatchesWithOverride( batches[TRIBATCHTYPE_ADDITIVE], visualizerEffect, Tr2RenderContext::OM_DO_NOTHING );
+	switch( visualizerEffect.type )
+	{
+	case VisualizerEffect::PIXEL_SHADER_REPLACEMENT:
+		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA );
+		renderContext.RenderBatchesWithOverride( batches[TRIBATCHTYPE_TRANSPARENT], visualizerEffect.effect );
+		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA_ADDITIVE );
+		renderContext.RenderBatchesWithOverride( batches[TRIBATCHTYPE_ADDITIVE], visualizerEffect.effect );
+		break;
+	case VisualizerEffect::FULL_SCREEN_QUAD_OVERLAY:
+		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA );
+		renderContext.RenderBatches( batches[TRIBATCHTYPE_TRANSPARENT] );
+		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA_ADDITIVE );
+		renderContext.RenderBatches( batches[TRIBATCHTYPE_ADDITIVE] );
+		break;
+	default:
+		break;
+	}
 }
 
 // --------------------------------------------------------------------------------------
@@ -909,8 +945,6 @@ void EveSpaceScene::RenderDistortionBatches( BatchMap& batches, Tr2RenderContext
     {
         return;
     }
-
-	renderContext.m_esm.UnsetAllTextures();
 
     // Hold on to original depth stencil and back buffer
 	Tr2PushPopRT pushPopRT( *m_distortionMap, renderContext );
@@ -936,7 +970,6 @@ void EveSpaceScene::RenderDistortionBatches( BatchMap& batches, Tr2RenderContext
 
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA_ADDITIVE );
     renderContext.RenderBatches( batches[TRIBATCHTYPE_DISTORTION] );
-	renderContext.m_esm.UnsetAllTextures();
 }
 
 // --------------------------------------------------------------------------------------
@@ -1133,11 +1166,11 @@ void EveSpaceScene::BeginRender( Tr2RenderContext& renderContext )
 
 	if( m_visualizeMethod != VM_NONE )
 	{
-		if( !m_visualizerEffects[m_visualizeMethod] )
+		if( !m_visualizerEffects[m_visualizeMethod].effect )
 		{
-			m_visualizerEffects[m_visualizeMethod].CreateInstance();
+			m_visualizerEffects[m_visualizeMethod].effect.CreateInstance();
 			const char* path = VISUALIZER_EFFECT_PATH[m_visualizeMethod];
-			m_visualizerEffects[m_visualizeMethod]->SetEffectPathName( path );
+			m_visualizerEffects[m_visualizeMethod].effect->SetEffectPathName( path );
 		}
 	}
 
@@ -1445,7 +1478,6 @@ void EveSpaceScene::UpdateImpostors()
 		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
 		renderContext.RenderBatches( m_primaryBatches[TRIBATCHTYPE_OPAQUE] );
 
-		renderContext.m_esm.UnsetAllTextures();
 		renderContext.SetReadOnlyDepth( true );
 
 		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA );
@@ -1822,14 +1854,12 @@ void EveSpaceScene::RenderMainPass( Tr2RenderContext& renderContext )
 	SetNoShadow();
 	ApplyPerFrameData( renderContext );
 
-	renderContext.m_esm.UnsetAllTextures();
 	if( !m_hasDepthPass )
 	{
 		renderContext.SetReadOnlyDepth( true );
 	}
 	RenderTransparentBatches( m_primaryBatches, renderContext );
 	RenderDistortionBatches( m_primaryBatches, renderContext );
-	renderContext.m_esm.UnsetAllTextures();
 
 	//GPU particles
 	if( GetGpuParticleSystem() )
@@ -1923,14 +1953,12 @@ void EveSpaceScene::EndRender( Tr2RenderContext& renderContext )
 
 		if( !visible.empty() )
 		{
-			renderContext.m_esm.UnsetAllTextures();
 			renderContext.SetReadOnlyDepth( true );
 			RenderRenderables(	visible, 
 								m_secondaryBatches[TRIBATCHTYPE_ADDITIVE], 
 								TRIBATCHTYPE_ADDITIVE, 
 								Tr2EffectStateManager::RM_ALPHA_ADDITIVE,
 								renderContext );
-			renderContext.m_esm.UnsetAllTextures();
 			renderContext.SetReadOnlyDepth( false );
 		}
 	}
@@ -1959,6 +1987,11 @@ void EveSpaceScene::EndRender( Tr2RenderContext& renderContext )
 
 	m_viewProjectLast = Tr2Renderer::GetViewTransform() * currentProj; 
 	ClearVariableStore();
+
+	if( m_visualizerEffects[m_visualizeMethod].type == VisualizerEffect::FULL_SCREEN_QUAD_OVERLAY )
+	{
+		Tr2Renderer::DrawTexture( m_visualizerEffects[m_visualizeMethod].effect, Vector2( 0, 0 ), Vector2( 1, 1 ) );
+	}
 }
 
 // --------------------------------------------------------------------------------------
@@ -2005,10 +2038,8 @@ void EveSpaceScene::Render3DUI( Tr2RenderContext& renderContext )
 	// --------------------------------------------------------------------------------------
 	RenderOpaqueBatches( m_secondaryBatches, renderContext );
 
-	renderContext.m_esm.UnsetAllTextures();
 	renderContext.SetReadOnlyDepth( true );
 	RenderTransparentBatches( m_secondaryBatches, renderContext );
-	renderContext.m_esm.UnsetAllTextures();
 	renderContext.SetReadOnlyDepth( false );
 	
 	Tr2QuadRenderer::Instance()->DoneRendering( renderContext );
@@ -2715,10 +2746,8 @@ void EveSpaceScene::RenderPlanets( Tr2RenderContext& renderContext )
 	renderContext.RenderBatches( m_secondaryBatches[TRIBATCHTYPE_DEPTH], BlueSharedString( "Depth" ) );
 	RenderOpaqueBatches( m_secondaryBatches, renderContext );
 
-	renderContext.m_esm.UnsetAllTextures();
 	renderContext.SetReadOnlyDepth( true );
 	RenderTransparentBatches( m_secondaryBatches, renderContext );
-	renderContext.m_esm.UnsetAllTextures();
 	renderContext.SetReadOnlyDepth( false );
 	ClearBatches( m_secondaryBatches );
 

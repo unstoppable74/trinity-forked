@@ -30,33 +30,15 @@ struct Tr2RenderContextBase: public IRoot, public ITr2RenderContextEvents
 	Tr2RenderContextBase( Tr2RenderContext& renderContext );
 
 	void OnContextCreated( Tr2RenderContextAL& renderContext );
-	void OnTextureUnset( const Tr2TextureAL& texture, Tr2RenderContextAL& renderContext );
 
 	Tr2RenderTargetPtr GetBackBuffer();
 
 	Tr2EffectStateManager m_esm;
 
-	// Hints for RenderBatchesSortedByEffect method
-	enum BatchesRenderHints
-	{
-		// Nothing special
-		HINT_DEFAULT				= 0,
-		// Batches effects don't have unique per-effect data,
-		// so setting it can be skipped (see RenderLightBatches)
-		HINT_NO_PER_EFFECT_DATA		= 1,
-	};
-
-	enum OverrideMode
-	{
-		OM_DO_NOTHING,				// use the override effect, but leave the PS data lone
-		OM_APPLY_PS,				// use the override effect, and apply its PS data, replacing what was already there
-		OM_DO_NOT_SET_ORIGINAL_PS,	// do not set original pixel shader inputs
-	};
-
 	TriVariable* GetObjectIdVariable();
 
 	void RenderBatches( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName = DEFAULT_TECHNIQUE );
-	void RenderBatchesWithOverride( ITriRenderBatchAccumulator* batches, Tr2Material* overrideEffect, OverrideMode overrideMode, const BlueSharedString& techniqueName = DEFAULT_TECHNIQUE );
+	void RenderBatchesWithOverride( ITriRenderBatchAccumulator* batches, Tr2Material* overrideEffect, const BlueSharedString& techniqueName = DEFAULT_TECHNIQUE );
 	void RenderBatchesForPicking( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName );
 
 	// Render batches from an accumulator that was not set up for sorting by effect,
@@ -68,7 +50,7 @@ struct Tr2RenderContextBase: public IRoot, public ITr2RenderContextEvents
 	// Render batches from an accumulator that was set up for sorting by effect.
 	// This is normally used for opaque or additive batches. State settings can
 	// be minimized by taking advantage of sorting that has been done.
-	void RenderBatchesSortedByEffect( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName = DEFAULT_TECHNIQUE, BatchesRenderHints hints = HINT_DEFAULT );
+	void RenderBatchesSortedByEffect( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName = DEFAULT_TECHNIQUE );
 
 	Tr2ConstantBufferAL* GetConstantBuffer( int buffer ) { return &m_perObjectConstantBuffers[buffer]; }
 protected:

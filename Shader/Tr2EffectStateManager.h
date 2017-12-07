@@ -70,13 +70,6 @@ public:
 	void ApplyStandardStates( RenderingMode rm );
 
 	void ApplyRenderStates( uint32_t ix );
-	void ApplyShaderBuffer( Tr2RenderContextEnum::ShaderType inputType, uint32_t samplerIx, const Tr2GpuBufferAL& buffer );
-	void ApplyTexture( 
-		Tr2RenderContextEnum::ShaderType inputType, 
-		uint32_t samplerIx, 
-		const Tr2TextureAL& texture, 
-		Tr2RenderContextEnum::ColorSpace colorSpace = Tr2RenderContextEnum::COLOR_SPACE_LINEAR );
-	void UnsetAllTextures();
 	void ApplyShaderProgram( uint32_t ix );
 
 	void ApplyStreamSource( uint32_t stream, const Tr2VertexBufferAL & buffer, uint32_t offset, uint32_t stride );
@@ -114,9 +107,6 @@ public:
 	void ApplyVertexDeclaration( uint32_t declaration );
 	static bool GetVertexDeclarationElements( uint32_t declaration, Tr2VertexDefinition& definition );
 
-	// Stop caching this texture -- when the next ApplyTexture comes, always set it
-	void ForgetTexture( const Tr2TextureAL& texture );
-
 private:
 	friend class Tr2EffectRes;
 	friend class Tr2LowLevelShader;
@@ -133,8 +123,6 @@ private:
 	{
 		void Reset();
 		
-		std::pair<Tr2ObjectALOpaquePointer, Tr2RenderContextEnum::ColorSpace> m_samplerTextures[Tr2RenderContextEnum::SHADER_TYPE_COUNT][SAMPLER_MAX_COUNT];
-		Tr2SamplerStateAL m_samplerSetupBinding[Tr2RenderContextEnum::SHADER_TYPE_COUNT][SAMPLER_MAX_COUNT];
 		uint32_t m_shaderProgram;
 
 		uint32_t m_vertexDeclaration;

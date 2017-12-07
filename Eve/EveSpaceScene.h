@@ -473,7 +473,25 @@ private:
 
 	bool m_hasDepthPass;
 
-	Tr2EffectPtr m_visualizerEffects[VM_COUNT];
+	struct VisualizerEffect
+	{
+		enum VisualizerType
+		{
+			PIXEL_SHADER_REPLACEMENT,
+			FULL_SCREEN_QUAD,
+			FULL_SCREEN_QUAD_OVERLAY,
+		};
+
+		VisualizerEffect()
+			:type( PIXEL_SHADER_REPLACEMENT )
+		{
+		}
+
+		Tr2EffectPtr effect;
+		VisualizerType type;
+	};
+
+	VisualizerEffect m_visualizerEffects[VM_COUNT];
 
 	void UpdateVariableStore();
 	void ClearVariableStore();
