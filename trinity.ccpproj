@@ -185,6 +185,17 @@ STUB: &STUB
   Imports:
   - ../TrinityAL/uses_TrinityALSTUB.yaml
 
+WithBlue: &WithBlue
+  Imports:
+  - ../blue/Include/uses_blue.yaml
+
+WithBlue26: &WithBlue26
+  Imports:
+  - ../blue/Include/uses_blue_26.yaml
+
+WithBlue26: &WithBlue27
+  Imports:
+  - ../blue/Include/uses_blue_27.yaml
 
 # Here come the different configurations
 Configurations:
@@ -193,8 +204,7 @@ Configurations:
     << : *DebugBase
     << : *DebugRuntime
     << : *D3D9
-    Imports:
-    - ../blue/Include/uses_blue.yaml
+    << : *WithBlue
     General:
       TargetName: _trinity_dx9_internal_d
     ClCompile:
@@ -206,8 +216,7 @@ Configurations:
     << : *DebugBase
     << : *DebugRuntime
     << : *D3D11
-    Imports:
-    - ../blue/Include/uses_blue.yaml
+    << : *WithBlue
     General:
       TargetName: _trinity_dx11_internal_d
     ClCompile:
@@ -219,8 +228,7 @@ Configurations:
     << : *DevBase
     << : *ReleaseRuntime
     << : *D3D9
-    Imports:
-    - ../blue/Include/uses_blue.yaml
+    << : *WithBlue
     General:
       TargetName: _trinity_dx9_dev
 
@@ -229,8 +237,7 @@ Configurations:
     << : *DevBase
     << : *ReleaseRuntime
     << : *D3D11
-    Imports:
-    - ../blue/Include/uses_blue.yaml
+    << : *WithBlue
     General:
       TargetName: _trinity_dx11_dev
 
@@ -240,8 +247,7 @@ Configurations:
     << : *DevBase
     << : *ReleaseRuntime
     << : *GLES2
-    Imports:
-    - ../blue/Include/uses_blue.yaml
+    << : *WithBlue
     General:
       TargetName: _trinity_gles2_dev
 
@@ -250,8 +256,7 @@ Configurations:
     << : *DevBase
     << : *ReleaseRuntime
     << : *GL4
-    Imports:
-    - ../blue/Include/uses_blue.yaml
+    << : *WithBlue
     General:
       TargetName: _trinity_gl4_dev
 
@@ -260,8 +265,7 @@ Configurations:
     << : *ReleaseBase
     << : *ReleaseRuntime
     << : *D3D9
-    Imports:
-    - ../blue/Include/uses_blue.yaml
+    << : *WithBlue
     General:
       TargetName: _trinity_dx9_internal
 
@@ -270,8 +274,7 @@ Configurations:
     << : *ReleaseBase
     << : *ReleaseRuntime
     << : *D3D9
-    Imports:
-    - ../blue/Include/uses_blue_26.yaml
+    << : *WithBlue26
     General:
       TargetName: _trinity_dx9_internal
 
@@ -280,8 +283,7 @@ Configurations:
     << : *ReleaseBase
     << : *ReleaseRuntime
     << : *D3D9
-    Imports:
-    - ../blue/Include/uses_blue_27.yaml
+    << : *WithBlue27
     General:
       TargetName: _trinity_dx9_internal
 
@@ -290,8 +292,7 @@ Configurations:
     << : *ReleaseBase
     << : *ReleaseRuntime
     << : *D3D11
-    Imports:
-    - ../blue/Include/uses_blue.yaml
+    << : *WithBlue
     General:
       TargetName: _trinity_dx11_internal
 
@@ -300,9 +301,8 @@ Configurations:
     << : *ReleaseBase
     << : *ReleaseRuntime
     << : *GLES2
+    << : *WithBlue
     # Note that we only have a 32bit version here - don't have glew in 64 bit
-    Imports:
-    - ../blue/Include/uses_blue.yaml
     General:
       TargetName: _trinity_gles2_internal
 
@@ -311,8 +311,7 @@ Configurations:
     << : *ReleaseBase
     << : *ReleaseRuntime
     << : *D3D11
-    Imports:
-    - ../blue/Include/uses_blue_26.yaml
+    << : *WithBlue26
     General:
       TargetName: _trinity_dx11_internal
 
@@ -321,8 +320,7 @@ Configurations:
     << : *ReleaseBase
     << : *ReleaseRuntime
     << : *D3D11
-    Imports:
-    - ../blue/Include/uses_blue_27.yaml
+    << : *WithBlue27
     General:
       TargetName: _trinity_dx11_internal
 
@@ -331,16 +329,14 @@ Configurations:
     << : *ReleaseBase
     << : *ReleaseRuntime
     << : *GLES2
-    Imports:
-    - ../blue/Include/uses_blue_27.yaml
+    << : *WithBlue27
     General:
       TargetName: _trinity_gles2_internal
         
   ReleaseGLES2_27|Linux64:
     << : *ReleaseBase
     << : *GLES2
-    Imports:
-    - ../blue/Include/uses_blue_27.yaml
+    << : *WithBlue27
     General:
       TargetName: _trinity_gles2_internal
     ClCompile:
@@ -377,8 +373,8 @@ Configurations:
   ReleaseGLES2_27|Mac64:
     << : *ReleaseBase
     << : *GLES2
+    << : *WithBlue27
     Imports:
-    - ../blue/Include/uses_blue_27.yaml
     - ../../../../../../sdk/python/Python_2.7.yaml
     - ../../../../../../sdk/tbb/tbb2017_20160916oss/tbb.yaml
     - ../../../../../../sdk/Granny/2.9.24.0/granny_2.9.24.0.yaml
@@ -396,8 +392,8 @@ Configurations:
   ReleaseGLES2|Mac64:
     << : *ReleaseBase
     << : *GLES2
+    << : *WithBlue
     Imports:
-    - ../blue/Include/uses_blue.yaml
     - ../../../../../../sdk/tbb/tbb2017_20160916oss/tbb.yaml
     - ../../../../../../sdk/Granny/2.9.24.0/granny_2.9.24.0.yaml
     General:
@@ -416,16 +412,15 @@ Configurations:
     << : *ReleaseBase
     << : *ReleaseRuntime
     << : *GL4
-    Imports:
-    - ../blue/Include/uses_blue_27.yaml
+    << : *WithBlue27
     General:
       TargetName: _trinity_gl4_internal
 
   ReleaseGL4|Mac64:
     << : *ReleaseBase
     << : *GL4
+    << : *WithBlue
     Imports:
-    - ../blue/Include/uses_blue.yaml
     - ../../../../../../sdk/tbb/tbb2017_20160916oss/tbb.yaml
     - ../../../../../../sdk/Granny/2.9.24.0/granny_2.9.24.0.yaml
     General:
@@ -444,8 +439,7 @@ Configurations:
     << : *DeployBase
     << : *ReleaseRuntime
     << : *D3D9
-    Imports:
-    - ../blue/Include/uses_blue.yaml
+    << : *WithBlue
     General:
       TargetName: _trinity_dx9_deploy
 
@@ -454,8 +448,7 @@ Configurations:
     << : *DeployBase
     << : *ReleaseRuntime
     << : *D3D11
-    Imports:
-    - ../blue/Include/uses_blue.yaml
+    << : *WithBlue
     General:
       TargetName: _trinity_dx11_deploy
 
@@ -464,9 +457,7 @@ Configurations:
     << : *DebugBase
     << : *DebugRuntime
     << : *STUB
-    Imports:
-    - ../blue/Include/uses_blue.yaml
-    - ../../../../../../sdk/directx/february2010/directx_february2010.yaml
+    << : *WithBlue
     General:
       TargetName: _trinity_stub_internal_d
     ClCompile:
@@ -478,9 +469,7 @@ Configurations:
     << : *ReleaseBase
     << : *ReleaseRuntime
     << : *STUB
-    Imports:
-    - ../blue/Include/uses_blue.yaml
-    - ../../../../../../sdk/directx/february2010/directx_february2010.yaml
+    << : *WithBlue
     General:
       TargetName: _trinity_stub_internal
     ClCompile:
@@ -492,9 +481,7 @@ Configurations:
     << : *ReleaseBase
     << : *ReleaseRuntime
     << : *STUB
-    Imports:
-    - ../blue/Include/uses_blue_26.yaml
-    - ../../../../../../sdk/directx/february2010/directx_february2010.yaml
+    << : *WithBlue26
     General:
       TargetName: _trinity_stub_internal
 
@@ -503,9 +490,7 @@ Configurations:
     << : *ReleaseBase
     << : *ReleaseRuntime
     << : *STUB
-    Imports:
-    - ../blue/Include/uses_blue_27.yaml
-    - ../../../../../../sdk/directx/february2010/directx_february2010.yaml
+    << : *WithBlue27
     General:
       TargetName: _trinity_stub_internal
 
