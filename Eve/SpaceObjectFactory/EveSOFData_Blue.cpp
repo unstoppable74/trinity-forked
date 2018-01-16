@@ -12,7 +12,7 @@ Be::VarChooser EveSOFDataFactionColorSetTypeChooser[] =
 	{ "Primary", BeCast( EveSOFDataFactionColorSet::TYPE_PRIMARY ), "Primary Color" },
 	{ "Secondary", BeCast( EveSOFDataFactionColorSet::TYPE_SECONDARY ), "Secondary Color" },
 	{ "Tertiary", BeCast( EveSOFDataFactionColorSet::TYPE_TERTIARY ), "Tertiary Color" },
-	{ "Reactor", BeCast( EveSOFDataFactionColorSet::TYPE_REACTOR ), "Reactor Color" },
+	{ "Black", BeCast( EveSOFDataFactionColorSet::TYPE_BLACK ), "Black Color" },
 	{ "White", BeCast( EveSOFDataFactionColorSet::TYPE_WHITE ), "White" },
 	{ "Yellow", BeCast( EveSOFDataFactionColorSet::TYPE_YELLOW ), "Yellow" },
 	{ "Orange", BeCast( EveSOFDataFactionColorSet::TYPE_ORANGE ), "Orange" },
@@ -100,7 +100,7 @@ const Be::ClassInfo* EveSOFDataFactionColorSet::ExposeToBlue()
 		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_PRIMARY].mKey, m_colors[TYPE_PRIMARY], ":jessica-group:Glow Colors", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_SECONDARY].mKey, m_colors[TYPE_SECONDARY], ":jessica-group:Glow Colors", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_TERTIARY].mKey, m_colors[TYPE_TERTIARY], ":jessica-group:Glow Colors", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_REACTOR].mKey, m_colors[TYPE_REACTOR], ":jessica-group:Glow Colors", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_BLACK].mKey, m_colors[TYPE_BLACK], ":jessica-group:Glow Colors", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_WHITE].mKey, m_colors[TYPE_WHITE], ":jessica-group:Glow Colors", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_YELLOW].mKey, m_colors[TYPE_YELLOW], ":jessica-group:Glow Colors", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_ORANGE].mKey, m_colors[TYPE_ORANGE], ":jessica-group:Glow Colors", Be::READWRITE | Be::PERSIST )
