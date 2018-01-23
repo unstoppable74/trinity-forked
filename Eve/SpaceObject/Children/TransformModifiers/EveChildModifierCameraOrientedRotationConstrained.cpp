@@ -17,13 +17,19 @@ EveChildModifierCameraOrientedRotationConstrained::~EveChildModifierCameraOrient
 
 Matrix EveChildModifierCameraOrientedRotationConstrained::ApplyTransform( const Matrix& transform ) const
 {
-	Vector3 forward = Vector3( 0, 0, 1 );
-	Vector4 forward4 = Vector4( forward, 0 );
-	Matrix forwardToUp = RotationMatrix( Vector3( 1, 0, 0 ), -XM_PIDIV2 );
+	Vector3 up = Vector3( 0, 1, 0 );
 
-	Vector4 res = Tr2Renderer::GetViewTransform() * forward4;
-	float rot = atan2f( res.y, res.x );
-	Matrix mat = RotationMatrix( forward, rot - XM_PIDIV2 );
+	Vector3 scale, translation;
+	Quaternion rotation;
+	Decompose( scale, rotation, translation, transform );
 
-	return transform * forwardToUp * mat;
+	Matrix rotMatrix = RotationMatrix( rotation );
+	Vector3 camPos = Tr2Renderer::GetViewPosition();
+
+	Vector4 vec = rotMatrix * Vector4( camPos - translation, 0 );
+
+	float rot = atan2f( vec.x, vec.z );
+	Matrix result = RotationMatrix( up, rot );
+
+	return result * transform;
 }
