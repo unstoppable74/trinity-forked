@@ -131,8 +131,36 @@ const Be::ClassInfo* TriCurveSet::ExposeToBlue()
 		(
 			"Apply",
 			Apply,
-			"Re-evaluates curves and applies bindings once using curve set current time" 
+			"Re-evaluates curves and applies bindings once using curve set current time"
 		)
+		MAP_METHOD_AND_WRAP
+		(
+			"SetTimeRange",
+			SetTimeRange,
+			"Sets up a temporary time range for curve set. When a curve sets has a time range set\n"
+			"it will loop time inside the range while playing.\n"
+			":param minTime: min time value for the range\n"
+			":param maxTime: max time value for the range"
+		)
+		MAP_METHOD_AND_WRAP
+		(
+			"ResetTimeRange",
+			ResetTimeRange,
+			"Clears time range previously set up using SetTimeRange method"
+		)
+		MAP_METHOD_AND_WRAP
+		(
+			"HasTimeRange",
+			HasTimeRange,
+			"Queries if the curve set has a time range set up"
+		)
+		MAP_METHOD_AND_WRAP
+		(
+			"GetTimeRange",
+			GetTimeRange,
+			"Returns time range min and max time"
+		)
+
 
     EXPOSURE_END()
 }

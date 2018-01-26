@@ -64,6 +64,11 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// ISimTimeRebaseNotify
 	void OnSimClockRebase( Be::Time oldTime, Be::Time newTime );
+
+	void SetTimeRange( double timeMin, double timeMax );
+	void ResetTimeRange();
+	bool HasTimeRange() const;
+	std::pair<double, double> GetTimeRange() const;
 private:
 	void UpdateWithCurrentTime();
 
@@ -77,6 +82,7 @@ private:
 	bool m_useSimTimeRebase;
 	bool m_isUsingSimTimeRebase;
 	bool m_useRealTime;
+	bool m_hasTimeRange;
 
 	double m_startTime;
 	double m_lastTime;
@@ -85,6 +91,9 @@ private:
 	double m_scaledTime;
 
 	float m_scale;
+
+	double m_timeRangeMin;
+	double m_timeRangeMax;
 
 	BlueScriptCallback m_callback;
 };

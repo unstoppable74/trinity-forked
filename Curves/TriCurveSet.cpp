@@ -14,11 +14,14 @@ TriCurveSet::TriCurveSet( IRoot* lockobj ) :
 	m_useSimTimeRebase( false ),
 	m_isUsingSimTimeRebase( false ),
 	m_useRealTime( false ),
+	m_hasTimeRange( false ),
 	m_startTime( 0.0 ),
 	m_lastTime( 0.0 ),
 	m_endTime( 0.0 ),
 	m_scaledTime( 0.0 ),
-	m_scale( 1.0f )
+	m_scale( 1.0f ),
+	m_timeRangeMin( 0 ),
+	m_timeRangeMax( 0 )
 {
 }
 
@@ -82,6 +85,16 @@ void TriCurveSet::Update( double time )
 
 		now = m_scaledTime + (double)m_scale * delta;
 		m_scaledTime = now;
+
+		if( m_hasTimeRange )
+		{
+			if( m_scaledTime < m_timeRangeMin )
+			{
+				m_scaledTime = m_timeRangeMin;
+			}
+
+			m_scaledTime = std::fmod( m_scaledTime - m_timeRangeMin, m_timeRangeMax - m_timeRangeMin ) + m_timeRangeMin;
+		}
 
 		if( (m_endTime > 0.0) && ((m_startTime + m_scaledTime) >= m_endTime) )
 		{
@@ -233,4 +246,27 @@ bool TriCurveSet::IsPlaying() const
 void TriCurveSet::UpdateWithCurrentTime()
 {
 	Update( double(BeOS->GetCurrentFrameTime()) );
+}
+
+void TriCurveSet::SetTimeRange( double timeMin, double timeMax )
+{
+	m_hasTimeRange = true;
+	m_timeRangeMin = std::min( timeMin, timeMax );
+	m_timeRangeMax = std::max( timeMin, timeMax );
+}
+
+void TriCurveSet::ResetTimeRange()
+{
+	m_hasTimeRange = false;
+	m_timeRangeMin = m_timeRangeMax = 0;
+}
+
+bool TriCurveSet::HasTimeRange() const
+{
+	return m_hasTimeRange;
+}
+
+std::pair<double, double> TriCurveSet::GetTimeRange() const
+{
+	return std::make_pair( m_timeRangeMin, m_timeRangeMax );
 }
