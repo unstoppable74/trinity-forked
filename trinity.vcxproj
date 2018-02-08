@@ -2703,7 +2703,6 @@
     <ClInclude Include="Eve\SpaceObject\Children\EveChildTransform.h" />
     <ClInclude Include="Eve\SpaceObject\Children\EveCloudEditableVolume.h" />
     <ClInclude Include="Eve\SpaceObject\Children\IEveSpaceObjectChild.h" />
-    <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard.h" />
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard2D.h" />
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBooster.h" />
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierCameraOrientedRotationConstrained.h" />
@@ -3295,10 +3294,8 @@
     <ClCompile Include="Eve\SpaceObject\Children\EveChildTransform.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\EveCloudEditableVolume.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\EveCloudEditableVolume_Blue.cpp" />
-    <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard2D.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard2D_Blue.cpp" />
-    <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBooster.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBooster_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierCameraOrientedRotationConstrained.cpp" />
