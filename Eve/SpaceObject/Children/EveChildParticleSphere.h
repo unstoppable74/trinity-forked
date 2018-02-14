@@ -49,6 +49,8 @@ public:
 	float GetSortValue();
 	Tr2PerObjectData* GetPerObjectData( ITriRenderBatchAccumulator* accumulator );
 
+	bool CheckBinding();
+
 	void Refresh();
 private:
 	void Update( const EveUpdateContext& updateContext );

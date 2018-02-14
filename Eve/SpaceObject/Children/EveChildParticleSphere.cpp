@@ -89,10 +89,8 @@ bool EveChildParticleSphere::GetBoundingSphere( Vector4& sphere, BoundingSphereQ
 // -----------------------------------------------------------------------------
 void EveChildParticleSphere::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2*, IEveSpaceObjectChild* )
 {
-	if( m_bindStatus == BIND_PENDING )
-	{
-		Refresh();
-	}
+	CheckBinding();
+
 	Vector3 velocity( 0, 0, 0 );
 	if( auto ballpark = updateContext.GetBallpark() )
 	{
@@ -207,6 +205,16 @@ void EveChildParticleSphere::Update( const EveUpdateContext& updateContext )
 	}
 
 	m_previousOrigin = m_worldTransform.GetTranslation();
+}
+
+// -----------------------------------------------------------------------------
+bool EveChildParticleSphere::CheckBinding()
+{
+	if( m_bindStatus == BIND_PENDING )
+	{
+		Refresh();
+	}
+	return m_bindStatus == BIND_VALID;
 }
 
 // -----------------------------------------------------------------------------

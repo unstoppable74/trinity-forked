@@ -18,6 +18,7 @@ const Be::ClassInfo* EveChildParticleSphere::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "display", m_display, "Toggle visibility", Be::READWRITE | Be::PERSIST )
+		MAP_PROPERTY_READONLY( "isValid", CheckBinding, "Do particle system and generators match" )
 
 		MAP_ATTRIBUTE( "generators", m_generators, "Particle system element generators", Be::READ | Be::PERSIST )
 		MAP_ATTRIBUTE( "particleSystem", m_particleSystem, "", Be::READWRITE | Be::PERSIST )
