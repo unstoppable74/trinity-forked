@@ -91,9 +91,10 @@ bool EveRootTransform::GetDamageLocatorDirection( Vector3* out, int index, bool 
 	return true;
 }
 
-void EveRootTransform::GetImpactPosition( Vector3& out, int damageLocatorIndex, const Vector3& direction )
+bool EveRootTransform::GetImpactPosition( Vector3& out, int locator, const Vector3& posPrev, const Vector3& posNow, float epsilon )
 {
-	GetDamageLocatorPosition( &out, damageLocatorIndex, true );
+	GetDamageLocatorPosition( &out, locator, true );
+	return LengthSq( posNow - out ) < epsilon;
 }
 
 bool EveRootTransform::HasImpactConfigurationShield() const

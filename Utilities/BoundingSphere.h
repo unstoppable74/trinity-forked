@@ -18,6 +18,8 @@ void BoundingSphereFromPoints( Vector4d& sphere, Vector3 const** points, size_t 
 
 bool IntersectSphereAxisAlignedBox( const Vector4& sphere, const Vector3& minBounds, const Vector3& maxBounds );
 bool IntersectEllipsoidRay( Vector3& out, const Vector3& ellipsoidCenter, const Vector3& ellipsoidRadii, const Vector3& rayOrigin, const Vector3& rayDir );
+bool IntersectEllipsoidRay( Vector3& out, float& t, const Vector3& ellipsoidCenter, const Vector3& ellipsoidRadii, const Vector3& rayOrigin, const Vector3& rayDir );
+bool IsPointInsideEllipsoid( const Vector3& ellipsoidCenter, const Vector3& ellipsoidRadii, const Vector3& point );
 
 inline void BoundingSphereSetOrUpdate( Vector4& addSphere, Vector4& resultSphere, bool update )
 {

@@ -38,7 +38,7 @@ public:
 	float GetRadius() const;
 	int CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size );
 	bool UpdateImpact( Vector3& out, const Vector3& direction, int impactIndex );
-	void GetImpactPosition( Vector3& out, int damageLocatorIndex, const Vector3& direction );
+	bool GetImpactPosition( Vector3& out, int locator, const Vector3& posPrev, const Vector3& posNow, float epsilon );
 	bool HasImpactConfigurationShield() const;
 
 	/////////////////////////////////////////////////////////////////////////////////////

@@ -451,8 +451,9 @@ bool EvePlanet::UpdateImpact( Vector3& out, const Vector3& direction, int impact
 }
 
 // --------------------------------------------------------------------------------
-void EvePlanet::GetImpactPosition( Vector3& out, int damageLocatorIndex, const Vector3& direction )
+bool EvePlanet::GetImpactPosition( Vector3& out, int locator, const Vector3& posPrev, const Vector3& posNow, float epsilon )
 {
+	return false;
 }
 
 // --------------------------------------------------------------------------------

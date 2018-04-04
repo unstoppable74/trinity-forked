@@ -1842,26 +1842,37 @@ void EveSpaceObject2::AddCustomMask( EveCustomMaskPtr newCustomMask )
 }
 
 
-void EveSpaceObject2::GetImpactPosition( Vector3& out, int damageLocatorIndex, const Vector3& direction )
+bool EveSpaceObject2::GetImpactPosition( Vector3& out, int locator, const Vector3& posPrev, const Vector3& posNow, float epsilon )
 {
-	if( !HasImpactConfigurationShield() )
+	if( HasImpactConfigurationShield() )
 	{
-		GetDamageLocatorPosition( &out, damageLocatorIndex, true );
-		return;
+		auto posPrevOS = TransformCoord( posPrev, m_invWorldTransform );
+		auto posNowOS = TransformCoord( posNow, m_invWorldTransform );
+
+		Vector3 center, radii;
+		GetShapeEllipsoid( center, radii );
+
+		float t;
+		if( IntersectEllipsoidRay( out, t, center, radii, posPrevOS, posNowOS - posPrevOS ) )
+		{
+			if( t <= 1 && t >= -1 )
+			{
+				out = TransformCoord( out, m_worldTransform );
+				return true;
+			}
+		}
+		if( IsPointInsideEllipsoid( center, radii, posNowOS ) )
+		{
+			out = posNow;
+			return true;
+		}
+		return false;
 	}
-
-	Vector3 tgtPosWS( 0.f, 0.f, 0.f );
-	GetDamageLocatorPosition( &tgtPosWS, damageLocatorIndex, true );
-
-	// convert position and direction into object space
-	Vector3 tgtPosOS, dirOS;
-	tgtPosOS = TransformCoord( tgtPosWS, m_invWorldTransform );
-	dirOS = TransformNormal( direction, m_invWorldTransform );
-	
-	Vector3 center, radii;
-	GetShapeEllipsoid( center, radii );
-	IntersectEllipsoidRay( out, center, radii, tgtPosOS, dirOS );
-	out = TransformCoord( out, m_worldTransform );
+	else
+	{
+		GetDamageLocatorPosition( &out, locator, true );
+		return LengthSq( posNow - out ) < epsilon;
+	}
 }
 
 bool EveSpaceObject2::GetDamageLocatorDirection( Vector3* out, int index, bool inWorldSpace )

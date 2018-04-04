@@ -118,19 +118,40 @@ bool IntersectSphereAxisAlignedBox( const Vector4& sphere, const Vector3& minBou
 
 bool IntersectEllipsoidRay( Vector3& out, const Vector3& ellipsoidCenter, const Vector3& ellipsoidRadii, const Vector3& rayOrigin, const Vector3& rayDir )
 {
+	float t;
+	return IntersectEllipsoidRay( out, t, ellipsoidCenter, ellipsoidRadii, rayOrigin, rayDir );
+}
+
+bool IntersectEllipsoidRay( Vector3& out, float& t, const Vector3& ellipsoidCenter, const Vector3& ellipsoidRadii, const Vector3& rayOrigin, const Vector3& rayDir )
+{
 	Vector3 v = Vector3( rayDir.x / ellipsoidRadii.x, rayDir.y / ellipsoidRadii.y, rayDir.z / ellipsoidRadii.z );
 	Vector3 s = Vector3( ( rayOrigin.x - ellipsoidCenter.x ) / ellipsoidRadii.x, ( rayOrigin.y - ellipsoidCenter.y ) / ellipsoidRadii.y, ( rayOrigin.z - ellipsoidCenter.z ) / ellipsoidRadii.z );
+
 	float v_v = Dot( v, v );
 	float v_s = Dot( v, s );
 	float s_s = Dot( s, s );
-	float pq = max( ( v_s / v_v ) * ( v_s / v_v ) - ( s_s / v_v ) + 1.f / v_v, 0.f );
+	float pq = ( v_s / v_v ) * ( v_s / v_v ) - ( s_s / v_v ) + 1.f / v_v;
 	if( pq < 0.f )
 	{
 		return false;
 	}
-	float t = sqrt( pq ) - ( v_s / v_v );
+	pq = sqrt( pq );
+	t = -pq - ( v_s / v_v );
+	if( t < 0 )
+	{
+		t = pq - ( v_s / v_v );
+	}
 	out = t * rayDir + rayOrigin;
 	return true;
+}
+
+bool IsPointInsideEllipsoid( const Vector3& ellipsoidCenter, const Vector3& ellipsoidRadii, const Vector3& point )
+{
+	Vector3 d = point - ellipsoidCenter;
+	d.x /= ellipsoidRadii.x;
+	d.y /= ellipsoidRadii.y;
+	d.z /= ellipsoidRadii.z;
+	return LengthSq( d ) <= 1;
 }
 
 void BoundingSphereFromBox( Vector4& sphere, const Vector3& minBounds, const Vector3& maxBounds, const Matrix* tf )

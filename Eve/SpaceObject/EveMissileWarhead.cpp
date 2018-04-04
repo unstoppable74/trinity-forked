@@ -442,30 +442,25 @@ EveMissileWarhead::StateChangeEvent EveMissileWarhead::CheckImpact( float deltaT
 
 	posNow = *GetWorldPosition();
 	posLast = posNow - m_movement;
-	target->GetImpactPosition( targetPosition, m_targetLocator, -m_movement );
-			
-	Vector3 dir( targetPosition - posNow );
-	float lensq = LengthSq( dir );
-	if( lensq <= m_explosionDistance || flight01 >= 1.0f )
+	targetPosition = posNow;
+
+	if( flight01 >= 1 || target->GetImpactPosition( targetPosition, m_targetLocator, posLast, posNow, m_explosionDistance ) )
 	{
-		m_explosionPosition = *GetWorldPosition();
+		m_explosionPosition = posNow;
 		evt = EVT_EXPLODE;
 		m_state = STATE_EXPLODED;
-		if( target )
+
+		Vector3 dir( targetPosition - posNow );
+
+		// Check if we've gone past the impact position
+		if( Dot( dir, m_movement ) < 0 )
 		{
-			// Check if we've gone past the impact position
-			if( Dot( dir, m_movement ) < 0 )
-			{
-				m_explosionPosition = targetPosition;
-			}
-			else
-			{
-				m_explosionPosition = posNow;
-			}
-			if( m_impactSize > 0.f )
-			{
-				target->CreateImpact( m_targetLocator, -m_movement, m_impactDuration, m_impactSize );
-			}
+			m_explosionPosition = targetPosition;
+		}
+
+		if( m_impactSize > 0.f )
+		{
+			target->CreateImpact( m_targetLocator, -m_movement, m_impactDuration, m_impactSize );
 		}
 	}
 	return evt;

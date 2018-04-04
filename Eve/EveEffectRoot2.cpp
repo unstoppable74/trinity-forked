@@ -359,9 +359,10 @@ bool EveEffectRoot2::GetDamageLocatorDirection( Vector3* out, int index, bool in
 	return true;
 }
 
-void EveEffectRoot2::GetImpactPosition( Vector3& out, int damageLocatorIndex, const Vector3& direction )
+bool EveEffectRoot2::GetImpactPosition( Vector3& out, int locator, const Vector3& posPrev, const Vector3& posNow, float epsilon )
 {
-	GetDamageLocatorPosition( &out, damageLocatorIndex, true );
+	GetDamageLocatorPosition( &out, locator, true );
+	return LengthSq( posNow - out ) < epsilon;
 }
 
 bool EveEffectRoot2::HasImpactConfigurationShield() const
