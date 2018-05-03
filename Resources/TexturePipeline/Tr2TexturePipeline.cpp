@@ -76,7 +76,7 @@ Be::Result<std::string> Tr2TexturePipeline::ExecuteFromScript( uint32_t maxWidth
 		{
 			return Be::Result<std::string>( std::string( "failed to load texture " ) + CW2A( it->c_str() ).m_psz );
 		}
-		bitmaps[*it] = bmp;
+		bitmaps.insert( std::make_pair( *it, bmp ) );
 		inputs[*it] = bmp;
 	}
 
