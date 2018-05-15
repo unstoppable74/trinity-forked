@@ -46,7 +46,7 @@ public:
 	void UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent );
 	void GetLocalToWorldTransform( Matrix& transform ) const;
 	void ChangeLOD( Tr2Lod lod );
-	void PlayCurveSet( const std::string& name, bool range, float fromTime, float toTime, bool looped ) {};
+	void PlayCurveSet( const std::string& name, const std::string& rangeName ) {};
 	void StopCurveSet( const std::string& name ) {};
 	float GetCurveSetDuration( const std::string& name ) const { return 0; } 
 	void GetLights( Tr2LightManager& lightManager ) const {};

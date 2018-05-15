@@ -227,18 +227,18 @@ void EveAnimationState::PlayCurves( EveSpaceObject2* owner )
 	{	
 		for( auto it = m_initCurves.cbegin(); it != m_initCurves.cend(); it++ )
 		{
-			owner->PlayCurveSet( (*it)->m_name, false, 0, 0, false );
+			owner->PlayCurveSet( (*it)->m_name, "" );
 		}
 	}
 	for( auto it = m_curves.cbegin(); it != m_curves.cend(); it++ )
 	{
-		owner->PlayCurveSet( (*it)->m_name, false, 0, 0, false );
+		owner->PlayCurveSet( (*it)->m_name, "" );
 	}
 	if( auto csOwner = dynamic_cast<ITr2CurveSetOwner*>( m_child.p ) )
 	{
 		for( auto it = m_curves.cbegin(); it != m_curves.cend(); it++ )
 		{
-			csOwner->PlayCurveSet( ( *it )->m_name, false, 0, 0, false );
+			csOwner->PlayCurveSet( ( *it )->m_name, "" );
 		}
 	}
 }

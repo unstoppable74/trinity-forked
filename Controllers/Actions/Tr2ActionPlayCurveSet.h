@@ -20,10 +20,7 @@ public:
 	virtual void Stop( Tr2Controller& controller );
 private:
 	std::string m_curveSetName;
-	float m_startTime;
-	float m_endTime;
-	bool m_range;
-	bool m_looped;
+	std::string m_rangeName;
 };
 
 TYPEDEF_BLUECLASS( Tr2ActionPlayCurveSet );

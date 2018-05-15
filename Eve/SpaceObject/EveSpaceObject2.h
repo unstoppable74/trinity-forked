@@ -318,7 +318,7 @@ public:
 
 	// access curve sets
 	void UpdateCurveSet( const std::string& name, Be::Time time );
-	void PlayCurveSet( const std::string& name, bool range, float fromTime, float toTime, bool looped );
+	void PlayCurveSet( const std::string& name, const std::string& rangeName );
 	void StopCurveSet( const std::string& name );
 	float GetCurveSetDuration( const std::string& name ) const;
 

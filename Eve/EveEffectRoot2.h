@@ -83,7 +83,7 @@ public:
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2CurveSetOwner
-	virtual void PlayCurveSet( const std::string& name, bool windowed, float fromTime, float toTime, bool looped );
+	virtual void PlayCurveSet( const std::string& name, const std::string& rangeName );
 	virtual void StopCurveSet( const std::string& name );
 	virtual void UpdateCurveSet( const std::string& name, Be::Time time );
 	virtual float GetCurveSetDuration( const std::string& name ) const;

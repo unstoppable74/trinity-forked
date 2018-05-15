@@ -494,28 +494,28 @@ void EveEffectRoot2::SetTransform( const Matrix& transform )
 }
 
 // -----------------------------------------------------------------------------
-void EveEffectRoot2::PlayCurveSet( const std::string& name, bool range, float fromTime, float toTime, bool looped )
+void EveEffectRoot2::PlayCurveSet( const std::string& name, const std::string& rangeName )
 {
 	for( auto it = m_curveSets.begin(); it != m_curveSets.end(); it++ )
 	{
 		if( ( *it )->GetName() == name )
 		{
-			if( range )
+			if( rangeName.empty() )
 			{
-				( *it )->SetTimeRange( fromTime, toTime, looped );
+				( *it )->ResetTimeRange();
+				( *it )->Play();
 			}
 			else
 			{
-				( *it )->ResetTimeRange();
+				( *it )->PlayTimeRange( rangeName.c_str() );
 			}
-			( *it )->Play();
 		}
 	}
 	for( auto childIt = m_effectChildren.begin(); childIt != m_effectChildren.end(); childIt++ )
 	{
 		if( auto owner = dynamic_cast<ITr2CurveSetOwner*>( *childIt ) )
 		{
-			owner->PlayCurveSet( name, range, fromTime, toTime, looped );
+			owner->PlayCurveSet( name, rangeName );
 		}
 	}
 }

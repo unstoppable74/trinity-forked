@@ -16,10 +16,6 @@
 
 
 Tr2ActionPlayCurveSet::Tr2ActionPlayCurveSet( IRoot* )
-	:m_startTime( 0 ),
-	m_endTime( 1 ),
-	m_range( false ),
-	m_looped( false )
 {
 }
 
@@ -27,7 +23,7 @@ void Tr2ActionPlayCurveSet::Start( Tr2Controller& controller )
 {
 	if( auto owner = dynamic_cast<ITr2CurveSetOwner*>( controller.GetOwner() ) )
 	{
-		owner->PlayCurveSet( m_curveSetName, m_range, m_startTime, m_endTime, m_looped );
+		owner->PlayCurveSet( m_curveSetName, m_rangeName );
 	}
 }
 

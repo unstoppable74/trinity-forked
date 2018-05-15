@@ -4,6 +4,21 @@
 
 BLUE_DEFINE_INTERFACE( ITr2CurveSetOwner );
 
+BLUE_DEFINE( Tr2CurveSetRange );
+
+const Be::ClassInfo* Tr2CurveSetRange::ExposeToBlue()
+{
+	EXPOSURE_BEGIN( Tr2CurveSetRange, "" )
+		MAP_INTERFACE( Tr2CurveSetRange )
+
+		MAP_ATTRIBUTE( "name", m_name, "Time range name", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "startTime", m_startTime, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "endTime", m_endTime, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "looped", m_looped, "", Be::READWRITE | Be::PERSIST )
+	EXPOSURE_END()
+}
+
+
 BLUE_DEFINE( TriCurveSet );
 
 const Be::ClassInfo* TriCurveSet::ExposeToBlue()
@@ -33,6 +48,13 @@ const Be::ClassInfo* TriCurveSet::ExposeToBlue()
 			m_bindings, 
 			"List of bindings. Note that a single curve can have multiple bindings.", 
 			Be::READWRITE | Be::PERSIST
+		)
+		MAP_ATTRIBUTE
+		(
+			"ranges",
+			m_ranges,
+			"List of named time ranges.",
+			Be::READ | Be::PERSIST
 		)
 		MAP_ATTRIBUTE
 		(

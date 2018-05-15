@@ -13,6 +13,26 @@ BLUE_DECLARE_INTERFACE( ITriFunction );
 BLUE_DECLARE_IVECTOR( ITriFunction );
 BLUE_DECLARE_IVECTOR( ITr2ValueBinding );
 
+
+BLUE_CLASS( Tr2CurveSetRange )
+{
+public:
+	EXPOSE_TO_BLUE();
+
+	Tr2CurveSetRange( IRoot* lockobj = nullptr );
+
+	std::string m_name;
+
+	float m_startTime;
+	float m_endTime;
+	bool m_looped;
+};
+
+TYPEDEF_BLUECLASS( Tr2CurveSetRange );
+
+BLUE_DECLARE_VECTOR( Tr2CurveSetRange );
+
+
 BLUE_CLASS( TriCurveSet ):
      public IInitialize,
 	 public ITr2Updateable,
@@ -27,6 +47,7 @@ public:
 	void Update( Be::Time realTime, Be::Time simTime );
 
 	void Play();
+	void PlayTimeRange( const char* name );
 	void Stop();
 	void StopOnNextFrame();
 	void StopAfter( double seconds );
@@ -75,6 +96,7 @@ private:
 	std::string m_name;
 	PITr2ValueBindingVector m_bindings;
 	PITriFunctionVector m_curves;
+	PTr2CurveSetRangeVector m_ranges;
 
 	bool m_isPlaying;
 	bool m_stopOnNextFrame;

@@ -5,9 +5,18 @@
 #include "include/ITriFunction.h"
 #include "include/ITriCurveLength.h"
 
+Tr2CurveSetRange::Tr2CurveSetRange( IRoot* )
+	:m_startTime( 0 ),
+	m_endTime( 1 ),
+	m_looped( false )
+{
+}
+
+
 TriCurveSet::TriCurveSet( IRoot* lockobj ) :
 	PARENTLOCK( m_curves ),
 	PARENTLOCK( m_bindings ),
+	PARENTLOCK( m_ranges ),
 	m_isPlaying( false ),
 	m_stopOnNextFrame( false ),
 	m_playOnLoad( true ),
@@ -156,6 +165,20 @@ bool TriCurveSet::Initialize()
 void TriCurveSet::Play()
 {
 	PlayFrom( 0.0 );
+}
+
+void TriCurveSet::PlayTimeRange( const char* name )
+{
+	for( auto it = begin( m_ranges ); it != end( m_ranges ); ++it )
+	{
+		auto range = *it;
+		if( range->m_name == name )
+		{
+			SetTimeRange( range->m_startTime, range->m_endTime, range->m_looped );
+			Play();
+			return;
+		}
+	}
 }
 
 void TriCurveSet::PlayFrom( double time )

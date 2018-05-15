@@ -2737,35 +2737,35 @@ void EveSpaceObject2::UpdateCurveSet( const std::string& name, Be::Time time )
 // Description:
 //   Play the curve set with the appropriate name
 // --------------------------------------------------------------------------------
-void EveSpaceObject2::PlayCurveSet( const std::string& name, bool range, float fromTime, float toTime, bool looped )
+void EveSpaceObject2::PlayCurveSet( const std::string& name, const std::string& rangeName )
 {
 	for( auto it = m_curveSets.begin(); it != m_curveSets.end(); it++ )
 	{
 		if( (*it)->GetName() == name )
 		{
-			if( range )
+			if( rangeName.empty() )
 			{
-				( *it )->SetTimeRange( fromTime, toTime, looped );
+				( *it )->ResetTimeRange();
+				( *it )->Play();
 			}
 			else
 			{
-				( *it )->ResetTimeRange();
+				( *it )->PlayTimeRange( rangeName.c_str() );
 			}
-			(*it)->Play();
 		}
 	}
 	for( auto childIt = m_children.begin(); childIt != m_children.end(); childIt++ )
 	{
 		if( auto owner = dynamic_cast<ITr2CurveSetOwner*>( *childIt ) )
 		{
-			owner->PlayCurveSet( name, range, fromTime, toTime, looped );
+			owner->PlayCurveSet( name, rangeName );
 		}
 	}
 	for( auto childIt = m_effectChildren.begin(); childIt != m_effectChildren.end(); childIt++ )
 	{
 		if( auto owner = dynamic_cast<ITr2CurveSetOwner*>( *childIt ) )
 		{
-			owner->PlayCurveSet( name, range, fromTime, toTime, looped );
+			owner->PlayCurveSet( name, rangeName );
 		}
 	}
 }

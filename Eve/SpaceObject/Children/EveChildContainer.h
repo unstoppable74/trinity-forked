@@ -60,7 +60,7 @@ public:
 
 	void Setup( const Vector3* scale, const Quaternion* rotation, const Vector3* translation, Tr2Lod lowestLodVisible );
 
-	void PlayCurveSet( const std::string& name, bool windowed, float fromTime, float toTime, bool looped );
+	void PlayCurveSet( const std::string& name, const std::string& rangeName );
 	void StopCurveSet( const std::string& name );
 	void UpdateCurveSet( const std::string& name, Be::Time time );
 	float GetCurveSetDuration( const std::string& name ) const;
