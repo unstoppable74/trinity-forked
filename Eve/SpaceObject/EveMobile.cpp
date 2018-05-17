@@ -665,6 +665,12 @@ void EveMobile::ModifyClipSphereCurve( const std::map<std::string, float>& param
 }
 
 // --------------------------------------------------------------------------------
+void EveMobile::ResetClipSphereCenter()
+{
+	m_clipSphereCenter = -1.0f * GetBoundingSphereCenter();
+}
+
+// --------------------------------------------------------------------------------
 // Description:
 //   Gets called by the state machine of this object to execute some command.
 // Return Value:

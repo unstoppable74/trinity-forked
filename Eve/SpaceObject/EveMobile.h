@@ -77,6 +77,7 @@ public:
 	// clip sphere modification
 	void PlayClipSphereFactorCurve();
 	void ModifyClipSphereCurve( const std::map<std::string, float>& parameters );
+	void ResetClipSphereCenter();
 
 protected:
 	/////////////////////////////////////////////////////////////////////////////////////
