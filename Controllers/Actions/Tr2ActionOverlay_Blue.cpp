@@ -19,7 +19,7 @@ const Be::ClassInfo* Tr2ActionOverlay::ExposeToBlue()
 		MAP_ATTRIBUTE( 
 			"path", 
 			m_path, 
-			"Overlay .red file path"
+			"Overlay .red file path\n"
 			":jessica-widget: filepath\n"
 			":jessica-file-filter : redfile",
 			Be::READWRITE | Be::PERSIST )
