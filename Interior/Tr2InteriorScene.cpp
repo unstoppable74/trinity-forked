@@ -805,7 +805,12 @@ void Tr2InteriorScene::DoInstanceVisible( const Tr2VisibilityEvent& event )
 
 				DO_GET_BATCHES( m_primaryRenderBatches, RM_OPAQUE, WODINTBATCHGROUP_OPAQUE, TRIBATCHTYPE_OPAQUE );
 				DO_GET_BATCHES( m_primaryRenderBatches, RM_DECAL, WODINTBATCHGROUP_DECAL, TRIBATCHTYPE_DECAL );
+
+				auto start = m_primaryRenderBatches->GetBatchCount();
 				DO_GET_BATCHES( m_primaryRenderBatches, RM_ALPHA, WODINTBATCHGROUP_BLEND, TRIBATCHTYPE_TRANSPARENT );
+				auto end = m_primaryRenderBatches->GetBatchCount();
+				auto acc = static_cast<TriRenderBatchAccumulator<Tr2IntKeyGenerator>*>( m_primaryRenderBatches );
+				acc->ReverseBatchOrder( start, end );
 			}
 		}
 	}

@@ -543,6 +543,11 @@ public:
 		m_batchesToSort.erase( m_batchesToSort.begin() + index );
 	}
 
+	void ReverseBatchOrder( size_t beginIndex, size_t endIndex )
+	{
+		std::reverse( m_batchesToSort.begin() + beginIndex, m_batchesToSort.begin() + endIndex );
+	}
+
 private:
 	KeyGenerator m_keyGen;
 
