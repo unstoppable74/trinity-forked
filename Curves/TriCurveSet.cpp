@@ -147,6 +147,12 @@ void TriCurveSet::Apply()
 	}
 }
 
+void TriCurveSet::ApplyTime( double time )
+{
+	m_scaledTime = time;
+	Apply();
+}
+
 bool TriCurveSet::Initialize()
 {
 	if( m_playOnLoad )

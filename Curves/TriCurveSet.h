@@ -58,6 +58,7 @@ public:
 	bool IsPlaying() const;
 
 	void Apply();
+	void ApplyTime( double time );
 
 	// access the name
 	const std::string& GetName() const					{	return m_name;				}
