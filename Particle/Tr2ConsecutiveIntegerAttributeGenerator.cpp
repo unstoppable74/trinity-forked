@@ -57,8 +57,15 @@ void Tr2ConsecutiveIntegerAttributeGenerator::Generate( const Vector3* position,
 	for( unsigned i = 0; i < m_element.m_dimension; ++i )
 	{
 		m_currentValues[i]++;
-		data[i] = float( minRange[i] + m_currentValues[i] % 
-			uint32_t( maxRange[i] - minRange[i] ) );
+		auto r = uint32_t( maxRange[i] - minRange[i] );
+		if( r )
+		{
+			data[i] = float( minRange[i] + m_currentValues[i] % r );
+		}
+		else
+		{
+			data[i] = minRange[i];
+		}
 	}
 }
 
