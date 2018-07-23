@@ -1,9 +1,8 @@
-#include "StdAfx.h"
+﻿#include "StdAfx.h"
 #include "TriTextureRes.h"
 #include "TriSettingsRegistrar.h"
 
 #include "Tr2RenderTarget.h"
-#include "Tr2DepthStencil.h"
 #include "Tr2HostBitmap.h"
 #include "Tr2ImageIOHelpers.h"
 #include "Tr2ImageRes.h"
@@ -162,7 +161,7 @@ void TriTextureRes::StaticResourcePrepFinished( void* pContext )
 
 void TriTextureRes::ResourcePrepFinished()
 {
-	if( m_pipeline )
+	if( m_pipeline != nullptr)
 	{
 		m_isLoading = false;
 		m_isPrepared = true;
@@ -257,7 +256,6 @@ void TriTextureRes::ReleaseResources( TriStorage s )
 		m_ownTexture = Tr2TextureAL();
 		m_texture = nullptr;
 		m_wrappedRenderTarget = nullptr;
-		m_wrappedDepthStencil = nullptr;
 		SetPrepared( false );
 		SetGood( false );
 	}
@@ -272,15 +270,7 @@ Tr2TextureAL* TriTextureRes::GetTexture()
 			SetTexture( m_wrappedRenderTarget->GetRenderTarget() );
 		}
 	}
-	else
-	if( m_wrappedDepthStencil )
-	{
-		if( !m_texture || !m_texture->IsValid() )
-		{
-			SetTexture( m_wrappedDepthStencil->m_depthStencil );
-		}
-	}
-	
+
 	return ( m_texture && m_texture->IsValid() ) ? m_texture : nullptr;
 }
 
@@ -325,7 +315,7 @@ void TriTextureRes::OnCloseStream()
 
 	m_loadedBitmap.reset();
 
-	m_data = NULL;
+	m_data = nullptr;
 	m_dataSize = 0;
 }
 
@@ -387,7 +377,7 @@ bool TriTextureRes::DoPrepareAsyncSave( void )
 {
 	USE_MAIN_THREAD_RENDER_CONTEXT();
 
-	if( !m_asyncSaveImage )
+	if( !m_asyncSaveImage)
 	{
 		CCP_LOGERR( "Unsupported extension for saving (%S)", m_saveFilename.c_str() );
 		return false;
@@ -699,21 +689,6 @@ BlueStdResult TriTextureRes::CreateFromTexture( TriTextureRes* texture )
 		BlueStdResult( BLUE_STD_RESULT_RUNTIME_ERROR, "could not copy a texture" ) );
 	m_isTextureResizable = false;
 	return BLUE_STD_RESULT_OK;
-}
-
-bool TriTextureRes::SetTextureFromDS( Tr2DepthStencil* depthStencil )
-{
-	m_wrappedDepthStencil = depthStencil;
-	m_ownTexture = Tr2TextureAL();
-	SetTexture( m_ownTexture );
-
-	if( depthStencil && depthStencil->IsValid() )
-	{
-		m_isTextureResizable = false;
-		SetTexture( depthStencil->m_depthStencil );		
-	}
-
-	return true;
 }
 
 bool TriTextureRes::Create(	uint32_t width, 

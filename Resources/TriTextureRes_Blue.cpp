@@ -1,7 +1,6 @@
 #include "StdAfx.h"
 #include "TriTextureRes.h"
 #include "Tr2RenderTarget.h"
-#include "Tr2DepthStencil.h"
 #include "Tr2HostBitmap.h"
 #include "TexturePipeline/Tr2TexturePipeline.h"
 
@@ -45,12 +44,12 @@ static PyObject* PyInit( PyObject* self, PyObject* args )
 
 	if( PyTuple_Size( args ) == 1 )
 	{
-		// Option 2: a live view of a (readable) renderTarget or depthStencil
+		// Option 2: a live view of a (readable) renderTarget
 		PyObject* pySurface = NULL;
 
 		if( !PyArg_ParseTuple( args, "|O", &pySurface ) )
 		{
-			PyErr_SetString( PyExc_RuntimeError, "Excpected Tr2RenderTarget or Tr2DepthStencil" );
+			PyErr_SetString( PyExc_RuntimeError, "Excpected Tr2RenderTarget" );
 			return nullptr;
 		}
 
@@ -61,12 +60,6 @@ static PyObject* PyInit( PyObject* self, PyObject* args )
 			{
 				pThis->SetTextureFromRT( renderTarget );
 				Py_RETURN_NONE;
-			}
-		
-			Tr2DepthStencil* depthStencil = nullptr;
-			if( BluePythonCast<Tr2DepthStencil*>( pySurface ) && BlueExtractArgument( pySurface, depthStencil, 0 ) )
-			{
-				pThis->SetTextureFromDS( depthStencil );				
 			}
 		}
 		Py_RETURN_NONE;
@@ -199,25 +192,11 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 			Be::READ 
 		)
 		MAP_ATTRIBUTE
-		( 
-			"depth",	
-			m_volumeDepth,	
-			"Depth of loaded image in pixels.", 
+		(
+			"depth",
+			m_volumeDepth,
+			"Depth of loaded image in pixels.",
 			Be::READ
-		)
-		MAP_ATTRIBUTE
-		( 
-			"imageWidth",	
-			m_width,	
-			"Width of original image in pixels.", 
-			Be::READ 
-		)
-		MAP_ATTRIBUTE
-		( 
-			"imageHeight",	
-			m_height,	
-			"Height of original image in pixels.", 
-			Be::READ 
 		)
 		MAP_ATTRIBUTE
 		( 
@@ -311,7 +290,6 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 		MAP_ATTRIBUTE( "cutoutHeight",	m_cutoutHeight,	"height of cutout rectangle, range 0...1",			Be::READWRITE )
 		
 		MAP_ATTRIBUTE( "wrappedRenderTarget", m_wrappedRenderTarget, "Live view renderTarget being wrapped with SetFromRenderTarget", Be::READ );
-		MAP_ATTRIBUTE( "wrappedDepthStencil", m_wrappedDepthStencil, "Live view depthStencil being wrapped with SetFromDepthStencil", Be::READ );
 
 		MAP_METHOD_AND_WRAP
 		(
@@ -341,14 +319,6 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 			"\n:param rt: render target"
 			"\n:param width: destination width"
 			"\n:param height: destination height"
-		)
-
-		MAP_METHOD_AND_WRAP
-		(
-			"SetFromDepthStencil",
-			SetTextureFromDS,
-			"Set a texture from a depthStencil. User needs to keep the DS alive."
-			"\n:param ds: depth stencil object"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -384,10 +354,10 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 			PyInit, 
 			"Constructs a new texture. There are three possible overrides:\n"
 			"(1) TriTextureRes() - constructs an empty texture\n"
-			"(2) TriTextureRes(other) - wraps existing render target or depth stencil\n"
+			"(2) TriTextureRes(other) - wraps existing render target\n"
 			"(3) TriTextureRes(width, height, mipCount, format [, usage]) - creates a new unfilled texture\n"
 			":param otherOrWidth: render target / depth stencil for the (2) override or width for (3) override\n"
-			":type otherOrWidth: Optional[Tr2RenderTarget | Tr2DepthStencil | int]\n"
+			":type otherOrWidth: Optional[Tr2RenderTarget | int]\n"
 			":param height: texture height\n"
 			":type height: Optional[int]\n"
 			":param mipCount: number of mip levels\n"

@@ -28,12 +28,12 @@
 #include "Tr2DeviceResource.h"
 #include "ITr2TextureProvider.h"
 #include "Tr2AsyncSave.h"
+#include "Tr2DepthStencil.h"
 
 class Tr2RenderTarget;
 class Tr2ImageHandler;
 
 BLUE_DECLARE( Tr2RenderTarget );
-BLUE_DECLARE( Tr2DepthStencil );
 BLUE_DECLARE( Tr2HostBitmap );
 BLUE_DECLARE( Tr2TexturePipeline );
 BLUE_DECLARE( Tr2ImageRes );
@@ -74,7 +74,6 @@ public:
 	const Tr2TextureAL* GetTexture() const;
 	
 	bool SetTextureFromRT( Tr2RenderTarget* renderTarget );
-	bool SetTextureFromDS( Tr2DepthStencil* depthStencil );
 	
 	// Make a TriTextureRes that takes a copy of the renderTarget contents and sticks with it (not a live view).
 	bool CreateFromRT( Tr2RenderTarget* renderTarget, unsigned width = 0, unsigned height = 0 );
@@ -137,7 +136,6 @@ private:
 	Tr2TextureAL *m_texture;
 	Tr2TextureAL m_ownTexture;
 	Tr2RenderTargetPtr	m_wrappedRenderTarget;
-	Tr2DepthStencilPtr	m_wrappedDepthStencil;
 
 	unsigned ComputeMipSkipCount();
 
