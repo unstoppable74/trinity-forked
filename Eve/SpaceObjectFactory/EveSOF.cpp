@@ -59,8 +59,8 @@ EveSOF::EveSOF( IRoot* lockobj ) :
 	m_decalsEffectName[EveSOFDataHullDecal::USAGE_STANDARD] = BlueSharedString( "decalv5.fx" );
 	m_decalsEffectName[EveSOFDataHullDecal::USAGE_KILLCOUNTER] = BlueSharedString( "decalcounterv5.fx" );
 	m_decalsEffectName[EveSOFDataHullDecal::USAGE_HOLE] = BlueSharedString( "decalholev5.fx" );
-	m_decalsEffectName[EveSOFDataHullDecal::USAGE_CYLINDRICAL] = BlueSharedString( "decalcylindricalv5.fx" );
-	m_decalsEffectName[EveSOFDataHullDecal::USAGE_GLOWCYLINDRICAL] = BlueSharedString( "decalglowcylindricalv5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecal::USAGE_CYLINDRICAL] = BlueSharedString( "decalcylindricv5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecal::USAGE_GLOWCYLINDRICAL] = BlueSharedString( "decalglowcylindricv5.fx" );
 	m_decalsEffectName[EveSOFDataHullDecal::USAGE_GLOWSTANDARD] = BlueSharedString( "decalglowv5.fx" );
 	m_decalsEffectName[EveSOFDataHullDecal::USAGE_LOGO] = BlueSharedString( "decalv5.fx" );
 
@@ -841,7 +841,7 @@ void EveSOF::SetupPlaneSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) co
 			// rebuild it internally
 			planeSet->Rebuild();
 			// add to ship
-			obj->AddAttachment( planeSet );
+			obj->AddPlaneSet( planeSet );
 		}
 
 		// next hull needs offset update from hull's locator
