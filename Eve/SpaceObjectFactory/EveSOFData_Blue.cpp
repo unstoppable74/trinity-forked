@@ -267,10 +267,7 @@ BLUE_DEFINE( EveSOFDataHullPlaneSet );
 Be::VarChooser EveSOFDataHullPlaneSetUsageChooser[] =
 {
 	{ "Standard", BeCast( EveSOFDataHullPlaneSet::USAGE_STANDARD ), "Standard planeset" },
-	{ "AllianceLogo", BeCast( EveSOFDataHullPlaneSet::USAGE_ALLIANCE_LOGO ), "Alliance logo planeset" },
 	{ "Video", BeCast( EveSOFDataHullPlaneSet::USAGE_VIDEO ), "Video planeset" },
-	{ "CorpLogo", BeCast( EveSOFDataHullPlaneSet::USAGE_CORP_LOGO ), "Corporation logo planeset" },
-	{ "CeoPortrait", BeCast( EveSOFDataHullPlaneSet::USAGE_CEO_PORTRAIT ), "Ceo portrait planeset" },
 	{ "Haze", BeCast( EveSOFDataHullPlaneSet::USAGE_HAZE ), "Fake haze planeset" },
 	{ 0 }
 };

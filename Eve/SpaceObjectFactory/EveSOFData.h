@@ -415,11 +415,8 @@ public:
 	enum Usage
 	{
 		USAGE_STANDARD = 0,
-		USAGE_ALLIANCE_LOGO,
-		USAGE_VIDEO,
-		USAGE_CORP_LOGO,
-		USAGE_CEO_PORTRAIT,
-		USAGE_HAZE,
+		USAGE_VIDEO = 2,
+		USAGE_HAZE = 5,
 	};
 
 	// data

@@ -761,21 +761,6 @@ void EveSOF::SetupPlaneSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) co
 				effectResPath = planeSetData->skinned ? "res:/graphics/effect/managed/space/spaceobject/fx/skinned_planehologram.fx" : "res:/graphics/effect/managed/space/spaceobject/fx/planehologram.fx";
 				imageMapResPath = "dynamic:/inspacevideos";
 				break;
-			case EveSOFDataHullPlaneSet::USAGE_ALLIANCE_LOGO:
-				effectResPath = planeSetData->skinned ? "res:/graphics/effect/managed/space/spaceobject/fx/skinned_planehologram.fx" : "res:/graphics/effect/managed/space/spaceobject/fx/planehologram.fx";
-				externalParamName = "AllianceLogoResPath";
-				imageMapResPath = m_dataMgr.GetGenericData()->resPathDefaultAlliance;
-				break;
-			case EveSOFDataHullPlaneSet::USAGE_CORP_LOGO:
-				effectResPath = planeSetData->skinned ? "res:/graphics/effect/managed/space/spaceobject/fx/skinned_planehologram.fx" : "res:/graphics/effect/managed/space/spaceobject/fx/planehologram.fx";
-				externalParamName = "CorpLogoResPath";
-				imageMapResPath = m_dataMgr.GetGenericData()->resPathDefaultCorp;
-				break;
-			case EveSOFDataHullPlaneSet::USAGE_CEO_PORTRAIT:
-				effectResPath = planeSetData->skinned ? "res:/graphics/effect/managed/space/spaceobject/fx/skinned_planehologram.fx" : "res:/graphics/effect/managed/space/spaceobject/fx/planehologram.fx";
-				externalParamName = "CeoPortraitResPath";
-				imageMapResPath = m_dataMgr.GetGenericData()->resPathDefaultCeo;
-				break;
 			}
 
 			planeEffect->SetEffectPathName( effectResPath.c_str() );
