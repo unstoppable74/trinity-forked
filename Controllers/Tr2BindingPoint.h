@@ -20,7 +20,7 @@ public:
 	void SetValue( float value ) const;
 	bool GetValue( float& value ) const;
 
-	IRootPtr GetBoundObject() const;
+	IRoot* GetBoundObject() const;
 
 	std::string m_path;
 	IRootPtr m_object;
@@ -28,8 +28,8 @@ public:
 protected:
 	bool SetDestination( IRoot* object, const std::string& attribute );
 private:
-	IRootPtr m_resolvedObject;
-	INotifyPtr m_notifyPtr;
+	BlueWeakRef<IRoot> m_resolvedObject;
+	BlueWeakRef<INotify> m_notifyPtr;
 	const Be::VarEntry* m_entry;
 	Be::Var* m_destination;
 	int32_t m_entryOffset;

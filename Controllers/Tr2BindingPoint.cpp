@@ -236,7 +236,7 @@ void Tr2BindingPoint::SetValue( float value ) const
 	default:
 		return;
 	}
-	if( m_notifyPtr )
+	if( !!m_notifyPtr )
 	{
 		m_notifyPtr->OnModified( m_destination );
 	}
@@ -346,11 +346,12 @@ bool Tr2BindingPoint::SetDestination( IRoot* object, const std::string& attribut
 	m_entry = entry.first;
 	m_destination = entry.second;
 	m_entryOffset = entryOffset;
-	m_notifyPtr = BlueCastPtr( object );
+	INotifyPtr notifyPtr = BlueCastPtr( object );
+	m_notifyPtr = notifyPtr.p;
 	return true;
 }
 
-IRootPtr Tr2BindingPoint::GetBoundObject() const
+IRoot* Tr2BindingPoint::GetBoundObject() const
 {
 	if( m_resolvedObject )
 	{
