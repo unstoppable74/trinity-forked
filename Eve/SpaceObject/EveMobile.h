@@ -37,6 +37,10 @@ public:
 	bool Initialize();
 
 	/////////////////////////////////////////////////////////////////////////////////////
+	// INotify
+	virtual bool OnModified( Be::Var* value );
+
+	/////////////////////////////////////////////////////////////////////////////////////
 	// Overrides of EveSpaceObject2 implementations
 	virtual void UpdateSyncronous( EveUpdateContext& updateContext );
 	virtual void UpdateAsyncronous( EveUpdateContext& updateContext );

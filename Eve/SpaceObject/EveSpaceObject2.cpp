@@ -190,6 +190,12 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 
 	m_controllers.SetNotify( this );
 	m_effectChildren.SetNotify( this );
+
+	SetControllerVariable( "DirtLevel", m_dirtLevel );
+	SetControllerVariable( "ActivationStrength", m_spaceObjectShipData.y );
+	SetControllerVariable( "ShieldDamage", 0 );
+	SetControllerVariable( "ArmorDamage", 0 );
+	SetControllerVariable( "HullDamage", 0 );
 }
 
 EveSpaceObject2::~EveSpaceObject2()
@@ -400,7 +406,13 @@ void EveSpaceObject2::UpdateAsyncronous( EveUpdateContext& updateContext )
 	m_perObjectDataVs.InvalidateBufferData();
 	m_perObjectDataPs.InvalidateBufferData();
 
+	float prevActivationStrength = m_spaceObjectShipData.y;
 	PrepareShaderData( updateContext );
+	if( prevActivationStrength != m_spaceObjectShipData.y )
+	{
+		SetControllerVariable( "ActivationStrength", m_spaceObjectShipData.y );
+	}
+
 	m_psData.shipData = m_spaceObjectShipData;
 	m_vsData.worldTransform = Transpose( m_worldTransform );
 	m_vsData.invWorldTransform = Transpose( m_invWorldTransform );
@@ -1577,6 +1589,10 @@ void EveSpaceObject2::RebuildCachedData( BlueAsyncRes* p )
 
 bool EveSpaceObject2::OnModified( Be::Var* val )
 {
+	if( IsMatch( val, m_dirtLevel ) )
+	{
+		SetControllerVariable( "DirtLevel", m_dirtLevel );
+	}
 	return true;
 }
 
@@ -2413,6 +2429,9 @@ void EveSpaceObject2::SetImpactDamageState( float shield, float armor, float hul
 	{
 		m_impactOverlay->SetDamageState( shield, armor, hull, doCreateArmorImpacts );
 	}
+	SetControllerVariable( "ShieldDamage", shield );
+	SetControllerVariable( "ArmorDamage", armor );
+	SetControllerVariable( "HullDamage", hull );
 }
 
 // --------------------------------------------------------------------------------

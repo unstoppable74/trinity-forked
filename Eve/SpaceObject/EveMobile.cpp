@@ -26,6 +26,7 @@ EveMobile::EveMobile( IRoot* lockobj ) :
 {
 	// ship class needs to know if turrets get added or removed
 	m_turretSets.SetNotify( this );
+	SetControllerVariable( "ClipSphereFactor", m_clipSphereFactor );
 }
 
 // --------------------------------------------------------------------------------
@@ -51,6 +52,16 @@ bool EveMobile::Initialize()
 	RebuildTurretPositions();
 
 	return true;
+}
+
+// --------------------------------------------------------------------------------
+bool EveMobile::OnModified( Be::Var* value )
+{
+	if( IsMatch( value, m_clipSphereFactor ) )
+	{
+		SetControllerVariable( "ClipSphereFactor", m_clipSphereFactor );
+	}
+	return EveSpaceObject2::OnModified( value );
 }
 
 // --------------------------------------------------------------------------------

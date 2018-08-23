@@ -17,7 +17,7 @@ const Be::ClassInfo* EveMobile::ExposeToBlue()
 		MAP_INTERFACE( IListNotify )
 
 		MAP_ATTRIBUTE( "activationStrength", m_activationStrenght, "Ship's activation strength", Be::READWRITE )
-		MAP_ATTRIBUTE( "clipSphereFactor", m_clipSphereFactor, "Ship's clip state", Be::READWRITE )
+		MAP_ATTRIBUTE( "clipSphereFactor", m_clipSphereFactor, "Ship's clip state", Be::READWRITE | Be::NOTIFY )
 		MAP_ATTRIBUTE( "clipSphereCenter", m_clipSphereCenter, "Ship's clip sphere center", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "turretSets", m_turretSets, "a list of all the turret sets on this ship", Be::READWRITE | Be::PERSIST | Be::NOTIFY )

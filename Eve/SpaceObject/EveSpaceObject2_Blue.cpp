@@ -304,7 +304,7 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 		MAP_ATTRIBUTE( "lodLevel", m_lodLevel, "Current lod-level of this spaceobject\n", Be::READ )
 
 		MAP_ATTRIBUTE( "customMasks", m_customMasks, "\n", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "dirtLevel", m_dirtLevel, "The dirt amount of the object", Be::READWRITE )
+		MAP_ATTRIBUTE( "dirtLevel", m_dirtLevel, "The dirt amount of the object", Be::READWRITE | Be::NOTIFY )
 		MAP_ATTRIBUTE( "shapeEllipsoidCenter", m_shapeEllipsoidCenter, "User-authored ellipsoid data for center", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "shapeEllipsoidRadius", m_shapeEllipsoidRadius, "User-authored ellipsoid data for radii", Be::READWRITE | Be::PERSIST )
 
