@@ -623,7 +623,6 @@ namespace
 		float clamppedAngleX = std::max( 0.f, std::min( banner.angleX, 180.f ) );
 
 		uint32_t segmentsX = 1 + uint32_t( clamppedAngleX / 5 );
-		uint32_t segmentsY = 1;
 
 		auto halfAngleX = clamppedAngleX / 180.f * XM_PI / 2;
 
@@ -672,24 +671,19 @@ namespace
 		float uLength = 0;
 		float vLength = 0;
 
+		for( uint32_t i = 0; i <= segmentsX; ++i )
 		{
-			float sinAngleY = 1;
-			float cosAngleY = 0;
+			float x = float( i ) / ( segmentsX );
+			float angleX = -halfAngleX + x * 2 * halfAngleX;
+			float sinAngleX = sin( angleX );
+			float cosAngleX = cos( angleX );
 
-			for( uint32_t i = 0; i <= segmentsX; ++i )
+			Vector3 pos = TransformCoord( Vector3( sinAngleX * scaleX, 0, ( cosAngleX - 1 ) * scaleZ ), transform );
+			if( i )
 			{
-				float x = float( i ) / ( segmentsX );
-				float angleX = -halfAngleX + x * 2 * halfAngleX;
-				float sinAngleX = sin( angleX );
-				float cosAngleX = cos( angleX );
-
-				Vector3 pos = TransformCoord( Vector3( sinAngleX * scaleX, 0, ( cosAngleX - 1 ) * scaleZ ), transform );
-				if( i )
-				{
-					uLength += Length( prevPos - pos );
-				}
-				prevPos = pos;
+				uLength += Length( prevPos - pos );
 			}
+			prevPos = pos;
 		}
 
 		for( uint32_t j = 0; j <= segmentsY; ++j )
@@ -698,9 +692,6 @@ namespace
 			float angleY = -halfAngleY + y * 2 * halfAngleY;
 			float sinAngleY = sin( angleY + XM_PIDIV2 );
 			float cosAngleY = cos( angleY + XM_PIDIV2 );
-
-			float sinAngleX = 0;
-			float cosAngleX = 1;
 
 			Vector3 pos = TransformCoord( Vector3( 0, cosAngleY * scaleY, ( sinAngleY - 1 ) * scaleZ ), transform );
 			if( j )
