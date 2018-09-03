@@ -1180,7 +1180,7 @@ float Tr2Renderer::GetAnimationTimeElapsed( float startTime )
 
 void Tr2Renderer::BeginFrame()
 {
-	Vector4 timeDataOld;
+	Vector4 timeDataOld( 0, 0, 0, 0 );
 	s_renderTimeVar.GetValue( timeDataOld );
 
 	Vector4 timeData;

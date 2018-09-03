@@ -502,7 +502,7 @@ void Tr2Sprite2dLineTrace::AddRoundJoint(
 	float halfWidth)
 {
 	uint16_t fanBase;
-	Vector2 fanBaseTranslation;
+	Vector2 fanBaseTranslation( 0, 0 );
 	auto fanVertexBase = m_renderVertices.size();
 	float sign = 1.0f;
 	float jointWidth = halfWidth * 2.0f;

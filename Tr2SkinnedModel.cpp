@@ -89,7 +89,7 @@ void Tr2SkinnedModel::GetBatchesForArea( Tr2MeshAreaVector* areas, Tr2Mesh* mesh
 				{
 					// apply a lookup to change the bone-index from per-mesharea to per-mesh, if we have per-mesharea
 					int meshBoneIx = 0;
-					if( meshData->m_hasPerMeshAreaBoneBindings )
+					if( areaRes && meshData->m_hasPerMeshAreaBoneBindings )
 					{
 						meshBoneIx = areaRes->m_jointBindings[joint];
 					}

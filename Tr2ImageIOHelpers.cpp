@@ -633,7 +633,7 @@ bool ExportCairoScriptsAsSvg( const std::wstring& filePath, const std::vector<Ca
 bool RasterizeCairoScripts( ImageIO::HostBitmap& bitmap, const std::vector<CairoScript>& scripts, uint32_t width, uint32_t height, const RasterizationOptions& options )
 {
 	auto data = InitCairoDataMultiWrite(width, height);
-	bool success;
+	bool success = true;
 	{
 		CCP_STATS_ZONE( "Cairo rasterizing" );
 		auto beginTime = CcpGetTimestamp();
@@ -642,6 +642,10 @@ bool RasterizeCairoScripts( ImageIO::HostBitmap& bitmap, const std::vector<Cairo
 			data->isMainSurface = true;
 			data->source = &*it;
 			success = ProtectedRasterize( it->script, it->length, data.get() );
+			if( !success )
+			{
+				break;
+			}
 		}
 		auto endTime = CcpGetTimestamp();
 		auto duration = float( double( endTime - beginTime ) / CcpGetTimestampFrequency() );
