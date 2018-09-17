@@ -94,8 +94,8 @@ void Tr2StateMachine::Unlink()
 
 void Tr2StateMachine::FollowTransitions()
 {
-	std::unordered_set<Tr2StateMachineState*> seen;
-	seen.insert( m_currentState );
+	std::unordered_map<Tr2StateMachineState*, uint32_t> seen;
+	seen.insert( std::make_pair( m_currentState, 1u ) );
 
 	while( true )
 	{
@@ -104,10 +104,18 @@ void Tr2StateMachine::FollowTransitions()
 		{
 			return;
 		}
-		if( seen.find( next ) != seen.end() )
+		auto found = seen.find( next );
+		if( found != seen.end() )
 		{
-			CCP_LOGERR( "Tr2StateMachine: infinite loop in state machine %s detected", m_name.c_str() );
-			return;
+			if( found->second > 20 )
+			{
+				CCP_LOGERR( "Tr2StateMachine: infinite loop in state machine %s detected", m_name.c_str() );
+				return;
+			}
+			else
+			{
+				++found->second;
+			}
 		}
 		m_currentState = next;
 		m_currentState->Start();
