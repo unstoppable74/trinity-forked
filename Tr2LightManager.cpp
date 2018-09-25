@@ -136,7 +136,7 @@ void Tr2LightManager::SetFrustum( const TriFrustum& frustum )
 	m_frustum = frustum;
 }
 
-void Tr2LightManager::AddPointLight( const Vector3& position, float radius, const Color& color )
+void Tr2LightManager::AddPointLight( const Vector3& position, float radius, const Color& color, float innerRadius )
 {
 	PerLightData data;
 	data.position = position;
@@ -160,7 +160,7 @@ void Tr2LightManager::AddPointLight( const Vector3& position, float radius, cons
 		data.color.x *= radius * dimming;
 		data.color.y *= radius * dimming;
 		data.color.z *= radius * dimming;
-		data._padding = 0;
+		data.innerRadius = innerRadius;
 		m_lightData.Add( data, "Tr2LightManager::m_lightData" );
 	}
 }

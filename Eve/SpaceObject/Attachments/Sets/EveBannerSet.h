@@ -11,6 +11,7 @@
 #include "Resources/Tr2LodResource.h"
 
 
+
 BLUE_DECLARE( Tr2Effect );
 BLUE_DECLARE_VECTOR( Tr2LodResource );
 
@@ -63,6 +64,8 @@ public:
 	int32_t GetReference( size_t index ) const;
 
 	static float GetBannerAspectRatio( const EveBannerItem& banner );
+	Color GetLightColor() const;
+	void GetLights( Tr2LightManager& lightManager, const Matrix& parentTransform ) const;
 protected:
 	virtual void ReleaseResources( TriStorage s );
 	virtual bool OnPrepareResources();

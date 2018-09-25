@@ -68,7 +68,8 @@ TriTextureRes::TriTextureRes():
 	m_data( nullptr ),
 	m_dataSize( 0 ),
 	m_resourceLoadCbId( 0 ),
-	m_resourcePrepCbId( 0 )
+	m_resourcePrepCbId( 0 ),
+	m_averageColor( 0.0, 0.0, 0.0, 0.0 )
 {}
 
 TriTextureRes::~TriTextureRes()
@@ -480,6 +481,7 @@ BlueAsyncRes::LoadingResult TriTextureRes::DoLoad()
 			m_loadedBitmap.reset();
 		}
 	}
+	m_loadedBitmap->GetAverageColor( m_averageColor.r, m_averageColor.g, m_averageColor.b, m_averageColor.a);
 
 	const float secs = (float)t.GetSeconds();
 	if( secs > g_imageWarnLoadTime )

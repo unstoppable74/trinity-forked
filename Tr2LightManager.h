@@ -41,7 +41,7 @@ public:
 
 	void Clear();
 	void SetFrustum( const TriFrustum& frustum );
-	void AddPointLight( const Vector3& position, float radius, const Color& color );
+	void AddPointLight( const Vector3& position, float radius, const Color& color, float innerRadius=0.0f);
 	ALResult UpdateLists( uint32_t msaaType, Tr2RenderContext& renderContext );
 
 	virtual void ReleaseResources( TriStorage s );
@@ -56,7 +56,7 @@ private:
 		Vector3 position;
 		float radius;
 		Vector3 color;
-		float _padding;
+		float innerRadius;
 	};
 
 	Tr2LightManager( const Tr2LightManager& );

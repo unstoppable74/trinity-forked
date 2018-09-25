@@ -184,6 +184,12 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 			"Width of loaded image in pixels.", 
 			Be::READ 
 		)
+		MAP_ATTRIBUTE(
+			"averageColor",
+			m_averageColor,
+			"Average color of the image",
+			Be::READ
+		)
 		MAP_ATTRIBUTE
 		( 
 			"height",	

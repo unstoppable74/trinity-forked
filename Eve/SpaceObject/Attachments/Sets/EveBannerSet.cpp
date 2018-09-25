@@ -13,6 +13,7 @@
 #include "Tr2PickingHelperBatch.h"
 #include "Utilities/BoundingSphere.h"
 #include "Utilities/MatrixUtils.h"
+#include "Resources/TriTextureRes.h"
 
 
 namespace
@@ -246,6 +247,26 @@ void EveBannerSet::RenderDebugInfo( Tr2DebugRenderer& renderer, const Matrix& pa
 			Tr2DebugRenderer::Wireframe,
 			0xff00ff00 );
 	}
+	if( renderer.HasOption( this, "Lights" ) )
+	{
+		Color c = GetLightColor();
+		if( c.a == 0.0f )
+		{
+			return;
+		}
+
+		uint32_t index = 0;
+
+		for( auto it = m_banners.begin(); it != m_banners.end(); ++it, ++index )
+		{
+			float scale = max( it->scaling.x, max( it->scaling.y, it->scaling.z ) );
+
+			Tr2DebugObjectReference ref = Tr2DebugObjectReference( m_banners.GetRawRoot(), index );
+			renderer.DrawSphere( ref, parentTransform, it->position, scale * 2, 10, Tr2DebugRenderer::Solid, Tr2DebugColor( 0x66ffffff, 0x22ffffff ) );
+			renderer.DrawSphere( ref, parentTransform, it->position, scale, 10, Tr2DebugRenderer::Solid, Tr2DebugColor( 0x99ffffff, 0x22ffffff ) );
+
+		}
+	}
 }
 
 void EveBannerSet::SetShaderOption( const BlueSharedString& name, const BlueSharedString& value )
@@ -385,6 +406,38 @@ void EveBannerSet::Rebuild()
 		USE_MAIN_THREAD_RENDER_CONTEXT();
 		m_vertexBuffer.Create( sizeof( Vertex), uint32_t( vertices.size() ), Tr2GpuUsage::VERTEX_BUFFER, Tr2CpuUsage::NONE, &vertices[0], renderContext );
 		m_indexBuffer.Create( sizeof( uint16_t ), uint32_t( indices.size() ), Tr2GpuUsage::INDEX_BUFFER, Tr2CpuUsage::NONE, &indices[0], renderContext );
+	}
+}
+
+Color EveBannerSet::GetLightColor() const
+{
+	if( m_associatedResources.empty() ) {
+		return Color( 0.0, 0.0, 0.0, 0.0 );
+	}
+
+	Tr2LodResource* r = const_cast<Tr2LodResource*>(m_associatedResources[0]);
+	if( r->GetResource() == nullptr )
+	{
+		return Color( 0.0, 0.0, 0.0, 0.0 );
+	}
+	TriTextureRes* resource = static_cast<TriTextureRes*>(r->GetResource());
+
+	Color c = resource->GetAverageColor();
+	return Color(c.r * c.a, c.g * c.a, c.b * c.a, c.a);	
+}
+
+void EveBannerSet::GetLights( Tr2LightManager& lightManager, const Matrix& parentTransform ) const
+{
+	Color c = GetLightColor();
+	if( c.a == 0.0f )
+	{
+		return;
+	}
+
+	for( auto b = m_banners.begin(); b != m_banners.end(); ++b ) 
+	{
+		float scale = max( b->scaling.x, max( b->scaling.y, b->scaling.z ) );
+		lightManager.AddPointLight( TransformCoord( b->position, parentTransform ), scale * 2, c, scale / 3.0f);
 	}
 }
 

@@ -8,6 +8,8 @@
 
 #include "ITr2Renderable.h"
 #include "Tr2DebugRenderer.h"
+#include "Tr2LightManager.h"
+
 
 class Tr2QuadRenderer;
 class TriFrustum;
@@ -26,4 +28,6 @@ BLUE_INTERFACE( IEveSpaceObjectAttachment ): public IRoot
 	virtual void RenderDebugInfo( Tr2DebugRenderer& renderer, const Matrix& parentTransform, const granny_matrix_3x4* bones, size_t boneCount ) {}
 
 	virtual void SetShaderOption( const BlueSharedString& name, const BlueSharedString& value ) {}
+
+	virtual void GetLights( Tr2LightManager& lightManager, const Matrix& parentTransform ) const {}
 };

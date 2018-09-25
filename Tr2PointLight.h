@@ -21,6 +21,7 @@ public:
 
 	Vector3 m_position;
 	float m_radius;
+	float m_innerRadius;
 	Color m_color;
 	float m_brightness;
 	float m_noiseAmplitude;

@@ -16,7 +16,8 @@ Tr2PointLight::Tr2PointLight( IRoot* lockobj )
 	m_brightness( 1.f ),
 	m_noiseAmplitude( 0.f ),
 	m_noiseFrequency( 1.f ),
-	m_noiseOctaves( 1 )
+	m_noiseOctaves( 1 ),
+	m_innerRadius(0.f)
 {
 	m_startTime = BeOS->GetCurrentFrameTime();
 }
@@ -32,7 +33,7 @@ void Tr2PointLight::AddLight( Tr2LightManager& lightManager, CXMMATRIX transform
 	lightManager.AddPointLight( 
 		Vector3( XMVector3TransformCoord( m_position, transform ) ), 
 		m_radius * scale, 
-		m_color * brightness );
+		m_color * brightness, m_innerRadius );
 }
 
 void Tr2PointLight::GetLight( Vector3& position, float& radius, Color& color )

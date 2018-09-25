@@ -68,6 +68,7 @@ public:
 	unsigned GetWidth()				const { return Tr2BitmapDimensions::GetWidth();    }
 	unsigned GetHeight()			const { return Tr2BitmapDimensions::GetHeight();   }
 	unsigned GetMipLevelCount()		const { return Tr2BitmapDimensions::GetMipCount(); }
+	Color GetAverageColor()			const{ return m_averageColor; }
 	bool IsValid() const { return IsGood(); }
 	Tr2RenderContextEnum::TextureType GetType() const { return Tr2BitmapDimensions::GetType(); }
 	long UpdateSubresource( unsigned left, unsigned top, unsigned right, unsigned bottom, const void* source, unsigned sourcePitch );
@@ -153,6 +154,7 @@ private:
     unsigned	m_mipLevelMaxCount;
 	bool m_isTextureLoadDisabled		: 1;
 	bool m_isTextureResizable			: 1;	// do we listen to the global mipskip setting?
+	Color m_averageColor; 
 	
 private:
 	bool SetTexture( Tr2TextureAL& texture );

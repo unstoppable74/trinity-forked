@@ -661,6 +661,7 @@ void EveSpaceObject2::RenderDebugInfo( Tr2DebugRenderer& renderer )
 		for( auto it = m_lights.begin(); it != m_lights.end(); ++it )
 		{
 			renderer.DrawSphere( *it, m_worldTransform, ( *it )->m_position, ( *it )->m_radius, 10, Tr2DebugRenderer::Solid, Tr2DebugColor( 0x66ffffff, 0x22ffffff ) );
+			renderer.DrawSphere( *it, m_worldTransform, (*it)->m_position, (*it)->m_innerRadius, 10, Tr2DebugRenderer::Solid, Tr2DebugColor( 0x99ffffff, 0x22ffffff ) );
 		}
 	}
 
@@ -2853,6 +2854,11 @@ void EveSpaceObject2::GetLights( Tr2LightManager& lightManager ) const
 		{
 			( *it )->GetLights( lightManager );
 		}
+	}
+
+	for( auto it = std::begin( m_attachments ); it != std::end( m_attachments ); ++it )
+	{
+		(*it)->GetLights( lightManager, worldTransform );
 	}
 }
 
