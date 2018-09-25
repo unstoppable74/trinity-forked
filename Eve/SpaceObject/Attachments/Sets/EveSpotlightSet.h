@@ -73,6 +73,8 @@ public:
 
 	void GetPickingBatches( ITriRenderBatchAccumulator* batches, uint16_t& areaIDOffset, const Tr2PerObjectData* perObjectData );
 
+	void SetShaderOption (const BlueSharedString& name, const BlueSharedString& value ) override;
+
 private:
 	bool m_display;	
 	bool m_skinned;
@@ -123,6 +125,9 @@ private:
 		float boosterGainInfluence;
 	};
 	TrackableStdVector<SpotlightData> m_spotlightData;
+
+	void RegisterQuadRendererCone( Tr2QuadRenderer& quadRenderer );
+	void RegisterQuadRendererGlow( Tr2QuadRenderer& quadRenderer );
 };
 
 TYPEDEF_BLUECLASS( EveSpotlightSet );

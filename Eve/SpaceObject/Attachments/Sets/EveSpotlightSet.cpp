@@ -102,6 +102,16 @@ bool EveSpotlightSet::Initialize()
 	return true;
 }
 
+inline void EveSpotlightSet::RegisterQuadRendererCone( Tr2QuadRenderer& quadRenderer )
+{
+	quadRenderer.RegisterEffect( m_coneEffectHash, TRIBATCHTYPE_ADDITIVE, sizeof( ConePoolVertex ), CONE_QUAD_COUNT, ConePoolVertex::GetDefinition(), m_coneEffect );
+}
+
+inline void EveSpotlightSet::RegisterQuadRendererGlow( Tr2QuadRenderer& quadRenderer )
+{
+	quadRenderer.RegisterEffect( m_glowEffectHash, TRIBATCHTYPE_ADDITIVE, sizeof( GlowPoolVertex ), SPRITE_QUAD_COUNT, GlowPoolVertex::GetDefinition(), m_glowEffect );
+}
+
 // --------------------------------------------------------------------------------
 // Description:
 //   Registers set effects with quad renderer if quad rendering was enabled with 
@@ -111,8 +121,8 @@ bool EveSpotlightSet::Initialize()
 // --------------------------------------------------------------------------------
 void EveSpotlightSet::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
 {
-	quadRenderer.RegisterEffect( m_coneEffectHash, TRIBATCHTYPE_ADDITIVE, sizeof( ConePoolVertex ), CONE_QUAD_COUNT, ConePoolVertex::GetDefinition(), m_coneEffect );
-	quadRenderer.RegisterEffect( m_glowEffectHash, TRIBATCHTYPE_ADDITIVE, sizeof( GlowPoolVertex ), SPRITE_QUAD_COUNT, GlowPoolVertex::GetDefinition(), m_glowEffect );
+	RegisterQuadRendererCone( quadRenderer );
+	RegisterQuadRendererGlow( quadRenderer );
 }
 
 // --------------------------------------------------------------------------------
@@ -360,6 +370,23 @@ void EveSpotlightSet::GetPickingBatches( ITriRenderBatchAccumulator* batches, ui
 			break;
 		}
 		++areaIDOffset;
+	}
+}
+
+void EveSpotlightSet::SetShaderOption( const BlueSharedString& name, const BlueSharedString& value )
+{
+	if ( nullptr != m_coneEffect )
+	{
+		m_coneEffect->SetOption( name, value );
+		m_coneEffectHash = m_coneEffect->GetHashValue();
+		RegisterQuadRendererCone( *Tr2QuadRenderer::Instance() );
+	}
+
+	if ( nullptr != m_glowEffect )
+	{
+		m_glowEffect->SetOption( name, value );
+		m_glowEffectHash = m_glowEffect->GetHashValue();
+		RegisterQuadRendererGlow( *Tr2QuadRenderer::Instance() );
 	}
 }
 

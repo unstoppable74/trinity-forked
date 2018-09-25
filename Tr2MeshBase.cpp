@@ -350,7 +350,10 @@ void Tr2MeshBase::SetShaderOption( const BlueSharedString& name, const BlueShare
 		{
 			const Tr2MeshArea *area = *itInner;
 			const auto material = area->GetMaterialInterface();
-			material->SetOption( name, value );
+			if ( nullptr != material )
+			{
+				material->SetOption( name, value );
+			}
 		}
 	}
 }

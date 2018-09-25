@@ -315,5 +315,7 @@ void EveSpriteSet::SetShaderOption( const BlueSharedString& name, const BlueShar
 	if( nullptr != m_effect )
 	{
 		m_effect->SetOption( name, value );
+		m_effectHash = m_effect->GetHashValue();
+		RegisterWithQuadRenderer( *Tr2QuadRenderer::Instance() );		
 	}
 }
