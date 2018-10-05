@@ -846,6 +846,18 @@ TYPEDEF_BLUECLASS( EveSOFDataHullController );
 BLUE_DECLARE_VECTOR( EveSOFDataHullController );
 
 
+BLUE_CLASS( EveSOFDataHullSoundEmitter ): public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+
+	std::string m_name;
+	std::wstring m_prefix;
+};
+TYPEDEF_BLUECLASS( EveSOFDataHullSoundEmitter );
+BLUE_DECLARE_VECTOR( EveSOFDataHullSoundEmitter );
+
+
 BLUE_CLASS( EveSOFDataHull ) :
 	public IRoot
 {
@@ -930,6 +942,8 @@ public:
 
 	// animations
 	PEveSOFDataHullAnimationVector m_animations;
+
+	PEveSOFDataHullSoundEmitterVector m_soundEmitters;
 
 	PEveSOFDataHullControllerVector m_controllers;
 

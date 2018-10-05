@@ -259,6 +259,7 @@ EveSOFDataHull::EveSOFDataHull( IRoot* lockobj ) :
 	PARENTLOCK( m_children ),
 	PARENTLOCK( m_instancedMeshes ),
 	PARENTLOCK( m_animations ),
+	PARENTLOCK( m_soundEmitters ),
 	PARENTLOCK( m_controllers ),
 	m_buildClass( BUILDCLASS_SHIP ),
 	m_boundingSphere( 0.f, 0.f, 0.f, 0.f ),

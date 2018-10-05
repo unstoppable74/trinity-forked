@@ -27,6 +27,7 @@
 #include "Tr2DebugRenderer.h"
 #include "ITr2CurveSetOwner.h"
 #include "Shader/IShaderConfigurer.h"
+#include "ITr2SoundEmitterOwner.h"
 
 // consts
 #define EVE_SPACEOBJECT_DIRT_LEVEL_DEFAULT (0.f)
@@ -150,7 +151,8 @@ BLUE_CLASS( EveSpaceObject2 ):
 	public IListNotify,
 	public ITr2CurveSetOwner,
 	public IEveEffectChildrenOwner,
-	public IShaderConfigurer
+	public IShaderConfigurer,
+	public ITr2SoundEmitterOwner
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -342,6 +344,8 @@ public:
 
 	void AddController( ITr2Controller* controller );
 
+	void AddObserver( TriObserverLocal* observer );
+
 	// access to curves
 	void SetModelRotationCurve( ITriQuaternionFunctionPtr rotationCurve );
 	void SetModelTranslationCurve( ITriVectorFunctionPtr translationCurve );
@@ -374,6 +378,7 @@ public:
 
 	void SetShaderOption( const BlueSharedString& name, const BlueSharedString& value ) override;
 
+	ITr2SoundEmitter* FindSoundEmitter( const char* name ) override;
 protected:
 	// LODing
 	void UnloadLodIfNeeded( Be::Time time );

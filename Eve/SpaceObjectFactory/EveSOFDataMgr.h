@@ -275,6 +275,12 @@ public:
 		int id;
 	};
 
+	struct HullSoundEmitter
+	{
+		std::string name;
+		std::wstring prefix;
+	};
+
 	struct HullData
 	{
 		EveSOFDataHull::BuildClass buildClass;
@@ -307,6 +313,7 @@ public:
 		std::vector<HullChild> children;
 		std::vector<HullInstancedMesh> instancedMeshes;
 		std::vector<HullAnimation> animations;
+		std::vector<HullSoundEmitter> soundEmitters;
 		std::vector<BlueSharedString> controllers;
 		std::string modelRotationCurvePath;
 		std::string modelTranslationCurvePath;

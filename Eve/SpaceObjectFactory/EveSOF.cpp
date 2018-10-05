@@ -45,6 +45,7 @@
 #include "Particle/Tr2DynamicEmitter.h"
 #include "Particle/Tr2GpuUniqueEmitter.h"
 #include "TriSequencer.h"
+#include "Include/ITr2SoundEmitter.h"
 
 
 // --------------------------------------------------------------------------------
@@ -1326,6 +1327,32 @@ void EveSOF::SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, const EveSOFDNA
 		if( animIt->startTranslationTime != -1.0 )
 		{
 			// TODO
+		}
+	}
+
+	{
+		auto& hullEmitters = dna->GetHullSoundEmitters();
+		for( auto cit = begin( hullEmitters ); cit != end( hullEmitters ); ++cit )
+		{
+			TriObserverLocalPtr observer;
+			observer.CreateInstance();
+			observer->m_name = cit->name;
+
+			IBluePlacementObserverPtr emitter;
+			BeClasses->CreateInstanceFromName( "AudEmitter", BlueInterfaceIID<IBluePlacementObserver>(), reinterpret_cast<void**>( &emitter.p ) );
+			if( !emitter )
+			{
+				CCP_LOGERR( "EveSOF: failed to create an audio emitter" );
+				continue;
+			}
+			observer->SetObserver( emitter );
+			obj->AddObserver( observer );
+
+			ITr2SoundEmitterPtr theRealEmitter;
+			if( emitter->QueryInterface( BlueInterfaceIID<ITr2SoundEmitter>(), reinterpret_cast<void**>( &theRealEmitter.p ), BEQI_SILENT ) && theRealEmitter )
+			{
+				theRealEmitter->Initialize( cit->name.c_str(), cit->prefix.c_str() );
+			}
 		}
 	}
 

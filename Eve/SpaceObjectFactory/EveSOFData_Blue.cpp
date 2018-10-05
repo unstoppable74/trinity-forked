@@ -681,6 +681,19 @@ const Be::ClassInfo* EveSOFDataHullController::ExposeToBlue()
 }
 
 
+BLUE_DEFINE( EveSOFDataHullSoundEmitter );
+const Be::ClassInfo* EveSOFDataHullSoundEmitter::ExposeToBlue()
+{
+	EXPOSURE_BEGIN( EveSOFDataHullSoundEmitter, "" )
+		MAP_INTERFACE( EveSOFDataHullSoundEmitter )
+
+		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "prefix", m_prefix, "", Be::READWRITE | Be::PERSIST )
+	EXPOSURE_END()
+}
+
+
+
 BLUE_DEFINE( EveSOFDataHull );
 
 Be::VarChooser EveSOFBuildClassChooser[] =
@@ -743,6 +756,7 @@ const Be::ClassInfo* EveSOFDataHull::ExposeToBlue()
 		MAP_ATTRIBUTE( "audioPosition", m_audioPosition, "The audio position", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "children", m_children, "List of children", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "soundEmitters", m_soundEmitters, "", Be::READ | Be::PERSIST )
 		MAP_ATTRIBUTE( "controllers", m_controllers, "List of controller references", Be::READ | Be::PERSIST )
 		MAP_ATTRIBUTE( "animations", m_animations, "List of animations", Be::READWRITE | Be::PERSIST )
 

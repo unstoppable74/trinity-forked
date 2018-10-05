@@ -689,6 +689,12 @@ const std::vector<EveSOFDataMgr::HullAnimation>& EveSOFDNA::GetHullAnimations() 
 }
 
 // --------------------------------------------------------------------------------
+const std::vector<EveSOFDataMgr::HullSoundEmitter>& EveSOFDNA::GetHullSoundEmitters() const
+{
+	return m_hullDatas[0]->soundEmitters;
+}
+
+// --------------------------------------------------------------------------------
 const std::vector<BlueSharedString>& EveSOFDNA::GetHullControllers() const
 {
 	return m_hullDatas[0]->controllers;

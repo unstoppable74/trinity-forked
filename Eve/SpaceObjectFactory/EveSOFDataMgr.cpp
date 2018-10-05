@@ -880,6 +880,15 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 		hd.animations.push_back( ha );
 	}
 
+	hd.soundEmitters.clear();
+	for( auto cit = begin( srcData->m_soundEmitters ); cit != end( srcData->m_soundEmitters ); ++cit )
+	{
+		HullSoundEmitter emitter;
+		emitter.name = ( *cit )->m_name;
+		emitter.prefix = ( *cit )->m_prefix;
+		hd.soundEmitters.push_back( emitter );
+	}
+
 	hd.controllers.clear();
 	for( auto cit = begin( srcData->m_controllers ); cit != end( srcData->m_controllers ); ++cit )
 	{

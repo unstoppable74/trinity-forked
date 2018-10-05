@@ -22,6 +22,7 @@ public:
 	IBluePlacementObserver* GetObserver();
 	void SetObserver( IBluePlacementObserver* obs );
 
+	std::string m_name;
 private:
 	Vector3 m_front;
 	Vector3 m_position;

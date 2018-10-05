@@ -2363,6 +2363,12 @@ void EveSpaceObject2::AddController( ITr2Controller* controller )
 }
 
 // --------------------------------------------------------------------------------
+void EveSpaceObject2::AddObserver( TriObserverLocal* observer )
+{
+	m_observers.Append( observer );
+}
+
+// --------------------------------------------------------------------------------
 IEveSpaceObjectChildPtr EveSpaceObject2::GetEffectChildByName( const char* name ) const
 {
 	for( auto it = begin( m_effectChildren ); it != end( m_effectChildren ); ++it )
@@ -3036,4 +3042,18 @@ bool EveSpaceObject2::GetBoneList( const granny_matrix_3x4*& bones, size_t& bone
 		bones = nullptr;
 	}
 	return false;
+}
+
+ITr2SoundEmitter* EveSpaceObject2::FindSoundEmitter( const char* name )
+{
+	for( auto it = begin( m_observers ); it != end( m_observers ); ++it )
+	{
+		auto observer = *it;
+		if( observer->m_name == name )
+		{
+			ITr2SoundEmitterPtr listener = BlueCastPtr( observer->GetObserver() );
+			return listener;
+		}
+	}
+	return nullptr;
 }
