@@ -428,6 +428,10 @@ Color EveBannerSet::GetLightColor() const
 
 void EveBannerSet::GetLights( Tr2LightManager& lightManager, const Matrix& parentTransform ) const
 {
+	if( !m_display )
+	{
+		return;
+	}
 	Color c = GetLightColor();
 	if( c.a == 0.0f )
 	{
