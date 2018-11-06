@@ -264,6 +264,11 @@ bool EveSOFDataMgr::UpdateMaterial( const char* materialName, EveSOFDataMaterial
 // --------------------------------------------------------------------------------
 bool EveSOFDataMgr::UpdatePattern( const char* patternName, EveSOFDataPattern* patternData )
 {
+	if( !patternData )
+	{
+		return false;
+	}
+
 	// must exist
 	if( !HasPatternData( patternName ) )
 	{
