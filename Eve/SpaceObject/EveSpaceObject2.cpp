@@ -774,6 +774,23 @@ void EveSpaceObject2::RenderDebugInfo( Tr2DebugRenderer& renderer )
 	}
 }
 
+Matrix EveSpaceObject2::GetEveLocatorTransform( EveLocator2* locator ) const
+{
+	if( !locator )
+	{
+		return IdentityMatrix();
+	}
+	if( m_animationUpdater && m_animationUpdater->m_worldPose && m_animationUpdater->m_skeleton )
+	{
+		granny_int32x bone;
+		if( GrannyFindBoneByName( m_animationUpdater->m_skeleton, locator->GetName(), &bone ) )
+		{
+			return *reinterpret_cast<const Matrix*>( GrannyGetWorldPose4x4( m_animationUpdater->m_worldPose, bone ) );
+		}
+	}
+	return locator->GetTransform();
+}
+
 bool EveSpaceObject2::HasTransparentBatches()
 {
 	if( !m_mesh )

@@ -3,6 +3,7 @@
 #include "TriConstants.h"
 #include "Tr2GrannyAnimation.h"
 #include "Utilities/MatrixUtils.h"
+#include "Eve/SpaceObject/Utils/EveLocator2.h"
 
 BLUE_DEFINE_INTERFACE( IEveSpaceObjectChild );
 BLUE_DEFINE_INTERFACE( IEveSpaceObject2 );
@@ -575,6 +576,13 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 			"GetControllerVariables",
 			GetControllerVariables,
 			"Returns all previously set contrller variables"
+		)
+
+		MAP_METHOD_AND_WRAP(
+			"GetLocatorTransform",
+			GetEveLocatorTransform,
+			"Returns locator to object transform (taking bone bindings in account)\n"
+			":param locator: locator belonging to this object"
 		)
 
 #if BLUE_WITH_PYTHON

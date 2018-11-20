@@ -389,6 +389,8 @@ public:
 	// clip sphere modification
 	void ResetClipSphereCenter();
 	void ResetClipSphereCenterToPos( Vector3 center );
+
+	Matrix GetEveLocatorTransform( EveLocator2* locator ) const;
 protected:
 	// LODing
 	void UnloadLodIfNeeded( Be::Time time );
