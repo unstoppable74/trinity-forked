@@ -1041,8 +1041,9 @@ void Tr2ParticleSystem::UpdateViewDependentData( const TriFrustum* frustum, cons
 			const Vector3 extent( ( maxB - minB ) * 0.5f );
 
 			//use the contained sphere rather than circumscribing sphere, just to be a little conservative
-			const float radius = std::max( std::abs( extent.x ), std::max( std::abs( extent.y ), std::abs( extent.z ) ) );
-			
+			float radius = std::max( std::abs( extent.x ), std::max( std::abs( extent.y ), std::abs( extent.z ) ) );
+			radius *= Length( m_worldTransform.GetX() );
+
 			centre = Vector3( XMVector3TransformCoord( centre, m_worldTransform ) );
 			const Vector4 boundingSphere = Vector4( centre.x, centre.y, centre.z, radius );
 
