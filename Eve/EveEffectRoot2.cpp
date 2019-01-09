@@ -9,6 +9,7 @@
 #include "Curves/TriCurveSet.h"
 #include "Eve/EveUpdateContext.h"
 #include "Eve/SpaceObject/EveSpaceObject2.h"
+#include "IWorldPosition.h"
 #include "Eve/SpaceObject/Children/EveChildContainer.h"
 
 extern float g_eveSpaceObjectResourceUnloadingTimeThreshold;
@@ -25,6 +26,7 @@ EveEffectRoot2::EveEffectRoot2( IRoot* lockobj ) :
 	m_scaling( 1.0f, 1.0f, 1.0f ),
 	m_rotation( 0.0f, 0.0f, 0.0f, 1.0f ),
 	m_translation( 0.0f, 0.0f, 0.0f ),
+	m_worldPosition( 0.0f, 0.0f, 0.0f ),
 	m_estimatedSize( 0.0f ),
 	m_display( true ),
 	m_startTime( 0 ),
@@ -415,8 +417,6 @@ void EveEffectRoot2::Stop()
 }
 
 
-
-
 // --------------------------------------------------------------------------------
 // Description:
 //   Is mostly used for effects, so no damage locators at all!
@@ -482,6 +482,12 @@ int EveEffectRoot2::CreateImpact( int damageLocatorIndex, const Vector3& directi
 bool EveEffectRoot2::UpdateImpact( Vector3& out, const Vector3& direction, int impactIndex )
 {
 	return false;
+}
+
+// -----------------------------------------------------------------------------
+const Vector3* EveEffectRoot2::GetWorldPosition()
+{
+	return &m_worldPosition;
 }
 
 void EveEffectRoot2::GetMissPosition( const Vector3* hit, const Vector3* source, Vector3* out )

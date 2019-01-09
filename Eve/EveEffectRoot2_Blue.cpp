@@ -14,6 +14,7 @@ const Be::ClassInfo* EveEffectRoot2::ExposeToBlue()
 		MAP_INTERFACE( IEveEffectChildrenOwner )
 		MAP_INTERFACE ( IShaderConfigurer )
 		MAP_INTERFACE( ITr2SoundEmitterOwner )
+		MAP_INTERFACE( IWorldPosition )
 
 		MAP_ATTRIBUTE
 		(
@@ -63,6 +64,7 @@ const Be::ClassInfo* EveEffectRoot2::ExposeToBlue()
 			"Vector function slot for attaching a destiny ball to set the position of an object",
 			Be::READWRITE | Be::PERSIST
 		)
+
 		MAP_ATTRIBUTE
 		(    
 			"rotationCurve",

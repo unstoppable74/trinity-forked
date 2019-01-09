@@ -4,7 +4,7 @@
 #define EveEffectRoot2_h
 
 #include "include/ITriFunction.h"
-
+#include "IWorldPosition.h"
 #include "EveTransform.h"
 #include "EveLODHelper.h"
 #include "IEveSpaceObject2.h"
@@ -17,7 +17,6 @@
 #include "Shader/IShaderConfigurer.h"
 #include "ITr2SoundEmitterOwner.h"
 
-
 BLUE_DECLARE( Tr2PointLight );
 BLUE_DECLARE_VECTOR( Tr2PointLight );
 
@@ -27,6 +26,7 @@ BLUE_DECLARE_IVECTOR( ITr2Controller );
 BLUE_DECLARE( EveEffectRoot2 );
 
 BLUE_CLASS( EveEffectRoot2 ):
+	public IWorldPosition,
 	public IEveSpaceObject2,
 	public IInitialize,
 	public ITr2SecondaryLightSource,
@@ -88,6 +88,11 @@ public:
 	bool UpdateImpact( Vector3& out, const Vector3& direction, int impactIndex );
 	bool GetImpactPosition( Vector3& out, int locator, const Vector3& posPrev, const Vector3& posNow, float epsilon );
 	bool HasImpactConfigurationShield() const;
+
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// IWorldPosition
+	virtual const Vector3* GetWorldPosition();
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2CurveSetOwner
@@ -151,7 +156,7 @@ private:
 	Matrix m_worldTransform;
 	Matrix m_lastUpdateMatrix;
 	Matrix m_localTransform;
-
+	Vector3 m_worldPosition;
 	float m_secondaryLightingSphereRadiusLocal;
 	float m_secondaryLightingSphereRadiusWorld;
 	Color m_secondaryLightingEmissiveColor;
