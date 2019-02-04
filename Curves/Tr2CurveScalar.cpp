@@ -230,18 +230,6 @@ float Tr2CurveScalar::GetValue( double time ) const
 }
 
 // --------------------------------------------------------------------------------
-float Tr2CurveScalar::GetTangentAt( Be::Time time )
-{
-	return GetTangent( TimeAsDouble( time ) );
-}
-
-// --------------------------------------------------------------------------------
-float Tr2CurveScalar::GetTangentAt( double time )
-{
-	return GetTangent( time );
-}
-
-// --------------------------------------------------------------------------------
 float Tr2CurveScalar::GetTangent( double time ) const
 {
 	if ( m_keys.empty() )

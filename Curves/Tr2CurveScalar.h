@@ -88,8 +88,6 @@ public:
 	virtual float Update( double time );
 	virtual float GetValueAt( Be::Time time );
 	virtual float GetValueAt( double time );
-	virtual float GetTangentAt( Be::Time time );
-	virtual float GetTangentAt( double time );
 	virtual void ScaleTime( float s );
 
 	virtual float Length();
