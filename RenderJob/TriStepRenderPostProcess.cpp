@@ -771,7 +771,7 @@ bool TriStepRenderPostProcess::ProcessFog( Tr2PPFogEffect* fog )
 			m_fogCompositeEffect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/PostProcess/EnvironmentFogComposit.fx" );
 			m_fogCompositeEffect->SetParameter( BlueSharedString( "BlitCurrent" ), m_renderInfo->GetRt1Buffer() );
 			m_fogCompositeEffect->SetParameter( BlueSharedString( "BlitOriginal" ), m_renderInfo->GetSourceBufferCopy() ); // this used _fogsource in eve.yaml, but I'm trying _source here
-			m_fogCompositeEffect->SetParameter( BlueSharedString( "FogParameters" ), Vector4( fog->m_totalAmount, fog->m_totalPower, fog->m_backgroundOcclusion, fog->m_overallIntensity ) );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "FogParameters" ), Vector4( fog->m_totalAmount, fog->m_totalPower, fog->m_backgroundOcclusion, fog->m_intensity ) );
 			m_fogCompositeEffect->SetParameter( BlueSharedString( "BrightnessAdjustment" ), Vector4( fog->m_brightnessThreshold0, fog->m_brightnessThreshold1, fog->m_brightnessAdjustmentAmount, 0.0f ) );
 			m_fogCompositeEffect->SetParameter( BlueSharedString( "BlendFunction0" ), Vector4( fog->m_blendDistance0, fog->m_blendBias0, fog->m_blendAmount0, fog->m_blendPower0 ) );
 			m_fogCompositeEffect->SetParameter( BlueSharedString( "BlendFunction1" ), Vector4( fog->m_blendDistance1, fog->m_blendBias1, fog->m_blendAmount1, fog->m_blendPower1 ) );
@@ -785,12 +785,12 @@ bool TriStepRenderPostProcess::ProcessFog( Tr2PPFogEffect* fog )
 		if( fog->IsDirty() )
 		{
 			m_fogColorEffect->StartUpdate();
-			m_fogColorEffect->SetParameter( BlueSharedString( "Params" ), Vector4( fog->m_nebulaBlur, fog->m_nebulaBlur, fog->m_originalBrightenOnly, fog->m_colorInfluence ) );
+			m_fogColorEffect->SetParameter( BlueSharedString( "Params" ), Vector4( fog->m_nebulaInfluence, fog->m_nebulaBlur, fog->m_originalBrightenOnly, fog->m_colorInfluence ) );
 			m_fogColorEffect->SetParameter( BlueSharedString( "Color" ), fog->m_color );
 			m_fogColorEffect->EndUpdate();
 
 			m_fogCompositeEffect->StartUpdate();
-			m_fogCompositeEffect->SetParameter( BlueSharedString( "FogParameters" ), Vector4( fog->m_totalAmount, fog->m_totalPower, fog->m_backgroundOcclusion, fog->m_overallIntensity ) );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "FogParameters" ), Vector4( fog->m_totalAmount, fog->m_totalPower, fog->m_backgroundOcclusion, fog->m_intensity ) );
 			m_fogCompositeEffect->SetParameter( BlueSharedString( "BrightnessAdjustment" ), Vector4( fog->m_brightnessThreshold0, fog->m_brightnessThreshold1, fog->m_brightnessAdjustmentAmount, 0.0f ) );
 			m_fogCompositeEffect->SetParameter( BlueSharedString( "BlendFunction0" ), Vector4( fog->m_blendDistance0, fog->m_blendBias0, fog->m_blendAmount0, fog->m_blendPower0 ) );
 			m_fogCompositeEffect->SetParameter( BlueSharedString( "BlendFunction1" ), Vector4( fog->m_blendDistance1, fog->m_blendBias1, fog->m_blendAmount1, fog->m_blendPower1 ) );

@@ -17,7 +17,7 @@ Tr2PPFogEffect::Tr2PPFogEffect( IRoot* lockobj ) :
 	m_totalAmount( 0.0 ),
 	m_totalPower( 1.0 ),
 	m_backgroundOcclusion( 1.0 ),
-	m_overallIntensity( 1.0 ),
+	m_intensity( 1.0 ),
 	m_brightnessThreshold0( 0.0 ),
 	m_brightnessThreshold1( 0.5 ),
 	m_brightnessAdjustmentAmount( 1.0 ),
@@ -47,5 +47,5 @@ Tr2PPFogEffect::~Tr2PPFogEffect()
 
 bool Tr2PPFogEffect::IsActive() 
 {
-	return m_display && m_overallIntensity > 0.0f;
+	return m_display && m_intensity > 0.0f;
 }

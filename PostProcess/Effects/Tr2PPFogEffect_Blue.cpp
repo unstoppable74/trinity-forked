@@ -14,7 +14,7 @@ const Be::ClassInfo* Tr2PPFogEffect::ExposeToBlue()
 	EXPOSURE_BEGIN( Tr2PPFogEffect, "" )
 		MAP_INTERFACE( Tr2PPEffect )
 
-		MAP_ATTRIBUTE( "overallIntensity", m_overallIntensity, "", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
+		MAP_ATTRIBUTE( "intensity", m_intensity, "", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( "color", m_color, "Fog color", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( "colorInfluence", m_colorInfluence, "Constant color vs original+nebula color coefficient", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( "nebulaInfluence", m_nebulaInfluence, "Nebula influence coefficient", Be::READWRITE | Be::PERSIST | Be::NOTIFY )

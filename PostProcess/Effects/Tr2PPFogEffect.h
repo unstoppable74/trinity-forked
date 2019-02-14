@@ -31,7 +31,7 @@ public:
 	float m_totalAmount;
 	float m_totalPower;
 	float m_backgroundOcclusion;
-	float m_overallIntensity;
+	float m_intensity;
 	float m_brightnessThreshold0;
 	float m_brightnessThreshold1;
 	float m_brightnessAdjustmentAmount;
