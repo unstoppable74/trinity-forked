@@ -20,6 +20,7 @@ const Be::ClassInfo* Tr2RuntimeTextureParameter::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "texture", m_texture, "", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
+		MAP_ATTRIBUTE( "uavMipLevel", m_uavMipLevel, "", Be::READWRITE | Be::PERSIST )
 
 		MAP_METHOD_AND_WRAP_OPTIONAL_ARGS( 
 			"__init__",

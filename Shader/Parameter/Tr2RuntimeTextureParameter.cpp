@@ -13,7 +13,8 @@
 
 // --------------------------------------------------------------------------------------
 Tr2RuntimeTextureParameter::Tr2RuntimeTextureParameter( IRoot* lockobj )
-	:m_resourceType( Tr2EffectResource::TEXTURE_TYPELESS )
+	:m_resourceType( Tr2EffectResource::TEXTURE_TYPELESS ),
+	m_uavMipLevel( 0 )
 {
 }
 
@@ -57,7 +58,7 @@ void Tr2RuntimeTextureParameter::ApplyUav(
 {
 	if( Tr2TextureAL* tex = ( m_texture ? m_texture->GetTexture() : nullptr ) )
 	{
-		renderContext.SetUav( stage, registerIndex, *tex );
+		renderContext.SetUav( stage, registerIndex, *tex, m_uavMipLevel );
 	}
 	else
 	{
@@ -95,10 +96,11 @@ unsigned Tr2RuntimeTextureParameter::GetHashValue( unsigned startingHash ) const
 }
 
 // --------------------------------------------------------------------------------------
-void Tr2RuntimeTextureParameter::Create( const BlueSharedString& name, ITr2TextureProvider* texture )
+void Tr2RuntimeTextureParameter::Create( const BlueSharedString& name, ITr2TextureProvider* texture, uint32_t uavMipLevel )
 {
 	m_name = name;
 	m_texture = texture;
+	m_uavMipLevel = uavMipLevel;
 }
 
 // --------------------------------------------------------------------------------------
@@ -109,6 +111,11 @@ void Tr2RuntimeTextureParameter::SetTextureProvider( ITr2TextureProvider* textur
 	{
 		( *it )->InvalidateResourceSets();
 	}
+}
+
+void Tr2RuntimeTextureParameter::SetUavMipLevel( uint32_t mipLevel )
+{
+	m_uavMipLevel = mipLevel;
 }
 
 void Tr2RuntimeTextureParameter::OnAddedToMaterial( Tr2Material* material )

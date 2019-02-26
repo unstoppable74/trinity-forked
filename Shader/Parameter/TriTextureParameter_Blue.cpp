@@ -44,6 +44,7 @@ const Be::ClassInfo* TriTextureParameter::ExposeToBlue()
 			"na",
 			Be::READ
 		)
+		MAP_ATTRIBUTE( "uavMipLevel", m_uavMipLevel, "", Be::READWRITE | Be::PERSIST )
 		////////////////////////////////////////////////////////////////////////////
 		MAP_ATTRIBUTE("usedByCurrentTechnique", m_isUsedByEffect, "na", Be::READ)
 		MAP_ATTRIBUTE("usedByCurrentEffect", m_isUsedByEffect, "na", Be::READ)

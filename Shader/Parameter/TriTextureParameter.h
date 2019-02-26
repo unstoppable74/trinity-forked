@@ -102,6 +102,8 @@ private:
 	ITr2TextureProviderPtr m_resource;
 	Tr2EffectResource::Type m_resourceType;
 
+	uint32_t m_uavMipLevel;
+
 	bool m_isUsedByEffect;
 };
 

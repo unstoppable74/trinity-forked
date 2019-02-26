@@ -6,7 +6,8 @@
 
 TriTextureParameter::TriTextureParameter(IRoot* lockobj):
 	m_isUsedByEffect( false ),
-	m_resourceType( Tr2EffectResource::TEXTURE_TYPELESS )
+	m_resourceType( Tr2EffectResource::TEXTURE_TYPELESS ),
+	m_uavMipLevel( 0 )
 {
 }
 
@@ -97,7 +98,7 @@ void TriTextureParameter::ApplyUav(
 	auto resource = GetResource();
 	if( Tr2TextureAL* tex = ( resource ? resource->GetTexture() : nullptr ) )
 	{
-		renderContext.SetUav( stage, registerIndex, *tex );
+		renderContext.SetUav( stage, registerIndex, *tex, m_uavMipLevel );
 	}
 	else
 	{

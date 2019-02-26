@@ -32,9 +32,10 @@ public:
 	virtual void RebuildEffectHandles( Tr2Shader* effectRes );
 	virtual unsigned GetHashValue( unsigned startingHash ) const;
 
-	void Create( const BlueSharedString& name, ITr2TextureProvider* texture );
+	void Create( const BlueSharedString& name, ITr2TextureProvider* texture, uint32_t uavMipLevel = 0 );
 
 	void SetTextureProvider( ITr2TextureProvider* texture );
+	void SetUavMipLevel( uint32_t mipLevel );
 private:
 	void OnAddedToMaterial( Tr2Material* material ) override;
 	void OnRemovedFromMaterial( Tr2Material* material ) override;
@@ -43,6 +44,7 @@ private:
 	ITr2TextureProviderPtr m_texture;
 	std::vector<Tr2Material*> m_materials;
 	Tr2EffectResource::Type m_resourceType;
+	uint32_t m_uavMipLevel;
 };
 
 TYPEDEF_BLUECLASS( Tr2RuntimeTextureParameter );
