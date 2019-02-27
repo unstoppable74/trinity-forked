@@ -203,7 +203,7 @@ void EveChildContainer::UpdateAsyncronous( EveUpdateContext& updateContext, cons
 		return;
 	}
 
-	Matrix localToWorldTransform;
+	Matrix localToWorldTransform = params.localToWorldTransform;
 	if( params.childParent )
 	{
 		params.childParent->GetLocalToWorldTransform( localToWorldTransform );
@@ -211,10 +211,6 @@ void EveChildContainer::UpdateAsyncronous( EveUpdateContext& updateContext, cons
 	else if( params.spaceObjectParent )
 	{
 		params.spaceObjectParent->GetLocalToWorldTransform( localToWorldTransform );
-	}
-	else 
-	{
-		return;
 	}
 
 	UpdateTransform( localToWorldTransform );
