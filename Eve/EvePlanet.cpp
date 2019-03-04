@@ -67,8 +67,9 @@ void EvePlanet::UpdateEffectChildren( EveUpdateContext& updateContext, Matrix &w
 	}
 	if( nullptr != m_zOnlyModel )
 	{
-		m_zOnlyModel->UpdateAsyncronous( updateContext, params );
+		params.localToWorldTransform = worldTransform;
 		m_zOnlyModel->UpdateSyncronous( updateContext, params );
+		m_zOnlyModel->UpdateAsyncronous( updateContext, params );
 	}
 }
 
@@ -110,7 +111,6 @@ void EvePlanet::Update( EveUpdateContext& updateContext )
 	{
 		(*it)->Update( m_worldTransform );
 	}
-
 	
 }
 
@@ -136,11 +136,9 @@ void EvePlanet::UpdateVisibility( const TriFrustum& frustum, const Matrix& paren
 
 void EvePlanet::UpdateZOnlyVisibility( const TriFrustum& frustum )
 {
-	const auto scaledTransform = CalculatePlanetScaleTransform( m_worldTransform );
-
 	if( nullptr != m_zOnlyModel )
 	{
-		m_zOnlyModel->UpdateVisibility( frustum, scaledTransform, m_currentLod );
+		m_zOnlyModel->UpdateVisibility( frustum, m_worldTransform, m_currentLod );
 	}
 }
 
@@ -239,14 +237,7 @@ void EvePlanet::GetRenderables( std::vector<ITr2Renderable*>& renderables )
 
 		for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt )
 		{
-			if( ( *ecIt ) != m_zOnlyModel )
-			{
-				( *ecIt )->GetRenderables( renderables );
-			}
-		}
-		if( nullptr != m_zOnlyModel )
-		{
-			m_zOnlyModel->GetRenderables( renderables );
+			( *ecIt )->GetRenderables( renderables );
 		}
 	}
 	else if( m_currentLod != TR2_LOD_LOW )
