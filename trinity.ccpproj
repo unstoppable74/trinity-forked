@@ -48,7 +48,8 @@ BaseConfigurations:
   Windows:
     Imports:
     - ../../../../../../sdk/directx/february2010/Include/directx_february2010.yaml
-    - ../../../../../../sdk/Granny/2.11.3.1/granny_2.11.3.1.yaml
+    - ../../../../../../sdk/Granny/2.11.9.1/granny_2.11.9.1.yaml
+    - ../../../../../../sdk/Granny/2.11.9.1/gstate_2.11.9.1.yaml
     - ../../../../../../sdk/zlib/1.2.11/zlib_1.2.11.yaml
     - ../../../../../../sdk/tbb/tbb2017_20160916oss/tbb.yaml
     - ../manifests/manifests.props
@@ -407,6 +408,7 @@ Configurations:
     - ../../../../../../sdk/python/ccpproj/Python_2.7.yaml
     - ../../../../../../sdk/tbb/tbb2017_20160916oss/tbb.yaml
     - ../../../../../../sdk/Granny/2.9.24.0/granny_2.9.24.0.yaml
+    - ../../../../../../sdk/Granny/2.9.24.0/gstate_2.9.24.0.yaml
     General:
       TargetName: _trinity_gles2_internal
     ClCompile:
@@ -426,6 +428,7 @@ Configurations:
     - ../blue/Include/uses_blue.yaml
     - ../../../../../../sdk/tbb/tbb2017_20160916oss/tbb.yaml
     - ../../../../../../sdk/Granny/2.9.24.0/granny_2.9.24.0.yaml
+    - ../../../../../../sdk/Granny/2.9.24.0/gstate_2.9.24.0.yaml
     General:
       TargetName: _trinity_gles2_internal
     ClCompile:
