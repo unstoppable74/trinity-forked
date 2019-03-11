@@ -546,6 +546,14 @@ const Be::ClassInfo* Tr2InteriorScene::ExposeToBlue()
 			"Run the scene's update loop\n"
 			":param time: current time" )
 
+		MAP_ATTRIBUTE
+		(
+			"debugRenderer",
+			m_debugRenderer,
+			"Object used for rendering debug information",
+			Be::READWRITE
+		)
+
 		MAP_ATTRIBUTE( "visibilityResults", m_visibilityResults, "Results of the visibility query", Be::READ )
 
 	EXPOSURE_END()

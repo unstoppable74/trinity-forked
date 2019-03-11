@@ -19,6 +19,7 @@
 #include "Shader/Tr2Effect.h"
 #include "TriFrustum.h"
 #include "Resources/TriTextureRes.h"
+#include "Tr2DebugRenderer.h"
 
 using namespace Tr2RenderContextEnum;
 
@@ -123,10 +124,10 @@ Tr2InteriorScene::Tr2InteriorScene( IRoot* lockobj /*= NULL */ ):
 	m_minFogDistance( 0.0f ),
 	m_fogColor( 1.0f, 1.0f, 1.0f, 1.0f ),
 	m_renderBackgroundCubeMap( true ),
-	m_sunDiffuseColorVar( "Sun.WodDiffuseColor", m_sunDiffuseColor )
-	, m_sunSpecularColorVar( "Sun.SpecularColor", m_sunSpecularColor )	
-	, m_ambientColorVar( "Scene.AmbientColor", m_ambientColor )
-	, m_cameraPosVar( "Camera.eyePosWorld", Vector3( 0.0f, 0.0f, 0.0f ) )
+	m_sunDiffuseColorVar( "Sun.WodDiffuseColor", m_sunDiffuseColor ),
+	m_sunSpecularColorVar( "Sun.SpecularColor", m_sunSpecularColor ),
+	m_ambientColorVar( "Scene.AmbientColor", m_ambientColor ),
+	m_cameraPosVar( "Camera.eyePosWorld", Vector3( 0.0f, 0.0f, 0.0f ) )
 {
 	m_backgroundCubeMapVar.Register( "EnvMap1", m_backgroundCubeMapRes );
 
@@ -565,6 +566,37 @@ void Tr2InteriorScene::RenderGeometry( Tr2Material* overrideEffect, Tr2RenderCon
 
 void Tr2InteriorScene::RenderDebugInfo( Tr2RenderContext& renderContext )
 {
+	if (!m_debugRenderer)
+	{
+		return;
+	}
+
+	Tr2PerFrameVSDataDebug debugPerFrameData;
+
+	debugPerFrameData.ViewProjectionMat = XMMatrixTranspose(
+		XMMatrixMultiply(Tr2Renderer::GetViewTransform(),Tr2Renderer::GetProjectionTransform()));
+
+	// attention: need the transposed, but shader also needs column_major, so it is transpose(transpose(m)) == m
+	debugPerFrameData.ViewInverseTransposeMat = Tr2Renderer::GetInverseViewTransform();
+
+	FillAndSetConstants(m_perFrameVSBuffer, debugPerFrameData, VERTEX_SHADER, Tr2Renderer::GetPerFrameVSStartRegister(), renderContext);
+
+	m_debugRenderer->BeginRender();
+	auto bkProjection = Tr2Renderer::GetProjectionRawTransform();
+
+	Tr2Renderer::SetProjectionTransform(Tr2Renderer::GetProjectionTransform());
+	ON_BLOCK_EXIT([&] { Tr2Renderer::SetProjectionTransform(bkProjection); });
+
+	for (auto it = m_lights.begin(); it != m_lights.end(); ++it)
+	{
+		if (auto renderable = dynamic_cast<ITr2DebugRenderable*>(*it))
+		{
+			renderable->RenderDebugInfo(*m_debugRenderer);
+		}
+	}
+
+	m_debugRenderer->EndRender(renderContext);
+	Tr2Renderer::RenderDebugInfo(renderContext);
 }
 
 ITr2MultiPassScene::RenderPassResult Tr2InteriorScene::RenderPass( PassType pass, Tr2RenderContext & renderContext )

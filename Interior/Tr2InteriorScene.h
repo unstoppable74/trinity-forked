@@ -25,17 +25,18 @@ class TriView;
 class TriViewport;
 
 // Blue forward declarations
-BLUE_DECLARE( Tr2ApexScene );
-BLUE_DECLARE( Tr2InteriorScene );
-BLUE_DECLARE( TriGeometryRes );
-BLUE_DECLARE( TriTextureRes );
-BLUE_DECLARE( Tr2Effect );
-BLUE_DECLARE( Tr2VisibilityResults );
-BLUE_DECLARE( Tr2TextureAtlas );
-BLUE_DECLARE_VECTOR( Tr2TextureAtlas );
-BLUE_DECLARE_INTERFACE( ITr2PhysicsUpdater );
-BLUE_DECLARE( TriCurveSet );
-BLUE_DECLARE_VECTOR( TriCurveSet );
+BLUE_DECLARE(Tr2ApexScene);
+BLUE_DECLARE(Tr2InteriorScene);
+BLUE_DECLARE(TriGeometryRes);
+BLUE_DECLARE(TriTextureRes);
+BLUE_DECLARE(Tr2Effect);
+BLUE_DECLARE(Tr2VisibilityResults);
+BLUE_DECLARE(Tr2TextureAtlas);
+BLUE_DECLARE_VECTOR(Tr2TextureAtlas);
+BLUE_DECLARE_INTERFACE(ITr2PhysicsUpdater);
+BLUE_DECLARE(TriCurveSet);
+BLUE_DECLARE_VECTOR(TriCurveSet);
+BLUE_DECLARE(Tr2DebugRenderer);
 
 class Tr2InteriorScene:
 	public IInitialize,
@@ -121,6 +122,8 @@ protected:
 
 	// Gather batches for full-forward pass (not prepass)
 	void GatherFullForwardBatches( Tr2VisibilityResults* results );
+
+	Tr2DebugRendererPtr m_debugRenderer;
 
 private:
 	void ResolveVisibility( const Matrix& view, const Matrix& projection, size_t maxDepth );

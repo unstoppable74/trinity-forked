@@ -182,3 +182,19 @@ bool Tr2InteriorLightSource::IsInFrustum( const TriFrustum& frustum, Matrix& obj
 	return frustum.IsBoxVisible( m_worldBoundingBox.m_min, m_worldBoundingBox.m_max );
 }
 
+void Tr2InteriorLightSource::GetDebugOptions(Tr2DebugRendererOptions & options)
+{
+	options.insert("Lights");
+	options.insert("Shadow Maps");
+}
+
+void Tr2InteriorLightSource::RenderDebugInfo(Tr2DebugRenderer & renderer)
+{
+	if (renderer.HasOption(GetRawRoot(), "Lights"))
+	{
+		renderer.DrawSphere(this, m_position, 0.05f, 10, Tr2DebugRenderer::Wireframe, 0xff333333);
+		float coneRadius = m_radius * sinf(XMConvertToRadians(m_coneAlphaOuter));
+		Vector3 focal = m_position + m_coneDirection * m_radius;
+		renderer.DrawCone(this, focal, m_position, coneRadius, 8, Tr2DebugRenderer::Wireframe, 0xff444444);
+	}
+}

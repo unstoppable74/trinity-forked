@@ -5,6 +5,7 @@
 #include "include/ITr2Interior.h"
 #include "TriFrustum.h"
 #include "Utilities/BoundingBox.h"
+#include "Tr2DebugRenderer.h"
 
 // --------------------------------------------------------------------------------------
 // Blue forwards
@@ -25,7 +26,8 @@ class ITriRenderBatchAccumulator;
 class Tr2InteriorLightSource :
 	public INotify,
 	public IInitialize,
-	public ITr2InteriorLight
+	public ITr2InteriorLight,
+	public ITr2DebugRenderable
 {
 public:
 	// Constructor
@@ -58,6 +60,11 @@ public:
 	float GetCurrentViewImportance( const Vector3& viewerPos ) const;
 
 	void Update( Be::Time time );
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2DebugRenderable
+	virtual void GetDebugOptions(Tr2DebugRendererOptions& options);
+	virtual void RenderDebugInfo(Tr2DebugRenderer& renderer);
 
 protected:
 	// Is this a spotlight?

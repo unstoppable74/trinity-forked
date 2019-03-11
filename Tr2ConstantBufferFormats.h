@@ -60,6 +60,14 @@ struct Tr2PerFrameVSData
 	Matrix ProjectionMat;
 };
 
+
+struct Tr2PerFrameVSDataDebug
+{
+	Matrix ViewInverseTransposeMat;
+	Matrix ViewProjectionMat;
+};
+
+
 struct Tr2PerFramePSData
 {
 	Matrix ViewInverseTransposeMat;
