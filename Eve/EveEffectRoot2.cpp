@@ -31,9 +31,9 @@ EveEffectRoot2::EveEffectRoot2( IRoot* lockobj ) :
 	m_display( true ),
 	m_startTime( 0 ),
 	m_effectDuration( -1 ),
-	m_lodLevel( TR2_LOD_UNSPECIFIED ),
+	m_lodLevel( TR2_LOD_HIGH ),
 	m_dynamicLODSelection( false ),
-	m_changeLOD( false ),
+	m_changeLOD( true ),
 	m_secondaryLightingSphereRadiusLocal( 0.5f ),
 	m_secondaryLightingSphereRadiusWorld( 0.5f ),
 	m_secondaryLightingEmissiveColor( 0.f, 0.f, 0.f, 0.f ),
@@ -170,7 +170,6 @@ void EveEffectRoot2::UpdateVisibility( const TriFrustum& frustum, const Matrix& 
 		return;
 	}
 
-	m_changeLOD = false;
 	if( m_dynamicLODSelection )
 	{
 		Vector4 boundingSphere;
@@ -194,7 +193,7 @@ void EveEffectRoot2::UpdateVisibility( const TriFrustum& frustum, const Matrix& 
 			m_lodLevel = TR2_LOD_MEDIUM;
 		}
 
-		m_changeLOD = oldLod != m_lodLevel;
+		m_changeLOD |= oldLod != m_lodLevel;
 	}
 	
 	for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt )
@@ -212,6 +211,8 @@ void EveEffectRoot2::GetRenderables( std::vector<ITr2Renderable*>& renderables, 
 
 	if( m_changeLOD )
 	{
+		m_changeLOD = false;
+
 		for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt ) 
 		{
 			(*ecIt)->ChangeLOD( m_lodLevel );
