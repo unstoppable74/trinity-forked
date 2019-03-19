@@ -11,7 +11,7 @@
 LightData::LightData() :
 	position( 0, 0, 0 ),
 	color( 0, 0, 0, 1 ),
-	brightness( 0.0f ),
+	brightness( 1.0f ),
 	noiseAmplitude( 0.0f ),
 	noiseFrequency( 1.0f ),
 	noiseOctaves( 1 ),
@@ -55,8 +55,8 @@ void Tr2Light::AddLight( Tr2LightManager& lightManager, CXMMATRIX transform, flo
 		brightness *= ( ( noise + 1.0f ) / 2.0f ) * m_lightData.noiseAmplitude;
 	}
 	data.color = reinterpret_cast<Vector3&>(m_lightData.color * brightness);
-	data.radius = m_lightData.radius;
-	data.innerRadius = m_lightData.innerRadius;
+	data.radius = m_lightData.radius * scale;
+	data.innerRadius = m_lightData.innerRadius * scale;
 	data.position = Vector3( XMVector3TransformCoord( m_lightData.position, transform ) );
 	float outerAngle = 2.0f + cos(TRI_2PI * m_lightData.outerAngle / 360.0f); // we do this so we always have a direction, if we have a spotlight
 
