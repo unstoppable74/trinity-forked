@@ -29,4 +29,4 @@ public:
 
 TYPEDEF_BLUECLASS( Tr2PPFadeEffect );
 
-#endif#pragma once
+#endif

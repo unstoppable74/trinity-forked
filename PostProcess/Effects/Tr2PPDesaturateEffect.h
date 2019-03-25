@@ -25,4 +25,4 @@ public:
 
 TYPEDEF_BLUECLASS( Tr2PPDesaturateEffect );
 
-#endif#pragma once
+#endif
