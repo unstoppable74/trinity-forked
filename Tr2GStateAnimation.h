@@ -1,0 +1,155 @@
+#pragma once
+#ifndef Tr2GStateAnimation_h
+#define Tr2GStateAnimation_h
+
+#include "Include/ITr2AnimationUpdater.h"
+#include "GrannyBoneOffset.h"
+#include "Resources/Tr2GrannyStateRes.h"
+
+BLUE_DECLARE( TriGrannyRes );
+BLUE_DECLARE( Tr2GrannyStateRes );
+BLUE_DECLARE( TriGeometryRes );
+
+
+struct GrannyBoneBindingBounds
+{
+	int m_boneIndex;
+	Vector3 m_corners[8];
+};
+
+struct GStateBindingCallbackData
+{
+	std::string gsf_path;
+	std::map<std::string, TriGrannyResPtr> *anim_map_pointer;
+};
+
+BLUE_CLASS( Tr2GStateAnimation ):
+     public IInitialize,
+	 public ITr2AnimationUpdater,
+	 public IBlueAsyncResNotifyTarget
+{
+public:
+    EXPOSE_TO_BLUE();
+    Tr2GStateAnimation( IRoot* lockobj = NULL );
+	~Tr2GStateAnimation();
+
+	const std::string& GetResPath() const;
+	void SetResPath( const std::string& val );
+
+	const std::string& GetGStateResPath() const;
+	void SetGStateResPath( const std::string& val );
+
+	void LoadAnimResPath( const std::string& val );
+
+	bool IsAnimationEnabled() const;
+	void SetAnimationEnabled( bool enabled );
+
+	void	SetSharedGeometryRes( TriGeometryResPtr res );
+	void	SetUseMeshBinding( bool enable ) { m_useMeshBinding = enable; }
+
+	const std::string& GetModel() const;
+	void SetModel( const std::string& val);
+	granny_model* GetGrannyModel() const;
+	
+	bool IsInitialized() const;
+
+	bool	PlayAnimation( const char* animName, bool replace, int loopCount, float delay, float speed, bool clearWhenDone=true );
+	bool	PlayLayerAnimationByName( const char* layer, const char* animName, bool replace, int loopCount, float delay, float speed, bool clearWhenDone );
+	void	EndAnimation();
+	void	ClearAnimations();
+	float	GetAnimationChainCompleteTime();
+
+	bool GetDynamicBounds( Vector4& boundingSphere, Vector3 &aabbMin, Vector3 &aabbMax );
+	void RenderDynamicBounds( const Matrix& modelTransform );
+	Vector4 CalculateSkinnedBoundingSphere( granny_file_info* fi=nullptr );
+	bool CalculateSkinnedBoundingBoxFromTransform( const Matrix& transform, Vector3& bbMin, Vector3& bbMax, granny_file_info* fi=nullptr );
+
+	void RenderBones( const Matrix& modelTransform );
+
+	int GetMeshBoneCount() const;
+	const granny_matrix_3x4* GetMeshBoneMatrixList() const;
+
+	std::vector<std::string> GetAnimationNames() const;
+
+	void TogglePauseAnimations( bool pause );
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	// IInitialize
+	bool Initialize();
+
+	//////////////////////////////////////////////////////////////////////////
+	// ITr2AnimationUpdater
+	void PrePhysicsAnimation( Be::Time time, const Matrix &modelTransform );
+	void PostPhysicsAnimation( Be::Time time, const Matrix &modelTransform );
+	const Matrix* GetAnimationTransforms();
+	const std::string *GetAnimationBoneList( unsigned int& numBones ) const;
+
+	//////////////////////////////////////////////////////////////////////////
+	// IAsyncLoadedResNotifyTarget
+	void	ReleaseCachedData( BlueAsyncRes* p );
+	void	RebuildCachedData( BlueAsyncRes* p );
+
+	bool	FindBoneByName( const char* name, unsigned int& ix ) const;
+
+	void	Cleanup();
+	
+	granny_skeleton *m_skeleton;
+	granny_world_pose *m_worldPose;
+	granny_mesh_binding *m_meshBinding;
+
+
+private:
+	std::string			m_name;
+	std::string			m_resPath;
+	std::string			m_gStateResPath;
+	std::string			m_model;
+	granny_model_instance	*m_modelInstance;
+	TriGrannyResPtr		m_grannyRes;
+	Tr2GrannyStateResPtr m_gStateRes;
+	granny_pose_cache *m_gstate_pose_cache;
+	granny_real32		m_last_gstate_time;
+	std::map<std::string, TriGrannyResPtr>	m_gStateAnimFiles;
+	TriGeometryResPtr	m_geometryRes;
+
+	bool m_boneBoundsInitialized;
+	std::vector<GrannyBoneBindingBounds> m_boneBounds;
+	bool InitializeBoundingInfo();
+
+	gstate_character_instance *m_gStateCharacterInstance;
+	PGrannyBoneOffset m_boneOffset;
+	granny_local_pose *m_localPose;
+	granny_local_pose *m_compositePose;
+	std::map<std::string, float> m_animationLayerWeights;
+
+	typedef TrackableStdVector<std::string> BoneList_t;
+	BoneList_t m_boneList;
+
+	// bone matrix list in mesh-order
+	granny_matrix_3x4* m_meshBoneMatrixList;
+	int m_meshBoneCount;
+	int m_modelIndex;
+	int m_meshBindingIndex;
+
+	bool m_debugRenderSkeleton;
+	bool m_debugRenderJointNames;
+
+	bool m_useMeshBinding;
+	bool m_animationEnabled;
+
+	float GetAnimationTime();
+	bool m_paused;
+	float m_pauseTime;
+	float m_totalPauseOffset;
+
+	granny_file_info* GetFileInfo() const;
+	void LoadGStateResPath(const std::string& val);
+	GStateBindingCallbackData m_callbackData;
+
+	void	ApplyBoneOffsets ( unsigned i );
+	
+	IBlueEventListenerPtr m_eventListener;
+};
+
+TYPEDEF_BLUECLASS( Tr2GStateAnimation );
+
+#endif //Tr2GStateAnimation_h
