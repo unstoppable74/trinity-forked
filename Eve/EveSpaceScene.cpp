@@ -229,6 +229,7 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	Tr2LightManager::ResetVariableStore();
 
 	m_cameraAttachmentParent.CreateInstance();
+	m_reflectionProbe.CreateInstance();
 }
 
 IRoot* EveSpaceScene::GetCameraAttachments() const
