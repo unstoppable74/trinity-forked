@@ -18,7 +18,6 @@ using namespace gstate;
 static const int MAX_JOINT_COUNT = 58;
 
 Tr2GStateAnimation::Tr2GStateAnimation(IRoot* lockobj) :
-	PARENTLOCK(m_boneOffset),
 	m_skeleton( nullptr ),
 	m_boneList("Tr2GStateAnimation/m_boneList"),
 	m_worldPose( nullptr ),
@@ -1055,29 +1054,6 @@ void Tr2GStateAnimation::SetModel( const std::string& val )
 }
 
 
-void Tr2GStateAnimation::ApplyBoneOffsets(unsigned i)
-{
-	granny_real32 localMatrix[16];
-	GrannyBuildCompositeTransform4x4( GrannyGetLocalPoseTransform( m_localPose, i ), localMatrix );
-	granny_real32    *worldMatrix    = GrannyGetWorldPose4x4( m_worldPose, i );
-
-	const granny_int32 parentIndex = m_skeleton->Bones[i].ParentIndex;
-	if( parentIndex != -1 )
-	{
-		const granny_real32    *parentWorldMatrix = GrannyGetWorldPose4x4( m_worldPose, parentIndex );
-
-		if( !m_boneOffset.HaveTransforms() ||
-			!m_boneOffset.Apply( worldMatrix, i, localMatrix, parentWorldMatrix ) )
-		{
-			GrannyColumnMatrixMultiply4x4( worldMatrix, localMatrix, parentWorldMatrix );
-		}					
-	}
-	else
-	{
-		memcpy( worldMatrix, localMatrix, sizeof( granny_real32 ) * 16 );
-	}
-}
-
 void Tr2GStateAnimation::PrePhysicsAnimation( Be::Time time, const Matrix &modelTransform )
 {
 	if( IsInitialized() && m_animationEnabled )
@@ -1105,37 +1081,19 @@ void Tr2GStateAnimation::PrePhysicsAnimation( Be::Time time, const Matrix &model
 
 		m_localPose = Pose;
 
-
-		if( m_boneOffset.NeedRebind( m_skeleton->BoneCount ) && m_skeleton->BoneCount )
+		auto id = IdentityMatrix();
+		// build the worldpos out of the localpose using identity matrix as base
+		GrannyBuildWorldPose( m_skeleton, 0, m_skeleton->BoneCount, m_localPose, &id.m[0][0], m_worldPose );
+		// construct the 3x4 matrix list, that will be passed to the shader, if we have a meshbinding at all
+		if( m_meshBinding )
 		{
-			std::vector<std::string> bones( m_skeleton->BoneCount );			
-			for( size_t i = 0; i < bones.size(); ++i )
-				bones[ i ] = m_skeleton->Bones[ i ].Name;
-			m_boneOffset.BindToRig( &bones[0], bones.size() );
-		}
-
-		if( !m_boneOffset.HaveTransforms() )
-		{
-			auto id = IdentityMatrix();
-			// build the worldpos out of the localpose using identity matrix as base
-			GrannyBuildWorldPose( m_skeleton, 0, m_skeleton->BoneCount, m_localPose, &id.m[0][0], m_worldPose );
-			// construct the 3x4 matrix list, that will be passed to the shader, if we have a meshbinding at all
-			if( m_meshBinding )
+			int const* meshToBone = GrannyGetMeshBindingToBoneIndices( m_meshBinding );
+			if( m_meshBoneMatrixList && meshToBone && m_meshBoneCount )
 			{
-				int const* meshToBone = GrannyGetMeshBindingToBoneIndices( m_meshBinding );
-				if( m_meshBoneMatrixList && meshToBone && m_meshBoneCount )
-				{
-					GrannyBuildIndexedCompositeBufferTransposed( m_skeleton, m_worldPose, meshToBone, m_meshBoneCount, m_meshBoneMatrixList );
-				}
+				GrannyBuildIndexedCompositeBufferTransposed( m_skeleton, m_worldPose, meshToBone, m_meshBoneCount, m_meshBoneMatrixList );
 			}
 		}
-		else
-		{
-			for( unsigned i = 0; i != m_skeleton->BoneCount; ++i )
-			{
-				ApplyBoneOffsets(i);
-			}
-		}
+
 
 		extern ITr2DebugRendererPtr g_debugRenderer;
 		if( g_debugRenderer )

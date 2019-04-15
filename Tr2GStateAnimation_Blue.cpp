@@ -44,8 +44,6 @@ const Be::ClassInfo* Tr2GStateAnimation::ExposeToBlue()
 			Be::READWRITE
 		)
 
-		MAP_ATTRIBUTE( "boneOffset", m_boneOffset, "Per-bone post animation offsets.", Be::READ )
-
 		MAP_ATTRIBUTE
 		(
 			"eventListener",

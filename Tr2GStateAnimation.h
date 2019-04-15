@@ -3,7 +3,6 @@
 #define Tr2GStateAnimation_h
 
 #include "Include/ITr2AnimationUpdater.h"
-#include "GrannyBoneOffset.h"
 #include "Resources/Tr2GrannyStateRes.h"
 #include "gstate.h"
 #include "gstate_parameters.h"
@@ -137,7 +136,6 @@ private:
 
 	gstate_character_instance *m_gStateCharacterInstance;
 	state_machine *m_state_machine;
-	PGrannyBoneOffset m_boneOffset;
 	granny_local_pose *m_localPose;
 	granny_local_pose *m_compositePose;
 	std::map<std::string, float> m_animationLayerWeights;
@@ -167,7 +165,6 @@ private:
 
 	GStateBindingCallbackData m_callbackData;
 
-	void	ApplyBoneOffsets ( unsigned i );
 	
 	IBlueEventListenerPtr m_eventListener;
 };
