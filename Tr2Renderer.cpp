@@ -1052,6 +1052,51 @@ void Tr2Renderer::PushRenderTarget( const Tr2TextureAL& rt, unsigned slot, Tr2Re
 	Tr2Renderer::SetRenderTarget( slot, rt, renderContext );
 }
 
+static void SetupViewport()
+{
+	// See whether this viewport extends beyond the render target. If so,
+	// we need to clip it.
+
+	int x0 = s_viewport.x;
+	int y0 = s_viewport.y;
+	int x1 = s_viewport.x + s_viewport.width;
+	int y1 = s_viewport.y + s_viewport.height;
+
+	s_viewportOnDevice.m_x	= std::max( (float)x0, 0.0f );
+	s_viewportOnDevice.m_y	= std::max( (float)y0, 0.0f );
+
+    // Viewport width and height must be greater than zero. Using zero edge 
+    // length causes dx error.
+	s_viewportOnDevice.m_width  = (float)std::max( std::min( x1, s_renderTargetWidth ) - int( s_viewportOnDevice.m_x ), 1 );
+	s_viewportOnDevice.m_height = (float)std::max( std::min( y1, s_renderTargetHeight ) - int( s_viewportOnDevice.m_y ), 1 );
+
+	s_viewportOnDevice.m_minZ   = s_viewport.minZ;
+	s_viewportOnDevice.m_maxZ   = s_viewport.maxZ;
+
+	// In case we shrunk the viewport we need to scale and/or offset the
+	// projection matrix
+	s_viewport2projectionAdjustment._11 = s_viewport.width / s_viewportOnDevice.m_width;
+	s_viewport2projectionAdjustment._22 = s_viewport.height / s_viewportOnDevice.m_height;
+	s_viewport2projectionAdjustment._31 = ( s_viewport.width - s_viewportOnDevice.m_width ) / s_viewportOnDevice.m_width;
+	s_viewport2projectionAdjustment._32 = ( s_viewport.height - s_viewportOnDevice.m_height ) / s_viewportOnDevice.m_height;
+
+	if( s_viewport.x < 0 )
+	{
+		s_viewport2projectionAdjustment._31 *= -1;
+	}
+
+	if( s_viewport.y + s_viewport.height > s_renderTargetHeight )
+	{
+		s_viewport2projectionAdjustment._32 *= -1;
+	}
+
+	s_viewportSizeVar = Vector4( (float)s_viewport.width, (float)s_viewport.height, (float)s_renderTargetWidth, (float)s_renderTargetHeight );
+
+	// Finally, set the (possibly clipped) viewport on the D3D device.
+	USE_MAIN_THREAD_RENDER_CONTEXT();
+	renderContext.SetViewport( s_viewportOnDevice );
+}
+
 
 void UpdateRenderTargetViewport( unsigned width, unsigned height )
 {
@@ -1109,6 +1154,7 @@ void Tr2Renderer::PopProjection()
 	s_projectionTransform = s_projectionStack.front();
 	s_projectionStack.pop_front();
 	UpdateProjectionParameters( s_projectionTransform );
+	SetupViewport();
     SetProjectionDerivedValues();
 }
 
@@ -1577,55 +1623,6 @@ void Tr2Renderer::RenderDebugInfo( Tr2RenderContext& renderContext )
 		s_debugLineSet->Render( renderContext );
 		s_debugLineSet->Clear();
 	}
-}
-
-static void SetupViewport()
-{
-	// See whether this viewport extends beyond the render target. If so,
-	// we need to clip it.
-
-	int x0 = s_viewport.x;
-	int y0 = s_viewport.y;
-	int x1 = s_viewport.x + s_viewport.width;
-	int y1 = s_viewport.y + s_viewport.height;
-
-	s_viewportOnDevice.m_x	= std::max( (float)x0, 0.0f );
-	s_viewportOnDevice.m_y	= std::max( (float)y0, 0.0f );
-
-    // Viewport width and height must be greater than zero. Using zero edge 
-    // length causes dx error.
-	s_viewportOnDevice.m_width  = (float)std::max( std::min( x1, s_renderTargetWidth ) - int(s_viewportOnDevice.m_x), 1 );
-	s_viewportOnDevice.m_height = (float)std::max( std::min( y1, s_renderTargetHeight ) - int(s_viewportOnDevice.m_y), 1 );
-
-	s_viewportOnDevice.m_minZ   = s_viewport.minZ;
-	s_viewportOnDevice.m_maxZ   = s_viewport.maxZ;
-
-	// In case we shrunk the viewport we need to scale and/or offset the
-	// projection matrix
-
-	float invWidth	= 1.0f / s_viewportOnDevice.m_width;
-	float invHeight = 1.0f / s_viewportOnDevice.m_height;
-
-	s_viewport2projectionAdjustment._11 = s_viewport.width * invWidth;;
-	s_viewport2projectionAdjustment._22 = s_viewport.height * invHeight;
-	s_viewport2projectionAdjustment._31 = (s_viewport.width - s_viewportOnDevice.m_width) * invWidth;
-	s_viewport2projectionAdjustment._32 = (s_viewport.height - s_viewportOnDevice.m_height) * invHeight;
-
-	if( s_viewport.x < 0 )
-	{
-		s_viewport2projectionAdjustment._31 *= -1;
-	}
-
-	if( s_viewport.y + s_viewport.height > s_renderTargetHeight )
-	{
-		s_viewport2projectionAdjustment._32 *= -1;
-	}
-
-	s_viewportSizeVar = Vector4( (float)s_viewport.width, (float)s_viewport.height, (float)s_renderTargetWidth, (float)s_renderTargetHeight );
-
-	// Finally, set the (possibly clipped) viewport on the D3D device.
-	USE_MAIN_THREAD_RENDER_CONTEXT();
-	renderContext.SetViewport( s_viewportOnDevice );
 }
 
 void Tr2Renderer::SetFullScreenViewport()
