@@ -35,7 +35,6 @@ void EveChildEnvironment::RebuildBoundingSphere()
 			BoundingSphereUpdate( bs, m_boundingSphere );
 		}
 	}
-	
 }
 
 void EveChildEnvironment::SetAsDirty() 
@@ -222,6 +221,7 @@ void EveChildEnvironment::OnListModified( long event, ssize_t key, ssize_t key2,
 void EveChildEnvironment::GetDebugOptions( Tr2DebugRendererOptions& options )
 {
 	options.insert( "Volumes" );
+	options.insert( "ExclusionVolumes" );
 	options.insert( "Bounding Sphere" );
 }
 
@@ -234,6 +234,15 @@ void EveChildEnvironment::RenderDebugInfo( Tr2DebugRenderer& renderer )
 			(*volume)->RenderDebugInfo( renderer, m_worldTransform );
 		}
 	}
+
+	if (renderer.HasOption( this, "ExclusionVolumes" ))
+	{
+		for (auto volume = m_exclusionVolumes.begin(); volume != m_exclusionVolumes.end(); ++volume)
+		{
+			(*volume)->RenderDebugInfo( renderer, m_worldTransform );
+		}
+	}
+
 	if( renderer.HasOption( this, "Bounding Sphere" ) )
 	{
 		renderer.DrawSphere( this, TranslationMatrix( m_boundingSphere.GetXYZ() ) * m_worldTransform, m_boundingSphere.w, 10, Tr2DebugRenderer::Wireframe, 0xff333333 );
