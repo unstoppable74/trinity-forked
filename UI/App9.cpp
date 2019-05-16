@@ -10,7 +10,6 @@ static CcpLogChannel_t s_appChannel = CCP_LOG_DEFINE_CHANNEL( "App" );
 #if BLUE_WITH_PYTHON
 #include "CcpUtils/PyCpp.h"
 #endif
-extern bool isWinNT;
 
 LRESULT App::WndProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l)
 {
@@ -196,14 +195,7 @@ LRESULT App::WndProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l)
         return lRes;
     }
 
-	if( isWinNT )
-	{
-		return DefWindowProcW(hwnd, msg, w, l);
-	}
-	else
-	{
-		return DefWindowProcA(hwnd, msg, w, l);
-	}
+	return DefWindowProcW(hwnd, msg, w, l);
 }
 
 // -------------------------------------------------------------

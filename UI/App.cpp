@@ -21,7 +21,6 @@ ATOM App::mWndClassAtom = NULL;
 #elif !defined(__ORBIS__) && !defined(__ANDROID__)
 #include "GLFW/glfw3.h"
 #endif
-bool isWinNT = false;
 static const uint32_t DEFAULT_WINDOW_POSITION = 0x80000000; // CW_DEFAULT on windows
 
 CcpMeanStatisticsEntry s_activeFrametimeMean;
@@ -363,9 +362,7 @@ LRESULT App::_WndProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l)
 	}
 	else
 	{
-		if (isWinNT)
-			return DefWindowProcW(hwnd, msg, w, l);
-		return DefWindowProcA(hwnd, msg, w, l);
+		return DefWindowProcW(hwnd, msg, w, l);
 	}
 }
 #endif
