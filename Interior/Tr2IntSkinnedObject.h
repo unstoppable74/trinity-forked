@@ -118,11 +118,6 @@ protected:
 	// Apex
 	bool m_isInApexScene;
 
-	// as long as we support cpu AND gpu skinning we need two different ways of ::GetPerObjectData()
-	Tr2PerObjectData* GetPerObjectDataCpuSkinning( 
-		ITriRenderBatchAccumulator* accumulator,
-		Tr2InteriorLightSet* lightSet, 
-		const Matrix& objectToWorldMatrix );
 	Tr2PerObjectData* GetPerObjectDataGpuSkinning( 
 		ITriRenderBatchAccumulator* accumulator,
 		Tr2InteriorLightSet* lightSet, 

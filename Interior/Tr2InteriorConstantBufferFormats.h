@@ -34,17 +34,13 @@ struct Tr2InteriorPerObjectLightData
 
 struct Tr2InteriorPerObjectPSData
 {
-	// data on lights
+	
 	Tr2InteriorPerObjectLightData pointLights[MAX_INTERIOR_LIGHTS_PER_OBJECT];
 	// data on the shadow casting point lights: [x,y,z] = position, [w] = radius
 	Vector4 shadowCaster0;
 	Vector4 shadowCaster1;
-	// Ramamoorthi L=2 coefficient matrix, for each of r, g, and b.
-	Matrix redMat;
-	Matrix greenMat;
-	Matrix blueMat;
-	// Mirror to world matrix
-	Matrix mirrorToWorldMatrix;
+	// spotlight viewProjection matrices
+	Matrix spotLights[4];
 };
 
 struct Tr2InteriorPerObjectVSData

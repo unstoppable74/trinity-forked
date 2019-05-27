@@ -56,15 +56,30 @@ public:
 	// Copy the light parameters into the per-object data
 	void PopulateLightData( Tr2InteriorPerObjectLightData* lightData ) const;
 
-	// Determine overall scene influence
-	float GetCurrentViewImportance( const Vector3& viewerPos ) const;
-
 	void Update( Be::Time time );
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2DebugRenderable
 	virtual void GetDebugOptions(Tr2DebugRendererOptions& options);
 	virtual void RenderDebugInfo(Tr2DebugRenderer& renderer);
+
+	// Light position
+	Vector3 m_position;
+	
+	// Spotlight direction
+	Vector3 m_coneDirection;
+	
+	// Outer spotlight angle
+	float m_coneAlphaOuter;
+
+	// Inner spotlight angle
+	float m_coneAlphaInner;
+
+	// Light radius
+	float m_radius;
+
+	// View projection matrix
+	Matrix m_viewProjection;
 
 protected:
 	// Is this a spotlight?
@@ -74,37 +89,25 @@ protected:
 	// Light names
 	std::string m_name;
 
-	// Light position
-	Vector3 m_position;
-	// Light radius
-	float m_radius;
 	AxisAlignedBoundingBox m_worldBoundingBox;
+
 	// Light diffuse Color
 	Color m_color;
+
 	// Falloff over radius
 	float m_falloff;
+
 	// Specular intensity
 	float m_specularIntensity;
-	// Outer spotlight angle
-	float m_coneAlphaOuter;
-	// Inner spotlight angle
-	float m_coneAlphaInner;
-	// Spotlight direction
-	Vector3 m_coneDirection;
 
 	// Kelvin color temperature
 	Tr2KelvinColorPtr m_kelvinColor;
+
 	// Toggle between rgb and kelvin
 	bool m_useKelvinColor;
 
 	// Does this light contribute to direct lighting?
 	bool m_primaryLighting;
-
-	// A multiplier for importance. In practice actually for turning off sorting, or by
-	// enforcing a certain order, by setting it to zero for all lights and tweaking bias instead.
-	float m_importanceScale;
-	// A bias. Final view importance is [computed] * scale + bias
-	float m_importanceBias;
 
 	// Cached unit to world light geometry transform for light accumulation pass
 	Matrix m_unitToWorldTransform;

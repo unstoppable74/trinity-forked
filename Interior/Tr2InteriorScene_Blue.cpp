@@ -415,9 +415,7 @@ const Be::ClassInfo* Tr2InteriorScene::ExposeToBlue()
 		MAP_ATTRIBUTE( "sunDirection", m_sunDirection, "Sun direction", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "ambientColor", m_ambientColor, "Scene Ambient color", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "curveSets", m_curveSets, "", Be::READ )
-
-		MAP_ATTRIBUTE( "apexLODResourceBudget", m_apexLODResourceBudget, "", Be::READWRITE )
-		MAP_ATTRIBUTE( "apexLODResourceBudgetConsumed", m_apexLODResourceBudgetConsumed, "", Be::READ )
+		MAP_ATTRIBUTE(" lightRenderTargets", m_lightRenderTargets, "Spotlight Shadow Maps", Be::READ )
 
 		MAP_ATTRIBUTE( "backgroundEffect", m_backgroundEffect, "The effect used to render the background behind any objects", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE_WITH_CHOOSER( "backgroundCubemapPath", m_backgroundCubeMapPath, "The path used to load the background environment map", Be::READWRITE | Be::PERSIST | Be::NOTIFY, TriTextureChooser )
@@ -546,6 +544,11 @@ const Be::ClassInfo* Tr2InteriorScene::ExposeToBlue()
 			"Run the scene's update loop\n"
 			":param time: current time" )
 
+		MAP_METHOD_AND_WRAP(
+			"SetupShadowMaps",
+			SetupShadowMaps,
+			"Set up the shadow render targets")
+
 		MAP_ATTRIBUTE
 		(
 			"debugRenderer",
@@ -555,6 +558,15 @@ const Be::ClassInfo* Tr2InteriorScene::ExposeToBlue()
 		)
 
 		MAP_ATTRIBUTE( "visibilityResults", m_visibilityResults, "Results of the visibility query", Be::READ )
+
+		MAP_ATTRIBUTE( "shadowCount", m_shadowCount, "Amount of shadows allowed", Be::READWRITE | Be::NOTIFY)
+
+		MAP_ATTRIBUTE("shadowSize", m_shadowSize, "Size of shadows", Be::READWRITE | Be::NOTIFY)
+
+		MAP_ATTRIBUTE("optimizeShadows", m_optimizeShadows, "Should we shrink the light frustum to camera view?", Be::READWRITE | Be::NOTIFY)
+
+		MAP_ATTRIBUTE("renderShadows", m_renderShadows, "", Be::READWRITE | Be::NOTIFY)
+				
 
 	EXPOSURE_END()
 }

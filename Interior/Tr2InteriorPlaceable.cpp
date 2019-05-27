@@ -575,12 +575,6 @@ Tr2PerObjectData* Tr2InteriorPlaceable::GetPerObjectDataWithLightSet( ITriRender
 		data->SetLightsActive( lightSet->GetNumOfActiveLights(), lightSet->GetNumOfActiveLights() );
 	}
 
-	// Copy the SH matrices
-	memset( &perObjectPSBuffer.redMat, 0, sizeof( perObjectPSBuffer.redMat ) * 3 );
-
-	// Copy the mirror-to-world matrix
-	perObjectPSBuffer.mirrorToWorldMatrix = IdentityMatrix();
-
 	// Do the copy
 	data->CopyToPSFloatBuffer( perObjectPSBuffer );
 	data->CopyToVSFloatBuffer( perObjectVSBuffer );

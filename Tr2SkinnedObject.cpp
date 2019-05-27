@@ -633,7 +633,7 @@ bool Tr2SkinnedObject::GetLocalBoundingBox( Vector3& min, Vector3& max ) const
 // Summary:
 //   Compute a world-space OBB, tightened for the current frustum.
 // -------------------------------------------------------------
-bool Tr2SkinnedObject::GetClippedWorldBoundingObb( const Matrix& localToWorld, Vector3& x, Vector3& y, Vector3& z, Vector3& center, Vector3& sizes )
+bool Tr2SkinnedObject::GetClippedWorldBoundingObb( const Matrix& localToWorld, Vector3& x, Vector3& y, Vector3& z, Vector3& center, Vector3& sizes, TriFrustum* cameraFrustum)
 {
 	Vector3 min, max;
 	if( !GetLocalBoundingBox( min, max ) )
@@ -642,13 +642,21 @@ bool Tr2SkinnedObject::GetClippedWorldBoundingObb( const Matrix& localToWorld, V
 	}
 
 	TriFrustum frustum;
-	
-	frustum.DeriveFrustum( 
-			&Tr2Renderer::GetViewTransform(), 
-			&Tr2Renderer::GetViewPosition(), 
-			&Tr2Renderer::GetProjectionTransform(), 
+
+	if (cameraFrustum == nullptr)
+	{
+		frustum.DeriveFrustum(
+			&Tr2Renderer::GetViewTransform(),
+			&Tr2Renderer::GetViewPosition(),
+			&Tr2Renderer::GetProjectionTransform(),
 			Tr2Renderer::GetViewport()
-			);
+		);
+	}
+	else
+	{
+		frustum = *cameraFrustum;
+	}
+
 	
 	Obb obb;
 	obb.CreateClippedWorldBoundingObb( min, max, localToWorld, &frustum );

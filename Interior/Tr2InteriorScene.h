@@ -14,6 +14,7 @@
 #include "Include/ITr2Scene.h"
 #include "Tr2InteriorRenderBatch.h"
 #include "Include/ITr2Interior.h"
+#include "Tr2DebugRenderer.h"
 
 // Forward declarations
 struct Tr2VisibilityEvent;
@@ -37,6 +38,9 @@ BLUE_DECLARE_INTERFACE(ITr2PhysicsUpdater);
 BLUE_DECLARE(TriCurveSet);
 BLUE_DECLARE_VECTOR(TriCurveSet);
 BLUE_DECLARE(Tr2DebugRenderer);
+BLUE_DECLARE(Tr2RenderTarget);
+BLUE_DECLARE_VECTOR(Tr2RenderTarget);
+BLUE_DECLARE(Tr2DepthStencil);
 
 class Tr2InteriorScene:
 	public IInitialize,
@@ -47,7 +51,8 @@ class Tr2InteriorScene:
 	public ITr2PickableScene,
 	public ITr2VisibilityQueryable,
 	public Tr2DeviceResource,
-	public ITr2VisualizationModeRenderer
+	public ITr2VisualizationModeRenderer,
+	public ITr2DebugRenderable
 {
 public:
 	Tr2InteriorScene( IRoot* lockobj = NULL );
@@ -85,8 +90,17 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// ITriDeviceResource
 	virtual void ReleaseResources( TriStorage s );
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2DebugRenderable
+	virtual void GetDebugOptions(Tr2DebugRendererOptions& options);
+	virtual void RenderDebugInfo(Tr2DebugRenderer& renderer);
+
 private:
 	bool OnPrepareResources();
+
+	void MaximizeShadowMapUsage(TriProjection& projectionMatrix, const TriView* view, TriFrustum* frustum);
+
 public:	
 
 	//////////////////////////////////////////////////////////////////////////
@@ -106,6 +120,13 @@ public:
 	// Remove a dynamic from the scene
 	void RemoveDynamic( ITr2InteriorDynamic* dynamic );
 	void UpdateSceneFromScript( Be::Time time );
+
+	PTr2RenderTargetVector m_lightRenderTargets;
+	int m_shadowCount;
+	int m_shadowSize;
+
+	bool m_optimizeShadows;
+	bool m_renderShadows;
 
 protected:
 
@@ -130,6 +151,10 @@ private:
 
 	void RenderFullForward( Tr2RenderContext& renderContext );
 
+	void RenderShadows(Tr2RenderContext& renderContext);
+
+	void SetupShadowMaps();
+
 	//////////////////////////////////////////////////////////////////////////
 	// Rendering utility functions
 
@@ -137,6 +162,8 @@ private:
 	void PrepareBackgroundCubemapBatch( ITriRenderBatchAccumulator* batches );
 
 private:
+	// A shared depth stencil texture for light shadow maps
+	Tr2DepthStencilPtr m_lightDepthStencil;
 
 	// Holds the main render batch list for opaques, decals, and transparent batches
 	ITriRenderBatchAccumulator* m_primaryRenderBatches;
@@ -246,9 +273,6 @@ private:
 
 	Be::Time m_lastUpdateTime;
 
-	float m_apexLODResourceBudget;
-	float m_apexLODResourceBudgetConsumed;
-
 	// visualization
 	VisualizeMethod m_visualizeMethod;
 
@@ -259,6 +283,19 @@ private:
 	TriTextureResPtr m_nDotLTexture;
 	// N dot L lookup texture variable handle (used during lighting pass)
 	TriVariable* m_nDotLTextureHandle;
+
+	// White texture for no shadow
+	TriTextureResPtr m_whiteTexture;
+
+	// Noise texture for PCF shadows
+	TriTextureResPtr m_noiseTexture;
+	TriVariable* m_noiseTextureHandle;
+
+	// Shadow map variables
+	Tr2Variable m_shadowMap0Var;
+	Tr2Variable m_shadowMap1Var;
+	Tr2Variable m_shadowMap2Var;
+	Tr2Variable m_shadowMap3Var;
 
 	// Maximum fog density amount (from 0 to 1)
 	float m_maxFogAmount;

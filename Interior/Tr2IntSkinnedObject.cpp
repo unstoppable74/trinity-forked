@@ -170,21 +170,9 @@ void Tr2IntSkinnedObject::RemoveFromApexScene( void )
 
 Tr2PerObjectData* Tr2IntSkinnedObject::GetPerObjectData( ITriRenderBatchAccumulator* accumulator )
 {
-	// we support cpu AND gpu skinning, so decide which ::GetPerObjectData() to call based on the type of the Tr2 class
 	if( m_visualModel )
 	{
-		if( m_visualModel->ClassType() == Tr2SkinnedModel::ClassType_() )
-		{
-			return GetPerObjectDataGpuSkinning( accumulator, 
-												&m_lightSet, 
-												GetSkinningTransform() );
-		}
-		else
-		{
-			return GetPerObjectDataCpuSkinning( accumulator, 
-												&m_lightSet, 
-												GetSkinningTransform() );
-		}
+		return GetPerObjectDataGpuSkinning( accumulator, &m_lightSet, GetSkinningTransform() );
 	}
 	return NULL;
 }
@@ -333,62 +321,6 @@ void Tr2IntSkinnedObject::GetBatches( ITriRenderBatchAccumulator* batches,
 
 // --------------------------------------------------------------------------------------
 // Description:
-//   Utility function for populating per-object data with instanced lighting.
-// Arguments:
-//   accumulator		 - The accumulator used to allocate the per-object data
-//   lightSet			 - The instanced lights
-//   objectToWorldMatrix - The world transform of the object
-// Return Value:
-//   The allocated per-object data, or NULL if the allocation failed.
-// --------------------------------------------------------------------------------------
-Tr2PerObjectData* Tr2IntSkinnedObject::GetPerObjectDataCpuSkinning( 
-	ITriRenderBatchAccumulator* accumulator,
-	Tr2InteriorLightSet* lightSet,
-	const Matrix& objectToWorldMatrix )
-{
-	UpdatePerObjectData();
-
-	Tr2LitPerObjectData* data = accumulator->Allocate<Tr2LitPerObjectData>();
-
-	if( !data )
-	{
-		return NULL;
-	}
-
-	// Pixel Shader Light information
-	Tr2InteriorPerObjectPSData perObjectPSBuffer;
-	// standard vertex shader data
-	Tr2PerObjectVSData perObjectVSBuffer;
-
-	// 0
-	memset( &perObjectPSBuffer, 0, sizeof( perObjectPSBuffer ) );
-	memset( &perObjectVSBuffer, 0, sizeof( perObjectVSBuffer ) );
-
-	// put worldmatrix to identity: translation comes from gameworld in the skinning matrices
-	perObjectVSBuffer.WorldMat = objectToWorldMatrix;
-
-	// put pointlights in perobject data
-	if( lightSet )
-	{
-		lightSet->PopulateLightData( &perObjectPSBuffer );
-		data->SetLightsActive( lightSet->GetNumOfActiveLights(), lightSet->GetNumOfActiveLights() );
-	}
-
-	// Copy the SH matrices
-	memset( &perObjectPSBuffer.redMat, 0, sizeof( perObjectPSBuffer.redMat ) * 3 );
-
-	// Copy the mirror-to-world matrix
-	perObjectPSBuffer.mirrorToWorldMatrix = IdentityMatrix();
-
-	// Do the copy
-	data->CopyToPSFloatBuffer( perObjectPSBuffer );
-	data->CopyToVSFloatBuffer( perObjectVSBuffer );
-
-	return data;
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
 //   Utility function for populating per-object data with a skinning matrix palette for 
 //   GPU-skinning.  This uses instanced lighting.
 // Arguments:
@@ -431,12 +363,6 @@ Tr2PerObjectData* Tr2IntSkinnedObject::GetPerObjectDataGpuSkinning(
 		data->SetLightsActive( lightSet->GetNumOfActiveLights(), lightSet->GetNumOfActiveLights() );
 	}
 
-	// Copy the SH matrices
-	memset( &perObjectPSBuffer.redMat, 0, sizeof( perObjectPSBuffer.redMat ) * 3 );
-
-	// Copy the mirror-to-world matrix
-	perObjectPSBuffer.mirrorToWorldMatrix = IdentityMatrix();
-
 	// Do the copy
 	data->CopyToPSFloatBuffer( perObjectPSBuffer );
 
@@ -466,11 +392,9 @@ void Tr2IntSkinnedObject::RemoveFromScene( void )
 // --------------------------------------------------------------------------------------
 //  Description:
 //    Gets per-object data for the skinned object using a per-instance light-set override 
-//    and an arbitrary object-to-world matrix.  Routes the call to either 
-//    GetPerObjectDataGpuSkinning or GetPerObjectDataCpuSkinning, depending on the 
-//    skinnning strategy used.
+//    and an arbitrary object-to-world matrix.  
 //  See Also:
-//    GetPerObjectData, GetPerObjectDataGpuSkinning, GetPerObjectDataCpuSkinning
+//    GetPerObjectData, GetPerObjectDataGpuSkinning
 //  Arguments:
 //    accumulator -         The batch accumulator used to allocate memory for per-object data
 //    lightSet -            The set of lights illuminating this object
@@ -484,22 +408,9 @@ Tr2PerObjectData* Tr2IntSkinnedObject::GetPerObjectDataWithPerInstanceLighting(
 	Tr2InteriorLightSet* lightSet,
 	const Matrix& objectToWorldMatrix )
 {
-	// We support cpu AND gpu skinning, so decide which ::GetPerObjectData() to call 
-	// based on the type of the Tr2 class
 	if( m_visualModel )
 	{
-		if( m_visualModel->ClassType() == Tr2SkinnedModel::ClassType_() )
-		{
-			return GetPerObjectDataGpuSkinning( accumulator, 
-												lightSet, 
-												objectToWorldMatrix );
-		}
-		else
-		{
-			return GetPerObjectDataCpuSkinning( accumulator, 
-												lightSet, 
-												objectToWorldMatrix );
-		}
+		return GetPerObjectDataGpuSkinning( accumulator, lightSet, objectToWorldMatrix );
 	}
 	return NULL;
 }

@@ -2,6 +2,7 @@
 
 #include "Tr2InteriorLightSet.h"
 #include "include/ITr2Interior.h"
+#include "Tr2InteriorLightSource.h"
 
 // --------------------------------------------------------------------------------------
 // Description:
@@ -63,6 +64,11 @@ void Tr2InteriorLightSet::PopulateLightData( Tr2InteriorPerObjectPSData* perObje
 	std::list<InternalLightInstance>::const_iterator it = m_lightInstances.begin();
 	while( (i < MAX_INTERIOR_LIGHTS_PER_OBJECT) && (it != m_lightInstances.end()) )
 	{
+		if (i < 4)
+		{
+			perObjectPSData->spotLights[i] = dynamic_cast<Tr2InteriorLightSource*>(it->lightSource)->m_viewProjection;
+		}
+
 		// Put standard lightsource data in target
 		if( !it->lightDataValid )
 		{
@@ -75,7 +81,5 @@ void Tr2InteriorLightSet::PopulateLightData( Tr2InteriorPerObjectPSData* perObje
 		++i;
 		++it;
 	}
-	perObjectPSData->shadowCaster0 = Vector4( 0.0f, 0.0f, 0.0f, 0.0f );
-	perObjectPSData->shadowCaster1 = Vector4( 0.0f, 0.0f, 0.0f, 0.0f );
 }
 

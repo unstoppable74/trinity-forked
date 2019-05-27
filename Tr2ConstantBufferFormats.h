@@ -82,7 +82,9 @@ struct Tr2PerFramePSData
 	float cullDirection; // +1 for normal RH culling, -1 for LH culling
 	Matrix ViewProjectionMat;
 	float shScale;
-	float unused2[3];
+	float shadowCount;
+	float invShadowSize;
+	float radius;
 	Vector4 viewPort;	// xy - viewport width/height, zw - viewport offset
 	Matrix ViewProjInverse;
 };

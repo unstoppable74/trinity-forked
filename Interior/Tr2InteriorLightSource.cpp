@@ -21,6 +21,7 @@ using namespace Tr2RenderContextEnum;
 //   Tr2InteriorLightSource default constructor
 // --------------------------------------------------------------------------------------
 Tr2InteriorLightSource::Tr2InteriorLightSource( IRoot* lockobj ) :
+	PARENTLOCK( m_curveSets ),
 	m_name(),
 	m_position( 0.f, 0.f, 0.f ),
 	m_radius( 1.f ),
@@ -31,12 +32,10 @@ Tr2InteriorLightSource::Tr2InteriorLightSource( IRoot* lockobj ) :
 	m_coneAlphaInner( 180.f ),
 	m_coneDirection( 0.f, -1.f, 0.f ),
 	m_primaryLighting( true ),
-	m_importanceScale( 1.0f ),
-	m_importanceBias( 0.0f ),
-	PARENTLOCK( m_curveSets ),
 	m_worldBoundingBox( Vector3( -1.f, -1.f, -1.f ), Vector3( 1.f, 1.f, 1.f ) ),
 	m_useKelvinColor( false ),
-	m_unitToWorldTransform( IdentityMatrix() )
+	m_unitToWorldTransform( IdentityMatrix() ),
+	m_viewProjection( IdentityMatrix() )
 {
 	m_kelvinColor.CreateInstance();
 }
@@ -136,28 +135,6 @@ void Tr2InteriorLightSource::PopulateLightData( Tr2InteriorPerObjectLightData* l
 	lightData->spotDirection = XMVector3Normalize( m_coneDirection );
 }
 
-// --------------------------------------------------------------------------------------
-// Description:
-//   Gets the importance of the light, given the current view position.  The view
-//   importance is simply the ratio of the light radius and the distance to the viewer.
-// Arguments:
-//   viewerPos - The position of the viewpoint
-// Return Value:
-//   The view importance
-// --------------------------------------------------------------------------------------
-float Tr2InteriorLightSource::GetCurrentViewImportance( const Vector3& viewerPos ) const
-{
-	// importance is based on:
-	// 1. dist from camera
-	Vector3 dist = viewerPos - m_position;
-	float distToViewer = LengthSq( dist );
-
-	// put together the result
-	float res = m_radius * m_radius / distToViewer;
-
-	return res * m_importanceScale + m_importanceBias;
-}
-
 // -------------------------------------------------------------
 // Description:
 //   Per-frame update method. Updates curve sets.
@@ -185,7 +162,6 @@ bool Tr2InteriorLightSource::IsInFrustum( const TriFrustum& frustum, Matrix& obj
 void Tr2InteriorLightSource::GetDebugOptions(Tr2DebugRendererOptions & options)
 {
 	options.insert("Lights");
-	options.insert("Shadow Maps");
 }
 
 void Tr2InteriorLightSource::RenderDebugInfo(Tr2DebugRenderer & renderer)
@@ -193,8 +169,15 @@ void Tr2InteriorLightSource::RenderDebugInfo(Tr2DebugRenderer & renderer)
 	if (renderer.HasOption(GetRawRoot(), "Lights"))
 	{
 		renderer.DrawSphere(this, m_position, 0.05f, 10, Tr2DebugRenderer::Wireframe, 0xff333333);
-		float coneRadius = m_radius * sinf(XMConvertToRadians(m_coneAlphaOuter));
-		Vector3 focal = m_position + m_coneDirection * m_radius;
-		renderer.DrawCone(this, focal, m_position, coneRadius, 8, Tr2DebugRenderer::Wireframe, 0xff444444);
+		if (IsSpotLight())
+		{
+			float coneRadius = m_radius * tanf(XMConvertToRadians(m_coneAlphaOuter));
+			Vector3 focal = m_position + Normalize(m_coneDirection) * m_radius;
+			renderer.DrawCone(this, focal, m_position, coneRadius, 8, Tr2DebugRenderer::Wireframe, 0xff444444);
+		}
+		else
+		{
+			renderer.DrawSphere(this, m_position, m_radius, 12, Tr2DebugRenderer::Wireframe, 0xff444444);
+		}
 	}
 }
