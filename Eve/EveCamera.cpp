@@ -584,11 +584,11 @@ void EveCamera::CapPitchAndYaw()
 // -------------------------------------------------------------
 void EveCamera::CalculateProjectionMatrix( Matrix* mat, float aspectRatio, float fov, float offsetX, float offsetY, float front, float back, TriProjection* projection )
 {
-	if( !aspectRatio || !_finite( aspectRatio ) || _isnan( aspectRatio ) )
+	if( !aspectRatio || !IsFinite( aspectRatio ) )
 	{
 		aspectRatio = 1;
 	}
-	if( !fov || !_finite( fov ) || _isnan( fov ) )
+	if( !fov || !IsFinite( fov ) )
 	{
 		fov = 1;
 	}
