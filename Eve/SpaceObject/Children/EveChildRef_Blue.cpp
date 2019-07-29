@@ -11,7 +11,7 @@ BLUE_DEFINE( EveChildRef );
 
 const Be::ClassInfo* EveChildRef::ExposeToBlue()
 {
-	EXPOSURE_BEGIN( EveChildRef, "" )
+	EXPOSURE_BEGIN( EveChildRef, "\n:jessica-icon: alicorn\n" )
 		MAP_INTERFACE( EveChildRef )
 		MAP_INTERFACE( IEveSpaceObjectChild )
 		MAP_INTERFACE( IInitialize )

@@ -11,7 +11,7 @@ BLUE_DEFINE( EveChildSocket );
 
 const Be::ClassInfo* EveChildSocket::ExposeToBlue()
 {
-	EXPOSURE_BEGIN( EveChildSocket, "" )
+	EXPOSURE_BEGIN( EveChildSocket, "\n:jessica-icon:blender-phone\n" )
 		MAP_INTERFACE( EveChildSocket )
 		MAP_INTERFACE( IEveSpaceObjectChild )
 		MAP_INTERFACE( IInitialize )

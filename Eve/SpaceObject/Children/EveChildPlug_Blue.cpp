@@ -11,7 +11,7 @@ BLUE_DEFINE( EveChildPlug );
 
 const Be::ClassInfo* EveChildPlug::ExposeToBlue()
 {
-	EXPOSURE_BEGIN( EveChildPlug, "" )
+	EXPOSURE_BEGIN( EveChildPlug, "\n:jessica-icon: plug\n" )
 		MAP_INTERFACE( EveChildPlug )
 		MAP_INTERFACE( IEveSpaceObjectChild )
 		MAP_INTERFACE( IInitialize )
