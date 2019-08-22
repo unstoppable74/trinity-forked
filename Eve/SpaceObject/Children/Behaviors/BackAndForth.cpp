@@ -40,7 +40,7 @@ std::vector<Vector3> BackAndForth::CalculateBehavior( std::vector<DroneAgent>& a
 			{
 				//Get all locators under the "seek" locatorSet
 				auto seekLocators = GetLocatorsForSet( SEEK_LOCATOR_SET_NAME );
-				if (seekLocators != NULL)
+				if (seekLocators != NULL && seekLocators[0].size() > 0)
 				{
 					m_rand = TriRandInt( 0, (int)seekLocators->size() );
 					data->locatorTarget = seekLocators[0][m_rand].position;
@@ -51,7 +51,7 @@ std::vector<Vector3> BackAndForth::CalculateBehavior( std::vector<DroneAgent>& a
 			{
 				//Get all locators under the "deliver" locatorSet
 				auto deliverLocators = GetLocatorsForSet( DELIVER_LOCATOR_SET_NAME );
-				if (deliverLocators != NULL)
+				if (deliverLocators != NULL && deliverLocators[0].size() > 0 )
 				{
 					m_rand = TriRandInt( 0, (int)deliverLocators->size() );
 					data->locatorTarget = deliverLocators[0][m_rand].position;
@@ -135,7 +135,7 @@ void BackAndForth::AddLocatorSet()
 	EveLocatorSetsPtr seekSet;
 	seekSet.CreateInstance();
 	seekSet->Set( "seek", NULL, 0 );
-	
+
 	EveLocatorSetsPtr deliverSet;
 	deliverSet.CreateInstance();
 	deliverSet->Set( "deliver", NULL, 0 );
