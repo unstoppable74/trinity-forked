@@ -241,7 +241,7 @@ void Tr2GrannyAnimationLayer::EndAnimation()
 		newLoopCount = max(0, GrannyGetControlLoopIndex( control )) + 1;
 		GrannySetControlLoopCount( control, newLoopCount );
 	}
-	GrannyFreeCompletedModelControls( m_modelInstance );
+	FreeCompletedControls();
 }
 
 void Tr2GrannyAnimationLayer::ClearTextTracks( granny_control* control )
