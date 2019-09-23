@@ -4,6 +4,6 @@
 
 TriStepResult TriStepPopViewport::Execute( Be::Time realTime, Be::Time simTime, Tr2RenderContext& renderContext )
 {
-	Tr2Renderer::PopViewport();
+	renderContext.m_esm.PopViewport();
 	return RS_OK;
 }

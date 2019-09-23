@@ -102,7 +102,7 @@ bool TriTextureParameter::ApplyUav(
 	}
 	else
 	{
-		return resourceDesc.SetUav( stage, registerIndex, nullTX );
+		return resourceDesc.SetUav( stage, registerIndex, Tr2TextureAL() );
 	}
 }
 

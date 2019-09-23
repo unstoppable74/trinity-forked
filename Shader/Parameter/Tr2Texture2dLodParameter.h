@@ -33,7 +33,7 @@ protected:
 	void OnLodResourceChanged( Tr2LodResource* resource ) override;
 
 	Tr2LodResourcePtr m_lodResource;
-	Tr2LodResourceCache<ITr2TextureProvider> m_lodCache;
+	mutable Tr2LodResourceCache<ITr2TextureProvider> m_lodCache;
 	std::vector<Tr2Material*> m_materials;
 };
 

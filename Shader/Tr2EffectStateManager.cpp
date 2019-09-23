@@ -274,8 +274,10 @@ void Tr2EffectStateManager::CurrentValues::Reset()
 }
 
 Tr2EffectStateManager::Tr2EffectStateManager( Tr2RenderContext &renderContext )
-	: m_renderContext( renderContext )
-	, m_isManagedRendering( false )
+	: m_renderContext( renderContext ),
+	m_isManagedRendering( false ),
+	m_renderTargetWidth( 0 ),
+	m_renderTargetHeight( 0 )
 {
 	std::fill( std::begin( m_renderStateOverrides ), std::end( m_renderStateOverrides ), nullptr );
 }
@@ -438,6 +440,8 @@ uint32_t Tr2EffectStateManager::RegisterShaderProgramOverride( uint32_t original
 
 void Tr2EffectStateManager::Initialize()
 {
+	m_viewportSizeVar.Register( "ViewportSize", Vector4( 0.0f, 0.0f, 1.0f, 0.0f ) );
+
 	m_currentValues.Reset();
 	m_isManagedRendering = false;
 }
@@ -470,7 +474,7 @@ void Tr2EffectStateManager::BeginManagedRendering()
 
 	m_currentValues.Reset();
 
-	m_renderContext.SetShaderProgram( nullSP );
+	m_renderContext.SetShaderProgram( Tr2ShaderProgramAL() );
 
 	m_isManagedRendering = true;
 
@@ -569,7 +573,7 @@ void Tr2EffectStateManager::ApplyShaderProgram( uint32_t ix )
 	}
 	else
 	{
-		m_renderContext.SetShaderProgram( nullSP );
+		m_renderContext.SetShaderProgram( Tr2ShaderProgramAL() );
 	}
 }
 
@@ -681,7 +685,7 @@ void Tr2EffectStateManager::ApplyVertexDeclaration( uint32_t declaration )
 
 	if( declaration == NULL_DECLARATION )
 	{
-		m_renderContext.SetVertexLayout( nullVL );
+		m_renderContext.SetVertexLayout( Tr2VertexLayoutAL() );
 	}
 	else
 	{
@@ -786,7 +790,204 @@ void Tr2EffectStateManager::ReleaseDeviceResources( TriStorage s )
 
 		for( uint32_t i = 0; i != CBUFFER_COUNT; ++i )
 		{
-			m_perObjectConstantBuffers[i].Destroy();
+			m_perObjectConstantBuffers[i] = Tr2ConstantBufferAL();
 		}
 	}
+}
+
+
+bool Tr2EffectStateManager::PushDepthStencilBuffer()
+{
+	return SUCCEEDED( m_renderContext.PushDepthStencil() );
+}
+
+bool Tr2EffectStateManager::PushDepthStencilBuffer( const Tr2TextureAL& ds )
+{
+	m_renderContext.PushDepthStencil();
+
+	return SetDepthStencilBuffer( ds );
+}
+
+void Tr2EffectStateManager::PopDepthStencilBuffer()
+{
+	m_renderContext.PopDepthStencil();
+}
+
+void Tr2EffectStateManager::PushRenderTarget( unsigned slot )
+{
+	m_renderContext.PushRenderTarget( slot );
+}
+
+void Tr2EffectStateManager::PushRenderTarget( const Tr2TextureAL& rt, unsigned slot )
+{
+	m_renderContext.PushRenderTarget( slot );
+	SetRenderTarget( slot, rt );
+}
+
+void Tr2EffectStateManager::PopRenderTarget( unsigned slot )
+{
+	m_renderContext.PopRenderTarget( slot );
+
+	unsigned width, height;
+	if( slot == 0 && SUCCEEDED( m_renderContext.GetRenderTargetSize( width, height ) ) )
+	{
+		UpdateRenderTargetViewport( width, height );
+	}
+}
+
+void Tr2EffectStateManager::PushViewport()
+{
+	m_viewportStack.push_front( m_viewport );
+}
+
+void Tr2EffectStateManager::PopViewport()
+{
+	CCP_ASSERT( !m_viewportStack.empty() );
+
+	auto item = m_viewportStack.front();
+	m_viewportStack.pop_front();
+
+	SetViewport( item );
+}
+
+
+unsigned int Tr2EffectStateManager::GetRenderTargetWidth()
+{
+	return m_renderTargetWidth;
+}
+
+unsigned int Tr2EffectStateManager::GetRenderTargetHeight()
+{
+	return m_renderTargetHeight;
+}
+
+void Tr2EffectStateManager::SetFullScreenViewport()
+{
+	m_viewport.width = m_renderTargetWidth;
+	m_viewport.height = m_renderTargetHeight;
+	m_viewport.x = 0;
+	m_viewport.y = 0;
+	m_viewport.minZ = 0.0f;
+	m_viewport.maxZ = 1.0f;
+
+	SetupViewport();
+}
+
+void Tr2EffectStateManager::SetViewport( const TriViewport& vp )
+{
+	// As s_viewport is a CTriViewport we do a "member copy" on the original
+	// viewport we got passed in
+	SetViewport( vp.width, vp.height, vp.x, vp.y, vp.minZ, vp.maxZ );
+}
+
+void Tr2EffectStateManager::SetViewport( int width, int height, int x, int y, float minZ, float maxZ )
+{
+	// As s_viewport is a CTriViewport we fill this struct
+	m_viewport.width = width;
+	m_viewport.height = height;
+	m_viewport.x = x;
+	m_viewport.y = y;
+	m_viewport.minZ = minZ;
+	m_viewport.maxZ = maxZ;
+
+	SetupViewport();
+}
+
+const TriViewport& Tr2EffectStateManager::GetViewport()
+{
+	return m_viewport;
+}
+
+const Tr2Viewport& Tr2EffectStateManager::GetDeviceViewport()
+{
+	return m_viewportOnDevice;
+}
+
+bool Tr2EffectStateManager::SetRenderTarget( unsigned int index, const Tr2TextureAL& rt, bool updateViewport )
+{
+	if( FAILED( m_renderContext.SetRenderTarget( rt, index ) ) )
+	{
+		CCP_LOGERR( "Failed to set renderTarget to slot %d", index );
+		return false;
+	}
+
+	if( !index && updateViewport )
+	{
+		unsigned width, height;
+		if( SUCCEEDED( m_renderContext.GetRenderTargetSize( width, height ) ) )
+		{
+			// don't use rt.GetWidth/Height, rt may be nullRT
+			UpdateRenderTargetViewport( width, height );
+		}
+		else {
+			CCP_LOGERR( "Could not update viewport for render target index 0, GetRenderTargetSize failed" );
+		}
+	}
+
+	return true;
+}
+
+bool Tr2EffectStateManager::SetDepthStencilBuffer( const Tr2TextureAL& ds )
+{
+	if( !SUCCEEDED( m_renderContext.SetDepthStencil( ds ) ) )
+	{
+		CCP_LOGERR( "Failed to set depth/stencil buffer" );
+		return false;
+	}
+
+	return true;
+}
+
+void Tr2EffectStateManager::UpdateRenderTargetViewport( unsigned width, unsigned height )
+{
+	CCP_ASSERT( width > 0 );
+	CCP_ASSERT( height > 0 );
+
+	// Keep record of the render target's width and height. This is used when
+	// checking whether the viewport extends beyond the render target or not.
+	m_renderTargetWidth = width;
+	m_renderTargetHeight = height;
+
+	// Reset the viewport
+	m_viewportOnDevice.m_x = 0;
+	m_viewportOnDevice.m_y = 0;
+	m_viewportOnDevice.m_height = (float)height;
+	m_viewportOnDevice.m_width = (float)width;
+	m_viewport.height = height;
+	m_viewport.width = width;
+	m_viewport.x = 0;
+	m_viewport.y = 0;
+	m_viewport.minZ = m_viewportOnDevice.m_minZ = 0.0f;
+	m_viewport.maxZ = m_viewportOnDevice.m_maxZ = 1.0f;
+
+	m_viewportSizeVar = Vector4( m_viewportOnDevice.m_width, m_viewportOnDevice.m_height, (float)m_renderTargetWidth, (float)m_renderTargetHeight );
+
+	// Reset the projection adjustment
+	//m_viewport2projectionAdjustment = IdentityMatrix();
+}
+
+void Tr2EffectStateManager::SetupViewport()
+{
+	// See whether this viewport extends beyond the render target. If so,
+	// we need to clip it.
+
+	int x0 = m_viewport.x;
+	int y0 = m_viewport.y;
+	int x1 = m_viewport.x + m_viewport.width;
+	int y1 = m_viewport.y + m_viewport.height;
+
+	m_viewportOnDevice.m_x = std::max( (float)x0, 0.0f );
+	m_viewportOnDevice.m_y = std::max( (float)y0, 0.0f );
+
+	// Viewport width and height must be greater than zero. Using zero edge 
+	// length causes dx error.
+	m_viewportOnDevice.m_width = (float)std::max( std::min( x1, m_renderTargetWidth ) - int( m_viewportOnDevice.m_x ), 1 );
+	m_viewportOnDevice.m_height = (float)std::max( std::min( y1, m_renderTargetHeight ) - int( m_viewportOnDevice.m_y ), 1 );
+
+	m_viewportOnDevice.m_minZ = m_viewport.minZ;
+	m_viewportOnDevice.m_maxZ = m_viewport.maxZ;
+
+	m_viewportSizeVar = Vector4( (float)m_viewport.width, (float)m_viewport.height, (float)m_renderTargetWidth, (float)m_renderTargetHeight );
+
+	m_renderContext.SetViewport( m_viewportOnDevice );
 }

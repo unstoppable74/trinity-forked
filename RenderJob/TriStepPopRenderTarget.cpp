@@ -13,6 +13,6 @@ TriStepPopRenderTarget::~TriStepPopRenderTarget(void)
 
 TriStepResult TriStepPopRenderTarget::Execute( Be::Time realTime, Be::Time simTime, Tr2RenderContext& renderContext )
 {
-	Tr2Renderer::PopRenderTarget( renderContext );
+	renderContext.m_esm.PopRenderTarget();
 	return RS_OK;
 }

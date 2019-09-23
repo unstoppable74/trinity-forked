@@ -243,15 +243,18 @@ void EveStretch2::UpdateInactive( EveUpdateContext& updateContext )
 		m_effectData[0].z = float( m_end->GetScaledTime() );
 	}
 
-	Matrix src, dest;
-	GetEndPointTransforms( src, dest );
-	if( m_sourceObserver )
+	if( m_sourceObserver || m_destinationObserver )
 	{
-		m_sourceObserver->Update( src );
-	}
-	if( m_destinationObserver )
-	{
-		m_destinationObserver->Update( dest );
+		Matrix src, dest;
+		GetEndPointTransforms( src, dest );
+		if( m_sourceObserver )
+		{
+			m_sourceObserver->Update( src );
+		}
+		if( m_destinationObserver )
+		{
+			m_destinationObserver->Update( dest );
+		}
 	}
 }
 

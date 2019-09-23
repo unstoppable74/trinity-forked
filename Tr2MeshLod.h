@@ -25,6 +25,11 @@ public:
 
 	virtual bool IsLoading() const { return false; }
 
+	void GetBatches( ITriRenderBatchAccumulator* batches,
+		const Tr2MeshAreaVector* areas,
+		const Tr2PerObjectData* data,
+		ITr2MeshBatchCallback* callback = nullptr ) const override;
+
 	// Selects the given level of detail for the mesh
 	void SelectLod( Tr2Lod lod );
 	Tr2Lod GetSelectedLod() const { return m_selectedLod; }
@@ -48,7 +53,7 @@ public:
 
 protected:
 	Tr2LodResourcePtr m_geometryRes;
-	Tr2LodResourceCache<TriGeometryRes> m_geometryCache;
+	mutable Tr2LodResourceCache<TriGeometryRes> m_geometryCache;
 
 	PTr2LodResourceVector m_associatedResources;
 	Tr2Lod m_selectedLod;

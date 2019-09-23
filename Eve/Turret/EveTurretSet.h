@@ -305,8 +305,8 @@ private:
 		// positions
 		Vector4					localPosition;
 		Quaternion				localQuaternion;
+		Matrix					localMatrix;
 		Matrix					worldMatrix;
-		Matrix					invWorldMatrix;
 
 		// animation
 		granny_skeleton*		grnSkeleton;

@@ -35,6 +35,9 @@ const Be::ClassInfo* Tr2TextureAtlas::ExposeToBlue()
 			"Height of the texture used for the atlas",
 			Be::READ
 		)
+		MAP_ATTRIBUTE( "mipCount", m_mipLevels, "", Be::READ );
+		MAP_PROPERTY_READONLY( "multiSampleType", GetMsaaSamples, "" );
+		MAP_PROPERTY_READONLY( "multiSampleQuality", GetMsaaQuality, "" );
 
 		MAP_ATTRIBUTE
 		(

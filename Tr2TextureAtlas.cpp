@@ -1543,3 +1543,13 @@ bool Tr2TextureAtlas::HasALObject( int type, size_t object )
 	}
 	return false;
 }
+
+uint32_t Tr2TextureAtlas::GetMsaaSamples() const 
+{ 
+	return 1; 
+}
+
+uint32_t Tr2TextureAtlas::GetMsaaQuality() const 
+{ 
+	return 0; 
+}

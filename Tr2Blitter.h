@@ -26,21 +26,18 @@ public:
 	};
 
 	// 2d blits unfiltered (point sampling)
-	bool DrawInCameraSpace( Tr2Shader* shader, Tr2Material* material );
+	bool DrawInCameraSpace( Tr2RenderContext& renderContext, Tr2Shader* shader, Tr2Material* material );
 
-	bool Draw( Tr2TextureAL& texture, const Vector2& tlTexCoord = Vector2( 0.0f, 0.0f ), const Vector2& brTexCoord = Vector2( 1.0f, 1.0f ), Filtering filter = FILTER_POINT );
-    bool Draw( Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord, const Vector2& tlVertexCoord, const Vector2& brVertexCoord );
+	bool Draw( Tr2RenderContext& renderContext, Tr2TextureAL& texture, const Vector2& tlTexCoord = Vector2( 0.0f, 0.0f ), const Vector2& brTexCoord = Vector2( 1.0f, 1.0f ), Filtering filter = FILTER_POINT );
+    bool Draw( Tr2RenderContext& renderContext, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord, const Vector2& tlVertexCoord, const Vector2& brVertexCoord );
 		
-	bool Draw( Tr2Material* effect, Tr2TextureAL& texture );
-	bool Draw( Tr2Material* effect, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord );
-    bool Draw( Tr2Material* effect, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord, const Vector2& tlVertexCoord, const Vector2& brVertexCoord );
+	bool Draw( Tr2RenderContext& renderContext, Tr2Material* effect, Tr2TextureAL& texture );
+	bool Draw( Tr2RenderContext& renderContext, Tr2Material* effect, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord );
+    bool Draw( Tr2RenderContext& renderContext, Tr2Material* effect, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord, const Vector2& tlVertexCoord, const Vector2& brVertexCoord );
 	
-	bool Draw( Tr2Material* effect );
-	bool Draw( Tr2Material* effect, const Vector2& tlTexCoord, const Vector2& brTexCoord );
-	bool Draw( Tr2Material* effect, const Vector2& tlTexCoord, const Vector2& brTexCoord, const Vector2& tlVertexCoord, const Vector2& brVertexCoord );
-
-	// cube blits
-	bool DrawCube( Tr2TextureAL& texture, Tr2RenderContextEnum::CubemapFace face, int mipLevel = 0 );
+	bool Draw( Tr2RenderContext& renderContext, Tr2Material* effect );
+	bool Draw( Tr2RenderContext& renderContext, Tr2Material* effect, const Vector2& tlTexCoord, const Vector2& brTexCoord );
+	bool Draw( Tr2RenderContext& renderContext, Tr2Material* effect, const Vector2& tlTexCoord, const Vector2& brTexCoord, const Vector2& tlVertexCoord, const Vector2& brVertexCoord );
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// ITriDeviceResource
@@ -49,8 +46,10 @@ private:
 	bool OnPrepareResources();
 	
 private:
-	bool DrawHelper( Tr2Shader* shader, Tr2Material* material,
-		//TID3DTextureResource* rawTexture,
+	bool DrawHelper( 
+		Tr2RenderContext& renderContext,
+		Tr2Shader* shader, 
+		Tr2Material* material,
 		Tr2TextureAL* halTexture,
 		bool isCameraSpace,
 		const Vector2& tlTexCoord = Vector2( 0.0f, 0.0f ), 
@@ -64,11 +63,9 @@ private:
 	// blit effects
 	Tr2EffectPtr m_blitEffect;
 	Tr2EffectPtr m_blitFilteredEffect;
-	Tr2EffectPtr m_blitCubeEffect;
 
 	// params for blitting
 	Tr2Variable m_blitSourceVar;
-	Tr2Variable m_cubeFaceVar;
 	Tr2Variable m_mipLevelVar;
 };
 

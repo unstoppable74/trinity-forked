@@ -4,41 +4,6 @@
 
 BLUE_DEFINE_ABSTRACT( Tr2SkinnedObject );
 
-#if BLUE_WITH_PYTHON
-static PyObject* PyGetClippedWorldBoundingObb( PyObject* self, PyObject* args )
-{
-	Tr2SkinnedObject* pThis = BluePythonCast<Tr2SkinnedObject*>( self );
-	Matrix m;
-
-	PyObject* arg0 = NULL;
-	
-	if( !PyArg_ParseTuple( args, "O", &arg0 ) )
-	{
-		PyErr_SetString(PyExc_RuntimeError, "Function expects one argument, a local to world transform.");
-		return NULL;
-	}
-
-	if( !BlueExtractArgument( arg0, m, 0 ) )
-	{
-		PyErr_SetString(PyExc_RuntimeError, "Function expects one argument, a local to world transform.");
-		return NULL;
-	}
-
-	Vector3 x( 0.0f, 0.0f, 0.0f );
-	Vector3 y = x, z = x, center = x, sizes = x;
-
-	pThis->GetClippedWorldBoundingObb( m, x, y, z, center, sizes );
-
-	PyObject* ret = Py_BuildValue( "(fff)(fff)(fff)(fff)(fff)", 
-		x.x, x.y, x.z,
-		y.x, y.y, y.z,
-		z.x, z.y, z.z,
-		center.x, center.y, center.z,
-		sizes.x, sizes.y, sizes.z );
-
-	return ret;
-}
-#endif
 
 const Be::ClassInfo* Tr2SkinnedObject::ExposeToBlue()
 {
@@ -127,23 +92,6 @@ const Be::ClassInfo* Tr2SkinnedObject::ExposeToBlue()
 		MAP_METHOD_AND_WRAP( "GetBoundingBoxInLocalSpace",
 					GetBoundingBoxInLocalSpace, 
 					"Gets the bounding box in local space" )
-
-		MAP_METHOD( "GetClippedWorldBoundingObb",
-					PyGetClippedWorldBoundingObb,
-					"Computes an Oriented Bounding Box in world space, which has been shrunk\n"
-					"to fit the current viewing frustum as tightly as possible with visibly clipping\n"
-					"The frustum is derived from Tr2Renderer GetViewTransform and so on.\n"
-					"The function supports explicitMaxBounds\n"
-					":param localToWorld: geo2.Matrix transform that takes this skinned object from local to world coordinates\n"
-					":type localToWorld: tuple[tuple[float]]\n"
-					":returns:\n"
-					"   x, y, z      - normalized vectors defining the OBB's orientation\n"
-					"   center       - the center, in world coordinates, of the OBB\n"
-					"   sizes        - half the size of the OBB along every axis x, y or z.\n"
-					"                  Ie you get to a corner point with center + sizes[0] * x.\n"
-					"                  Full width/height/depth is sizes*2."
-					":rtype: tuple[tuple[float]]"
-					)
 
 		MAP_METHOD_AND_WRAP( "ResetAnimationBindings",           
 					ResetAnimationBindings,          

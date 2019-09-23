@@ -42,7 +42,7 @@ bool TriVariable::CopyToResourceSet(
 		}
 		else
 		{
-			return resourceDesc.SetSrv( stage, registerIndex, nullTX, colorSpace );
+			return resourceDesc.SetSrv( stage, registerIndex, Tr2TextureAL(), colorSpace );
 		}
 	}
 	case TRIVARIABLE_GPUBUFFER:

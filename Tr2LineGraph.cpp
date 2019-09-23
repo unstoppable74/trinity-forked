@@ -169,10 +169,8 @@ void Tr2LineGraph::AddMarker( const std::string& name )
 	m_markers.push_back( m );
 }
 
-void Tr2LineGraph::Render( float scale )
+void Tr2LineGraph::Render( float scale, Tr2RenderContext& renderContext )
 {
-	USE_MAIN_THREAD_RENDER_CONTEXT();
-
 	if( m_isPrepared && ( !s_lineGraphEffect || !s_lineGraphEffect->GetShaderStateInterface() ) )
 	{
 		m_isPrepared = false;
@@ -280,7 +278,7 @@ void Tr2LineGraph::Render( float scale )
 			int xi = (int)( (x + 1.0f)*0.5f*(float)viewport.m_width );
 			for( std::list<std::string>::iterator valueIt = it->m_values.begin(); valueIt != it->m_values.end(); ++valueIt )
 			{
-				Tr2Renderer::PrintfImmediate( xi, yi, m_color, TRI_DFS_LEFT, valueIt->c_str() );
+				Tr2Renderer::PrintfImmediate( renderContext, xi, yi, m_color, TRI_DFS_LEFT, valueIt->c_str() );
 				yi += 10;
 
 				if( yi > yiBottom )

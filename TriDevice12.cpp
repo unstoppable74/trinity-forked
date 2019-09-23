@@ -83,7 +83,7 @@ void TriDevice::HandleRenderTick( Be::Time realTime, Be::Time simTime )
 				m_onDeviceRemoved.CallVoid( (uint64_t)(unsigned long)hr, BeGetErrorMessage( ALResult( hr ) ), s_deviceLostCount, marker, resourceDesc );
 			}
 
-			CCP_LOGERR( "DX11 device removed, reason: 0x%x%s", hr, markerMessage.c_str() );
+			CCP_LOGERR( "DX12 device removed, reason: 0x%x%s", hr, markerMessage.c_str() );
 
 			if( BeCrashes )
 			{

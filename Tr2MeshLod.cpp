@@ -85,3 +85,50 @@ bool Tr2MeshLod::GetBoundingSphere( Vector4& sphere )
 	return false;
 }
 
+void Tr2MeshLod::GetBatches( ITriRenderBatchAccumulator* batches,
+	const Tr2MeshAreaVector* areas,
+	const Tr2PerObjectData* data,
+	ITr2MeshBatchCallback* callback ) const
+{
+	if( !GetDisplay() )
+	{
+		return;
+	}
+
+	for( Tr2MeshAreaVector::const_iterator it = areas->begin(); it != areas->end(); ++it )
+	{
+		Tr2MeshArea* area = *it;
+
+		if( !area->GetDisplay() || area->GetMinLod() > m_selectedLod )
+		{
+			continue;
+		}
+
+		auto shadMat = area->GetMaterialInterface();
+
+		if( !shadMat )
+		{
+			continue;
+		}
+
+		TriGeometryBatch* batch = batches->Allocate<TriGeometryBatch>();
+		// Note that this can fail if the accumulator can't add more batches!
+		if( batch )
+		{
+			batch->SetShaderMaterial( shadMat );
+			batch->SetPerObjectData( data );
+			batch->SetGeometryResource( GetGeometryResource() );
+			batch->SetMeshParameters( m_meshIndex, area->GetIndex(), area->GetCount(), area->GetReversed() );
+
+			if( callback )
+			{
+				if( !callback->ProcessBatch( area, batch ) )
+				{
+					continue;
+				}
+			}
+
+			batches->Commit( batch );
+		}
+	}
+}

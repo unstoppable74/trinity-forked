@@ -363,6 +363,12 @@ void EveSOF::SetupMesh( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna, Inherita
 		cntr += FillMeshAreaVector( lodResPerTexture, mesh->GetAreas( TRIBATCHTYPE_TRANSPARENT ), TRIBATCHTYPE_TRANSPARENT, dna, hullIdx, meshIndexOffset, nullptr );
 		cntr += FillMeshAreaVector( lodResPerTexture, mesh->GetAreas( TRIBATCHTYPE_ADDITIVE ), TRIBATCHTYPE_ADDITIVE, dna, hullIdx, meshIndexOffset, nullptr );
 		cntr += FillMeshAreaVector( lodResPerTexture, mesh->GetAreas( TRIBATCHTYPE_DISTORTION ), TRIBATCHTYPE_DISTORTION, dna, hullIdx, meshIndexOffset, nullptr );
+
+		auto distortionAreas = mesh->GetAreas( TRIBATCHTYPE_DISTORTION );
+		for( auto ait = begin( *distortionAreas ); ait != end( *distortionAreas ); ++ait )
+		{
+			( *ait )->SetMinLod( TR2_LOD_HIGH );
+		}
 		meshIndexOffset += cntr;
 	}
 
@@ -1817,6 +1823,49 @@ void EveSOF::SetupLights( EveSpaceObject2Ptr spaceObject, const EveSOFDNAPtr dna
 }
 
 
+Tr2EffectPtr EveSOF::CreateBoosterEffect( const EveSOFDataMgr::RaceBoosterData* rdata, const BlueSharedString& lodOption ) const
+{
+	Tr2EffectPtr effect;
+	effect.CreateInstance();
+	effect->StartUpdate();
+
+	effect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/Booster/BoosterVolumetric.fx" );
+	effect->SetOption( BlueSharedString( "BOOSTER_LOD" ), lodOption );
+	effect->AddParameterFloat( BlueSharedString( "NoiseSpeed0" ), rdata->shape0.noiseSpeed );
+	effect->AddParameterVector4( BlueSharedString( "NoiseAmplitudeStart0" ), &rdata->shape0.noiseAmplitureStart );
+	effect->AddParameterVector4( BlueSharedString( "NoiseAmplitudeEnd0" ), &rdata->shape0.noiseAmplitureEnd );
+	effect->AddParameterVector4( BlueSharedString( "NoiseFrequency0" ), &rdata->shape0.noiseFrequency );
+	effect->AddParameterColor( BlueSharedString( "Color0" ), &rdata->shape0.color );
+	effect->AddParameterFloat( BlueSharedString( "NoiseSpeed1" ), rdata->shape1.noiseSpeed );
+	effect->AddParameterVector4( BlueSharedString( "NoiseAmplitudeStart1" ), &rdata->shape1.noiseAmplitureStart );
+	effect->AddParameterVector4( BlueSharedString( "NoiseAmplitudeEnd1" ), &rdata->shape1.noiseAmplitureEnd );
+	effect->AddParameterColor( BlueSharedString( "Color1" ), &rdata->shape1.color );
+
+	effect->AddParameterFloat( BlueSharedString( "WarpNoiseSpeed0" ), rdata->warpShape0.noiseSpeed );
+	effect->AddParameterVector4( BlueSharedString( "WarpNoiseAmplitudeStart0" ), &rdata->warpShape0.noiseAmplitureStart );
+	effect->AddParameterVector4( BlueSharedString( "WarpNoiseAmplitudeEnd0" ), &rdata->warpShape0.noiseAmplitureEnd );
+	effect->AddParameterVector4( BlueSharedString( "WarpNoiseFrequency0" ), &rdata->warpShape0.noiseFrequency );
+	effect->AddParameterColor( BlueSharedString( "WarpColor0" ), &rdata->warpShape0.color );
+	effect->AddParameterFloat( BlueSharedString( "WarpNoiseSpeed1" ), rdata->warpShape1.noiseSpeed );
+	effect->AddParameterVector4( BlueSharedString( "WarpNoiseAmplitudeStart1" ), &rdata->warpShape1.noiseAmplitureStart );
+	effect->AddParameterVector4( BlueSharedString( "WarpNoiseAmplitudeEnd1" ), &rdata->warpShape1.noiseAmplitureEnd );
+	effect->AddParameterColor( BlueSharedString( "WarpColor1" ), &rdata->warpShape1.color );
+
+	Vector4 shapeAtlasSize( float( rdata->shapeAtlasHeight ), float( rdata->shapeAtlasCount ), 0, 0 );
+	effect->AddParameterVector4( BlueSharedString( "ShapeAtlasSize" ), &shapeAtlasSize );
+	effect->AddParameterVector4( BlueSharedString( "BoosterScale" ), &rdata->scale );
+
+	effect->AddResourceTexture2D( BlueSharedString( "ShapeMap" ), rdata->shapeAtlasResPath.c_str() );
+	effect->AddResourceTexture2D( BlueSharedString( "GradientMap0" ), rdata->gradient0ResPath.c_str() );
+	effect->AddResourceTexture2D( BlueSharedString( "GradientMap1" ), rdata->gradient1ResPath.c_str() );
+	effect->AddResourceTexture2D( BlueSharedString( "NoiseMap" ), "res:/Texture/Global/noise32cube_volume.dds" );
+
+	// finish effect and set it
+	effect->EndUpdate();
+	return effect;
+}
+
+
 // --------------------------------------------------------------------------------
 // Description:
 //   add the booster to the new ship
@@ -1859,44 +1908,10 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 			hdata->alwaysOn );
 		set->SetLightData( rdata->lightOffset, rdata->lightFlickerAmplitude, rdata->lightFlickerFrequency, rdata->lightRadius, rdata->lightColor, rdata->lightWarpRadius, rdata->lightWarpColor );
 
-		// create and setup booster effect
-		Tr2EffectPtr effect;
-		effect.CreateInstance();
-		effect->StartUpdate();
+		Tr2EffectPtr effect = CreateBoosterEffect( rdata, BlueSharedString( "BOOSTER_LOD_HIGH" ) );
+		Tr2EffectPtr effectFar = CreateBoosterEffect( rdata, BlueSharedString( "BOOSTER_LOD_LOW" ) );
 
-		effect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/Booster/BoosterVolumetric.fx" );
-		effect->AddParameterFloat( BlueSharedString( "NoiseSpeed0" ), rdata->shape0.noiseSpeed );
-		effect->AddParameterVector4( BlueSharedString( "NoiseAmplitudeStart0" ), &rdata->shape0.noiseAmplitureStart );
-		effect->AddParameterVector4( BlueSharedString( "NoiseAmplitudeEnd0" ), &rdata->shape0.noiseAmplitureEnd );
-		effect->AddParameterVector4( BlueSharedString( "NoiseFrequency0" ), &rdata->shape0.noiseFrequency );
-		effect->AddParameterColor( BlueSharedString( "Color0" ), &rdata->shape0.color );
-		effect->AddParameterFloat( BlueSharedString( "NoiseSpeed1" ), rdata->shape1.noiseSpeed );
-		effect->AddParameterVector4( BlueSharedString( "NoiseAmplitudeStart1" ), &rdata->shape1.noiseAmplitureStart );
-		effect->AddParameterVector4( BlueSharedString( "NoiseAmplitudeEnd1" ), &rdata->shape1.noiseAmplitureEnd );
-		effect->AddParameterColor( BlueSharedString( "Color1" ), &rdata->shape1.color );
-
-		effect->AddParameterFloat( BlueSharedString( "WarpNoiseSpeed0" ), rdata->warpShape0.noiseSpeed );
-		effect->AddParameterVector4( BlueSharedString( "WarpNoiseAmplitudeStart0" ), &rdata->warpShape0.noiseAmplitureStart );
-		effect->AddParameterVector4( BlueSharedString( "WarpNoiseAmplitudeEnd0" ), &rdata->warpShape0.noiseAmplitureEnd );
-		effect->AddParameterVector4( BlueSharedString( "WarpNoiseFrequency0" ), &rdata->warpShape0.noiseFrequency );
-		effect->AddParameterColor( BlueSharedString( "WarpColor0" ), &rdata->warpShape0.color );
-		effect->AddParameterFloat( BlueSharedString( "WarpNoiseSpeed1" ), rdata->warpShape1.noiseSpeed );
-		effect->AddParameterVector4( BlueSharedString( "WarpNoiseAmplitudeStart1" ), &rdata->warpShape1.noiseAmplitureStart );
-		effect->AddParameterVector4( BlueSharedString( "WarpNoiseAmplitudeEnd1" ), &rdata->warpShape1.noiseAmplitureEnd );
-		effect->AddParameterColor( BlueSharedString( "WarpColor1" ), &rdata->warpShape1.color );
-
-		Vector4 shapeAtlasSize( float( rdata->shapeAtlasHeight ), float( rdata->shapeAtlasCount ), 0, 0 );
-		effect->AddParameterVector4( BlueSharedString( "ShapeAtlasSize" ), &shapeAtlasSize );
-		effect->AddParameterVector4( BlueSharedString( "BoosterScale" ), &rdata->scale );
-
-		effect->AddResourceTexture2D( BlueSharedString( "ShapeMap" ), rdata->shapeAtlasResPath.c_str() );
-		effect->AddResourceTexture2D( BlueSharedString( "GradientMap0" ), rdata->gradient0ResPath.c_str() );
-		effect->AddResourceTexture2D( BlueSharedString( "GradientMap1" ), rdata->gradient1ResPath.c_str() );
-		effect->AddResourceTexture2D( BlueSharedString( "NoiseMap" ), "res:/Texture/Global/noise32cube_volume.dds" );
-
-		// finish effect and set it
-		effect->EndUpdate();
-		set->SetEffect( effect );
+		set->SetEffect( effect, effectFar );
 
 		// create and setup glows
 		EveSpriteSetPtr glow;

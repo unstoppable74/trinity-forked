@@ -106,7 +106,7 @@ TriStepResult TriStepRenderLineGraph::Execute( Be::Time realTime, Be::Time simTi
 	for( Tr2LineGraphVector::iterator it = m_lineGraphs.begin(); it != m_lineGraphs.end(); ++it )
 	{
 		Tr2LineGraph* lg = *it;
-		lg->Render( m_scale );
+		lg->Render( m_scale, renderContext );
 
 		y += 10;
 	}
@@ -118,7 +118,7 @@ TriStepResult TriStepRenderLineGraph::Execute( Be::Time realTime, Be::Time simTi
 		for( Tr2LineGraphVector::iterator it = m_lineGraphs.begin(); it != m_lineGraphs.end(); ++it )
 		{
 			Tr2LineGraph* lg = *it;
-			Tr2Renderer::PrintfImmediate( x, y, lg->GetColor() | 0xff000000, TRI_DFS_LEFT, lg->GetName().c_str() );
+			Tr2Renderer::PrintfImmediate( renderContext, x, y, lg->GetColor() | 0xff000000, TRI_DFS_LEFT, lg->GetName().c_str() );
 
 			y += 10;
 		}
@@ -136,7 +136,7 @@ TriStepResult TriStepRenderLineGraph::Execute( Be::Time realTime, Be::Time simTi
 		{
 			float labelValue = label / m_scale * m_legendScale + 0.5f;
 			int intLabelValue = (int)labelValue;
-			Tr2Renderer::PrintfImmediate( x, y, 0xffffffff, TRI_DFS_RIGHT, "%d", intLabelValue );
+			Tr2Renderer::PrintfImmediate( renderContext, x, y, 0xffffffff, TRI_DFS_RIGHT, "%d", intLabelValue );
 			label += labelStep;
 			y -= step;
 		}	

@@ -46,15 +46,17 @@ void Tr2EffectPassParameters::AllocateConstantMirror( Tr2RenderContextEnum::Shad
 		}
 
 		USE_MAIN_THREAD_RENDER_CONTEXT();
-		if( !m_stageInput[type].m_constantBuffer )
-		{
-			m_stageInput[type].m_constantBuffer.reset( CCP_NEW( "Tr2EffectPassParameters::m_stageInput::m_constantBuffer" ) Tr2ConstantBufferAL );
-		}
-		m_stageInput[type].m_constantBuffer->Create(
+		m_stageInput[type].m_constantBuffer.Create(
 			size,
-			Tr2RenderContextEnum::USAGE_CPU_WRITE | Tr2RenderContextEnum::USAGE_LOCK_FREQUENTLY,
+			Tr2ConstantUsageAL::ONE_SHOT,
 			nullptr,
 			renderContext );
+		m_stageInput[type].m_constantMirror.resize( "StageInput::m_constantMirror", size );
+		m_stageInput[type].m_constantBufferDirty = true;
+	}
+	else
+	{
+		m_stageInput[type].m_constantBufferDirty = false;
 	}
 }
 
@@ -108,24 +110,32 @@ bool Tr2Material::ApplyShaderInputs( uint32_t techniqueIndex, unsigned int passI
 	auto& pp = *m_parametersForPasses[techniqueIndex][passIndex];
 	auto& input = pp.m_stageInput[shaderType];
 
-	auto cb = input.m_constantBuffer.get();
-	if( cb && cb->GetSize() )
+	auto& cb = input.m_constantBuffer;
+	if( cb.GetSize() )
 	{
-		CCP_STATS_INC( effectCBLocks );
-		uint8_t* const mirror = reinterpret_cast<uint8_t*>( cb->GetBufferMirror( renderContext ) );
-		if( cb->IsValid() && mirror )
+		if( input.m_constantBufferDirty || !pp.m_reroutedParameters.empty() || !input.m_shaderParameters.empty() )
 		{
-			const auto endVS = input.m_shaderParameters.cend();
-			for( auto it = input.m_shaderParameters.cbegin(); it != endVS; ++it )
+			uint8_t* const mirror = reinterpret_cast<uint8_t*>( input.m_constantMirror.get() );
+			if( mirror )
 			{
-				size_t size = it->m_registerCount;
-				uint8_t* const dst = mirror + it->m_registerIndex;
-				it->m_sourceValue->CopyValueToEffect( shaderType, dst, size, renderContext );
-			}
-			cb->UpdateFromMirror( renderContext );
+				const auto endVS = input.m_shaderParameters.cend();
+				for( auto it = input.m_shaderParameters.cbegin(); it != endVS; ++it )
+				{
+					size_t size = it->m_registerCount;
+					uint8_t* const dst = mirror + it->m_registerIndex;
+					it->m_sourceValue->CopyValueToEffect( shaderType, dst, size, renderContext );
+				}
 
-			renderContext.SetConstants( *cb, shaderType, Tr2RenderContextEnum::CONSTANT_BUFFER_FOR_EFFECT_PARAMETERS );
+				void* cbData = nullptr;
+				if( SUCCEEDED( cb.Lock( &cbData, renderContext ) ) && cbData )
+				{
+					memcpy( cbData, mirror, cb.GetSize() );
+					cb.Unlock( renderContext );
+				}
+			}
+			input.m_constantBufferDirty = false;
 		}
+		renderContext.SetConstants( cb, shaderType, Tr2RenderContextEnum::CONSTANT_BUFFER_FOR_EFFECT_PARAMETERS );
 	}
 
 

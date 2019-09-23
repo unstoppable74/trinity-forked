@@ -33,7 +33,7 @@ public:
 
 	float GetMaxValue() const;
 
-	void Render( float scale );
+	void Render( float scale, Tr2RenderContext& renderContext );
 
 	//////////////////////////////////////////////////////////////////////////
 	// ICcpStatisticsAccumulator

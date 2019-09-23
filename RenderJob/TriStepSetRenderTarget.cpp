@@ -24,7 +24,7 @@ TriStepResult TriStepSetRenderTarget::Execute( Be::Time realTime, Be::Time simTi
 {
 	if( m_renderTarget )
 	{
-		Tr2Renderer::SetRenderTarget( 0, *m_renderTarget, renderContext );
+		renderContext.m_esm.SetRenderTarget( 0, *m_renderTarget );
 	}
 	return RS_OK;
 }

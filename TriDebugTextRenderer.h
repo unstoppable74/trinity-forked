@@ -29,11 +29,11 @@ public:
     ~TriDebugTextRenderer();
 
     void Printf( TriDebugFont font, const Rect& rect, uint32_t format, const Vector4& color, const char* msg, ... );
-	void PrintfImmediate( TriDebugFont font, const Rect& rect, uint32_t format, const Vector4& color, const char* msg, ... );
+	void PrintfImmediate( Tr2RenderContext& renderContext, TriDebugFont font, const Rect& rect, uint32_t format, const Vector4& color, const char* msg, ... );
 	void Vprintf( TriDebugFont font, const Rect& rect, uint32_t format, const Vector4& color, const char* msg, va_list args );
-	void VprintfImmediate( TriDebugFont font, const Rect& rect, uint32_t format, const Vector4& color, const char* msg, va_list args );
+	void VprintfImmediate( Tr2RenderContext& renderContext, TriDebugFont font, const Rect& rect, uint32_t format, const Vector4& color, const char* msg, va_list args );
 
-    void Render();
+    void Render( Tr2RenderContext& renderContext );
     void Clear();
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -50,8 +50,7 @@ public:
 #endif
 
 private:
-	void VprintfImpl( bool immediate, TriDebugFont font, const Rect& rect, uint32_t format, const Vector4& color, const char* msg, va_list args );
-    void DrawText( TriDebugFont font, const char* string, const Rect& rect, uint32_t format, const Vector4& color );
+    void DrawText( Tr2RenderContext& renderContext, TriDebugFont font, const char* string, const Rect& rect, uint32_t format, const Vector4& color );
 
 private:
     struct TextEntry

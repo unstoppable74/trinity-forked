@@ -742,7 +742,7 @@ void Tr2DebugRenderer::DrawText( TriDebugFont font, const Vector3& pos, const Co
 		rect.bottom = rect.top + 512;
 		rect.right = rect.left + 1024;
 
-		GetDebugTextRenderer().VprintfImmediate( font, rect, TRI_DFS_LEFT, Vector4( color.r, color.g, color.b, color.a ), msg, args );
+		GetDebugTextRenderer().Vprintf( font, rect, TRI_DFS_LEFT, Vector4( color.r, color.g, color.b, color.a ), msg, args );
 	}
 	va_end( args );
 }
@@ -851,6 +851,9 @@ void Tr2DebugRenderer::BeginRender()
 
 void Tr2DebugRenderer::EndRender( Tr2RenderContext& renderContext )
 {
+	GetDebugTextRenderer().Render( renderContext );
+	GetDebugTextRenderer().Clear();
+
 	auto shader = m_effect->GetShaderStateInterface();
 	if( !shader )
 	{

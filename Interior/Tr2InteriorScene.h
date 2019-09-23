@@ -4,7 +4,6 @@
 
 
 #include "ITr2PickableScene.h"
-#include "ITr2VisibilityQueryable.h"
 #include "Tr2PickBuffer.h"
 #include "Tr2InteriorVisualization.h"
 #include "Tr2Variable.h"
@@ -49,7 +48,6 @@ class Tr2InteriorScene:
 	public ITr2Scene,
 	public ITr2MultiPassScene,
 	public ITr2PickableScene,
-	public ITr2VisibilityQueryable,
 	public Tr2DeviceResource,
 	public ITr2VisualizationModeRenderer,
 	public ITr2DebugRenderable
@@ -82,10 +80,7 @@ public:
 	// ITr2MultiPassScene
 	virtual RenderPassResult RenderPass( PassType pass, Tr2RenderContext& renderContext );
 
-	//////////////////////////////////////////////////////////////////////////
-	// ITr2VisibilityQueryable
-	virtual void VisibilityQuery( Tr2VisibilityResults* visibilityResults );
-	virtual void SetVisibilityResults( Tr2VisibilityResults* visibilityResults );
+	void VisibilityQuery( Tr2VisibilityResults* visibilityResults, Tr2RenderContext& renderContext );
 
 	//////////////////////////////////////////////////////////////////////////
 	// ITriDeviceResource
@@ -227,7 +222,7 @@ private:
 	const std::vector<ITr2Renderable*>& GetPickingObjectsToRender( const Vector3& dirWorld );
 	const std::vector<ITr2Renderable*>& GetPickingObjectsToRender( const Vector3& dirWorld, float fov, float aspect );
 
-	virtual void SetPerFrameDataForPicking( void );
+	virtual void SetPerFrameDataForPicking( Tr2RenderContext& renderContext );
 
 	virtual ITriRenderBatchAccumulator* GetOpaquePickingBatchAccumulator();
 	virtual ITriRenderBatchAccumulator* GetPickingBatchAccumulator();
@@ -241,7 +236,7 @@ private:
     int64_t ConstructKey( unsigned int objectGroup, Tr2InteriorBatchGroup batchGroup );
 
 	// These should be moved over to a smaller per-frame data at some point without the cruft
-	void PopulatePerFramePSData( Tr2PerFramePSData &data );
+	void PopulatePerFramePSData( Tr2PerFramePSData &data, Tr2RenderContext& renderContext );
 	void PopulatePerFrameVSData( Tr2PerFrameVSData &data );
 
 	// This is a python only wrapper function for just picking an object

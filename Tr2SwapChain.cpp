@@ -16,7 +16,7 @@ bool Tr2SwapChain::CreateForWindow( size_t windowHandle )
 
 void Tr2SwapChain::ReleaseResources( TriStorage s )
 {
-	m_swapChain.Destroy();
+	m_swapChain = Tr2SwapChainAL();
 }
 
 bool Tr2SwapChain::OnPrepareResources()
@@ -33,8 +33,8 @@ bool Tr2SwapChain::OnPrepareResources()
 		{
 			m_backBuffer.CreateInstance();
 			m_backBuffer->m_name = "swapchain backbuffer";
-			m_backBuffer->Attach( &m_swapChain.m_backBuffer, this );
 		}
+		m_backBuffer->Attach( m_swapChain.GetBackBuffer(), this );
 		return true;
 	}
 	return false;

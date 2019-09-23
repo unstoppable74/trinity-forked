@@ -62,7 +62,7 @@ bool Tr2RuntimeTextureParameter::ApplyUav(
 	}
 	else
 	{
-		return resourceDesc.SetUav( stage, registerIndex, nullTX );
+		return resourceDesc.SetUav( stage, registerIndex, Tr2TextureAL() );
 	}
 }
 

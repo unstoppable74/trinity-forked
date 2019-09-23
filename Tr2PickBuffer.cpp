@@ -35,13 +35,12 @@ void Tr2PickBuffer::ReleaseResources( TriStorage s )
 // ------------------------------------------------------------------------------------------------------
 bool Tr2PickBuffer::OnPrepareResources()
 {
-    int const bufferWidth( ( m_size > 0 )? m_size : Tr2Renderer::GetRenderTargetWidth() );
-    int const bufferHeight( ( m_size > 0 )? m_size : Tr2Renderer::GetRenderTargetHeight() );
+    int const size( std::max( m_size, 1 ) );
 
 	// create the pixel buffer as a rendertarget
 	USE_MAIN_THREAD_RENDER_CONTEXT();
-	CR( m_pickTarget.Create( Tr2BitmapDimensions( bufferWidth, bufferHeight, 1, m_format ), Tr2GpuUsage::RENDER_TARGET, Tr2CpuUsage::READ_OFTEN, renderContext ) );
-	CR( m_depthBuffer.Create( Tr2BitmapDimensions( bufferWidth, bufferHeight, 1, PIXEL_FORMAT_D24_UNORM_S8_UINT ), Tr2GpuUsage::DEPTH_STENCIL, renderContext ) );
+	CR( m_pickTarget.Create( Tr2BitmapDimensions( size, size, 1, m_format ), Tr2GpuUsage::RENDER_TARGET, Tr2CpuUsage::READ_OFTEN, renderContext ) );
+	CR( m_depthBuffer.Create( Tr2BitmapDimensions( size, size, 1, PIXEL_FORMAT_D24_UNORM_S8_UINT ), Tr2GpuUsage::DEPTH_STENCIL, renderContext ) );
 
 	return true;
 }
@@ -55,12 +54,12 @@ bool Tr2PickBuffer::BeginRendering( float initialDepth, Tr2RenderContext& render
 		return false;
 	}
 
-	Tr2Renderer::PushRenderTarget( m_pickTarget, renderContext );
-	Tr2Renderer::PushDepthStencilBuffer( m_depthBuffer, renderContext );
+	renderContext.m_esm.PushRenderTarget( m_pickTarget );
+	renderContext.m_esm.PushDepthStencilBuffer( m_depthBuffer );
 
 	CR( renderContext.Clear( CLEARFLAGS_TARGET | CLEARFLAGS_ZBUFFER, m_clearColor, initialDepth ) );
 
-    Tr2Renderer::SetFullScreenViewport();
+	renderContext.m_esm.SetFullScreenViewport();
 
 	return true;
 }
@@ -68,8 +67,8 @@ bool Tr2PickBuffer::BeginRendering( float initialDepth, Tr2RenderContext& render
 // ------------------------------------------------------------------------------------------------------
 bool Tr2PickBuffer::EndRendering( Tr2RenderContext& renderContext )
 {
-	Tr2Renderer::PopDepthStencilBuffer( renderContext );
-	Tr2Renderer::PopRenderTarget( renderContext );
+	renderContext.m_esm.PopDepthStencilBuffer();
+	renderContext.m_esm.PopRenderTarget();
 
 	return true;
 }

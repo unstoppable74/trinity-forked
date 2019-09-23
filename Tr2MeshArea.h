@@ -2,6 +2,8 @@
 #ifndef Tr2MeshArea_H
 #define Tr2MeshArea_H
 
+#include "Resources/Tr2LodResource.h"
+
 
 BLUE_DECLARE( Tr2Material );
 
@@ -53,13 +55,17 @@ public:
 
 	bool IsReversed() const;
 
-
+	Tr2Lod GetMinLod() const;
+	void SetMinLod( Tr2Lod lod );
 private:
 	Tr2MaterialPtr m_material;
 	std::string m_name;
-	bool m_display;
 	int m_index;
     int m_count;
+
+	Tr2Lod m_minLod; // minimal visible lod
+
+	bool m_display;
 	// Request reversed order of rendering triangles and reversed cull order 
 	bool m_reversed;
 	// Does this are require SH lighting instead of "normal" direct lighting

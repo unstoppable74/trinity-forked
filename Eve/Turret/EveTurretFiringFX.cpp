@@ -239,6 +239,10 @@ float EveTurretFiringFX::GetCurveDuration()
 // --------------------------------------------------------------------------------
 bool EveTurretFiringFX::GetStartPosition( Vector3& pos ) const
 {
+	if( !m_isFiring )
+	{
+		return false;
+	}
 	// sum all of them up
 	Vector3 p = Vector3( 0.f, 0.f, 0.f );
 	uint32_t cntr = 0;

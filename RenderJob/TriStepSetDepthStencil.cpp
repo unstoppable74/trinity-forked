@@ -17,8 +17,8 @@ TriStepResult TriStepSetDepthStencil::Execute( Be::Time realTime, Be::Time simTi
 {
 	if( m_depthStencil )
 	{
-		return Tr2Renderer::SetDepthStencilBuffer( *m_depthStencil, renderContext ) ? RS_OK : RS_FAILED;
+		return renderContext.m_esm.SetDepthStencilBuffer( *m_depthStencil ) ? RS_OK : RS_FAILED;
 	}
 
-	return Tr2Renderer::SetDepthStencilBuffer( nullDS, renderContext ) ? RS_OK : RS_FAILED;
+	return renderContext.m_esm.SetDepthStencilBuffer( Tr2TextureAL() ) ? RS_OK : RS_FAILED;
 }

@@ -79,7 +79,7 @@ void Tr2PrimitiveScene::Render( Tr2RenderContext& renderContext )
 	// sort the primitives back to front
 	std::reverse( sortList.begin(), sortList.end() );
 
-	SetupPerFrameData();
+	SetupPerFrameData( renderContext );
 	renderContext.m_esm.BeginManagedRendering();
 
 	for( Tr2RenderableSortList::iterator it = sortList.begin(); 
@@ -133,7 +133,7 @@ void Tr2PrimitiveScene::ReleaseResources( TriStorage s )
 {
 	if( s & TRISTORAGE_ALL )
 	{
-		m_vertexConstants.Destroy();
+		m_vertexConstants = Tr2ConstantBufferAL();
 	}
 }
 
@@ -178,10 +178,8 @@ void Tr2PrimitiveScene::SetupTransformsForPicking( float fx, float fy, TriProjec
 	}
 }
 
-void Tr2PrimitiveScene::SetupPerFrameData( )
+void Tr2PrimitiveScene::SetupPerFrameData( Tr2RenderContext& renderContext )
 {
-	USE_MAIN_THREAD_RENDER_CONTEXT();
-
 	PerFrameVSData data;
 
 	// 0
@@ -199,9 +197,9 @@ void Tr2PrimitiveScene::SetupPerFrameData( )
 	FillAndSetConstants( m_vertexConstants, data, Tr2RenderContextEnum::VERTEX_SHADER, Tr2Renderer::GetPerFrameVSStartRegister(), renderContext );
 }
 
-void Tr2PrimitiveScene::SetPerFrameDataForPicking( void )
+void Tr2PrimitiveScene::SetPerFrameDataForPicking( Tr2RenderContext& renderContext )
 {
-	SetupPerFrameData();
+	SetupPerFrameData( renderContext );
 }
 
 bool Tr2PrimitiveScene::RenderPicking( 

@@ -63,9 +63,9 @@ private:
 		return results.object;
 	}
 	void SetupTransformsForPicking( float fx, float fy, TriProjection* proj, TriView* view, TriViewport* viewport );
-	void SetupPerFrameData();
+	void SetupPerFrameData( Tr2RenderContext& renderContext );
 
-	void SetPerFrameDataForPicking( void );
+	void SetPerFrameDataForPicking( Tr2RenderContext& renderContext );
 	const std::vector<ITr2Renderable*>& GetPickingObjectsToRender( const Vector3& dirWorld );
 	const std::vector<ITr2Renderable*>& GetPickingObjectsToRender( const Vector3& dirWorld, float fov, float aspect );
 

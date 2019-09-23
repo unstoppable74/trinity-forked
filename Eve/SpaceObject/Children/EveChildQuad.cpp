@@ -202,7 +202,7 @@ void EveChildQuad::UpdateAsyncronous( EveUpdateContext& updateContext, const Eve
 	m_quad.m_color[2] = Float_16( m_color.b );
 	m_quad.m_color[3] = Float_16( m_color.a );
 	m_quad.m_brightness[0] = Float_16( m_brightness );
-	m_quad.m_brightness[1] = Float_16( 0 );
+	m_quad.m_brightness[1] = Float_16( 0.f );
 }
 
 void EveChildQuad::GetLocalToWorldTransform( Matrix& transform ) const

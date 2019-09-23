@@ -35,10 +35,10 @@ using namespace Tr2RenderContextEnum;
 // Arguments:
 //   renderContext - AL render context created
 // --------------------------------------------------------------------------------------
-void Tr2RenderContextBase::OnContextCreated( Tr2RenderContextAL& renderContext )
+void Tr2RenderContextBase::OnContextCreated( Tr2PrimaryRenderContextAL& renderContext )
 {
 #if !TRINITY_PLATFORM_HAS_PRIMARY_CONTEXT
-	m_backBuffer->Attach( &renderContext.GetDefaultBackBuffer(), this );
+	m_backBuffer->Attach( renderContext.GetDefaultBackBuffer(), this );
 #endif
 }
 
@@ -75,9 +75,9 @@ Tr2PrimaryRenderContext::Tr2PrimaryRenderContext()
 	m_events = this;
 }
 
-void Tr2PrimaryRenderContext::OnContextCreated( Tr2RenderContextAL& renderContext )
+void Tr2PrimaryRenderContext::OnContextCreated( Tr2PrimaryRenderContextAL& renderContext )
 {
-	m_backBuffer->Attach( &GetDefaultBackBuffer(), this );
+	m_backBuffer->Attach( GetDefaultBackBuffer(), this );
 	Tr2RenderContextBase::OnContextCreated( renderContext );
 }
 

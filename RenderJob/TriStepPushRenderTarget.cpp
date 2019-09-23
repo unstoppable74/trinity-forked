@@ -11,11 +11,11 @@ TriStepResult TriStepPushRenderTarget::Execute( Be::Time realTime, Be::Time simT
 {
 	if( m_renderTarget )
 	{
-		Tr2Renderer::PushRenderTarget( *m_renderTarget, renderContext );
+		renderContext.m_esm.PushRenderTarget( *m_renderTarget );
 	}
 	else
 	{
-		Tr2Renderer::PushRenderTarget( renderContext );
+		renderContext.m_esm.PushRenderTarget();
 	}
 	return RS_OK;
 }

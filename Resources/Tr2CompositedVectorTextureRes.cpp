@@ -512,6 +512,11 @@ uint32_t Tr2CompositedVectorTextureRes::GetOne() const
 	return 1;
 }
 
+uint32_t Tr2CompositedVectorTextureRes::GetZero() const
+{
+	return 0;
+}
+
 bool Tr2CompositedVectorTextureRes::Save( const wchar_t* path )
 {
 	if( !IsGood() )

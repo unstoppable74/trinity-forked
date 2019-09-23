@@ -6,37 +6,37 @@ Tr2PushPopDS::Tr2PushPopDS()
 : m_renderContext( nullptr )
 {
 	USE_MAIN_THREAD_RENDER_CONTEXT();
-	Tr2Renderer::PushDepthStencilBuffer( renderContext );
+	renderContext.m_esm.PushDepthStencilBuffer();
 }
 
 Tr2PushPopDS::Tr2PushPopDS( const Tr2TextureAL& ds )
 : m_renderContext( nullptr )
 {
 	USE_MAIN_THREAD_RENDER_CONTEXT();
-	Tr2Renderer::PushDepthStencilBuffer( ds, renderContext );
+	renderContext.m_esm.PushDepthStencilBuffer( ds );
 }
 
 Tr2PushPopDS::Tr2PushPopDS( Tr2RenderContext& renderContext )
 : m_renderContext( &renderContext )
 {
-	Tr2Renderer::PushDepthStencilBuffer( renderContext );
+	renderContext.m_esm.PushDepthStencilBuffer();
 }
 
 Tr2PushPopDS::Tr2PushPopDS( const Tr2TextureAL& ds, Tr2RenderContext& renderContext )
 : m_renderContext( &renderContext )
 {
-	Tr2Renderer::PushDepthStencilBuffer( ds, renderContext );
+	renderContext.m_esm.PushDepthStencilBuffer( ds );
 }
 
 Tr2PushPopDS::~Tr2PushPopDS()
 {
 	if( m_renderContext )
 	{
-		Tr2Renderer::PopDepthStencilBuffer( *m_renderContext );
+		m_renderContext->m_esm.PopDepthStencilBuffer();
 	}
 	else
 	{
 		USE_MAIN_THREAD_RENDER_CONTEXT();
-		Tr2Renderer::PopDepthStencilBuffer( renderContext );
+		renderContext.m_esm.PopDepthStencilBuffer();
 	}
 }

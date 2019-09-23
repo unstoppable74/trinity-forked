@@ -23,13 +23,6 @@ enum TR2SHADERMODEL
 	TR2SM_COUNT
 };
 
-enum PROJECTION_TYPE
-{
-	PT_PERSPECTIVE = 0,
-	PT_ORTHOGONAL,
-
-	PT_UNKNOWN,
-};
 
 class TriSettings;
 class Tr2LineGraph;
@@ -122,21 +115,19 @@ public:
 	static HRESULT BeginRenderContext();
 	static HRESULT EndRenderContext();
 
-	static void ClearDepthBuffer( float z = 1.0f );
-
     static void GetBackBufferDimensions( unsigned int& w, unsigned int& h );
     
 	// Sets up a perspective projection transform based on the field of view, front/back plane and aspect ratio
-	static void SetPerspectiveProjection( float fov, float front, float back, float asp );
+	static void SetPerspectiveProjection( float fov, float front, float back, float asp, const Matrix& viewportAdjustment = IdentityMatrix() );
 
 	// Sets up a perspective projection transform based on left/right/bottom/top parameters, and front/back planes
-	static void SetPerspectiveProjection( float left, float right, float bottom, float top, float front, float back );
+	static void SetPerspectiveProjection( float left, float right, float bottom, float top, float front, float back, const Matrix& viewportAdjustment = IdentityMatrix() );
 
 	// Sets up an orthogonal projection transform
-	static void SetOrthoProjection( float width, float height, float front, float back );
+	static void SetOrthoProjection( float width, float height, float front, float back, const Matrix& viewportAdjustment = IdentityMatrix() );
 
 	// Sets up an orthogonal projection transform based on left/right/bottom/top parameters, and front/back planes
-	static void SetOrthoProjection( float left, float right, float bottom, float top, float front, float back );
+	static void SetOrthoProjection( float left, float right, float bottom, float top, float front, float back, const Matrix& viewportAdjustment = IdentityMatrix() );
 
 	// Adjusts the existing projection by scaling and then translation, useful for
 	// picking and other methods where rendering subrects from the frame
@@ -145,7 +136,7 @@ public:
 
 	// Explicitly sets a projection transform. Note that field-of-view, aspect ratio and front/back planes are
 	// extracted from this - use only for special purpose projection, such as in picking.
-	static void SetProjectionTransform( const Matrix& proj );
+	static void SetProjectionTransform( const Matrix& proj, const Matrix& viewportAdjustment = IdentityMatrix() );
 
     static const Matrix& GetProjectionTransform();
 	static Matrix GetReversedDepthProjectionTransform();
@@ -155,11 +146,7 @@ public:
 
 	static Vector3 ProjectWorldToScreen( const Vector3& worldPos, const Tr2Viewport& vp );
 
-	static void SetFullScreenViewport();
-	static void SetViewport( const TriViewport& vp );
-	static void SetViewport( int width, int height, int x, int y, float minZ, float maxZ );
 	static const TriViewport& GetViewport();
-	static const Tr2Viewport& GetDeviceViewport();
 		
     static float GetFrontClip();
     static float GetBackClip();
@@ -169,8 +156,6 @@ public:
     static float GetAspectRatio();
 	static float GetOrthoWidth();
 	static float GetOrthoHeight();
-	static unsigned int GetRenderTargetWidth();
-	static unsigned int GetRenderTargetHeight();
 	
     static void SetWorldTransform( const Matrix& m );
     static const Matrix& GetWorldTransform();
@@ -180,7 +165,7 @@ public:
     static const Matrix& GetInverseViewTransform();
     
     static const Vector3& GetViewPosition();
-    static const Vector3& GetViewLookAt();
+    static Vector3 GetViewLookAt();
 
 	static float GetAnimationTime();
 	static float GetAnimationTimeElapsed( float startTime );
@@ -196,9 +181,9 @@ public:
 	// Text output for debugging purposes.
 	// Text is rendered immediately so these functions can only be called within
 	// a render context.
-	static void PrintfImmediate( int x, int y, uint32_t color, uint32_t format, const char* msg, ... );
-	static void PrintfImmediate( TriDebugFont font, const Rect& rect, uint32_t format, uint32_t color, const char* msg, ... );
-	static void PrintfImmediate( TriDebugFont font, const Vector3& pos, uint32_t color, const char* msg, ... );
+	static void PrintfImmediate( Tr2RenderContext& renderContext, int x, int y, uint32_t color, uint32_t format, const char* msg, ... );
+	static void PrintfImmediate( Tr2RenderContext& renderContext, TriDebugFont font, const Rect& rect, uint32_t format, uint32_t color, const char* msg, ... );
+	static void PrintfImmediate( Tr2RenderContext& renderContext, TriDebugFont font, const Vector3& pos, uint32_t color, const char* msg, ... );
 
 	// Line rendering for debugging purposes.
 	// Calls to the functions below build up a line set - lines are rendered on RenderDebugInfo.
@@ -212,41 +197,23 @@ public:
 
 	static void RenderDebugInfo( Tr2RenderContext& renderContext );
 
-	static bool DrawTexture( Tr2TextureAL& texture, const Vector2& tlTexCoord = Vector2( 0.0f, 0.0f ), const Vector2& brTexCoord = Vector2( 1.0f, 1.0f ), Tr2Blitter::Filtering filter = Tr2Blitter::FILTER_POINT );
-	static bool DrawTexture( Tr2Material* effect, Tr2TextureAL& texture );
-	static bool DrawTexture( Tr2Material* effect, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord );
-    static bool DrawTexture( Tr2Material* effect, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord, const Vector2& tlVertexCoord, const Vector2& brVertexCoord );
-	static bool DrawTexture( Tr2Material* effect, const Vector2& tlTexCoord, const Vector2& brTexCoord );
+	static bool DrawTexture( Tr2RenderContext& renderContext, Tr2TextureAL& texture, const Vector2& tlTexCoord = Vector2( 0.0f, 0.0f ), const Vector2& brTexCoord = Vector2( 1.0f, 1.0f ), Tr2Blitter::Filtering filter = Tr2Blitter::FILTER_POINT );
+	static bool DrawTexture( Tr2RenderContext& renderContext, Tr2Material* effect, Tr2TextureAL& texture );
+	static bool DrawTexture( Tr2RenderContext& renderContext, Tr2Material* effect, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord );
+    static bool DrawTexture( Tr2RenderContext& renderContext, Tr2Material* effect, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord, const Vector2& tlVertexCoord, const Vector2& brVertexCoord );
+	static bool DrawTexture( Tr2RenderContext& renderContext, Tr2Material* effect, const Vector2& tlTexCoord, const Vector2& brTexCoord );
 
-	static void DrawScreenQuad( Tr2Material* effect );
-	static void DrawScreenQuad( Tr2Effect* effect, const Vector2 &topLeft, const Vector2 &bottomRight );
-	static bool DrawCubeTexture( Tr2TextureAL& texture, Tr2RenderContextEnum::CubemapFace face, unsigned int mipLevel = 0 );
-	static void DrawCameraSpaceScreenQuad( Tr2Shader* shader, Tr2Material* material );
-	static bool DrawFullScreenWithShader( Tr2Material * material );
+	static void DrawScreenQuad( Tr2RenderContext& renderContext, Tr2Material* effect );
+	static void DrawScreenQuad( Tr2RenderContext& renderContext, Tr2Effect* effect, const Vector2 &topLeft, const Vector2 &bottomRight );
+	static void DrawCameraSpaceScreenQuad( Tr2RenderContext& renderContext, Tr2Shader* shader, Tr2Material* material );
+	static bool DrawFullScreenWithShader( Tr2RenderContext& renderContext, Tr2Material * material );
 
 	static bool RunComputeShader( Tr2Material* effect, unsigned groupDimX, unsigned groupDimY, unsigned groupDimZ, Tr2RenderContext& renderContext );
 	static bool RunComputeShader( Tr2Material* effect, const BlueSharedString& technique, unsigned groupDimX, unsigned groupDimY, unsigned groupDimZ, Tr2RenderContext& renderContext );
 	static bool RunComputeShaderIndirect( Tr2Material* effect, Tr2BufferAL& indirectParams, unsigned offset, Tr2RenderContext& renderContext );
 
-	// ***** Note: consider Tr2PushPopRT instead *****
-	static void PushRenderTarget( Tr2RenderContext& renderContext );	// does not set any RT, just stores the current one so it can be safely changed later
-	static void PushRenderTarget( unsigned slot, Tr2RenderContext& renderContext );	// does not set any RT, just stores the current one so it can be safely changed later
-	static void PushRenderTarget( const Tr2TextureAL& rt, Tr2RenderContext& renderContext );
-	static void PushRenderTarget( const Tr2TextureAL& rt, unsigned slot, Tr2RenderContext& renderContext );
-	static void PopRenderTarget( Tr2RenderContext& renderContext );
-	static void PopRenderTarget( unsigned slot, Tr2RenderContext& renderContext );
-	static bool SetRenderTarget( unsigned int index, const Tr2TextureAL& rt, Tr2RenderContext& renderContext, bool updateViewport = true );
-
-	// ***** Note: consider Tr2PushPopDS instead *****
-	static bool PushDepthStencilBuffer( Tr2RenderContext& renderContext );	// does not set a DS, just stores it so it can be safely changed later
-	static bool PushDepthStencilBuffer( const Tr2TextureAL& ds, Tr2RenderContext& renderContext );
-	static void PopDepthStencilBuffer( Tr2RenderContext& renderContext );
-	static bool SetDepthStencilBuffer( const Tr2TextureAL& ds, Tr2RenderContext& renderContext );
-
 	static void PushProjection();
 	static void PopProjection();
-	static void PushViewport();
-	static void PopViewport();
 	static void PushViewTransform();
 	static void PopViewTransform();
 

@@ -4,6 +4,6 @@
 
 TriStepResult TriStepPushViewport::Execute( Be::Time realTime, Be::Time simTime, Tr2RenderContext& renderContext )
 {
-	Tr2Renderer::PushViewport();
+	renderContext.m_esm.PushViewport();
 	return RS_OK;
 }

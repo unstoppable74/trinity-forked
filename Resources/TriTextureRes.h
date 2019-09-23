@@ -68,6 +68,9 @@ public:
 	unsigned GetWidth()				const { return Tr2BitmapDimensions::GetWidth();    }
 	unsigned GetHeight()			const { return Tr2BitmapDimensions::GetHeight();   }
 	unsigned GetMipLevelCount()		const { return Tr2BitmapDimensions::GetMipCount(); }
+	uint32_t GetMsaaType() const;
+	uint32_t GetMsaaQuality() const;
+
 	Color GetAverageColor()			const{ return m_averageColor; }
 	bool IsValid() const { return IsGood(); }
 	Tr2RenderContextEnum::TextureType GetType() const { return Tr2BitmapDimensions::GetType(); }

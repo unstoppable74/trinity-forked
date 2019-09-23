@@ -237,7 +237,7 @@ void Tr2Sprite2dScene::Render( Tr2RenderContext& renderContext )
 	DetermineWorldTransform();
 	DetermineViewportSize();
 
-	Tr2Renderer::PushDepthStencilBuffer( nullDS, renderContext );
+	renderContext.m_esm.PushDepthStencilBuffer( Tr2TextureAL() );
 
 	PrepareRenderContextForRendering( renderContext );
 
@@ -265,7 +265,7 @@ void Tr2Sprite2dScene::Render( Tr2RenderContext& renderContext )
 
 	CleanUpStacksAfterRender();
 
-	Tr2Renderer::PopDepthStencilBuffer( renderContext );
+	renderContext.m_esm.PopDepthStencilBuffer();
 
 	m_is2dRenderContext = m_is2dRender;
 
@@ -1116,7 +1116,7 @@ void Tr2Sprite2dScene::IssueDrawCall()
 								}
 							}
 						}
-						desc->m_resourceSetDirty |= desc->m_resourceSetDesc.SetSrv( PIXEL_SHADER, i, texAL ? *texAL : nullTX );
+						desc->m_resourceSetDirty |= desc->m_resourceSetDesc.SetSrv( PIXEL_SHADER, i, texAL ? *texAL : Tr2TextureAL() );
 					}
 				}
 
@@ -1171,7 +1171,7 @@ void Tr2Sprite2dScene::SubmitGeometry( Tr2RenderContext& renderContext )
 
 void Tr2Sprite2dScene::ReleaseResources( TriStorage s )
 {
-	m_uiTransformsCb.Destroy();
+	m_uiTransformsCb = Tr2ConstantBufferAL();
 
 	m_effect = nullptr;
 	m_defaultTexture = nullptr;
@@ -1545,7 +1545,7 @@ void Tr2Sprite2dScene::StartLayer( Tr2TextureAL& rt )
 	m_is2dRenderContext = true;
 
 	// Set the render target to the top level surface of the given texture
-	Tr2Renderer::PushRenderTarget( rt, renderContext );
+	renderContext.m_esm.PushRenderTarget( rt );
 
 	Vector4 vpSize;
 	vpSize.x = (float)rt.GetWidth();
@@ -1587,7 +1587,7 @@ void Tr2Sprite2dScene::EndLayer( float x, float y, float width, float height, IT
 	// Finish outstanding rendering before resetting render target
 	IssueDrawCall();
 
-	Tr2Renderer::PopRenderTarget( renderContext );
+	renderContext.m_esm.PopRenderTarget();
 
 	// Set the coordinate transformations and clipping to what it was before we started
 	// this layer.
@@ -1925,8 +1925,6 @@ Tr2Sprite2dDisplayList* Tr2Sprite2dScene::EndCapture( Tr2Sprite2dDisplayList* pr
 		return nullptr;
 	}
 
-	BufferUsage bufferUsage = USAGE_CPU_WRITE;
-
 	if( vbSize )
 	{
 		bool reusedVb = false;
@@ -2042,8 +2040,8 @@ void Tr2Sprite2dScene::ReplayCapture( Tr2Sprite2dDisplayList* dl )
 			m_texelSizeVar[1] = entry.texelSize1;
 
 			auto desc = entry.effect->GetPassDescription( 0, 0 );
-			desc->m_resourceSetDirty |= desc->m_resourceSetDesc.SetSrv( PIXEL_SHADER, 0, ( entry.texture0 && entry.texture0->GetTexture() ) ? *entry.texture0->GetTexture() : nullTX );
-			desc->m_resourceSetDirty |= desc->m_resourceSetDesc.SetSrv( PIXEL_SHADER, 1, ( entry.texture1 && entry.texture1->GetTexture() ) ? *entry.texture1->GetTexture() : nullTX );
+			desc->m_resourceSetDirty |= desc->m_resourceSetDesc.SetSrv( PIXEL_SHADER, 0, ( entry.texture0 && entry.texture0->GetTexture() ) ? *entry.texture0->GetTexture() : Tr2TextureAL() );
+			desc->m_resourceSetDirty |= desc->m_resourceSetDesc.SetSrv( PIXEL_SHADER, 1, ( entry.texture1 && entry.texture1->GetTexture() ) ? *entry.texture1->GetTexture() : Tr2TextureAL() );
 			
 			CCP_STATS_INC( spriteSceneDrawCallCount );
 
@@ -2074,13 +2072,13 @@ void Tr2Sprite2dScene::RunJobHelper( TriRenderJob* job )
 	// for depth/stencil buffer. Pop it here, to get whatever was
 	// in use before back. The null value is pushed again after
 	// the job has finished.
-	Tr2Renderer::PopDepthStencilBuffer( renderContext );
+	renderContext.m_esm.PopDepthStencilBuffer();
 
-	Tr2Renderer::PushViewport();
+	renderContext.m_esm.PushViewport();
 	job->Run( m_realTime, m_simTime );
-	Tr2Renderer::PopViewport();
+	renderContext.m_esm.PopViewport();
 
-	Tr2Renderer::PushDepthStencilBuffer( nullDS, renderContext );
+	renderContext.m_esm.PushDepthStencilBuffer( Tr2TextureAL() );
 
 	renderContext.m_esm.BeginManagedRendering();
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_SPRITE2D );

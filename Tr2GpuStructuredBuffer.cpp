@@ -134,7 +134,7 @@ ALResult Tr2GpuStructuredBuffer::CreateBuffer()
 	}
 	else if( m_creationFlags & CPU_WRITABLE )
 	{
-		cpuUsage = cpuUsage | Tr2CpuUsage::WRITE;
+		cpuUsage = Tr2CpuUsage::WRITE_OFTEN;
 	}
 	if( m_creationFlags & APPEND_BUFFER )
 	{

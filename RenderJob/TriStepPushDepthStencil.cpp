@@ -35,15 +35,14 @@ TriStepResult TriStepPushDepthStencil::Execute( Be::Time realTime, Be::Time simT
 {
 	if( m_depthStencil )
 	{
-		return Tr2Renderer::PushDepthStencilBuffer( *m_depthStencil, renderContext ) ? RS_OK : RS_FAILED;
+		return renderContext.m_esm.PushDepthStencilBuffer( *m_depthStencil ) ? RS_OK : RS_FAILED;
 	}
-	else
-	if( m_pushCurrent )
+	else if( m_pushCurrent )
 	{
-		Tr2Renderer::PushDepthStencilBuffer( renderContext );
+		renderContext.m_esm.PushDepthStencilBuffer();
 		return RS_OK;
 	}
 
-	Tr2Renderer::PushDepthStencilBuffer( nullDS, renderContext );
+	renderContext.m_esm.PushDepthStencilBuffer( Tr2TextureAL() );
 	return RS_OK;
 }

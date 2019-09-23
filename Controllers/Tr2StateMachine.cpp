@@ -94,16 +94,17 @@ void Tr2StateMachine::Unlink()
 
 void Tr2StateMachine::FollowTransitions()
 {
+	auto next = m_currentState->Update();
+	if( !next )
+	{
+		return;
+	}
+
 	std::unordered_map<Tr2StateMachineState*, uint32_t> seen;
 	seen.insert( std::make_pair( m_currentState, 1u ) );
 
-	while( true )
+	while( next )
 	{
-		auto next = m_currentState->Update();
-		if( !next )
-		{
-			return;
-		}
 		auto found = seen.find( next );
 		if( found != seen.end() )
 		{
@@ -120,6 +121,8 @@ void Tr2StateMachine::FollowTransitions()
 		m_currentState = next;
 		m_currentState->Start();
 		m_stateStartTime = BeOS->GetCurrentFrameTime();
+
+		next = m_currentState->Update();
 	}
 }
 

@@ -291,8 +291,8 @@ void Tr2InteriorScene::ReleaseResources( TriStorage s )
 {
 	if( ( s & TRISTORAGE_ALL ) == TRISTORAGE_ALL )
 	{
-		m_perFramePSBuffer.Destroy();
-		m_perFrameVSBuffer.Destroy();
+		m_perFramePSBuffer = Tr2ConstantBufferAL();
+		m_perFrameVSBuffer = Tr2ConstantBufferAL();
 	}
 }
 
@@ -516,7 +516,7 @@ void Tr2InteriorScene::Render( Tr2RenderContext& renderContext )
 // Arguments:
 //   results - The results set populated by the visibility query
 // --------------------------------------------------------------------------------------
-void Tr2InteriorScene::VisibilityQuery( Tr2VisibilityResults* results )
+void Tr2InteriorScene::VisibilityQuery( Tr2VisibilityResults* results, Tr2RenderContext& renderContext )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
@@ -536,7 +536,7 @@ void Tr2InteriorScene::VisibilityQuery( Tr2VisibilityResults* results )
 		&Tr2Renderer::GetViewTransform(),
 		&Tr2Renderer::GetViewPosition(),
 		&Tr2Renderer::GetProjectionTransform(),
-		Tr2Renderer::GetViewport()
+		renderContext.m_esm.GetViewport()
 	);
 
     //this is to assist in tracking down the crash that's been popping up in this function.
@@ -563,17 +563,6 @@ void Tr2InteriorScene::VisibilityQuery( Tr2VisibilityResults* results )
 	m_visibilityQueryType = PRIMARY_QUERY;
 
 	ResolveVisibility( Tr2Renderer::GetViewTransform(), Tr2Renderer::GetProjectionTransform(), true );
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Assigns a visibility results set object to the interior scene
-// Arguments:
-//   visibilityResults - The results set object to assign to the interior scene
-// --------------------------------------------------------------------------------------
-void Tr2InteriorScene::SetVisibilityResults( Tr2VisibilityResults* visibilityResults )
-{
-	m_visibilityResults = visibilityResults;
 }
 
 void Tr2InteriorScene::ResolveVisibility( const Matrix& view, const Matrix& projection, size_t maxDepth )
@@ -625,13 +614,13 @@ void Tr2InteriorScene::RenderFullForward( Tr2RenderContext& renderContext )
 	// Render Shadows
 	RenderShadows(renderContext);
 
-	VisibilityQuery(m_visibilityResults);
+	VisibilityQuery(m_visibilityResults, renderContext);
 
 	// Gather geometry batches
 	GatherFullForwardBatches( m_visibilityResults );
 
 	// set per-frame data
-	PopulatePerFramePSData(m_perFramePSData);
+	PopulatePerFramePSData(m_perFramePSData, renderContext );
 	PopulatePerFrameVSData(m_perFrameVSData);
 
 	{
@@ -691,12 +680,12 @@ void Tr2InteriorScene::RenderShadows(Tr2RenderContext& renderContext)
 	Tr2Renderer::PushViewTransform();
 	ON_BLOCK_EXIT(Tr2Renderer::PopViewTransform);
 
-	Tr2Renderer::PushViewport();
-	ON_BLOCK_EXIT(Tr2Renderer::PopViewport);
-	Tr2Renderer::PushRenderTarget(renderContext);
-	ON_BLOCK_EXIT([&] { Tr2Renderer::PopRenderTarget(renderContext); });
-	Tr2Renderer::PushDepthStencilBuffer(nullDS, renderContext);
-	ON_BLOCK_EXIT([&] { Tr2Renderer::PopDepthStencilBuffer(renderContext); });
+	renderContext.m_esm.PushViewport();
+	ON_BLOCK_EXIT( [&] { renderContext.m_esm.PopViewport(); } );
+	renderContext.m_esm.PushRenderTarget();
+	ON_BLOCK_EXIT([&] { renderContext.m_esm.PopRenderTarget(); });
+	renderContext.m_esm.PushDepthStencilBuffer( Tr2TextureAL() );
+	ON_BLOCK_EXIT([&] { renderContext.m_esm.PopDepthStencilBuffer(); });
 
 	TriViewPtr lightView = CreateInstance<TriView>();
 	TriProjectionPtr lightProjection = CreateInstance<TriProjection>();
@@ -707,7 +696,7 @@ void Tr2InteriorScene::RenderShadows(Tr2RenderContext& renderContext)
 		&Tr2Renderer::GetViewTransform(),
 		&Tr2Renderer::GetViewPosition(),
 		&Tr2Renderer::GetProjectionTransform(),
-		Tr2Renderer::GetViewport()
+		renderContext.m_esm.GetViewport()
 	);
 
 	// Reset the testures to white
@@ -742,20 +731,20 @@ void Tr2InteriorScene::RenderShadows(Tr2RenderContext& renderContext)
 		}
 
 		auto rt = m_lightRenderTargets[i];
-		Tr2Renderer::SetRenderTarget(0, rt->GetRenderTarget(), renderContext);
-		Tr2Renderer::SetDepthStencilBuffer(*m_lightDepthStencil, renderContext);
+		renderContext.m_esm.SetRenderTarget(0, rt->GetRenderTarget());
+		renderContext.m_esm.SetDepthStencilBuffer(*m_lightDepthStencil);
 		renderContext.Clear(CLEARFLAGS_TARGET | CLEARFLAGS_ZBUFFER, 0xffffffff, 1.f, 0, 0);
 
 		Tr2Renderer::SetProjectionTransform(lightProjection->GetTransform());
 		Tr2Renderer::SetViewTransform(lightView->GetTransform());
 
 		// Gather visibility results
-		VisibilityQuery(m_visibilityResults);
+		VisibilityQuery(m_visibilityResults, renderContext);
 		// Gather geometry batches
 		GatherFullForwardBatches(m_visibilityResults);
 
 		// Set per frame data
-		PopulatePerFramePSData(m_perFramePSData);
+		PopulatePerFramePSData(m_perFramePSData, renderContext );
 		PopulatePerFrameVSData(m_perFrameVSData);
 
 		// Plug in the light's radius
@@ -1237,14 +1226,6 @@ void Tr2InteriorScene::SetupTransformsForPicking( float fx, float fy, TriProject
 		translation.y = -fy*scaling.y;
 		Tr2Renderer::AdjustProjection( scaling, translation );
 	}
-
-	Tr2PerFramePSData perFramePS;
-	Tr2PerFrameVSData perFrameVS;
-	PopulatePerFramePSData( perFramePS );
-    PopulatePerFrameVSData( perFrameVS );
-
-	FillAndSetConstants( m_perFrameVSBuffer, perFramePS, VERTEX_SHADER, Tr2Renderer::GetPerFrameVSStartRegister(), renderContext );
-	FillAndSetConstants( m_perFramePSBuffer, perFrameVS, PIXEL_SHADER , Tr2Renderer::GetPerFramePSStartRegister(), renderContext );
 }
 
 const std::vector<ITr2Renderable*>& Tr2InteriorScene::GetPickingObjectsToRender( const Vector3& dirWorld )
@@ -1282,15 +1263,14 @@ const std::vector<ITr2Renderable*>& Tr2InteriorScene::GetPickingObjectsToRender(
 	return m_visibleObjects;
 }
 
-void Tr2InteriorScene::SetPerFrameDataForPicking( void )
+void Tr2InteriorScene::SetPerFrameDataForPicking( Tr2RenderContext& renderContext )
 {
 	Tr2PerFramePSData perFramePS;
 	Tr2PerFrameVSData perFrameVS;
 
-	PopulatePerFramePSData( perFramePS );
+	PopulatePerFramePSData( perFramePS, renderContext );
 	PopulatePerFrameVSData( perFrameVS );
 
-	USE_MAIN_THREAD_RENDER_CONTEXT();	//TODO
     Tr2BindPerFramePSData( perFramePS, renderContext );
     Tr2BindPerFrameVSData( perFrameVS, renderContext );
 }
@@ -1316,9 +1296,31 @@ void Tr2InteriorScene::PopulatePerFrameVSData( Tr2PerFrameVSData &data )
 	data.sunDirWorld.z = vec.z;
 }
 
-void Tr2InteriorScene::PopulatePerFramePSData( Tr2PerFramePSData &data )
+void Tr2InteriorScene::PopulatePerFramePSData( Tr2PerFramePSData &data, Tr2RenderContext& renderContext )
 {
-    Tr2PopulatePerFramePSDataTransformations( data );
+	memset( &data, 0, sizeof( Tr2PerFramePSData ) );
+
+	// column_major for shaders
+	data.ViewProjectionMat = XMMatrixTranspose(
+		XMMatrixMultiply(
+			Tr2Renderer::GetViewTransform(),
+			Tr2Renderer::GetProjectionTransform() ) );
+	// attention: need the transposed, but shader also needs column_major, so it is transpose(transpose(m)) == m
+	data.ViewInverseTransposeMat = Tr2Renderer::GetInverseViewTransform();
+
+	unsigned int width = renderContext.m_esm.GetRenderTargetWidth();
+	unsigned int height = renderContext.m_esm.GetRenderTargetHeight();
+
+	data.viewPort.x = float( renderContext.m_esm.GetViewport().width ) / float( width );
+	data.viewPort.y = float( renderContext.m_esm.GetViewport().height ) / float( height );
+	data.viewPort.z = float( renderContext.m_esm.GetViewport().x ) / float( width ) + 0.5f / float( width );
+	data.viewPort.w = float( renderContext.m_esm.GetViewport().y ) / float( height ) + 0.5f / float( height );
+
+	XMVECTOR det;
+	data.ViewProjInverse = XMMatrixTranspose(
+		XMMatrixInverse( &det, XMMatrixMultiply(
+			Tr2Renderer::GetViewTransform(),
+			Tr2Renderer::GetProjectionTransform() ) ) );
 
     // sun
 	GetSunDiffuseColorHandle()->GetValue( data.sunDiffuseColor );
@@ -1458,17 +1460,18 @@ void Tr2InteriorScene::GetDebugOptions(Tr2DebugRendererOptions & options)
 
 void Tr2InteriorScene::RenderDebugInfo(Tr2DebugRenderer & renderer)
 {
-	Tr2Renderer::PushViewport();
 	if (renderer.HasOption(GetRawRoot(), "Shadow Maps") || m_debugRenderShadowMaps)
 	{
+		USE_MAIN_THREAD_RENDER_CONTEXT();
+		renderContext.m_esm.PushViewport();
 		int i = 0;
 		for (auto it = m_lightRenderTargets.begin(); it != m_lightRenderTargets.end(); ++it)
 		{
-			Tr2Renderer::SetViewport(200, 200, 10, 10 + i * 210, 0.0, 1.0);
+			renderContext.m_esm.SetViewport(200, 200, 10, 10 + i * 210, 0.0, 1.0);
 			auto tex = dynamic_cast<Tr2RenderTarget*>(*it)->GetTexture();
-			Tr2Renderer::DrawTexture(*tex);
+			Tr2Renderer::DrawTexture( renderContext, *tex);
 			i++;
 		}
+		renderContext.m_esm.PopViewport();
 	}
-	Tr2Renderer::PopViewport();
 }

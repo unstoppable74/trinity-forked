@@ -66,22 +66,62 @@ int TriProjection::GetProjectionType()
 	return int(m_projectionType);
 }
 
+void TriProjection::SetProjection( Tr2RenderContext& renderContext )
+{
+	Matrix viewport2projectionAdjustment = IdentityMatrix();
+	auto& viewport = renderContext.m_esm.GetViewport();
+	auto& deviceViewport = renderContext.m_esm.GetDeviceViewport();
+
+	// In case we shrunk the viewport we need to scale and/or offset the
+	// projection matrix
+	viewport2projectionAdjustment._11 = viewport.width / deviceViewport.m_width;
+	viewport2projectionAdjustment._22 = viewport.height / deviceViewport.m_height;
+	viewport2projectionAdjustment._31 = ( viewport.width - deviceViewport.m_width ) / deviceViewport.m_width;
+	viewport2projectionAdjustment._32 = ( viewport.height - deviceViewport.m_height ) / deviceViewport.m_height;
+	if( viewport.x < 0 )
+	{
+		viewport2projectionAdjustment._31 *= -1;
+	}
+
+	if( viewport.y + viewport.height > int( renderContext.m_esm.GetRenderTargetHeight() ) )
+	{
+		viewport2projectionAdjustment._32 *= -1;
+	}
+
+
+	switch( m_projectionType )
+	{
+	case TRIPROJECTION_FOV:
+		Tr2Renderer::SetPerspectiveProjection( m_fov, m_zn, m_zf, m_aspect, viewport2projectionAdjustment );
+		break;
+	case TRIPROJECTION_OFF_CENTER:
+		Tr2Renderer::SetPerspectiveProjection( m_left, m_right, m_bottom, m_top, m_zn, m_zf, viewport2projectionAdjustment );
+		break;
+	case TRIPROJECTION_ORTHO:
+		Tr2Renderer::SetOrthoProjection( m_left, m_top, m_zn, m_zf, viewport2projectionAdjustment );
+		break;
+	case TRIPROJECTION_CUSTOM:
+		Tr2Renderer::SetProjectionTransform( m_customTransform, viewport2projectionAdjustment );
+		break;
+	}
+}
+
 void TriProjection::SetProjection()
 {
-	switch (m_projectionType)
+	switch( m_projectionType )
 	{
-		case TRIPROJECTION_FOV:
-			Tr2Renderer::SetPerspectiveProjection( m_fov, m_zn, m_zf, m_aspect );
-			break;
-		case TRIPROJECTION_OFF_CENTER:
-			Tr2Renderer::SetPerspectiveProjection( m_left, m_right, m_bottom, m_top, m_zn, m_zf );
-			break;
-		case TRIPROJECTION_ORTHO:
-			Tr2Renderer::SetOrthoProjection( m_left, m_top, m_zn, m_zf );
-			break;
-		case TRIPROJECTION_CUSTOM:
-			Tr2Renderer::SetProjectionTransform( m_customTransform );
-			break;
+	case TRIPROJECTION_FOV:
+		Tr2Renderer::SetPerspectiveProjection( m_fov, m_zn, m_zf, m_aspect );
+		break;
+	case TRIPROJECTION_OFF_CENTER:
+		Tr2Renderer::SetPerspectiveProjection( m_left, m_right, m_bottom, m_top, m_zn, m_zf );
+		break;
+	case TRIPROJECTION_ORTHO:
+		Tr2Renderer::SetOrthoProjection( m_left, m_top, m_zn, m_zf );
+		break;
+	case TRIPROJECTION_CUSTOM:
+		Tr2Renderer::SetProjectionTransform( m_customTransform );
+		break;
 	}
 }
 

@@ -79,9 +79,9 @@ void EveSpriteSet::AddBoosterGlowToQuadRenderer( Tr2QuadRenderer& quadRenderer, 
 		uint32_t( n ), 
 		world );
 
-	Float_16 zDirX( world.GetZ().x );
-	Float_16 zDirY( world.GetZ().y );
-	Float_16 zDirZ( world.GetZ().z );
+	Float_16 zDirX( XMConvertFloatToHalf( world.GetZ().x ) );
+	Float_16 zDirY( XMConvertFloatToHalf( world.GetZ().y ) );
+	Float_16 zDirZ( XMConvertFloatToHalf( world.GetZ().z ) );
 	uint32_t gain = std::min( uint32_t( boosterGain * 255.f ), 255u ) << 24;
 	uint32_t warp = std::min( uint32_t( warpIntensity * 255.f ), 255u ) << 24;
 
@@ -142,7 +142,7 @@ void EveSpriteSet::AddToQuadRenderer( Tr2QuadRenderer& quadRenderer, const Matri
 			}
 		}
 	}
-	Float_16 activation16( activation * m_intensity );
+	Float_16 activation16( XMConvertFloatToHalf( activation * m_intensity ) );
 	for( size_t i = 0; i < n; ++i )
 	{
 		m_buffer[i].activation = activation16;

@@ -312,10 +312,7 @@ void Tr2Effect::ReleaseResources( TriStorage s )
 			{
 				for( unsigned i = 0; i != SHADER_TYPE_COUNT; ++i )
 				{
-					if( ( *jt )->m_stageInput[i].m_constantBuffer )
-					{
-						( *jt )->m_stageInput[i].m_constantBuffer->Destroy();
-					}
+					( *jt )->m_stageInput[i].m_constantBuffer = Tr2ConstantBufferAL();
 				}
 			}
 		}
@@ -1555,12 +1552,12 @@ void Tr2Effect::MapPassParameters(
 	constantSize = std::max( constantSize, constantDefaultValueSize );
 	// Allocate constant buffer
 	pp.AllocateConstantMirror( stage, constantSize );
-	if( constantSize == 0 || !pp.m_stageInput[stage].m_constantBuffer )
+	if( constantSize == 0 || !pp.m_stageInput[stage].m_constantBuffer.IsValid() )
 	{
 		return;
 	}
 
-	void* mirror = pp.m_stageInput[stage].m_constantBuffer->GetBufferMirror( renderContext );
+	void* mirror = pp.m_stageInput[stage].m_constantMirror.get();
 	if( !mirror )
 	{
 		return;

@@ -236,8 +236,8 @@ ALResult Tr2LightManager::DoUpdateLists( uint32_t msaaType, Tr2RenderContext& re
 	perFrameData.projInverse = Transpose( Tr2Renderer::GetInverseProjectionTransform() );
 	perFrameData.viewInverse = Transpose( Tr2Renderer::GetInverseViewTransform() );
 	perFrameData.cameraPos = Tr2Renderer::GetViewPosition();
-	perFrameData.width = uint32_t( Tr2Renderer::GetDeviceViewport().m_width );
-	perFrameData.height = uint32_t( Tr2Renderer::GetDeviceViewport().m_height );
+	perFrameData.width = uint32_t( renderContext.m_esm.GetDeviceViewport().m_width );
+	perFrameData.height = uint32_t( renderContext.m_esm.GetDeviceViewport().m_height );
 	perFrameData.tilesX = ( perFrameData.width + ( TILE_WIDTH - 1 ) ) / TILE_WIDTH;
 	perFrameData.tilesY = ( perFrameData.height + ( TILE_HEIGHT - 1 ) ) / TILE_HEIGHT;
 	perFrameData.lightCount = std::min( m_lightBuffer->GetGpuBuffer( 0 )->GetDesc().count, uint32_t( m_lightData.GetCount() ) );
@@ -283,7 +283,7 @@ void Tr2LightManager::ReleaseResources( TriStorage s )
 {
 	if( s & m_perFrameData.GetMemoryClass() )
 	{
-		m_perFrameData.Destroy();
+		m_perFrameData = Tr2ConstantBufferAL();
 	}
 }
 
@@ -293,7 +293,8 @@ bool Tr2LightManager::OnPrepareResources()
 
 	m_lightBuffer->Create( LIGHT_BUFFER_SIZE, sizeof( PerLightData ), Tr2GpuBuffer::CPU_WRITABLE );
 	m_indexBuffer->Create( INDEX_BUFFER_SIZE, sizeof( uint32_t ), Tr2GpuStructuredBuffer::GPU_WRITABLE | Tr2GpuStructuredBuffer::COUNTER );
-	m_perFrameData.Create( sizeof( PerFrameData ), Tr2RenderContextEnum::USAGE_LOCK_FREQUENTLY, nullptr, renderContext );
+	ClearLightIndices( renderContext );
+	m_perFrameData.Create( sizeof( PerFrameData ), Tr2ConstantUsageAL::ONE_SHOT, nullptr, renderContext );
 
 	m_effect->SetParameter( BlueSharedString( "LightBuffer" ), m_lightBuffer );
 	m_effect->SetParameter( BlueSharedString( "LightIndices" ), m_indexBuffer, 0 );

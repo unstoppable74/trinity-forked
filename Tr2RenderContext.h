@@ -29,7 +29,7 @@ struct Tr2RenderContextBase: public IRoot, public ITr2RenderContextEvents
 {
 	Tr2RenderContextBase( Tr2RenderContext& renderContext );
 
-	void OnContextCreated( Tr2RenderContextAL& renderContext );
+	void OnContextCreated( Tr2PrimaryRenderContextAL& renderContext );
 
 #if !TRINITY_PLATFORM_HAS_PRIMARY_CONTEXT
 	Tr2RenderTargetPtr GetBackBuffer();
@@ -108,7 +108,7 @@ public:
 
 	EXPOSE_TO_BLUE();
 
-	void OnContextCreated( Tr2RenderContextAL& renderContext );
+	void OnContextCreated( Tr2PrimaryRenderContextAL& renderContext );
 	operator Tr2RenderContext&();
 
 	Tr2RenderTargetPtr GetBackBuffer();

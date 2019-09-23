@@ -466,7 +466,7 @@ void TriDevice::ReleaseDeviceResources( TriStorage s )
 	}
 #endif
 
-	Tr2TrackedALObjectBase::DestroyObjects( s );
+	DestroyDeviceResources( s );
 
 	renderContext.ReleaseDeviceResources();
 }
@@ -1034,24 +1034,26 @@ void TriDevice::SetTickInterval( int value )
 	mTickInterval = value;
 }
 
-void TriDevice::LogAllLiveResources( Tr2ALMemoryTypes flags )
+namespace
 {
-	auto logObject = [&]( Tr2RenderContextEnum::ObjectType /*type*/, const char* typeName, const void* address, const std::map<std::string, uint32_t>& description )
+	void LogObject( Tr2ALMemoryType memoryType, const Tr2DeviceResourceDescriptionAL& description )
 	{
-		char buffer[64];
-		std::string message = typeName;
-		sprintf_s( buffer, " 0x%p: ", address );
-		message += buffer;
+		std::string message;
 		for( auto it = description.begin(); it != description.end(); ++it )
 		{
 			message += it->first;
-			sprintf_s( buffer, ": %u, ", it->second );
-			message += buffer;
+			message += ": ";
+			message += it->second;
+			message += ", ";
 		}
 
 		CCP_LOGERR( "%s", message.c_str() );
 	};
-	Tr2TrackedALObjectBase::GetAllObjectDescriptions( flags, logObject );
+}
+
+void TriDevice::LogAllLiveResources( Tr2ALMemoryTypes flags )
+{
+	DescribeDeviceResources( &LogObject );
 }
 
 bool TriDevice::SupportsRenderTargetFormat( Tr2RenderContextEnum::PixelFormat format ) const

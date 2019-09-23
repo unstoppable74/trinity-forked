@@ -51,7 +51,7 @@ TriStepResult TriStepRenderTexture::Execute( Be::Time realTime, Be::Time simTime
 {
 	if( m_texture && m_texture->GetTexture() )
 	{
-		return ClearIfFail( Tr2Renderer::DrawTexture( *m_texture->GetTexture(), m_tlTexCoord, m_brTexCoord ), renderContext );		
+		return ClearIfFail( Tr2Renderer::DrawTexture( renderContext, *m_texture->GetTexture(), m_tlTexCoord, m_brTexCoord ), renderContext );		
 	}
 	
 	if( m_atlasTexture && m_atlasTexture->GetTexture() )
@@ -64,7 +64,7 @@ TriStepResult TriStepRenderTexture::Execute( Be::Time realTime, Be::Time simTime
 		Vector4 tw;
 		m_atlasTexture->CalcSubTextureWindow( tw, rectX, rectY, rectWidth, rectHeight );
 		
-		return ClearIfFail( Tr2Renderer::DrawTexture( *m_texture->GetTexture(), Vector2( tw.x, tw.y ), Vector2( tw.x + tw.z, tw.y + tw.w ) ), renderContext );		
+		return ClearIfFail( Tr2Renderer::DrawTexture( renderContext, *m_texture->GetTexture(), Vector2( tw.x, tw.y ), Vector2( tw.x + tw.z, tw.y + tw.w ) ), renderContext );		
 	}
 
 	return RS_OK;

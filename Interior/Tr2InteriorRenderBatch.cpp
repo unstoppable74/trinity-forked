@@ -13,6 +13,6 @@ void Tr2InteriorBackgroundCubemapBatch::SubmitGeometry( Tr2RenderContext& render
 {
 	using namespace Tr2RenderContextEnum;
 	
-	Tr2Renderer::DrawCameraSpaceScreenQuad( this->GetShaderStateInterface() , this->GetShaderMaterialInterface() );
+	Tr2Renderer::DrawCameraSpaceScreenQuad( renderContext, this->GetShaderStateInterface() , this->GetShaderMaterialInterface() );
 }
 

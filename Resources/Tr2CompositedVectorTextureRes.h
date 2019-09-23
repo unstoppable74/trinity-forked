@@ -67,6 +67,7 @@ private:
 	uint32_t GetWidth() const;
 	uint32_t GetHeight() const;
 	uint32_t GetOne() const;
+	uint32_t GetZero() const;
 
 	ImageIO::HostBitmap m_bitmap;
 	Tr2TextureAL m_texture;

@@ -146,6 +146,11 @@ uint32_t Tr2DepthStencil::GetMsaaQuality() const
 	return m_depthStencil.GetMsaaDesc().quality;
 }
 
+uint32_t Tr2DepthStencil::GetMipCount() const 
+{ 
+	return 1; 
+}
+
 // --------------------------------------------------------------------------------------
 Tr2RenderContextEnum::DepthStencilFormat Tr2DepthStencil::GetFormat() const
 {

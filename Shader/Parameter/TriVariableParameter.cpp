@@ -78,7 +78,7 @@ bool TriVariableParameter::ApplyUav(
 	{
 		return m_variable->ApplyUav( resourceDesc, stage, registerIndex, initialCount );
 	}
-	return resourceDesc.SetUav( stage, registerIndex, nullTX );
+	return resourceDesc.SetUav( stage, registerIndex, Tr2TextureAL() );
 }
 
 void TriVariableParameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType inputType, 

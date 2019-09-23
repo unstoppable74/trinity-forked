@@ -34,8 +34,7 @@ namespace
 }
 
 Tr2RenderTarget::Tr2RenderTarget( IRoot* )
-	:m_attachedRenderTarget( nullptr ),
-	m_width( 0 ),
+	:m_width( 0 ),
 	m_height( 0 ),
 	m_mipCount( 0 ),
 	m_format( PIXEL_FORMAT_UNKNOWN ),
@@ -138,7 +137,7 @@ Tr2TextureAL* Tr2RenderTarget::GetTexture()
 //   owner - Render target owner object: Tr2RenderTarget locks it so that AL renderTarget
 //     is not deleted before this Tr2RenderTarget
 // --------------------------------------------------------------------------------------
-void Tr2RenderTarget::Attach( Tr2TextureAL* renderTarget, IRoot* owner )
+void Tr2RenderTarget::Attach( const Tr2TextureAL& renderTarget, IRoot* owner )
 {
 	Destroy();
 	m_attachedRenderTarget = renderTarget;
@@ -170,7 +169,7 @@ Tr2TextureAL& Tr2RenderTarget::GetRenderTarget()
 {
 	if( IsAttached() )
 	{
-		return *m_attachedRenderTarget;
+		return m_attachedRenderTarget;
 	}
 	return m_renderTarget;
 }
@@ -185,7 +184,7 @@ const Tr2TextureAL& Tr2RenderTarget::GetRenderTarget() const
 {
 	if( IsAttached() )
 	{
-		return *m_attachedRenderTarget;
+		return m_attachedRenderTarget;
 	}
 	return m_renderTarget;
 }

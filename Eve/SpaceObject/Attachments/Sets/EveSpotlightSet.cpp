@@ -156,14 +156,14 @@ void EveSpotlightSet::AddToQuadRenderer( Tr2QuadRenderer& quadRenderer, const Ma
 			glow.m_transform1 = Vector4( m._11, m._21, m._31, m._41 );
 			glow.m_transform2 = Vector4( m._12, m._22, m._32, m._42 );
 			glow.m_transform3 = Vector4( m._13, m._23, m._33, m._43 );
-			glow.m_activation = Float_16( activation );
-			glow.m_boosterGainInfluence = Float_16( 1 + ( boosterGain - 1 ) * m_spotlightData[i].boosterGainInfluence );
+			glow.m_activation = Float_16( XMConvertFloatToHalf( activation ) );
+			glow.m_boosterGainInfluence = Float_16( XMConvertFloatToHalf( 1 + ( boosterGain - 1 ) * m_spotlightData[i].boosterGainInfluence ) );
 
 			auto& cone = m_coneBuffer[i];
 			cone.m_transform1 = Vector4( m._11, m._21, m._31, m._41 );
 			cone.m_transform2 = Vector4( m._12, m._22, m._32, m._42 );
 			cone.m_transform3 = Vector4( m._13, m._23, m._33, m._43 );
-			cone.m_activation = Float_16( activation );
+			cone.m_activation = Float_16( XMConvertFloatToHalf( activation ) );
 			cone.m_boosterGainInfluence = glow.m_boosterGainInfluence;
 		}
 	}
@@ -186,14 +186,14 @@ void EveSpotlightSet::AddToQuadRenderer( Tr2QuadRenderer& quadRenderer, const Ma
 			glow.m_transform1 = Vector4( m._11, m._21, m._31, m._41 );
 			glow.m_transform2 = Vector4( m._12, m._22, m._32, m._42 );
 			glow.m_transform3 = Vector4( m._13, m._23, m._33, m._43 );
-			glow.m_activation = Float_16( activation );
-			glow.m_boosterGainInfluence = Float_16( 1 + ( boosterGain - 1 ) * data.boosterGainInfluence );
+			glow.m_activation = Float_16( XMConvertFloatToHalf( activation ) );
+			glow.m_boosterGainInfluence = Float_16( XMConvertFloatToHalf( 1 + ( boosterGain - 1 ) * data.boosterGainInfluence ) );
 
 			auto& cone = m_coneBuffer[i];
 			cone.m_transform1 = Vector4( m._11, m._21, m._31, m._41 );
 			cone.m_transform2 = Vector4( m._12, m._22, m._32, m._42 );
 			cone.m_transform3 = Vector4( m._13, m._23, m._33, m._43 );
-			cone.m_activation = Float_16( activation );
+			cone.m_activation = Float_16( XMConvertFloatToHalf( activation ) );
 			cone.m_boosterGainInfluence = glow.m_boosterGainInfluence;
 		}
 	}

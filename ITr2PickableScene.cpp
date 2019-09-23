@@ -41,8 +41,8 @@ void ITr2PickableScene::PickObject( Tr2RenderContext& renderContext, int x, int 
 	ON_BLOCK_EXIT( Tr2Renderer::PopProjection );
 	Tr2Renderer::PushViewTransform();
 	ON_BLOCK_EXIT( Tr2Renderer::PopViewTransform );
-	Tr2Renderer::PushViewport();
-	ON_BLOCK_EXIT( Tr2Renderer::PopViewport );
+	renderContext.m_esm.PushViewport();
+	ON_BLOCK_EXIT( [&] { renderContext.m_esm.PopViewport(); } );
 
 	float fx, fy;
 	Vector3 startWorld;
@@ -66,7 +66,7 @@ void ITr2PickableScene::PickObject( Tr2RenderContext& renderContext, int x, int 
 
 	// Render for picking, limit our view to the pick ray
 	SetupTransformsForPicking( fx, fy, proj, view, viewport );
-	SetPerFrameDataForPicking();
+	SetPerFrameDataForPicking( renderContext );
 
 	const std::vector<ITr2Renderable*>& visibleObjects = GetPickingObjectsToRender( dirWorld );
 
@@ -101,7 +101,7 @@ void ITr2PickableScene::PickObject( Tr2RenderContext& renderContext, int x, int 
 
 		Tr2Renderer::SetWorldTransform( IdentityMatrix() );
 
-		SetPerFrameDataForPicking();
+		SetPerFrameDataForPicking( renderContext );
 
 		GetBatches( pickableObjects, pOpaquePickingBatches, pPickingBatches );
 
@@ -160,80 +160,6 @@ void ITr2PickableScene::PickObject( Tr2RenderContext& renderContext, int x, int 
 			pPickingBatches->Clear();
 		}
 	}
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Finds a set of objects that are inside the given frustum. 
-// Arguments:
-//   minX - Min X viewport coordinate of the frustum
-//   minY - Min Y viewport coordinate of the frustum
-//   maxX - Max X viewport coordinate of the frustum
-//   maxY - Max Y viewport coordinate of the frustum
-//   proj - Current projection transform 
-//   view - Current view transform 
-//   viewport - Current viewport
-// Return value:
-//   Set of objects that are inside the given frustum
-// --------------------------------------------------------------------------------------
-std::set<IRoot*> ITr2PickableScene::MarqueePickObjects( int minX, int minY, int maxX, int maxY, TriProjection *proj, TriView *view, TriViewport *viewport )
-{
-	// Backup current state
-	Tr2Renderer::PushProjection();
-	ON_BLOCK_EXIT( Tr2Renderer::PopProjection );
-	Tr2Renderer::PushViewTransform();
-	ON_BLOCK_EXIT( Tr2Renderer::PopViewTransform );
-	Tr2Renderer::PushViewport();
-	ON_BLOCK_EXIT( Tr2Renderer::PopViewport );
-
-	float fMidX, fMidY, fMinX, fMaxX, fMinY, fMaxY;
-	Vector3 startWorld;
-	Vector3 dirWorld;
-
-	// Get view and projection transforms
-	Matrix projTransform;
-	proj->GetMatrixWithoutViewAdjustment( projTransform );
-	const Matrix& viewTransform = view->GetTransform();
-
-	// This needs to be set because some things rely on the tr2renderer to have the current view and projection data.
-	// when using renderjobs to set the view and projection you can't rely on the tr2renderer.
-	Tr2Renderer::SetProjectionTransform( projTransform );
-	Tr2Renderer::SetViewTransform( viewTransform );
-
-	std::set<IRoot*> resSet;
-	
-	// Find the midpoint of the marquee box in screen space
-	gTriDev->ScreenToProjection( minX, minY, &fMinX, &fMinY, viewport );
-	gTriDev->ScreenToProjection( maxX, maxY, &fMaxX, &fMaxY, viewport );
-	fMidX = 0.5f * ( fMinX + fMaxX );
-	fMidY = 0.5f * ( fMinY + fMaxY );
-
-	// Get the width and height of the box
-	int pickWidth = maxX - minX;
-	int pickHeight = maxY - minY;
-
-	// Find the aspect ratio and FOV of the marquee box
-	float pickAspect = ( float )pickWidth / ( float )pickHeight;
-
-	float heightPercentage = ( float )pickHeight / ( float )viewport->height;
-
-	float pickFOV = 0.5f * Tr2Renderer::GetFieldOfView() * heightPercentage;
-
-	ConvertProjectionCoordToWorldPickRay( fMidX, fMidY, &projTransform, &viewTransform, &startWorld, &dirWorld );
-	
-	const std::vector<ITr2Renderable*>& visibleObjects = GetPickingObjectsToRender( dirWorld, pickFOV, pickAspect );
-	
-	// Collect vector of objects to render
-	for( std::vector<ITr2Renderable*>::const_iterator it = visibleObjects.begin(); it != visibleObjects.end(); ++it )
-	{
-		ITr2PickablePtr pickedObj( BlueCastPtr( *it ) );
-		if( pickedObj )
-		{
-			resSet.insert( pickedObj->GetID( 0 ) );
-		}
-	}
-
-	return resSet;
 }
 
 // --------------------------------------------------------------------------------------
@@ -393,42 +319,6 @@ bool ITr2PickableScene::RenderPicking( ITriRenderBatchAccumulator* pOpaquePickin
     }
 
     return true;
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Renders picking batches into the picking buffer. 
-// Arguments:
-//   pOpaquePickingBatches - Opaque batch accumulator
-//   pPickingBatches - Picking batch accumulator
-//   pass  - union of PickComponent that are to be queried during this pass.
-// Return value:
-//   true If the rendering succeded
-//   false On error
-// --------------------------------------------------------------------------------------
-bool ITr2PickableScene::RenderPickingBuffer( std::vector<ITr2Renderable*> const& pickableObjects, PickComponents pass )
-{
-	ITriRenderBatchAccumulator* pOpaquePickingBatches;
-	ITriRenderBatchAccumulator* pPickingBatches;
-
-    CR_RETURN_VAL( Tr2Renderer::BeginRenderContext(), false );
-	ON_BLOCK_EXIT( Tr2Renderer::EndRenderContext );
-
-    Tr2Renderer::SetWorldTransform( IdentityMatrix() );
-
-	SetPerFrameDataForPicking();
-
-	GetBatches( pickableObjects, pOpaquePickingBatches, pPickingBatches );
-
-	bool results = RenderPicking( pOpaquePickingBatches, pPickingBatches, pass );
-
-	pOpaquePickingBatches->Clear();
-	if( pPickingBatches )
-	{
-		pPickingBatches->Clear();
-	}
-
-	return results;
 }
 
 namespace

@@ -97,26 +97,24 @@ namespace
 
 	PROJECTION_TYPE s_currentProjectionType = PT_PERSPECTIVE;
 
-    Matrix s_projectionTransform;
+	Matrix s_projectionTransform;
 	Matrix s_projectionRawTransform;
-    Matrix s_inverseProjectionTransform;
+	Matrix s_inverseProjectionTransform;
+	Matrix s_viewport2projectionAdjustment;
 
-    Matrix s_viewTransform;
-    Matrix s_inverseViewTransform;
+	Matrix s_viewTransform;
+	Matrix s_inverseViewTransform;
 
 	Matrix s_viewProjectionTransform;
 
-    Matrix s_worldTransform;
-    Matrix s_inverseWorldTransform;
-
-    float s_frontClip = 0.0f;
-    float s_backClip = 0.0f;
-    float s_frustumRadius = 0.0f;
-    float s_aspectRatio = 0.0f;
-    float s_fieldOfView = 0.0f;
+	float s_frontClip = 0.0f;
+	float s_backClip = 0.0f;
+	float s_frustumRadius = 0.0f;
+	float s_aspectRatio = 0.0f;
+	float s_fieldOfView = 0.0f;
 	float s_orthoWidth = 0.0f;
 	float s_orthoHeight = 0.0f;
-	
+
 	void UpdateProjectionParameters( const Matrix& proj )
 	{
 		// Use the fact that:
@@ -126,38 +124,21 @@ namespace
 		// => back = z_f = -m_43/(1+m_43/z_n)
 		// m_22 = cotan(fov/2) = 1 / tan(fov/2)
 		// => fov = 2*tan(1/m_22) 
-		s_aspectRatio =	(proj._11	 ?  proj._22/proj._11 : 0.0f);
-		s_fieldOfView = (proj._22	 ?  2.0f*atan(1.0f/proj._22) : 0.0f);
-		s_frontClip =	(proj._33	 ? proj._43/proj._33 : 0.0f);
-		s_backClip =	proj._43/(1.0f+proj._33);
+		s_aspectRatio = ( proj._11 ? proj._22 / proj._11 : 0.0f );
+		s_fieldOfView = ( proj._22 ? 2.0f*atan( 1.0f / proj._22 ) : 0.0f );
+		s_frontClip = ( proj._33 ? proj._43 / proj._33 : 0.0f );
+		s_backClip = proj._43 / ( 1.0f + proj._33 );
 	}
+
+    Matrix s_worldTransform;
+    Matrix s_inverseWorldTransform;
+
 
 	float s_pickingOffsetX = 0.0f;
 	float s_pickingOffsetY = 0.0f;
 	float s_pickingWidth = 0.0f;
 	float s_pickingHeight = 0.0f;
 
-	CTriViewport s_viewport;
-	// When the s_viewport extends beyond the render target bounds we clip the viewport
-	// explicitly and create a projection adjustment matrix.
-	Tr2Viewport s_viewportOnDevice;
-	Matrix s_viewport2projectionAdjustment;
-
-	struct viewportStackItem {
-		CTriViewport viewport;
-		Tr2Viewport  viewportOnDevice;
-		Matrix projectionAdjustment;
-
-		viewportStackItem( CTriViewport v, Tr2Viewport c, Matrix a ) :
-			viewport( v ),
-			viewportOnDevice( c ),
-			projectionAdjustment( a )
-			{};
-	};
-
-
-	int s_renderTargetWidth = 0;
-	int s_renderTargetHeight = 0;
 
     TriDebugTextRenderer* s_debugTextRenderer = NULL;	
 
@@ -171,48 +152,21 @@ namespace
 	Tr2TextureAL s_fallbackTextures[2][3];
 	bool s_debugFallbackTexture = false;
 
-	std::list<Matrix> s_projectionStack;
+	std::list<std::pair<Matrix, Matrix>> s_projectionStack;
 	std::list<Matrix> s_viewTransformStack;
-	std::list<viewportStackItem> s_viewportStack;
 
-	// Handles to variable store items, used to pass engine parameters to effects	
 	Tr2Variable s_projectionMatrixVar;
 	Tr2Variable s_viewMatrixVar;
 	Tr2Variable s_projectionMatrixInvVar;
 	Tr2Variable s_viewMatrixInvVar;
 	Tr2Variable s_viewProjectionMatrixVar;
 	Tr2Variable s_worldMatrixVar;
-	Tr2Variable s_viewportSizeVar;
-
 	Tr2Variable s_frustumPlanes[6];
 
 #if TBB_ENABLED
 	tbb::task_scheduler_init* s_taskScheduler = NULL;
 #endif
 
-	// To deal with the adjusted viewport that D3D9 forces us to create when viewport
-	// extends beyond the screen
-	void AdjustTextureCoordsToViewport( Vector2& topLeft, Vector2& bottomRight )
-	{
-		Vector2 tlTexCoordAdjusted = topLeft;
-
-		int deltaX = (int)s_viewportOnDevice.m_x - s_viewport.x;
-		int deltaY = (int)s_viewportOnDevice.m_y - s_viewport.y;
-
-		float xOffset = float(deltaX) /  s_viewport.width;
-		float yOffset = float(deltaY) /  s_viewport.height;
-
-		tlTexCoordAdjusted.x += xOffset * bottomRight.x;
-		tlTexCoordAdjusted.y += yOffset * bottomRight.y;
-
-		Vector2 brTexCoordAdjusted;
-		brTexCoordAdjusted = bottomRight;
-		brTexCoordAdjusted.x *= float(s_viewportOnDevice.m_width + deltaX) / s_viewport.width;
-		brTexCoordAdjusted.y *= float(s_viewportOnDevice.m_height + deltaY) / s_viewport.height;
-
-        topLeft = tlTexCoordAdjusted;
-        bottomRight = brTexCoordAdjusted;
-	}
 
 	typedef std::set<Tr2Effect *> EffectSet;
 	EffectSet& GetEffectSet()
@@ -247,40 +201,40 @@ namespace
         }
     }
 
-    void UpdateViewProjectionTransform()
+	void UpdateViewProjectionTransform()
 	{
 		s_viewProjectionTransform = s_viewTransform * s_projectionTransform;
 		s_viewProjectionMatrixVar = s_viewProjectionTransform;
 
 		s_frustumPlanes[0] = Vector4( s_viewProjectionTransform._13,
-									  s_viewProjectionTransform._23,
-									  s_viewProjectionTransform._33,
-									  s_viewProjectionTransform._43 );
+			s_viewProjectionTransform._23,
+			s_viewProjectionTransform._33,
+			s_viewProjectionTransform._43 );
 		s_frustumPlanes[1] = Vector4( s_viewProjectionTransform._14 + s_viewProjectionTransform._11,
-									  s_viewProjectionTransform._24 + s_viewProjectionTransform._21,
-									  s_viewProjectionTransform._34 + s_viewProjectionTransform._31,
-									  s_viewProjectionTransform._44 + s_viewProjectionTransform._41 );
+			s_viewProjectionTransform._24 + s_viewProjectionTransform._21,
+			s_viewProjectionTransform._34 + s_viewProjectionTransform._31,
+			s_viewProjectionTransform._44 + s_viewProjectionTransform._41 );
 		s_frustumPlanes[2] = Vector4( s_viewProjectionTransform._14 - s_viewProjectionTransform._12,
-									  s_viewProjectionTransform._24 - s_viewProjectionTransform._22,
-									  s_viewProjectionTransform._34 - s_viewProjectionTransform._32,
-									  s_viewProjectionTransform._44 - s_viewProjectionTransform._42 );
+			s_viewProjectionTransform._24 - s_viewProjectionTransform._22,
+			s_viewProjectionTransform._34 - s_viewProjectionTransform._32,
+			s_viewProjectionTransform._44 - s_viewProjectionTransform._42 );
 		s_frustumPlanes[3] = Vector4( s_viewProjectionTransform._14 - s_viewProjectionTransform._11,
-									  s_viewProjectionTransform._24 - s_viewProjectionTransform._21,
-									  s_viewProjectionTransform._34 - s_viewProjectionTransform._31,
-									  s_viewProjectionTransform._44 - s_viewProjectionTransform._41 );
+			s_viewProjectionTransform._24 - s_viewProjectionTransform._21,
+			s_viewProjectionTransform._34 - s_viewProjectionTransform._31,
+			s_viewProjectionTransform._44 - s_viewProjectionTransform._41 );
 		s_frustumPlanes[4] = Vector4( s_viewProjectionTransform._14 + s_viewProjectionTransform._12,
-									  s_viewProjectionTransform._24 + s_viewProjectionTransform._22,
-									  s_viewProjectionTransform._34 + s_viewProjectionTransform._32,
-									  s_viewProjectionTransform._44 + s_viewProjectionTransform._42 );
+			s_viewProjectionTransform._24 + s_viewProjectionTransform._22,
+			s_viewProjectionTransform._34 + s_viewProjectionTransform._32,
+			s_viewProjectionTransform._44 + s_viewProjectionTransform._42 );
 		s_frustumPlanes[5] = Vector4( s_viewProjectionTransform._14 + s_viewProjectionTransform._13,
-									  s_viewProjectionTransform._24 + s_viewProjectionTransform._23,
-									  s_viewProjectionTransform._34 + s_viewProjectionTransform._33,
-									  s_viewProjectionTransform._44 + s_viewProjectionTransform._43 );
+			s_viewProjectionTransform._24 + s_viewProjectionTransform._23,
+			s_viewProjectionTransform._34 + s_viewProjectionTransform._33,
+			s_viewProjectionTransform._44 + s_viewProjectionTransform._43 );
 	}
 
 	void SetProjectionDerivedValues()
 	{
-	    s_projectionRawTransform = s_projectionTransform;
+		s_projectionRawTransform = s_projectionTransform;
 
 		// Apply scaling and offset to projection matrix. If the viewport extends
 		// the render target we need to clip the viewport and thus scale+offset the
@@ -300,6 +254,7 @@ namespace
 		s_projectionMatrixInvVar = s_inverseProjectionTransform;
 		UpdateViewProjectionTransform();
 	}
+
 
 	void CreateFallbackTexturesWithColor( uint32_t color, Tr2TextureAL* outputTextures, Tr2PrimaryRenderContext& renderContext )
 	{
@@ -335,6 +290,34 @@ namespace
 			DestroyFallbackTextures( s_fallbackTextures[1] );
 		}
 	}
+
+	// To deal with the adjusted viewport that D3D9 forces us to create when viewport
+	// extends beyond the screen
+	void AdjustTextureCoordsToViewport( Tr2RenderContext& renderContext, Vector2& topLeft, Vector2& bottomRight )
+	{
+		Vector2 tlTexCoordAdjusted = topLeft;
+
+		auto& viewportOnDevice = renderContext.m_esm.GetDeviceViewport();
+		auto& viewport = renderContext.m_esm.GetViewport();
+
+		int deltaX = (int)viewportOnDevice.m_x - viewport.x;
+		int deltaY = (int)viewportOnDevice.m_y - viewport.y;
+
+		float xOffset = float( deltaX ) / viewport.width;
+		float yOffset = float( deltaY ) / viewport.height;
+
+		tlTexCoordAdjusted.x += xOffset * bottomRight.x;
+		tlTexCoordAdjusted.y += yOffset * bottomRight.y;
+
+		Vector2 brTexCoordAdjusted;
+		brTexCoordAdjusted = bottomRight;
+		brTexCoordAdjusted.x *= float( viewportOnDevice.m_width + deltaX ) / viewport.width;
+		brTexCoordAdjusted.y *= float( viewportOnDevice.m_height + deltaY ) / viewport.height;
+
+		topLeft = tlTexCoordAdjusted;
+		bottomRight = brTexCoordAdjusted;
+	}
+
 }
 
 bool Tr2Renderer::Initialize()
@@ -350,8 +333,7 @@ bool Tr2Renderer::Initialize()
 	s_viewMatrixInvVar.Register( "ViewInvMat", s_viewTransform );
 	s_projectionMatrixVar.Register( "ProjectionMat", s_projectionTransform );
 	s_projectionMatrixInvVar.Register( "ProjectionInvMat", s_projectionTransform );
-	s_viewProjectionMatrixVar.Register(  "ViewProjectionMat", s_viewProjectionTransform );
-	s_viewportSizeVar		 .Register(  "ViewportSize",		Vector4(0.0f, 0.0f, 1.0f, 0.0f) );
+	s_viewProjectionMatrixVar.Register( "ViewProjectionMat", s_viewProjectionTransform );
 
 	s_frustumPlanes[0].Register( "FrustumPlane0", Vector4( 0.0f, 0.0f, 1.0f, 0.0f ) );
 	s_frustumPlanes[1].Register( "FrustumPlane1", Vector4( 0.0f, 0.0f, 1.0f, 0.0f ) );
@@ -419,64 +401,69 @@ void Tr2Renderer::AdjustProjection( const Vector2& scaling, const Vector2& trans
 }
 
 
-void Tr2Renderer::SetPerspectiveProjection( float fov, float front, float back, float asp )
+void Tr2Renderer::SetPerspectiveProjection( float fov, float front, float back, float asp, const Matrix& viewportAdjustment )
 {
 	s_currentProjectionType = PT_PERSPECTIVE;
-    s_fieldOfView = fov;
-    s_frontClip   = front;
-    s_backClip    = back;
-    s_aspectRatio = asp;
+	s_fieldOfView = fov;
+	s_frontClip = front;
+	s_backClip = back;
+	s_aspectRatio = asp;
 
 	s_projectionTransform = PerspectiveFovMatrix( s_fieldOfView, s_aspectRatio, s_frontClip, s_backClip );
+	s_viewport2projectionAdjustment = viewportAdjustment;
 
 	SetProjectionDerivedValues();
 }
 
-void Tr2Renderer::SetPerspectiveProjection( float left, float right, float bottom, float top, float front, float back )
+void Tr2Renderer::SetPerspectiveProjection( float left, float right, float bottom, float top, float front, float back, const Matrix& viewportAdjustment )
 {
 	s_currentProjectionType = PT_PERSPECTIVE;
 	s_projectionTransform = PerspectiveOffCenterMatrix( left, right, bottom, top, front, back );
+	s_viewport2projectionAdjustment = viewportAdjustment;
 
 	UpdateProjectionParameters( s_projectionTransform );
 
 	SetProjectionDerivedValues();
 }
 
-void Tr2Renderer::SetOrthoProjection( float width, float height, float front, float back )
+void Tr2Renderer::SetOrthoProjection( float width, float height, float front, float back, const Matrix& viewportAdjustment )
 {
 	s_currentProjectionType = PT_ORTHOGONAL;
 
 	s_projectionTransform = OrthoMatrix( width, height, front, back );
+	s_viewport2projectionAdjustment = viewportAdjustment;
 
 	s_orthoWidth = width;
 	s_orthoHeight = height;
-	s_aspectRatio =	(height ? width/height : 1.0f );
+	s_aspectRatio = ( height ? width / height : 1.0f );
 	s_fieldOfView = 1.0f;
-	s_frontClip =	front;
-	s_backClip =	back;
+	s_frontClip = front;
+	s_backClip = back;
 
 	SetProjectionDerivedValues();
 }
 
-void Tr2Renderer::SetOrthoProjection( float left, float right, float bottom, float top, float front, float back )
+void Tr2Renderer::SetOrthoProjection( float left, float right, float bottom, float top, float front, float back, const Matrix& viewportAdjustment )
 {
 	s_currentProjectionType = PT_ORTHOGONAL;
 
 	s_projectionTransform = OrthoOffCenterMatrix( left, right, bottom, top, front, back );
+	s_viewport2projectionAdjustment = viewportAdjustment;
 
-	s_orthoWidth = right-left;
-	s_orthoHeight = top-bottom;
-	s_aspectRatio =	(s_orthoHeight ? s_orthoWidth/s_orthoHeight : 1.0f );
+	s_orthoWidth = right - left;
+	s_orthoHeight = top - bottom;
+	s_aspectRatio = ( s_orthoHeight ? s_orthoWidth / s_orthoHeight : 1.0f );
 	s_fieldOfView = 1.0f;
-	s_frontClip =	front;
-	s_backClip =	back;
+	s_frontClip = front;
+	s_backClip = back;
 	SetProjectionDerivedValues();
 }
 
-void Tr2Renderer::SetProjectionTransform( const Matrix& proj )
+void Tr2Renderer::SetProjectionTransform( const Matrix& proj, const Matrix& viewportAdjustment )
 {
 	s_currentProjectionType = PT_UNKNOWN;
 	s_projectionTransform = proj;
+	s_viewport2projectionAdjustment = viewportAdjustment;
 	UpdateProjectionParameters( proj );
 	SetProjectionDerivedValues();
 }
@@ -488,7 +475,7 @@ const PROJECTION_TYPE Tr2Renderer::GetCurrentProjectionType()
 
 const Matrix& Tr2Renderer::GetProjectionTransform()
 {
-    return s_projectionTransform;
+	return s_projectionTransform;
 }
 
 Matrix Tr2Renderer::GetReversedDepthProjectionTransform()
@@ -501,7 +488,7 @@ Matrix Tr2Renderer::GetReversedDepthProjectionTransform()
 
 const Matrix& Tr2Renderer::GetProjectionRawTransform()
 {
-    return s_projectionRawTransform;
+	return s_projectionRawTransform;
 }
 
 Vector3 Tr2Renderer::ProjectWorldToScreen( const Vector3& worldPos, const Tr2Viewport& vp )
@@ -514,29 +501,29 @@ Vector3 Tr2Renderer::ProjectWorldToScreen( const Vector3& worldPos, const Tr2Vie
 		p *= 1.0f / p.w;
 	}
 
-	return Vector3(		vp.m_x + vp.m_width * ( 0.5f + 0.5f * p.x ),
-						vp.m_y + vp.m_height* ( 0.5f - 0.5f * p.y ),
-						vp.m_minZ + p.z * vp.m_maxZ );
+	return Vector3( vp.m_x + vp.m_width * ( 0.5f + 0.5f * p.x ),
+		vp.m_y + vp.m_height* ( 0.5f - 0.5f * p.y ),
+		vp.m_minZ + p.z * vp.m_maxZ );
 }
 
 const Matrix& Tr2Renderer::GetInverseProjectionTransform()
 {
-    return s_inverseProjectionTransform;
+	return s_inverseProjectionTransform;
 }
 
 float Tr2Renderer::GetFrontClip()
 {
-    return s_frontClip;
+	return s_frontClip;
 }
 
 float Tr2Renderer::GetBackClip()
 {
-    return s_backClip;
+	return s_backClip;
 }
 
 float Tr2Renderer::GetFrustumRadius()
 {
-    return s_frustumRadius;
+	return s_frustumRadius;
 }
 
 void Tr2Renderer::GetFrustumPlane( size_t index, Vector4& plane )
@@ -546,12 +533,12 @@ void Tr2Renderer::GetFrustumPlane( size_t index, Vector4& plane )
 
 float Tr2Renderer::GetFieldOfView()
 {
-    return s_fieldOfView;
+	return s_fieldOfView;
 }
 
 float Tr2Renderer::GetAspectRatio()
 {
-    return s_aspectRatio;
+	return s_aspectRatio;
 }
 
 float Tr2Renderer::GetOrthoWidth()
@@ -564,16 +551,6 @@ float Tr2Renderer::GetOrthoHeight()
 	return s_orthoHeight;
 }
 
-unsigned int Tr2Renderer::GetRenderTargetWidth()
-{
-	return s_renderTargetWidth;
-}
-
-unsigned int Tr2Renderer::GetRenderTargetHeight()
-{
-	return s_renderTargetHeight;
-}
-
 void Tr2Renderer::SetWorldTransform( const Matrix& m )
 {
     s_worldTransform = m;
@@ -584,7 +561,7 @@ void Tr2Renderer::SetWorldTransform( const Matrix& m )
 
 void Tr2Renderer::SetViewTransform( const Matrix& m )
 {
-    s_viewTransform = m;
+	s_viewTransform = m;
 	s_inverseViewTransform = Inverse( s_viewTransform );
 
 	UpdateViewProjectionTransform();
@@ -592,8 +569,8 @@ void Tr2Renderer::SetViewTransform( const Matrix& m )
 	// Ensure variable store is aware of the change
 	s_viewMatrixVar = s_viewTransform;
 	s_viewMatrixInvVar = s_inverseViewTransform;
-
 }
+
 const Matrix& Tr2Renderer::GetWorldTransform()
 {
 	return s_worldTransform;
@@ -601,26 +578,26 @@ const Matrix& Tr2Renderer::GetWorldTransform()
 
 const Matrix& Tr2Renderer::GetViewTransform()
 {
-    return s_viewTransform;
+	return s_viewTransform;
 }
 
 const Matrix& Tr2Renderer::GetInverseViewTransform()
 {
-    return s_inverseViewTransform;
+	return s_inverseViewTransform;
 }
 
 const Vector3& Tr2Renderer::GetViewPosition()
 {
-    return *(Vector3*)(&s_inverseViewTransform._41);
+	return *(Vector3*)( &s_inverseViewTransform._41 );
 }
 
-const Vector3& Tr2Renderer::GetViewLookAt()
+Vector3 Tr2Renderer::GetViewLookAt()
 {
-    static Vector3 v;
-    v.x = s_viewTransform._13;
-    v.y = s_viewTransform._23;
-    v.z = s_viewTransform._33;
-    return v;
+	Vector3 v;
+	v.x = s_viewTransform._13;
+	v.y = s_viewTransform._23;
+	v.z = s_viewTransform._33;
+	return v;
 }
 
 Vector4 ColorToVec4( uint32_t color )
@@ -650,7 +627,7 @@ void Tr2Renderer::Printf( int x, int y, uint32_t color, const char* msg, ... )
 	s_debugTextRenderer->Vprintf( TRI_DBG_FONT_SMALL, rect, TRI_DFS_LEFT, ColorToVec4( color ), msg, args );
 }
 
-void Tr2Renderer::PrintfImmediate( int x, int y, uint32_t color, uint32_t format, const char* msg, ... )
+void Tr2Renderer::PrintfImmediate( Tr2RenderContext& renderContext, int x, int y, uint32_t color, uint32_t format, const char* msg, ... )
 {
 	if( !s_debugTextRenderer )
 	{
@@ -661,7 +638,6 @@ void Tr2Renderer::PrintfImmediate( int x, int y, uint32_t color, uint32_t format
 	va_start( args, msg );
 
 	Tr2Viewport viewport;
-	USE_MAIN_THREAD_RENDER_CONTEXT();
 	renderContext.GetViewport( viewport );
 	
 	Rect rect;
@@ -679,7 +655,7 @@ void Tr2Renderer::PrintfImmediate( int x, int y, uint32_t color, uint32_t format
 		rect.bottom = rect.top + 512;
 		rect.right = rect.left + 1024;
 	}
-	s_debugTextRenderer->VprintfImmediate( TRI_DBG_FONT_SMALL, rect, format, ColorToVec4( color ), msg, args );
+	s_debugTextRenderer->VprintfImmediate( renderContext, TRI_DBG_FONT_SMALL, rect, format, ColorToVec4( color ), msg, args );
 }
 
 void Tr2Renderer::Printf( TriDebugFont font, const Rect& rect, uint32_t format, uint32_t color, const char* msg, ... )
@@ -694,7 +670,7 @@ void Tr2Renderer::Printf( TriDebugFont font, const Rect& rect, uint32_t format, 
     s_debugTextRenderer->Vprintf( font, rect, format, ColorToVec4( color ), msg, args );
 }
 
-void Tr2Renderer::PrintfImmediate( TriDebugFont font, const Rect& rect, uint32_t format, uint32_t color, const char* msg, ... )
+void Tr2Renderer::PrintfImmediate( Tr2RenderContext& renderContext, TriDebugFont font, const Rect& rect, uint32_t format, uint32_t color, const char* msg, ... )
 {
 	if( !s_debugTextRenderer )
 	{
@@ -703,7 +679,7 @@ void Tr2Renderer::PrintfImmediate( TriDebugFont font, const Rect& rect, uint32_t
 
 	va_list args;
 	va_start( args, msg );
-	s_debugTextRenderer->VprintfImmediate( font, rect, format, ColorToVec4( color ), msg, args );
+	s_debugTextRenderer->VprintfImmediate( renderContext, font, rect, format, ColorToVec4( color ), msg, args );
 }
 
 void Tr2Renderer::Printf( TriDebugFont font, const Vector3& pos, uint32_t color, const char* msg, ... )
@@ -764,11 +740,11 @@ void Tr2Renderer::Printf( TriDebugFont font, int fontStyle, const Vector3& pos, 
 	s_debugTextRenderer->Vprintf( font, rect, fontStyle, color, msg, args );
 }
 
-bool Tr2Renderer::DrawTexture( Tr2Material* effect, Tr2TextureAL& texture )
+bool Tr2Renderer::DrawTexture( Tr2RenderContext& renderContext, Tr2Material* effect, Tr2TextureAL& texture )
 {
 	if( s_blitter )
 	{
-		return s_blitter->Draw( effect, texture );
+		return s_blitter->Draw( renderContext, effect, texture );
 	}
 	return false;
 }
@@ -782,55 +758,55 @@ bool Tr2Renderer::DrawTexture( Tr2Material* effect, Tr2TextureAL& texture )
 //   true if success, false if no blitter available.
 // --------------------------------------------------------------------------------------
 
-bool Tr2Renderer::DrawFullScreenWithShader( Tr2Material * shader )
+bool Tr2Renderer::DrawFullScreenWithShader( Tr2RenderContext& renderContext, Tr2Material * shader )
 {
 	if( s_blitter )
 	{
-		return s_blitter->Draw( shader );
+		return s_blitter->Draw( renderContext, shader );
 	}
 	return false;
 }
 
-bool Tr2Renderer::DrawTexture( Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord, Tr2Blitter::Filtering filter )
-{
-	if( s_blitter )
-	{
-		Vector2 tlTexCoordAdjusted = tlTexCoord;
-		Vector2 brTexCoordAdjusted = brTexCoord;
-		AdjustTextureCoordsToViewport( tlTexCoordAdjusted, brTexCoordAdjusted );
-
-		return s_blitter->Draw( texture, tlTexCoordAdjusted, brTexCoordAdjusted, filter );
-	}
-	return false;
-}
-
-bool Tr2Renderer::DrawTexture( Tr2Material* effect, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord )
+bool Tr2Renderer::DrawTexture( Tr2RenderContext& renderContext, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord, Tr2Blitter::Filtering filter )
 {
 	if( s_blitter )
 	{
 		Vector2 tlTexCoordAdjusted = tlTexCoord;
 		Vector2 brTexCoordAdjusted = brTexCoord;
-		AdjustTextureCoordsToViewport( tlTexCoordAdjusted, brTexCoordAdjusted );
+		AdjustTextureCoordsToViewport( renderContext, tlTexCoordAdjusted, brTexCoordAdjusted );
 
-		return s_blitter->Draw( effect, texture, tlTexCoordAdjusted, brTexCoordAdjusted );
+		return s_blitter->Draw( renderContext, texture, tlTexCoordAdjusted, brTexCoordAdjusted, filter );
 	}
 	return false;
 }
 
-bool Tr2Renderer::DrawTexture( Tr2Material* effect, const Vector2& tlTexCoord, const Vector2& brTexCoord )
+bool Tr2Renderer::DrawTexture( Tr2RenderContext& renderContext, Tr2Material* effect, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord )
 {
 	if( s_blitter )
 	{
 		Vector2 tlTexCoordAdjusted = tlTexCoord;
 		Vector2 brTexCoordAdjusted = brTexCoord;
-		AdjustTextureCoordsToViewport( tlTexCoordAdjusted, brTexCoordAdjusted );
+		AdjustTextureCoordsToViewport( renderContext, tlTexCoordAdjusted, brTexCoordAdjusted );
 
-		return s_blitter->Draw( effect, tlTexCoordAdjusted, brTexCoordAdjusted );
+		return s_blitter->Draw( renderContext, effect, texture, tlTexCoordAdjusted, brTexCoordAdjusted );
 	}
 	return false;
 }
 
-bool Tr2Renderer::DrawTexture( Tr2Material* effect, Tr2TextureAL& texture,
+bool Tr2Renderer::DrawTexture( Tr2RenderContext& renderContext, Tr2Material* effect, const Vector2& tlTexCoord, const Vector2& brTexCoord )
+{
+	if( s_blitter )
+	{
+		Vector2 tlTexCoordAdjusted = tlTexCoord;
+		Vector2 brTexCoordAdjusted = brTexCoord;
+		AdjustTextureCoordsToViewport( renderContext, tlTexCoordAdjusted, brTexCoordAdjusted );
+
+		return s_blitter->Draw( renderContext, effect, tlTexCoordAdjusted, brTexCoordAdjusted );
+	}
+	return false;
+}
+
+bool Tr2Renderer::DrawTexture( Tr2RenderContext& renderContext, Tr2Material* effect, Tr2TextureAL& texture,
                                const Vector2& tlTexCoord, const Vector2& brTexCoord,
                                const Vector2& tlVertexCoord, const Vector2& brVertexCoord )
 {
@@ -838,30 +814,21 @@ bool Tr2Renderer::DrawTexture( Tr2Material* effect, Tr2TextureAL& texture,
     {
         Vector2 tlTexCoordAdjusted = tlTexCoord;
         Vector2 brTexCoordAdjusted = brTexCoord;
-        AdjustTextureCoordsToViewport( tlTexCoordAdjusted, brTexCoordAdjusted );
+        AdjustTextureCoordsToViewport( renderContext, tlTexCoordAdjusted, brTexCoordAdjusted );
 
         if( effect )
         {
-            return s_blitter->Draw( effect, texture, 
+            return s_blitter->Draw( renderContext, effect, texture,
                                     tlTexCoordAdjusted, brTexCoordAdjusted, 
                                     tlVertexCoord, brVertexCoord );
         }
         else
         {
-            return s_blitter->Draw( texture, tlTexCoordAdjusted, brTexCoordAdjusted, 
+            return s_blitter->Draw( renderContext, texture, tlTexCoordAdjusted, brTexCoordAdjusted,
                                     tlVertexCoord, brVertexCoord );
         }
     }
     return false;
-}
-
-bool Tr2Renderer::DrawCubeTexture( Tr2TextureAL& texture, Tr2RenderContextEnum::CubemapFace face, unsigned int mipLevel )
-{
-	if( s_blitter )
-	{
-		return s_blitter->DrawCube( texture, face, mipLevel );
-	}
-	return false;
 }
 
 // --------------------------------------------------------------------------------------
@@ -1001,164 +968,21 @@ bool Tr2Renderer::RunComputeShaderIndirect( Tr2Material* effect, Tr2BufferAL& in
 	return true;
 }
 
-bool Tr2Renderer::PushDepthStencilBuffer( Tr2RenderContext& renderContext )
-{
-	return SUCCEEDED( renderContext.PushDepthStencil() );
-}
-
-bool Tr2Renderer::PushDepthStencilBuffer( const Tr2TextureAL& ds, Tr2RenderContext& renderContext )
-{
-	renderContext.PushDepthStencil();
-
-	return Tr2Renderer::SetDepthStencilBuffer( ds, renderContext );
-}
-
-void Tr2Renderer::PopDepthStencilBuffer( Tr2RenderContext& renderContext )
-{
-	renderContext.PopDepthStencil();
-}
-
-void Tr2Renderer::PushRenderTarget( Tr2RenderContext& renderContext )
-{
-	renderContext.PushRenderTarget();
-}
-
-void Tr2Renderer::PushRenderTarget( unsigned slot, Tr2RenderContext& renderContext )
-{
-	renderContext.PushRenderTarget( slot );
-}
-
-void Tr2Renderer::PushRenderTarget( const Tr2TextureAL& rt, Tr2RenderContext& renderContext )
-{
-	PushRenderTarget( rt, 0, renderContext );
-}
-
-void Tr2Renderer::PushRenderTarget( const Tr2TextureAL& rt, unsigned slot, Tr2RenderContext& renderContext )
-{
-	renderContext.PushRenderTarget( slot );
-	Tr2Renderer::SetRenderTarget( slot, rt, renderContext );
-}
-
-static void SetupViewport()
-{
-	// See whether this viewport extends beyond the render target. If so,
-	// we need to clip it.
-
-	int x0 = s_viewport.x;
-	int y0 = s_viewport.y;
-	int x1 = s_viewport.x + s_viewport.width;
-	int y1 = s_viewport.y + s_viewport.height;
-
-	s_viewportOnDevice.m_x	= std::max( (float)x0, 0.0f );
-	s_viewportOnDevice.m_y	= std::max( (float)y0, 0.0f );
-
-    // Viewport width and height must be greater than zero. Using zero edge 
-    // length causes dx error.
-	s_viewportOnDevice.m_width  = (float)std::max( std::min( x1, s_renderTargetWidth ) - int( s_viewportOnDevice.m_x ), 1 );
-	s_viewportOnDevice.m_height = (float)std::max( std::min( y1, s_renderTargetHeight ) - int( s_viewportOnDevice.m_y ), 1 );
-
-	s_viewportOnDevice.m_minZ   = s_viewport.minZ;
-	s_viewportOnDevice.m_maxZ   = s_viewport.maxZ;
-
-	// In case we shrunk the viewport we need to scale and/or offset the
-	// projection matrix
-	s_viewport2projectionAdjustment._11 = s_viewport.width / s_viewportOnDevice.m_width;
-	s_viewport2projectionAdjustment._22 = s_viewport.height / s_viewportOnDevice.m_height;
-	s_viewport2projectionAdjustment._31 = ( s_viewport.width - s_viewportOnDevice.m_width ) / s_viewportOnDevice.m_width;
-	s_viewport2projectionAdjustment._32 = ( s_viewport.height - s_viewportOnDevice.m_height ) / s_viewportOnDevice.m_height;
-
-	if( s_viewport.x < 0 )
-	{
-		s_viewport2projectionAdjustment._31 *= -1;
-	}
-
-	if( s_viewport.y + s_viewport.height > s_renderTargetHeight )
-	{
-		s_viewport2projectionAdjustment._32 *= -1;
-	}
-
-	s_viewportSizeVar = Vector4( (float)s_viewport.width, (float)s_viewport.height, (float)s_renderTargetWidth, (float)s_renderTargetHeight );
-
-	// Finally, set the (possibly clipped) viewport on the D3D device.
-	USE_MAIN_THREAD_RENDER_CONTEXT();
-	renderContext.SetViewport( s_viewportOnDevice );
-}
-
-
-void UpdateRenderTargetViewport( unsigned width, unsigned height )
-{
-	CCP_ASSERT( width > 0 );
-	CCP_ASSERT( height > 0 );
-
-	// Keep record of the render target's width and height. This is used when
-	// checking whether the viewport extends beyond the render target or not.
-	s_renderTargetWidth  = width;
-	s_renderTargetHeight = height;
-
-	// Reset the viewport
-	s_viewportOnDevice.m_x		= 0;
-	s_viewportOnDevice.m_y		= 0;
-	s_viewportOnDevice.m_height = (float)height;
-	s_viewportOnDevice.m_width	= (float)width;
-	s_viewport.height			= height;
-	s_viewport.width			= width;
-	s_viewport.x				= 0;
-	s_viewport.y				= 0;
-	s_viewport.minZ = s_viewportOnDevice.m_minZ = 0.0f;
-	s_viewport.maxZ = s_viewportOnDevice.m_maxZ = 1.0f;
-
-	s_viewportSizeVar = Vector4( s_viewportOnDevice.m_width, s_viewportOnDevice.m_height, (float)s_renderTargetWidth, (float)s_renderTargetHeight );
-
-	// Reset the projection adjustment
-	s_viewport2projectionAdjustment = IdentityMatrix();
-}
-
-void Tr2Renderer::PopRenderTarget( Tr2RenderContext& renderContext )
-{
-	PopRenderTarget( 0, renderContext );
-}
-
-void Tr2Renderer::PopRenderTarget( unsigned slot, Tr2RenderContext& renderContext )
-{
-	renderContext.PopRenderTarget( slot );
-
-	unsigned width, height;
-	if( slot == 0 && SUCCEEDED( renderContext.GetRenderTargetSize( width, height ) ) )
-	{
-		UpdateRenderTargetViewport( width, height );
-	}
-}
-
 void Tr2Renderer::PushProjection()
 {
-	s_projectionStack.push_front( s_projectionRawTransform );
+	s_projectionStack.push_front( std::make_pair( s_projectionRawTransform, s_viewport2projectionAdjustment ) );
 }
 
 void Tr2Renderer::PopProjection()
 {
 	CCP_ASSERT( !s_projectionStack.empty() );
 
-	s_projectionTransform = s_projectionStack.front();
+	auto transforms = s_projectionStack.front();
+	s_projectionTransform = transforms.first;
+	s_viewport2projectionAdjustment = transforms.second;
 	s_projectionStack.pop_front();
 	UpdateProjectionParameters( s_projectionTransform );
-	SetupViewport();
-    SetProjectionDerivedValues();
-}
-
-void Tr2Renderer::PushViewport()
-{
-	const viewportStackItem item( s_viewport, s_viewportOnDevice, s_viewport2projectionAdjustment );
-	s_viewportStack.push_front( item );
-}
-
-void Tr2Renderer::PopViewport()
-{
-	CCP_ASSERT( !s_viewportStack.empty() );
-
-	viewportStackItem item = s_viewportStack.front();
-	s_viewportStack.pop_front();
-
-	SetViewport( item.viewport );
+	SetProjectionDerivedValues();
 }
 
 void Tr2Renderer::PushViewTransform()
@@ -1177,27 +1001,27 @@ void Tr2Renderer::PopViewTransform()
 }
 
 
-void Tr2Renderer::DrawScreenQuad( Tr2Material* effect )
+void Tr2Renderer::DrawScreenQuad( Tr2RenderContext& renderContext, Tr2Material* effect )
 {
 	if( s_blitter )
 	{
-		s_blitter->Draw( effect );
+		s_blitter->Draw( renderContext, effect );
 	}
 }
 
-void Tr2Renderer::DrawScreenQuad( Tr2Effect* effect, const Vector2 &topLeft, const Vector2 &bottomRight )
+void Tr2Renderer::DrawScreenQuad( Tr2RenderContext& renderContext, Tr2Effect* effect, const Vector2 &topLeft, const Vector2 &bottomRight )
 {
 	if( s_blitter )
 	{
-		s_blitter->Draw( effect, Vector2(0,0), Vector2(1,1), topLeft, bottomRight );
+		s_blitter->Draw( renderContext, effect, Vector2(0,0), Vector2(1,1), topLeft, bottomRight );
 	}
 }
 
-void Tr2Renderer::DrawCameraSpaceScreenQuad( Tr2Shader* shader, Tr2Material* material )
+void Tr2Renderer::DrawCameraSpaceScreenQuad( Tr2RenderContext& renderContext, Tr2Shader* shader, Tr2Material* material )
 {
 	if( s_blitter )
 	{
-		s_blitter->DrawInCameraSpace( shader, material );
+		s_blitter->DrawInCameraSpace( renderContext, shader, material );
 	}
 }
 
@@ -1267,12 +1091,6 @@ TriPoolAllocator* Tr2Renderer::GetPoolAllocator()
 unsigned long Tr2Renderer::GetCurrentFrameCounter()
 {
 	return g_currentFrameCounter;
-}
-
-void Tr2Renderer::ClearDepthBuffer( float z /*= 1.0f */ )
-{
-	USE_MAIN_THREAD_RENDER_CONTEXT();
-	renderContext.Clear( CLEARFLAGS_ZBUFFER, 0, z, 0 );
 }
 
 void Tr2Renderer::RegisterEffect( Tr2Effect* f )
@@ -1601,7 +1419,7 @@ void Tr2Renderer::RenderDebugInfo( Tr2RenderContext& renderContext )
 {
 	if( s_debugTextRenderer )
 	{
-		s_debugTextRenderer->Render();
+		s_debugTextRenderer->Render( renderContext );
 		s_debugTextRenderer->Clear();
 	}
 
@@ -1612,80 +1430,10 @@ void Tr2Renderer::RenderDebugInfo( Tr2RenderContext& renderContext )
 	}
 }
 
-void Tr2Renderer::SetFullScreenViewport()
-{
-	s_viewport.width  = s_renderTargetWidth;
-	s_viewport.height = s_renderTargetHeight;
-	s_viewport.x      = 0;
-	s_viewport.y      = 0;
-	s_viewport.minZ   = 0.0f;
-	s_viewport.maxZ   = 1.0f;
-
-	SetupViewport();
-}
-
-void Tr2Renderer::SetViewport( const TriViewport& vp )
-{
-	// As s_viewport is a CTriViewport we do a "member copy" on the original
-	// viewport we got passed in
-	SetViewport( vp.width, vp.height, vp.x, vp.y, vp.minZ, vp.maxZ );
-}
-
-void Tr2Renderer::SetViewport( int width, int height, int x, int y, float minZ, float maxZ )
-{
-	// As s_viewport is a CTriViewport we fill this struct
-	s_viewport.width  = width;
-	s_viewport.height = height;
-	s_viewport.x      = x;
-	s_viewport.y      = y;
-	s_viewport.minZ   = minZ;
-	s_viewport.maxZ   = maxZ;
-
-	SetupViewport();
-}
-
 const TriViewport& Tr2Renderer::GetViewport()
 {
-	return s_viewport;
-}
-
-const Tr2Viewport& Tr2Renderer::GetDeviceViewport()
-{
-	return s_viewportOnDevice;
-}
-
-bool Tr2Renderer::SetRenderTarget( unsigned int index, const Tr2TextureAL& rt, Tr2RenderContext& renderContext, bool updateViewport )
-{
-	if( FAILED( renderContext.SetRenderTarget( rt, index ) ) )
-	{
-		CCP_LOGERR( "Failed to set renderTarget to slot %d", index );
-		return false;
-	}
-
-	if( !index && updateViewport )
-	{
-		unsigned width, height;
-		if( SUCCEEDED( renderContext.GetRenderTargetSize( width, height ) ) ) 
-		{	
-			// don't use rt.GetWidth/Height, rt may be nullRT
-			UpdateRenderTargetViewport( width, height );
-		} else {
-			CCP_LOGERR( "Could not update viewport for render target index 0, GetRenderTargetSize failed");
-		}
-	}
-
-	return true;
-}
-
-bool Tr2Renderer::SetDepthStencilBuffer( const Tr2TextureAL& ds, Tr2RenderContext& renderContext )
-{
-	if( !SUCCEEDED( renderContext.SetDepthStencil( ds ) ) )
-	{
-		CCP_LOGERR( "Failed to set depth/stencil buffer");
-		return false;
-	}
-
-	return true;
+	USE_MAIN_THREAD_RENDER_CONTEXT();
+	return renderContext.m_esm.GetViewport();
 }
 
 TriSettings& Tr2Renderer::GetSettings()
@@ -1746,7 +1494,7 @@ const Tr2TextureAL& Tr2Renderer::GetFallbackTexture( Tr2EffectResource::Type tex
 		return s_fallbackTextures[textureSet][2];
 		break;
 	default:
-		return nullTX;
+		return s_fallbackTextures[textureSet][0];
 	}
 }
 

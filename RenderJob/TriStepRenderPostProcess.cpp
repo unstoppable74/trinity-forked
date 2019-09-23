@@ -160,8 +160,8 @@ TriStepResult TriStepRenderPostProcess::Execute(Be::Time realTime, Be::Time simT
 	}
 	renderContext.m_esm.ApplyStandardStates(Tr2EffectStateManager::RM_FULLSCREEN);
 
-	Tr2Renderer::PushRenderTarget(renderContext);
-	Tr2Renderer::PushDepthStencilBuffer(nullDS, renderContext);
+	renderContext.m_esm.PushRenderTarget();
+	renderContext.m_esm.PushDepthStencilBuffer( Tr2TextureAL() );
 
 	if(m_sceneDirty)
 	{
@@ -218,15 +218,16 @@ TriStepResult TriStepRenderPostProcess::Execute(Be::Time realTime, Be::Time simT
 	ProcessLut(lut);
 	ProcessVignette(vignette);
 
-	Tr2Renderer::DrawTexture(m_tonemappingEffect, Vector2(0, 0), Vector2(1, 1));
+	Tr2Renderer::DrawTexture( renderContext, m_tonemappingEffect, Vector2(0, 0), Vector2(1, 1));
 
 	if (ProcessSignalLoss(signalLoss))
 	{
 		RenderSignalLoss(renderContext, signalLoss);
 	}
 
-	Tr2Renderer::PopDepthStencilBuffer(renderContext);
-	Tr2Renderer::PopRenderTarget(renderContext);
+	renderContext.m_esm.PopDepthStencilBuffer();
+	renderContext.m_esm.PopRenderTarget();
+
 	return RS_OK;
 }
 
@@ -321,7 +322,7 @@ void TriStepRenderPostProcess::RenderBloom(Tr2RenderContext& renderContext, Tr2P
 	auto rt1 = m_renderInfo->GetRt1Buffer();
 	auto rt2 = m_renderInfo->GetRt2Buffer();
 
-	Tr2Renderer::PushRenderTarget(*rt1, renderContext);
+	renderContext.m_esm.PushRenderTarget(*rt1);
 
 	HRESULT hr = renderContext.Clear(Tr2RenderContextEnum::CLEARFLAGS_TARGET, 0x00000000, 1.0, 0);
 	if (!SUCCEEDED(hr))
@@ -329,21 +330,21 @@ void TriStepRenderPostProcess::RenderBloom(Tr2RenderContext& renderContext, Tr2P
 		CCP_LOGERR("Bloom RT1 clear failed");
 	}
 
-	Tr2Renderer::DrawScreenQuad(m_bloomHighPassFilter);
-	Tr2Renderer::PopRenderTarget(renderContext);
+	Tr2Renderer::DrawScreenQuad( renderContext, m_bloomHighPassFilter);
+	renderContext.m_esm.PopRenderTarget();
 
-	Tr2Renderer::PushRenderTarget(*rt2, renderContext);
+	renderContext.m_esm.PushRenderTarget(*rt2);
 	hr = renderContext.Clear(Tr2RenderContextEnum::CLEARFLAGS_TARGET, 0x00000000, 1.0, 0);
 	if (!SUCCEEDED(hr))
 	{
 		CCP_LOGERR("Bloom RT2 clear failed");
 	}
-	Tr2Renderer::DrawScreenQuad(m_bloomHorizontalBlur);
-	Tr2Renderer::PopRenderTarget(renderContext);
+	Tr2Renderer::DrawScreenQuad( renderContext, m_bloomHorizontalBlur);
+	renderContext.m_esm.PopRenderTarget();
 
-	Tr2Renderer::PushRenderTarget(*rt1, renderContext);
-	Tr2Renderer::DrawScreenQuad(m_bloomVerticalBlur);
-	Tr2Renderer::PopRenderTarget(renderContext);
+	renderContext.m_esm.PushRenderTarget(*rt1);
+	Tr2Renderer::DrawScreenQuad( renderContext, m_bloomVerticalBlur);
+	renderContext.m_esm.PopRenderTarget();
 }
 
 
@@ -400,12 +401,12 @@ void TriStepRenderPostProcess::RenderGodRays(Tr2RenderContext& renderContext, Tr
 	auto backBufferRT = m_renderInfo->GetSourceBuffer();
 
 	// Downsample 
-	Tr2Renderer::PushRenderTarget(*rt1, renderContext);
-	Tr2Renderer::DrawScreenQuad(m_godRayDownSampleEffect);
-	Tr2Renderer::PopRenderTarget(renderContext);
+	renderContext.m_esm.PushRenderTarget(*rt1);
+	Tr2Renderer::DrawScreenQuad( renderContext, m_godRayDownSampleEffect);
+	renderContext.m_esm.PopRenderTarget();
 
 	// God rays
-	Tr2Renderer::PushRenderTarget(*rt2, renderContext);
+	renderContext.m_esm.PushRenderTarget(*rt2);
 	HRESULT hr = renderContext.Clear(Tr2RenderContextEnum::CLEARFLAGS_TARGET, 0x00000000, 1.0, 0);
 
 	if (!SUCCEEDED(hr))
@@ -413,14 +414,14 @@ void TriStepRenderPostProcess::RenderGodRays(Tr2RenderContext& renderContext, Tr
 		CCP_LOGERR("Godray clear failed");
 	}
 
-	Tr2Renderer::DrawScreenQuad(m_godrayEffect);
-	Tr2Renderer::PopRenderTarget(renderContext);
+	Tr2Renderer::DrawScreenQuad( renderContext, m_godrayEffect);
+	renderContext.m_esm.PopRenderTarget();
 
 	renderContext.m_esm.ApplyStandardStates(Tr2EffectStateManager::RM_ALPHA_ADDITIVE);
 	// Blit
-	Tr2Renderer::PushRenderTarget(*backBufferRT, renderContext);
-	Tr2Renderer::DrawTexture(*rt2, Vector2(0, 0), Vector2(1, 1));
-	Tr2Renderer::PopRenderTarget(renderContext);
+	renderContext.m_esm.PushRenderTarget(*backBufferRT);
+	Tr2Renderer::DrawTexture( renderContext, *rt2, Vector2(0, 0), Vector2(1, 1));
+	renderContext.m_esm.PopRenderTarget();
 }
 
 
@@ -456,9 +457,9 @@ bool TriStepRenderPostProcess::ProcessSignalLoss(Tr2PPSignalLossEffect* signalLo
 
 void TriStepRenderPostProcess::RenderSignalLoss(Tr2RenderContext& renderContext, Tr2PPSignalLossEffect* signalLoss)
 {
-	Tr2Renderer::PushRenderTarget(renderContext);
-	Tr2Renderer::DrawScreenQuad(m_signalLossEffect);
-	Tr2Renderer::PopRenderTarget(renderContext);
+	renderContext.m_esm.PushRenderTarget();
+	Tr2Renderer::DrawScreenQuad( renderContext, m_signalLossEffect);
+	renderContext.m_esm.PopRenderTarget();
 }
 
 
@@ -876,30 +877,30 @@ void TriStepRenderPostProcess::RenderFog(Tr2RenderContext& renderContext, Tr2PPF
 	}
 	else
 	{
-		Tr2Renderer::PushRenderTarget(*m_renderInfo->GetSourceBufferCopyDirectly(), renderContext);
-		Tr2Renderer::DrawTexture(*sourceBuffer);
-		renderContext.PopRenderTarget();
+		renderContext.m_esm.PushRenderTarget(*m_renderInfo->GetSourceBufferCopyDirectly());
+		Tr2Renderer::DrawTexture( renderContext, *sourceBuffer);
+		renderContext.m_esm.PopRenderTarget();
 	}
 
 	// render fog color
-	Tr2Renderer::PushRenderTarget(*m_renderInfo->GetRt1Buffer(), renderContext);
-	Tr2Renderer::DrawScreenQuad(m_fogColorEffect);
-	Tr2Renderer::PopRenderTarget(renderContext);
+	renderContext.m_esm.PushRenderTarget(*m_renderInfo->GetRt1Buffer());
+	Tr2Renderer::DrawScreenQuad( renderContext, m_fogColorEffect);
+	renderContext.m_esm.PopRenderTarget();
 
 	// horizontal blur
-	Tr2Renderer::PushRenderTarget(*m_renderInfo->GetRt2Buffer(), renderContext);
-	Tr2Renderer::DrawScreenQuad(m_fogHorizontalBlurEffect);
-	Tr2Renderer::PopRenderTarget(renderContext);
+	renderContext.m_esm.PushRenderTarget(*m_renderInfo->GetRt2Buffer());
+	Tr2Renderer::DrawScreenQuad( renderContext, m_fogHorizontalBlurEffect);
+	renderContext.m_esm.PopRenderTarget();
 
 	// vertical blur
-	Tr2Renderer::PushRenderTarget(*m_renderInfo->GetRt1Buffer(), renderContext);
-	Tr2Renderer::DrawScreenQuad(m_fogVerticalBlurEffect);
-	Tr2Renderer::PopRenderTarget(renderContext);
+	renderContext.m_esm.PushRenderTarget(*m_renderInfo->GetRt1Buffer());
+	Tr2Renderer::DrawScreenQuad( renderContext, m_fogVerticalBlurEffect);
+	renderContext.m_esm.PopRenderTarget();
 
 	// final composite
-	Tr2Renderer::PushRenderTarget(*m_renderInfo->GetSourceBuffer(), renderContext);
-	Tr2Renderer::DrawScreenQuad(m_fogCompositeEffect);
-	Tr2Renderer::PopRenderTarget(renderContext);
+	renderContext.m_esm.PushRenderTarget(*m_renderInfo->GetSourceBuffer());
+	Tr2Renderer::DrawScreenQuad( renderContext, m_fogCompositeEffect);
+	renderContext.m_esm.PopRenderTarget();
 }
 
 bool TriStepRenderPostProcess::ProcessTaa(Tr2PPTaaEffect* taa)
@@ -965,9 +966,9 @@ void TriStepRenderPostProcess::RenderTaa(Tr2RenderContext& renderContext, Tr2PPT
 
 	m_scene->GetPostProcessPSBuffer()->ApplyBuffer(renderContext);
 
-	Tr2Renderer::PushRenderTarget(*source, renderContext);
-	Tr2Renderer::DrawScreenQuad(m_taaEffect);
-	Tr2Renderer::PopRenderTarget(renderContext);
+	renderContext.m_esm.PushRenderTarget(*source);
+	Tr2Renderer::DrawScreenQuad( renderContext, m_taaEffect);
+	renderContext.m_esm.PopRenderTarget();
 
 	if (source->GetMsaaType() > 1)
 	{

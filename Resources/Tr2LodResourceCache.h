@@ -15,30 +15,39 @@ class Tr2LodResourceCache
 {
 public:
 	Tr2LodResourceCache() :
-		m_resourceCache( nullptr )
+		m_rawResource( nullptr ),
+		m_typedResource( nullptr )
 	{
-	};
+	}
 
-	~Tr2LodResourceCache() {};
+	~Tr2LodResourceCache() 
+	{
+	}
 
-	T* GetResource( Tr2LodResourcePtr resource ) const
+	T* GetResource( Tr2LodResource* resource )
 	{
 		if( resource )
 		{
 			IBlueResource *data = resource->GetResource();
-			if( data != static_cast<void*>( m_resourceCache ) )
+			if( data != m_rawResource )
 			{
-				// Not undefined behaviour as long as Tr2LodResourceCache is not created as a const object
-				const_cast<Tr2LodResourceCache*>( this )->m_resourceCache = dynamic_cast<T*>( data );
+				m_rawResource = data;
+				m_typedResource = dynamic_cast<T*>( data );
 			}
 
-			return m_resourceCache;
+			return m_typedResource;
+		}
+		else
+		{
+			m_rawResource = nullptr;
+			m_typedResource = nullptr;
 		}
 
 		return nullptr;
 	}
 private:
-	T* m_resourceCache;
+	IBlueResource* m_rawResource;
+	T* m_typedResource;
 };
 
 #endif

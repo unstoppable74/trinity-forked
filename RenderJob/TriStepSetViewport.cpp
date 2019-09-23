@@ -20,11 +20,11 @@ TriStepResult TriStepSetViewport::Execute( Be::Time realTime, Be::Time simTime, 
 {
 	if( m_viewport )
 	{
-		Tr2Renderer::SetViewport( *m_viewport );
+		renderContext.m_esm.SetViewport( *m_viewport );
 	}
 	else
 	{
-		Tr2Renderer::SetFullScreenViewport();
+		renderContext.m_esm.SetFullScreenViewport();
 	}
 	return RS_OK;
 }

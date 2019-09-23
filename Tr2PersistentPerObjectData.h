@@ -78,15 +78,17 @@ public:
 			auto& buffer = *buffers[shaderType];
 #else
 			auto& buffer = m_constantBuffer;
+#endif
 			if( !buffer.IsValid() || size > buffer.GetSize() )
 			{
-				CR_RETURN( buffer.Create( size, 0, nullptr, renderContext.GetPrimaryRenderContext() ) );
+				CR_RETURN( buffer.Create( size, renderContext.GetPrimaryRenderContext() ) );
 			}
-#endif
-			if( void* data = buffer.GetBufferMirror( size, renderContext ) )
+			void* data = nullptr;
+
+			if( SUCCEEDED( buffer.Lock( &data, renderContext ) ) && data )
 			{
 				owner.UpdatePerObjectBuffer( shaderType, size, data );
-				buffer.UpdateFromMirror( renderContext );
+				buffer.Unlock( renderContext );
 				renderContext.SetConstants( buffer, shaderType, Tr2Renderer::GetPerObjectStartRegister( shaderType ) );
 			}
 		}
@@ -100,7 +102,7 @@ public:
 	{
 		if( s & TRISTORAGE_ALL )
 		{
-			m_constantBuffer.Destroy();
+			m_constantBuffer = Tr2ConstantBufferAL();
 			m_bufferDirty = true;
 		}
 	}

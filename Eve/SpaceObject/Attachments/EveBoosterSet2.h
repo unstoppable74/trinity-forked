@@ -111,7 +111,7 @@ public:
 
 	virtual Tr2PerObjectData* GetPerObjectData( ITriRenderBatchAccumulator* accumulator );
 	
-	BlueWeakRef<EveBoosterSet2> m_boosterSet;
+	EveBoosterSet2* m_boosterSet;
 
 	// calculated the booster intensity (=gain) from ship's ball
 	float CalculateIntensity( const Vector3& acceleration, Be::Time t );
@@ -238,7 +238,7 @@ public:
 		const Color* warpHaloColor, 
 		bool alwaysOn );
 	void SetLightData( float offset, float flickerAmplitude, float flickerFrequency, float radius, const Color& color, float warpRadius, const Color& warpColor );
-	void SetEffect( Tr2EffectPtr effect );
+	void SetEffect( Tr2Effect* effect, Tr2Effect* effectFar );
 	void SetGlow( EveSpriteSetPtr glow );
 	void SetTrail( EveTrailsSetPtr trail );
 	// rendering
@@ -272,6 +272,9 @@ private:
 
 	// the shader used for rendering the instanced boosters
 	Tr2EffectPtr m_effect;
+
+	Tr2EffectPtr m_effectFar;
+
 	// need special vertex declaration for multi-stream rendering
 	unsigned int m_vertexDeclHandle;
 	// vertex buffers for multi-stream rendering

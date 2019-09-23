@@ -270,8 +270,8 @@ protected:
 	Tr2ShaderBufferPtr m_postProcessPSBuffer;
 	void UpdatePostProcessPSData();
 
-	void PopulatePerFrameVSData( PerFrameVSData &data );
-	void PopulatePerFramePSData( PerFramePSData &data );
+	void PopulatePerFrameVSData( PerFrameVSData &data, Tr2RenderContext& renderContext );
+	void PopulatePerFramePSData( PerFramePSData &data, Tr2RenderContext& renderContext );
 	void ApplyPerFrameData( Tr2RenderContext& renderContext );
 
 	void GetShadowCasterRenderables( 
@@ -528,7 +528,7 @@ private:
 
 	Tr2QuadRenderer* GetQuadRenderer() const;
 
-	void UpdateImpostors();
+	void UpdateImpostors( Tr2RenderContext& renderContext );
 
 	enum BackgroundRenderingReason
 	{
@@ -555,7 +555,7 @@ private:
 
 	float m_nebulaBrightnessOverride;
 	Tr2Variable m_nebulaBrightnessOverrideVar;
-	void TAAOffset();
+	void TAAOffset( Tr2RenderContext& renderContext );
 
 	Tr2ImpostorManagerPtr m_impostorManager;
 

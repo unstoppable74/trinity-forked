@@ -386,8 +386,8 @@ void Tr2ImpostorManager::BeginUpdateAtlas( Tr2RenderContext& renderContext )
 		return;
 	}
 
-	Tr2Renderer::PushRenderTarget( *m_itemRt, renderContext );
-	Tr2Renderer::PushDepthStencilBuffer( *m_ds, renderContext );
+	renderContext.m_esm.PushRenderTarget( *m_itemRt );
+	renderContext.m_esm.PushDepthStencilBuffer( *m_ds );
 }
 
 // --------------------------------------------------------------------------------------
@@ -404,8 +404,8 @@ void Tr2ImpostorManager::EndUpdateAtlas( Tr2RenderContext& renderContext )
 		return;
 	}
 
-	Tr2Renderer::PopDepthStencilBuffer( renderContext );
-	Tr2Renderer::PopRenderTarget( renderContext );
+	renderContext.m_esm.PopDepthStencilBuffer();
+	renderContext.m_esm.PopRenderTarget();
 }
 
 // --------------------------------------------------------------------------------------

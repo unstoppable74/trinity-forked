@@ -45,6 +45,9 @@ const Be::ClassInfo* Tr2DepthStencil::ExposeToBlue()
 		MAP_PROPERTY_READONLY( "multiSampleType", GetMsaaSamples, "" );
 		MAP_PROPERTY_READONLY( "multiSampleQuality", GetMsaaQuality, "" );
 		MAP_PROPERTY_READONLY( "format", GetFormat, "" );
+		MAP_PROPERTY_READONLY( "mipCount", GetMipCount, "" );
+		MAP_PROPERTY_READONLY( "multiSampleType", GetMsaaSamples, "" );
+		MAP_PROPERTY_READONLY( "multiSampleQuality", GetMsaaQuality, "" );
 
 		MAP_PROPERTY_READONLY( "isValid", IsValid, "is the graphics object successfully creaed" );
 		MAP_PROPERTY_READONLY( "isReadable", IsReadable, "can the DS be used as a texture" );

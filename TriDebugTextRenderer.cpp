@@ -53,36 +53,28 @@ TriDebugTextRenderer::~TriDebugTextRenderer()
 
 void TriDebugTextRenderer::Vprintf( TriDebugFont font, const Rect& rect, uint32_t format, const Vector4& color, const char* msg, va_list args )
 {
-    VprintfImpl( false, font, rect, format, color, msg, args );
+	const int BUFFER_SIZE = 1024;
+	static char buffer[BUFFER_SIZE];
+
+	vsnprintf_s( buffer, BUFFER_SIZE, _TRUNCATE, msg, args );
+	
+	TextEntry e;
+	e.m_font = font;
+	e.m_rect = rect;
+	e.m_format = format;
+	e.m_color = color;
+	e.m_text = CCP_STRDUP( "TriDebugTextRenderer/Vprintf/buffer", buffer );
+
+	m_entries.push_back( e );
 }
 
-void TriDebugTextRenderer::VprintfImmediate( TriDebugFont font, const Rect& rect, uint32_t format, const Vector4& color, const char* msg, va_list args )
+void TriDebugTextRenderer::VprintfImmediate( Tr2RenderContext& renderContext, TriDebugFont font, const Rect& rect, uint32_t format, const Vector4& color, const char* msg, va_list args )
 {
-    VprintfImpl( true, font, rect, format, color, msg, args );
-}
+	const int BUFFER_SIZE = 1024;
+	static char buffer[BUFFER_SIZE];
 
-void TriDebugTextRenderer::VprintfImpl( bool immediate, TriDebugFont font, const Rect& rect, uint32_t format, const Vector4& color, const char* msg, va_list args )
-{
-    const int BUFFER_SIZE = 1024;
-    static char buffer[ BUFFER_SIZE ];
-
-    vsnprintf_s( buffer, BUFFER_SIZE, _TRUNCATE, msg, args );
-
-	if( immediate )
-	{
-		DrawText( font, buffer, rect, format, color );
-	}
-	else
-	{
-		TextEntry e;
-		e.m_font = font;
-		e.m_rect = rect;
-		e.m_format = format;
-		e.m_color = color;
-		e.m_text = CCP_STRDUP( "TriDebugTextRenderer/Vprintf/buffer", buffer );
-
-		m_entries.push_back( e );
-	}
+	vsnprintf_s( buffer, BUFFER_SIZE, _TRUNCATE, msg, args );
+	DrawText( renderContext, font, buffer, rect, format, color );
 }
 
 void TriDebugTextRenderer::Printf( TriDebugFont font, const Rect& rect, uint32_t format, const Vector4& color, const char* msg, ... )
@@ -95,20 +87,20 @@ void TriDebugTextRenderer::Printf( TriDebugFont font, const Rect& rect, uint32_t
 }
 
 
-void TriDebugTextRenderer::PrintfImmediate( TriDebugFont font, const Rect& rect, uint32_t format, const Vector4& color, const char* msg, ... )
+void TriDebugTextRenderer::PrintfImmediate( Tr2RenderContext& renderContext, TriDebugFont font, const Rect& rect, uint32_t format, const Vector4& color, const char* msg, ... )
 {
 	va_list args;
 	va_start( args, msg );
 
-	VprintfImmediate( font, rect, format, color, msg, args );
+	VprintfImmediate( renderContext, font, rect, format, color, msg, args );
 	va_end( args );
 }
 
-void TriDebugTextRenderer::Render()
+void TriDebugTextRenderer::Render( Tr2RenderContext& renderContext )
 {
     for( TrackableStdList<TextEntry>::iterator it = m_entries.begin(); it != m_entries.end(); ++it )
     {
-        DrawText( it->m_font, it->m_text, it->m_rect, it->m_format, it->m_color );
+        DrawText( renderContext, it->m_font, it->m_text, it->m_rect, it->m_format, it->m_color );
 	}
 }
 
@@ -141,7 +133,7 @@ bool TriDebugTextRenderer::OnPrepareResources()
 //   format - Bitfield of TRI_DFS_... constants
 //   color - Color to use for rendering (alpha component is ignored)
 // --------------------------------------------------------------------------------------
-void TriDebugTextRenderer::DrawText( TriDebugFont font, const char* string, const Rect& rect, uint32_t format, const Vector4& vecColor)
+void TriDebugTextRenderer::DrawText( Tr2RenderContext& renderContext, TriDebugFont font, const char* string, const Rect& rect, uint32_t format, const Vector4& vecColor)
 {
 	uint32_t color = Color( vecColor.x, vecColor.y, vecColor.z, vecColor.w );
 	
@@ -149,8 +141,6 @@ void TriDebugTextRenderer::DrawText( TriDebugFont font, const char* string, cons
 	{
 		return;
 	}
-
-	USE_MAIN_THREAD_RENDER_CONTEXT();
 
 #ifdef WIN32
 	if( !m_dc )
@@ -360,9 +350,9 @@ void TriDebugTextRenderer::DrawText( TriDebugFont font, const char* string, cons
 
 	// Render texture
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_SPRITE2D );
-	Tr2Renderer::PushViewport();
-	Tr2Renderer::SetViewport( size.right, size.bottom, x, y, 0.f, 1.f );
-	Tr2Renderer::DrawTexture( m_texture, Vector2( 0.f, 0.f ), Vector2( float( size.right ) / m_texture.GetWidth(), float( size.bottom ) / m_texture.GetHeight() ) );
-	Tr2Renderer::PopViewport();
+	renderContext.m_esm.PushViewport();
+	renderContext.m_esm.SetViewport( size.right, size.bottom, x, y, 0.f, 1.f );
+	Tr2Renderer::DrawTexture( renderContext, m_texture, Vector2( 0.f, 0.f ), Vector2( float( size.right ) / m_texture.GetWidth(), float( size.bottom ) / m_texture.GetHeight() ) );
+	renderContext.m_esm.PopViewport();
 }
 

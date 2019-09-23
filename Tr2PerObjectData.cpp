@@ -78,13 +78,18 @@ void Tr2PerObjectDataSkinned::SetPerObjectDataToDevice( Tr2ConstantBufferAL** bu
 		SHADER_TYPE_EXISTS( DOMAIN_SHADER );
 	if( ( constantTypeMask & perFrameVsMask ) != 0 )
 	{
-		const unsigned totalSize = ( TR2_MAX_BONES_PER_MESHAREA * 3 + 5 + 4 ) * 16;
-		if( char* VS = (char*)buffers[VERTEX_SHADER]->GetBufferMirror( totalSize, renderContext ) )
+		const uint32_t totalSize = ( TR2_MAX_BONES_PER_MESHAREA * 3 + 5 + 4 ) * 16;
+		if( !buffers[VERTEX_SHADER]->IsValid() || buffers[VERTEX_SHADER]->GetSize() < totalSize )
+		{
+			buffers[VERTEX_SHADER]->Create( totalSize, renderContext.GetPrimaryRenderContext() );
+		}
+		char* VS = nullptr;
+		if( SUCCEEDED( buffers[VERTEX_SHADER]->Lock( reinterpret_cast<void**>( &VS ), renderContext ) ) && VS )
 		{
 			memcpy( VS + ( TR2_MAX_BONES_PER_MESHAREA * 3 ) * 16, &m_worldMat.m[0][0], 4 * 16 );
 			memcpy( VS + ( TR2_MAX_BONES_PER_MESHAREA * 3 + 5 ) * 16, &m_mirrorMatrix.m[0][0], 4 * 16 );
+			buffers[VERTEX_SHADER]->Unlock( renderContext );
 		}
-		buffers[VERTEX_SHADER]->UpdateFromMirror( renderContext );
 		SetConstants( *buffers[VERTEX_SHADER], perFrameVsMask & constantTypeMask, Tr2Renderer::GetPerObjectVSStartRegister(), renderContext );
 	}
 }
@@ -124,13 +129,17 @@ void Tr2PerAreaDataSkinned::SetPerObjectDataToDevice( Tr2ConstantBufferAL** buff
 		const unsigned totalSize = ( TR2_MAX_BONES_PER_MESHAREA * 3 + 5 + 4 ) * 16;
 		const unsigned jointSize = m_jointCount * 3 * 16;
 
-		if( char* vs = (char*)buffer.GetBufferMirror( totalSize, renderContext ) )
+		if( !buffer.IsValid() || buffer.GetSize() < totalSize )
+		{
+			buffer.Create( totalSize, renderContext.GetPrimaryRenderContext() );
+		}
+		char* vs = nullptr;
+		if( SUCCEEDED( buffer.Lock( reinterpret_cast<void**>( &vs ), renderContext ) ) && vs )
 		{
 			m_perObjectDataPtr->UpdateVertexShaderCBMirror( vs, renderContext );
 			memcpy( vs, &m_jointTransforms, jointSize );
+			buffer.Unlock( renderContext );
 		}
-
-		buffer.UpdateFromMirror( renderContext );
 		SetConstants( buffer, perFrameVsMask & constantTypeMask, Tr2Renderer::GetPerObjectVSStartRegister(), renderContext );
 	}
 	constantTypeMask = constantTypeMask & ~perFrameVsMask;

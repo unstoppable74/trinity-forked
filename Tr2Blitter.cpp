@@ -14,7 +14,6 @@ using namespace Tr2RenderContextEnum;
 
 Tr2Blitter::Tr2Blitter()
 	: m_screenVertexDecl( -1 )
-	, m_cubeFaceVar( "cubeFace", 0.f )
 	, m_mipLevelVar( "mipLevel", 0.f )
 {
 	GlobalStore().RegisterVariable( "BlitSource", static_cast<ITr2TextureProvider*>( nullptr ) );
@@ -24,9 +23,6 @@ Tr2Blitter::Tr2Blitter()
 	m_blitEffect->SetEffectPathName( BLIT_EFFECT_PATH );
 	m_blitFilteredEffect.CreateInstance();
 	m_blitFilteredEffect->SetEffectPathName( BLIT_FILTERED_EFFECT_PATH );
-		
-	m_blitCubeEffect.CreateInstance();
-	m_blitCubeEffect->SetEffectPathName( BLITCUBE_EFFECT_PATH );
 
 	Tr2Blitter::PrepareResources();
 }
@@ -34,53 +30,52 @@ Tr2Blitter::Tr2Blitter()
 Tr2Blitter::~Tr2Blitter()
 {
 	GlobalStore().UnregisterVariable( "BlitSource" );
-	GlobalStore().UnregisterVariable( "cubeFace" );
 	GlobalStore().UnregisterVariable( "mipLevel" );
 }
 
-bool Tr2Blitter::Draw( Tr2Material* effect,
+bool Tr2Blitter::Draw( Tr2RenderContext& renderContext, Tr2Material* effect,
                        const Vector2& tlTexCoord, const Vector2& brTexCoord, 
                        const Vector2& tlVertexCoord, const Vector2& brVertexCoord )
 {
-    return DrawHelper( effect->GetShaderStateInterface(), effect, nullptr, false, tlTexCoord, brTexCoord, 
+    return DrawHelper( renderContext, effect->GetShaderStateInterface(), effect, nullptr, false, tlTexCoord, brTexCoord, 
                        tlVertexCoord, brVertexCoord );
 }
 
-bool Tr2Blitter::Draw( Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord, Filtering filter )
+bool Tr2Blitter::Draw( Tr2RenderContext& renderContext, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord, Filtering filter )
 {
 	switch( filter )
 	{
 	case FILTER_POINT:
-		return DrawHelper( m_blitEffect->GetShaderStateInterface(), m_blitEffect, &texture, false, tlTexCoord, brTexCoord );
+		return DrawHelper( renderContext, m_blitEffect->GetShaderStateInterface(), m_blitEffect, &texture, false, tlTexCoord, brTexCoord );
 	case FILTER_LINEAR:
-		return DrawHelper( m_blitFilteredEffect->GetShaderStateInterface(), m_blitFilteredEffect, &texture, false, tlTexCoord, brTexCoord );
+		return DrawHelper( renderContext, m_blitFilteredEffect->GetShaderStateInterface(), m_blitFilteredEffect, &texture, false, tlTexCoord, brTexCoord );
 	}
 	return false;
 }
 
-bool Tr2Blitter::Draw( Tr2TextureAL& texture, 
+bool Tr2Blitter::Draw( Tr2RenderContext& renderContext, Tr2TextureAL& texture,
                        const Vector2& tlTexCoord, const Vector2& brTexCoord,
                        const Vector2& tlVertexCoord, const Vector2& brVertexCoord )
 {
-    return DrawHelper( m_blitEffect->GetShaderStateInterface(), m_blitEffect, &texture, false, 
+    return DrawHelper( renderContext, m_blitEffect->GetShaderStateInterface(), m_blitEffect, &texture, false, 
                        tlTexCoord, brTexCoord, tlVertexCoord, brVertexCoord );
 }
 
-bool Tr2Blitter::Draw( Tr2Material* effect, Tr2TextureAL& texture )
+bool Tr2Blitter::Draw( Tr2RenderContext& renderContext, Tr2Material* effect, Tr2TextureAL& texture )
 {
-	return DrawHelper( effect->GetShaderStateInterface(), effect, &texture, false );
+	return DrawHelper( renderContext, effect->GetShaderStateInterface(), effect, &texture, false );
 }
 
-bool Tr2Blitter::Draw( Tr2Material* effect, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord )
+bool Tr2Blitter::Draw( Tr2RenderContext& renderContext, Tr2Material* effect, Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord )
 {
-	return DrawHelper( effect->GetShaderStateInterface(), effect, &texture, false, tlTexCoord, brTexCoord );
+	return DrawHelper( renderContext, effect->GetShaderStateInterface(), effect, &texture, false, tlTexCoord, brTexCoord );
 }
 
-bool Tr2Blitter::Draw( Tr2Material* effect, Tr2TextureAL& texture,
+bool Tr2Blitter::Draw( Tr2RenderContext& renderContext, Tr2Material* effect, Tr2TextureAL& texture,
                        const Vector2& tlTexCoord, const Vector2& brTexCoord, 
                        const Vector2& tlVertexCoord, const Vector2& brVertexCoord )
 {
-    return DrawHelper( effect->GetShaderStateInterface(), effect, &texture, false, tlTexCoord, brTexCoord, 
+    return DrawHelper( renderContext, effect->GetShaderStateInterface(), effect, &texture, false, tlTexCoord, brTexCoord, 
                        tlVertexCoord, brVertexCoord );
 }
 // --------------------------------------------------------------------------------------
@@ -92,42 +87,31 @@ bool Tr2Blitter::Draw( Tr2Material* effect, Tr2TextureAL& texture,
 //   true if success, false if there is an error.
 // See Also: Tr2Renderer::DrawFullScreenWithShader()
 // --------------------------------------------------------------------------------------
-bool Tr2Blitter::Draw( Tr2Material* material)
+bool Tr2Blitter::Draw( Tr2RenderContext& renderContext, Tr2Material* material)
 {
 	auto shader = material->GetShaderStateInterface();
 
-	return DrawHelper( shader, material, NULL, false );
+	return DrawHelper( renderContext, shader, material, NULL, false );
 }
 
-bool Tr2Blitter::Draw( Tr2Material* effect, const Vector2& tlTexCoord, const Vector2& brTexCoord )
+bool Tr2Blitter::Draw( Tr2RenderContext& renderContext, Tr2Material* effect, const Vector2& tlTexCoord, const Vector2& brTexCoord )
 {
 	auto shader = effect->GetShaderStateInterface();
 
-	return DrawHelper( shader, effect, NULL, false, tlTexCoord, brTexCoord );
+	return DrawHelper( renderContext, shader, effect, NULL, false, tlTexCoord, brTexCoord );
 }
 
-bool Tr2Blitter::DrawInCameraSpace( Tr2Shader* shader, Tr2Material* material )
+bool Tr2Blitter::DrawInCameraSpace( Tr2RenderContext& renderContext, Tr2Shader* shader, Tr2Material* material )
 {
-	return DrawHelper( shader, material, NULL, true );
+	return DrawHelper( renderContext, shader, material, NULL, true );
 }
 
-bool Tr2Blitter::DrawCube( Tr2TextureAL& texture, Tr2RenderContextEnum::CubemapFace face, int mipLevel )
-{
-	// set the face we want to render
-	m_cubeFaceVar = (float)face;
-	m_mipLevelVar = (float)mipLevel;
-
-	return DrawHelper( m_blitCubeEffect->GetShaderStateInterface(), m_blitCubeEffect, &texture, false );
-}
-
-bool Tr2Blitter::DrawHelper( Tr2Shader* shader, Tr2Material* material,
+bool Tr2Blitter::DrawHelper( Tr2RenderContext& renderContext, Tr2Shader* shader, Tr2Material* material,
                              Tr2TextureAL* halTexture,
 							 bool isCameraSpace,
 							 const Vector2& tlTexCoord, const Vector2& brTexCoord,
                              const Vector2& tlVertexCoord, const Vector2& brVertexCoord )
 {
-	USE_MAIN_THREAD_RENDER_CONTEXT();
-
 	CCP_ASSERT( material );
 	if( !material )
 	{

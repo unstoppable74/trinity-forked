@@ -370,40 +370,33 @@ const Be::ClassInfo* Tr2PrimaryRenderContext::ExposeToBlue()
 
 
 #if BLUE_WITH_PYTHON
-// --------------------------------------------------------------------------------------
-// Description:
-//   Returns all live AL resources as Python structure.
-// Arguments:
-//   self - Python self reference (unused)
-//   args - Python call arguments (unused)
-// Return value:
-//   Python dictionary describing live AL objects
-// --------------------------------------------------------------------------------------
-PyObject* PyGetLiveResources( PyObject* /*self*/, PyObject* /*args*/ )
+
+namespace
 {
-	PyObject* result = PyDict_New();
-	auto getDesc = [&]( Tr2RenderContextEnum::ObjectType type, const char* /*typeName*/, const void* address, const std::map<std::string, uint32_t>& description )
+	PyObject* result;
+
+	void GetDesc( Tr2ALMemoryType, const Tr2DeviceResourceDescriptionAL& description )
 	{
-		PyObject* key = PyInt_FromLong( type );
-		PyObject* list = PyDict_GetItem( result, key );
+		std::string key = "";
+		auto found = description.find( "type" );
+		if( found != end( description ) )
+		{
+			key = found->second;
+		}
+		PyObject* list = PyDict_GetItemString( result, key.c_str() );
 		if( !list )
 		{
 			list = PyList_New( 0 );
-			PyDict_SetItem( result, key, list );
+			PyDict_SetItemString( result, key.c_str(), list );
 			Py_DECREF( list );
 		}
-		Py_DECREF( key );
-		
+
 		PyObject* item = PyDict_New();
 		if( item )
 		{
-			PyObject* val = PyInt_FromSize_t( size_t( address ) );
-			PyDict_SetItemString( item, "ID", val );
-			Py_DECREF( val );
-
 			for( auto it = description.begin(); it != description.end(); ++it )
 			{
-				PyObject* value = PyInt_FromSize_t( it->second );
+				PyObject* value = PyString_FromString( it->second.c_str() );
 				PyDict_SetItemString( item, it->first.c_str(), value );
 				Py_DECREF( value );
 			}
@@ -412,8 +405,21 @@ PyObject* PyGetLiveResources( PyObject* /*self*/, PyObject* /*args*/ )
 		}
 	};
 
-	Tr2TrackedALObjectBase::GetAllObjectDescriptions( AL_MEMORY_VIDEO | AL_MEMORY_MANAGED, getDesc );
-	return result;
+	// --------------------------------------------------------------------------------------
+	// Description:
+	//   Returns all live AL resources as Python structure.
+	// Arguments:
+	//   self - Python self reference (unused)
+	//   args - Python call arguments (unused)
+	// Return value:
+	//   Python dictionary describing live AL objects
+	// --------------------------------------------------------------------------------------
+	PyObject* PyGetLiveResources( PyObject* /*self*/, PyObject* /*args*/ )
+	{
+		result = PyDict_New();
+		DescribeDeviceResources( GetDesc );
+		return result;
+	}
 }
 
 MAP_FUNCTION( 
@@ -421,7 +427,7 @@ MAP_FUNCTION(
 	PyGetLiveResources, 
 	"Returns a per-AL-type dictionary of lists of live AL objects. The function\n"
 	"is expensive and is not supposed to be used every frame.\n"
-	":rtype: dict[int, list[dict[str, int]]]"
+	":rtype: dict[str, list[dict[str, str]]]"
 	);
 
 #endif

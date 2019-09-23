@@ -58,12 +58,12 @@ TriStepResult TriStepRenderAtlas::Execute( Be::Time realTime, Be::Time simTime, 
 			{
 				const Rect &rect = *i;
 				m_simpleOutColourHandle->SetValue( freeBorderColour );
-				Tr2Renderer::DrawScreenQuad( m_areaEffect, 
+				Tr2Renderer::DrawScreenQuad( renderContext, m_areaEffect, 
 					Vector2( rect.left * rw, rect.top * rh ) - offset,
 					Vector2( rect.right * rw, rect.bottom * rh ) - offset );
 
 				m_simpleOutColourHandle->SetValue( m_freeColour );
-				Tr2Renderer::DrawScreenQuad( m_areaEffect, 
+				Tr2Renderer::DrawScreenQuad( renderContext, m_areaEffect, 
 					Vector2( (rect.left  + margin) * rw, (rect.top    + margin) * rh ) - offset,
 					Vector2( (rect.right - margin) * rw, (rect.bottom - margin) * rh ) - offset );
 			}
@@ -95,16 +95,16 @@ TriStepResult TriStepRenderAtlas::Execute( Be::Time realTime, Be::Time simTime, 
 				}
 
 				
-				Tr2Renderer::DrawScreenQuad( m_areaEffect, 
+				Tr2Renderer::DrawScreenQuad( renderContext, m_areaEffect, 
 					Vector2( rect.left * rw, rect.top * rh ) - offset,
 					Vector2( (rect.left + margin) * rw, (rect.bottom - margin) * rh ) - offset );
-				Tr2Renderer::DrawScreenQuad( m_areaEffect, 
+				Tr2Renderer::DrawScreenQuad( renderContext, m_areaEffect, 
 					Vector2( rect.left * rw, (rect.bottom - margin) * rh ) - offset,
 					Vector2( (rect.right - margin) * rw, rect.bottom * rh ) - offset );
-				Tr2Renderer::DrawScreenQuad( m_areaEffect, 
+				Tr2Renderer::DrawScreenQuad( renderContext, m_areaEffect, 
 					Vector2( (rect.right - margin) * rw, (rect.top + margin) * rh ) - offset,
 					Vector2( rect.right * rw, rect.bottom * rh ) - offset );
-				Tr2Renderer::DrawScreenQuad( m_areaEffect, 
+				Tr2Renderer::DrawScreenQuad( renderContext, m_areaEffect, 
 					Vector2( (rect.left + margin) * rw, rect.top * rh ) - offset,
 					Vector2( rect.right * rw, (rect.top + margin) * rh ) - offset );
 			}

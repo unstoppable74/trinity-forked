@@ -57,8 +57,8 @@ void EveOccluder::ReleaseResources( TriStorage s )
 	m_isTotalQueryIssued = false;
 	m_isActualQueryIssued = false;
 
-	m_totalQuery.Destroy();
-	m_actualQuery.Destroy();
+	m_totalQuery = Tr2OcclusionQueryAL();
+	m_actualQuery = Tr2OcclusionQueryAL();
 }
 
 // --------------------------------------------------------------------------------

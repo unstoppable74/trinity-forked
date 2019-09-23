@@ -52,6 +52,7 @@ public:
 	uint32_t GetHeight() const;
 	uint32_t GetMsaaSamples() const;
 	uint32_t GetMsaaQuality() const;
+	uint32_t GetMipCount() const;
 	Tr2RenderContextEnum::DepthStencilFormat GetFormat() const;
 
 	Tr2TextureAL m_depthStencil;

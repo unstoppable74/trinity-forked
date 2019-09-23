@@ -90,7 +90,6 @@ struct Tr2PerFramePSData
 };
 
 void Tr2PopulatePerFrameVSDataTransformations( Tr2PerFrameVSData& data );
-void Tr2PopulatePerFramePSDataTransformations( Tr2PerFramePSData& data );
 
 void Tr2BindPerFrameVSData( Tr2PerFrameVSData& data, Tr2RenderContext& renderContext );
 void Tr2BindPerFramePSData( Tr2PerFramePSData& data, Tr2RenderContext& renderContext );

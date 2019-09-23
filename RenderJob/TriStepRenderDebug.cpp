@@ -75,12 +75,12 @@ TriStepResult TriStepRenderDebug::Execute( Be::Time realTime, Be::Time simTime, 
 			rect.bottom = rect.top + 512;
 			rect.right = rect.left + 1024;
 
-			m_projectedTextRenderer->PrintfImmediate( TRI_DBG_FONT_SMALL, rect, TRI_DFS_LEFT, ColorToVec4( e.color ), e.msg.c_str() );
+			m_projectedTextRenderer->PrintfImmediate( renderContext, TRI_DBG_FONT_SMALL, rect, TRI_DFS_LEFT, ColorToVec4( e.color ), e.msg.c_str() );
 		}
 	}
 
 	// Render text
-	m_textRenderer->Render();
+	m_textRenderer->Render( renderContext );
 
 	if( m_autoClear )
 	{

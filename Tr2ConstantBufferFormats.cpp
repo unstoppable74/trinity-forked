@@ -26,34 +26,6 @@ void Tr2PopulatePerFrameVSDataTransformations( Tr2PerFrameVSData &data )
     data.ViewInverseTransposeMat = Tr2Renderer::GetInverseViewTransform();
 }
 
-void Tr2PopulatePerFramePSDataTransformations( Tr2PerFramePSData &data )
-{
-    // 0
-    memset( &data, 0, sizeof( Tr2PerFramePSData ) );
-
-    // column_major for shaders
-    data.ViewProjectionMat = XMMatrixTranspose(
-        XMMatrixMultiply(
-        Tr2Renderer::GetViewTransform(),
-        Tr2Renderer::GetProjectionTransform() ) );
-    // attention: need the transposed, but shader also needs column_major, so it is transpose(transpose(m)) == m
-    data.ViewInverseTransposeMat = Tr2Renderer::GetInverseViewTransform();
-
-    unsigned int width = Tr2Renderer::GetRenderTargetWidth();
-    unsigned int height = Tr2Renderer::GetRenderTargetHeight();
-
-    data.viewPort.x = float( Tr2Renderer::GetViewport().width ) / float( width );
-    data.viewPort.y = float( Tr2Renderer::GetViewport().height ) / float( height );
-    data.viewPort.z = float( Tr2Renderer::GetViewport().x ) / float( width ) + 0.5f / float( width );
-    data.viewPort.w = float( Tr2Renderer::GetViewport().y ) / float( height ) + 0.5f / float( height );
-
-    XMVECTOR det;
-    data.ViewProjInverse = XMMatrixTranspose(
-        XMMatrixInverse( &det, XMMatrixMultiply(
-        Tr2Renderer::GetViewTransform(),
-        Tr2Renderer::GetProjectionTransform() ) ) );
-}
-
 namespace {
 
 	Tr2ConstantBufferAL	s_perFrameVSData;
@@ -63,8 +35,8 @@ namespace {
 	{
 		virtual void ReleaseResources( TriStorage s )
 		{
-			s_perFrameVSData.Destroy();
-			s_perFramePSData.Destroy();
+			s_perFrameVSData = Tr2ConstantBufferAL();
+			s_perFramePSData = Tr2ConstantBufferAL();
 		}
 
 		virtual bool OnPrepareResources() { return true; }

@@ -33,7 +33,7 @@ TriStepResult TriStepRenderEffect::Execute( Be::Time realTime, Be::Time simTime,
 		{
 			m_shaderBuffer->ApplyBuffer( renderContext );
 		}
-		Tr2Renderer::DrawTexture( m_effect, m_tlTexCoord, m_brTexCoord );
+		Tr2Renderer::DrawTexture( renderContext, m_effect, m_tlTexCoord, m_brTexCoord );
 	}
 	return RS_OK;
 }

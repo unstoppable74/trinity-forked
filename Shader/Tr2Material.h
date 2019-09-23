@@ -65,7 +65,9 @@ public:
 		Tr2EffectParamVector m_textures;
 		Tr2EffectParamVector m_uavs;
 		Tr2SamplerOverrideDataVector m_samplers;
-		std::unique_ptr<Tr2ConstantBufferAL> m_constantBuffer;
+		Tr2ConstantBufferAL m_constantBuffer;
+		CcpMallocBuffer m_constantMirror;
+		bool m_constantBufferDirty;
 	};
 
 	StageInput m_stageInput[Tr2RenderContextEnum::SHADER_TYPE_COUNT];

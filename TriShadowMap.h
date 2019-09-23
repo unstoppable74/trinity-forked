@@ -48,7 +48,7 @@ public:
 	bool BeginShadowRendering( Vector3& lightViewPosition, Matrix& lightView, Matrix& lightViewProj, Tr2RenderContext& renderContext );
 	void GetBounds( Vector3& minBounds, Vector3& maxBounds );
 	void GetReceiverLightAabb( Vector3& min, Vector3& max );
-	void EndShadowRendering();
+	void EndShadowRendering( Tr2RenderContext& renderContext );
 	void SetShadowTexture( bool useBlankTexture = false );
 
 	Vector4 GetShadowMapSettings() const;
@@ -114,8 +114,9 @@ private:
 	Tr2RenderTargetPtr			m_shadowMapRT;
 	Tr2TextureAL			m_shadowMapDS;
 
-	Tr2TextureAL			m_filterBlurRT;
-	Tr2EffectPtr				m_filterBlurEffect;
+	Tr2TextureAL m_filterBlurRT;
+	Tr2EffectPtr m_filterBlurHorizontalEffect;
+	Tr2EffectPtr m_filterBlurVerticalEffect;
 
 	bool m_backupReadOnlyDepth;
 

@@ -23,6 +23,7 @@ public:
 
 	int GetProjectionType();
 	void SetProjection();
+	void SetProjection( Tr2RenderContext& renderContext );
 	void GetMatrixWithoutViewAdjustment( Matrix& proj ) const;
 
 	Matrix GetTransform() const;

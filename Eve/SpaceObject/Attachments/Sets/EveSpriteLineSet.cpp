@@ -244,9 +244,10 @@ void EveSpriteLineSet::AddToQuadRenderer( Tr2QuadRenderer& quadRenderer, const M
 		}
 	}
 
+	Float_16 activation16( activation );
 	for( size_t i = 0; i < n; ++i )
 	{
-		m_buffer[i].activation = Float_16( activation );
+		m_buffer[i].activation = activation16;
 	}
 
 	quadRenderer.AddQuads( m_effectHash, &m_buffer[0], m_buffer.size() );

@@ -198,7 +198,7 @@ void EveBoosterSet2Renderable::GetBatches( ITriRenderBatchAccumulator* batches, 
 		if( batch )
 		{
 			batch->SetPerObjectData( perObjectData );
-			batch->SetShaderMaterial( m_boosterSet->m_effect );
+			batch->SetShaderMaterial( ( m_boosterLOD > g_eveSpaceSceneMediumDetailThreshold * 1.5f || !m_boosterSet->m_effectFar ) ? m_boosterSet->m_effect : m_boosterSet->m_effectFar );
 			batch->SetGeometryProvider( this );
 			batches->Commit( batch );
 		}
@@ -926,9 +926,10 @@ void EveBoosterSet2::SetLightData( float offset, float flickerAmplitude, float f
 // Description:
 //   Set the main effect of this set from the outside
 // --------------------------------------------------------------------------------
-void EveBoosterSet2::SetEffect( Tr2EffectPtr effect )
+void EveBoosterSet2::SetEffect( Tr2Effect* effect, Tr2Effect* effectFar )
 {
 	m_effect = effect;
+	m_effectFar = effectFar;
 }
 
 // --------------------------------------------------------------------------------

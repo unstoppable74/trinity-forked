@@ -102,6 +102,8 @@ private:
 	// all setup functions for ships only
 	void SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const;
 
+	Tr2EffectPtr CreateBoosterEffect( const EveSOFDataMgr::RaceBoosterData* rdata, const BlueSharedString& lodOption ) const;
+
 	// helper functions
 	size_t FillMeshAreaVector( std::map<std::string, Tr2LodResourcePtr>& lodResCollector, Tr2MeshAreaVector* meshAreaVector, TriBatchType areaType, const EveSOFDNAPtr dna, size_t hullIdx, size_t meshIndexOffset, InheritableTextures* inheritableTextures ) const;
 	bool GenerateLodResourcePaths( std::string& mediumResPath, std::string& lowResPath, std::string& ultraResPath, const char* resPath, const char* usage ) const;

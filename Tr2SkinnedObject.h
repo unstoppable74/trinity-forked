@@ -65,7 +65,7 @@ public:
 	virtual void SetScaling( const Vector3 &scaleVec );
 	
 	bool GetLocalBoundingBox( Vector3& min, Vector3& max ) const;
-	bool GetClippedWorldBoundingObb( const Matrix& localToWorld, Vector3& x, Vector3& y, Vector3& z, Vector3& center, Vector3& sizes, TriFrustum* cameraFrustum=nullptr);
+	bool GetClippedWorldBoundingObb( const Matrix& localToWorld, Vector3& x, Vector3& y, Vector3& z, Vector3& center, Vector3& sizes, TriFrustum* cameraFrustum );
 
 	unsigned int GetSkinningMatrixFrameDelay() const;
 	void SetSkinningMatrixFrameDelay(unsigned int val);

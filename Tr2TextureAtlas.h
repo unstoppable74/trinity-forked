@@ -81,6 +81,10 @@ public:
 	// (only used by the Atlas render step for debugging anyway)
 	std::list< Rect > GetFreeAreas() const;
 	std::list< Rect > GetUsedAreas() const;
+
+	uint32_t GetMsaaSamples() const;
+	uint32_t GetMsaaQuality() const;
+
 private:
 	bool OnPrepareResources();
 

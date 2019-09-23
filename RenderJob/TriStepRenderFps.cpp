@@ -40,7 +40,7 @@ TriStepResult TriStepRenderFps::Execute( Be::Time realTime, Be::Time simTime, Tr
 	
 	// position of the fps, left top corner
 	Rect screenFPSPos;
-	const TriViewport& vp = Tr2Renderer::GetViewport();
+	const TriViewport& vp = renderContext.m_esm.GetViewport();
 	screenFPSPos.left = vp.x + m_displayX;
 	screenFPSPos.top = vp.y + m_displayY;
 	screenFPSPos.right = vp.x + vp.width - m_displayX;
@@ -128,7 +128,7 @@ TriStepResult TriStepRenderFps::Execute( Be::Time realTime, Be::Time simTime, Tr
 		flags |= TRI_DFS_BOTTOM;
 	}
 
-	Tr2Renderer::PrintfImmediate( TRI_DBG_FONT_LARGE, screenFPSPos, flags, textColor, fpsBuffer );
+	Tr2Renderer::PrintfImmediate( renderContext, TRI_DBG_FONT_LARGE, screenFPSPos, flags, textColor, fpsBuffer );
 	
 	return RS_OK;
 }

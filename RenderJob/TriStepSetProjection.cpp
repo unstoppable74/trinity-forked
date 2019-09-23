@@ -19,7 +19,7 @@ TriStepResult TriStepSetProjection::Execute( Be::Time realTime, Be::Time simTime
 {
 	if( m_projection )
 	{
-		m_projection->SetProjection();
+		m_projection->SetProjection( renderContext );
 	}
 	return RS_OK;
 }

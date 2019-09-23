@@ -851,3 +851,13 @@ bool TriTextureRes::HasALObject( int type, size_t object )
 {
 	return false;
 }
+
+uint32_t TriTextureRes::GetMsaaType() const
+{
+	return m_texture ? m_texture->GetMsaaDesc().samples : 1;
+}
+
+uint32_t TriTextureRes::GetMsaaQuality() const
+{
+	return m_texture ? m_texture->GetMsaaDesc().quality : 0;
+}

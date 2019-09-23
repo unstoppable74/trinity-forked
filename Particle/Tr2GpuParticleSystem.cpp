@@ -256,15 +256,15 @@ void Tr2GpuParticleSystem::ReleaseResources( TriStorage s )
 #endif
 	if( s & m_emitCB.GetMemoryClass() )
 	{
-		m_emitCB.Destroy();
+		m_emitCB = Tr2ConstantBufferAL();
 	}
 	if( s & m_updateCB.GetMemoryClass() )
 	{
-		m_updateCB.Destroy();
+		m_updateCB = Tr2ConstantBufferAL();
 	}
 	if( s & m_sortCB.GetMemoryClass() )
 	{
-		m_sortCB.Destroy();
+		m_sortCB = Tr2ConstantBufferAL();
 	}
 }
 
@@ -455,7 +455,7 @@ void Tr2GpuParticleSystem::Update( Be::Time time, const Vector3& originShift, Tr
 	}
 
 #if GPU_PARTICLES_METHOD == GPU_PARTICLES_TEXTURE_METHOD
-	Tr2PushPopDS pushPopDS( nullDS, renderContext );
+	Tr2PushPopDS pushPopDS( Tr2TextureAL(), renderContext );
 	Tr2PushPopRT pushPopRT0( renderContext, 0 );
 	Tr2PushPopRT pushPopRT1( renderContext, 1 );
 #endif
@@ -548,9 +548,9 @@ bool Tr2GpuParticleSystem::DoClear( Tr2RenderContext& renderContext )
 
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_FULLSCREEN );
 	CR_RETURN_VAL( renderContext.SetRenderTarget( *m_positions[0] ), false );
-	Tr2Renderer::DrawScreenQuad( m_clear );
+	Tr2Renderer::DrawScreenQuad( renderContext, m_clear );
 	CR_RETURN_VAL( renderContext.SetRenderTarget( *m_positions[1] ), false );
-	Tr2Renderer::DrawScreenQuad( m_clear );
+	Tr2Renderer::DrawScreenQuad( renderContext, m_clear );
 	return true;
 #endif
 }
@@ -636,7 +636,7 @@ void Tr2GpuParticleSystem::RunSimulation( float dt, const Vector3& originShift, 
 	updateCB.originShift = originShift;
 	updateCB.padding0 = updateCB.padding1 = 0;
 	FillAndSetConstants( m_updateCB, updateCB, Tr2RenderContextEnum::PIXEL_SHADER, Tr2Renderer::GetPerObjectPSStartRegister(), renderContext );
-	Tr2Renderer::DrawScreenQuad( m_update );
+	Tr2Renderer::DrawScreenQuad( renderContext, m_update );
 }
 
 #endif

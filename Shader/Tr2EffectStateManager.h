@@ -3,6 +3,9 @@
 #define Tr2EffectStateManager_h
 
 #include "Tr2DeviceResource.h"
+#include "TriViewport.h"
+#include "Tr2Variable.h"
+
 
 BLUE_DECLARE( Tr2EffectRes );
 
@@ -15,6 +18,15 @@ class Tr2VertexDefinition;
 struct Tr2ShaderInputDefinition;
 
 BLUE_DECLARE( Tr2Material );
+
+
+enum PROJECTION_TYPE
+{
+	PT_PERSPECTIVE = 0,
+	PT_ORTHOGONAL,
+
+	PT_UNKNOWN,
+};
 
 //
 // See http://core/wiki/Tr2EffectStateManager
@@ -37,7 +49,7 @@ public:
 	{
 		// 16 textures/samplers per shader
 		SAMPLER_MAX_COUNT		= 16,
-		VERTEX_STREAM_MAX_COUNT = 16,
+		VERTEX_STREAM_MAX_COUNT = 4,
 		UNKNOWN					= 0XFFFFFFFFu
 	};
 
@@ -106,6 +118,28 @@ public:
 	void ApplyVertexDeclaration( uint32_t declaration );
 	static bool GetVertexDeclarationElements( uint32_t declaration, Tr2VertexDefinition& definition );
 
+
+	void SetFullScreenViewport();
+	void SetViewport( const TriViewport& vp );
+	void SetViewport( int width, int height, int x, int y, float minZ, float maxZ );
+	const TriViewport& GetViewport();
+	const Tr2Viewport& GetDeviceViewport();
+	void PushViewport();
+	void PopViewport();
+
+	unsigned int GetRenderTargetWidth();
+	unsigned int GetRenderTargetHeight();
+
+	void PushRenderTarget( unsigned slot = 0 );	// does not set any RT, just stores the current one so it can be safely changed later
+	void PushRenderTarget( const Tr2TextureAL& rt, unsigned slot = 0 );
+	void PopRenderTarget( unsigned slot = 0 );
+	bool SetRenderTarget( unsigned int index, const Tr2TextureAL& rt, bool updateViewport = true );
+
+	bool PushDepthStencilBuffer();	// does not set a DS, just stores it so it can be safely changed later
+	bool PushDepthStencilBuffer( const Tr2TextureAL& ds );
+	void PopDepthStencilBuffer();
+	bool SetDepthStencilBuffer( const Tr2TextureAL& ds );
+
 private:
 	friend class Tr2EffectRes;
 	friend class Tr2LowLevelShader;
@@ -156,6 +190,22 @@ private:
 
 	std::vector<RenderStates> m_renderStates;
 	const uint32_t* m_renderStateOverrides[Tr2RenderContextEnum::RS_MAX_STATE];
+
+
+	int m_renderTargetWidth;
+	int m_renderTargetHeight;
+
+
+	CTriViewport m_viewport;
+	Tr2Viewport m_viewportOnDevice;
+
+	std::list<CTriViewport> m_viewportStack;
+
+	Tr2Variable m_viewportSizeVar;
+
+	void UpdateRenderTargetViewport( unsigned width, unsigned height );
+	void SetupViewport();
+
 
 	Tr2EffectStateManager( const Tr2EffectStateManager & );
 	Tr2EffectStateManager& operator=( const Tr2EffectStateManager & );

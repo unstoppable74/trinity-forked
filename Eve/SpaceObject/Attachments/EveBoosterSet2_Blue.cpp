@@ -43,9 +43,16 @@ const Be::ClassInfo* EveBoosterSet2::ExposeToBlue()
 		MAP_ATTRIBUTE( "destinyUpdate", m_destinyUpdate, "This enables updating speed etc. from destiny simulation", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE
 		(
-			"effect",  
-			m_effect, 
+			"effect",
+			m_effect,
 			"Effect to use to render the boosters",
+			Be::READWRITE | Be::PERSIST
+		)
+		MAP_ATTRIBUTE
+		(
+			"effectFar",
+			m_effectFar,
+			"Effect to use to render the boosters at a distance",
 			Be::READWRITE | Be::PERSIST
 		)
 		MAP_ATTRIBUTE

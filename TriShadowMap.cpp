@@ -31,8 +31,11 @@ TriShadowMap::TriShadowMap( IRoot* lockobj ) :
 	m_noShadowTexture.CreateInstance();
 	m_shadowMapRT.CreateInstance();
 
-	m_filterBlurEffect.CreateInstance();
-	m_filterBlurEffect->SetEffectPathName( "res:/graphics/effect/managed/space/system/shadowblur.fx" );
+	m_filterBlurHorizontalEffect.CreateInstance();
+	m_filterBlurHorizontalEffect->SetEffectPathName( "res:/graphics/effect/managed/space/system/shadowblur.fx" );
+
+	m_filterBlurVerticalEffect.CreateInstance();
+	m_filterBlurVerticalEffect->SetEffectPathName( "res:/graphics/effect/managed/space/system/shadowblur.fx" );
 
 	PrepareResources();
 
@@ -261,12 +264,12 @@ bool TriShadowMap::BeginShadowRendering( Vector3& lightViewPosition, Matrix& lig
 
 	// Set aside the current render target and depth buffer and set
 	// up the ones to use for generating the shadow map
-	Tr2Renderer::PushViewport();
-	Tr2Renderer::PushRenderTarget( *m_shadowMapRT, renderContext );
-	Tr2Renderer::PushDepthStencilBuffer( m_shadowMapDS, renderContext );
+	renderContext.m_esm.PushViewport();
+	renderContext.m_esm.PushRenderTarget( *m_shadowMapRT );
+	renderContext.m_esm.PushDepthStencilBuffer( m_shadowMapDS );
 
 	// viewport is always quadratic
-	Tr2Renderer::SetViewport( m_size, m_size, 0, 0, 0.f, 1.f );
+	renderContext.m_esm.SetViewport( m_size, m_size, 0, 0, 0.f, 1.f );
 
 	CR( renderContext.Clear( CLEARFLAGS_TARGET | CLEARFLAGS_ZBUFFER, 0xffffffff, 1, 0 ) );
 
@@ -311,37 +314,35 @@ bool TriShadowMap::BeginShadowRendering( Vector3& lightViewPosition, Matrix& lig
 	return true;
 }
 
-void TriShadowMap::EndShadowRendering()
+void TriShadowMap::EndShadowRendering( Tr2RenderContext& renderContext )
 {
-	USE_MAIN_THREAD_RENDER_CONTEXT();
-
 	renderContext.SetReadOnlyDepth( m_backupReadOnlyDepth );
 
 	if( m_filterVsm && m_filterBlurRT.IsValid() && m_invInputSizeHandle )
 	{
-		Tr2Renderer::SetDepthStencilBuffer( nullDS, renderContext );
+		renderContext.m_esm.SetDepthStencilBuffer( Tr2TextureAL() );
 
 		CTriViewport viewport0;
 		viewport0.x = 0;
 		viewport0.y = 0;
 		viewport0.width = m_size;
 		viewport0.height = m_size;
-		Tr2Renderer::SetViewport( viewport0 );
+		renderContext.m_esm.SetViewport( viewport0 );
 
 		m_invInputSizeHandle->SetValue( Vector2( 1.0f / m_size, 0 ) );
-		Tr2Renderer::SetRenderTarget( 0, m_filterBlurRT, renderContext );
-		Tr2Renderer::DrawTexture( m_filterBlurEffect, *m_shadowMapRT->GetTexture() );
+		renderContext.m_esm.SetRenderTarget( 0, m_filterBlurRT );
+		Tr2Renderer::DrawTexture( renderContext, m_filterBlurHorizontalEffect, *m_shadowMapRT->GetTexture() );
 
 		m_invInputSizeHandle->SetValue( Vector2( 0, 1.0f / m_size ) );
-		Tr2Renderer::SetRenderTarget( 0, *m_shadowMapRT, renderContext );
-		Tr2Renderer::DrawTexture( m_filterBlurEffect, m_filterBlurRT );
+		renderContext.m_esm.SetRenderTarget( 0, *m_shadowMapRT );
+		Tr2Renderer::DrawTexture( renderContext, m_filterBlurVerticalEffect, m_filterBlurRT );
 	}
 
 	m_shadowMapRT->GetRenderTarget().GenerateMipMaps( renderContext );
 
-	Tr2Renderer::PopRenderTarget( renderContext );
-	Tr2Renderer::PopDepthStencilBuffer( renderContext );
-	Tr2Renderer::PopViewport();
+	renderContext.m_esm.PopRenderTarget();
+	renderContext.m_esm.PopDepthStencilBuffer();
+	renderContext.m_esm.PopViewport();
 }
 
 void TriShadowMap::DrawDebugInfo()

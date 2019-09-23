@@ -48,13 +48,13 @@ bool Tr2ReflectionProbe::IsValid()
 
 void Tr2ReflectionProbe::InitRenderPass( Tr2RenderContext &renderContext )
 {
-	Tr2Renderer::PushViewport();
+	renderContext.m_esm.PushViewport();
 	Tr2Renderer::PushViewTransform();
 	Tr2Renderer::PushProjection();
-	Tr2Renderer::PushRenderTarget( *m_renderTarget, renderContext );
-	Tr2Renderer::PushDepthStencilBuffer( m_stencilMap, renderContext );
+	renderContext.m_esm.PushRenderTarget( *m_renderTarget );
+	renderContext.m_esm.PushDepthStencilBuffer( m_stencilMap );
 
-	Tr2Renderer::SetViewport( m_intermediateSize, m_intermediateSize, 0, 0, 0, 1 );
+	renderContext.m_esm.SetViewport( m_intermediateSize, m_intermediateSize, 0, 0, 0, 1 );
 
 	// Square projection matrix, with near and far clip planes from the current projection
 	Matrix newProjection = IdentityMatrix();
@@ -108,11 +108,11 @@ void Tr2ReflectionProbe::EndRenderPass( Tr2RenderContext &renderContext )
 {
 	renderContext.m_esm.SetInvertedCullMode( m_prevCullInversion );
 
-	Tr2Renderer::PopDepthStencilBuffer( renderContext );
-	Tr2Renderer::PopRenderTarget( renderContext );
+	renderContext.m_esm.PopDepthStencilBuffer();
+	renderContext.m_esm.PopRenderTarget();
 	Tr2Renderer::PopProjection();
 	Tr2Renderer::PopViewTransform();
-	Tr2Renderer::PopViewport();
+	renderContext.m_esm.PopViewport();
 
 	Filter( renderContext );
 }

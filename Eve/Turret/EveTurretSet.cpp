@@ -946,7 +946,7 @@ void EveTurretSet::UpdateAsyncronous( EveUpdateContext& updateContext, const Par
 				if( m_trackingInfluence != 0.f )
 				{
 					// transform traget pos (which is in world space) into objectspace
-					Vector3 targetPosOS = TransformCoord( *m_target->GetTrackingPosition(), it->invWorldMatrix );
+					Vector3 targetPosOS = TransformCoord( *m_target->GetTrackingPosition(), Inverse( it->worldMatrix ) );
 
 					// "do" all the system bones, we have found
 					for( unsigned int bone = 0; bone < SYSBONE_MAX; ++bone )
@@ -1035,15 +1035,8 @@ void EveTurretSet::UpdateTurretTransforms(const Matrix* turretTransformMatrix)
 {
 	for( std::vector<SingleTurretData>::iterator it = m_singleTurrets.begin(); it != m_singleTurrets.end(); ++it )
 	{
-		Matrix localMatrix;		
-		Vector3 localPos = Vector3(it->localPosition.x, it->localPosition.y, it->localPosition.z);
-		localMatrix = RotationMatrix( it->localQuaternion );
-		TriMatrixTranslate(&localMatrix, &localMatrix, &localPos);
-		
 		// first parent matrix (ship or station), then local matrix (locator position)
-		it->worldMatrix = localMatrix * *turretTransformMatrix;
-		// we need the inverse matrix for the tracking later
-		it->invWorldMatrix = Inverse( it->worldMatrix );
+		it->worldMatrix = it->localMatrix * *turretTransformMatrix;
 		// this validates this turret
 		it->valid = true;
 	}
@@ -1260,7 +1253,6 @@ void EveTurretSet::SetLocalTransform( unsigned int turretIndex, const Matrix* lo
 				data.grnWorldPose = NULL;
 			}
 			data.worldMatrix = IdentityMatrix();
-			data.invWorldMatrix = IdentityMatrix();
 			data.valid = false;
 			data.visible = false;
 
@@ -1278,6 +1270,7 @@ void EveTurretSet::SetLocalTransform( unsigned int turretIndex, const Matrix* lo
 	Vector3 translation, scale;
 	Decompose( scale, m_singleTurrets[turretIndex].localQuaternion, translation, noScaleLocalMatrix );
 	m_singleTurrets[turretIndex].localPosition = Vector4(translation, 1.0f);
+	m_singleTurrets[turretIndex].localMatrix = noScaleLocalMatrix;
 
 	// new one is not yet valid, cause it needs to get all calculated
 	m_singleTurrets[turretIndex].valid = false;

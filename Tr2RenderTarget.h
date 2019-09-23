@@ -45,7 +45,7 @@ public:
 
 	virtual Tr2TextureAL* GetTexture();
 
-	void Attach( Tr2TextureAL* renderTarget, IRoot* owner );
+	void Attach( const Tr2TextureAL& renderTarget, IRoot* owner );
 	bool IsAttached() const;
 
 	bool IsValid() const;
@@ -77,7 +77,7 @@ protected:
 	virtual bool OnPrepareResources();
 private:
 	Tr2TextureAL m_renderTarget;
-	Tr2TextureAL* m_attachedRenderTarget;
+	Tr2TextureAL m_attachedRenderTarget;
 	BlueWeakRef<IRoot> m_attachedOwner;
 
 	uint32_t m_width;

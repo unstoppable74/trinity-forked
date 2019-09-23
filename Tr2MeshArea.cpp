@@ -10,7 +10,8 @@ Tr2MeshArea::Tr2MeshArea( IRoot* lockobj ):
 	m_generateDepthArea( false ),
 	m_castShadows( true ),
 	m_jointCount( 0 ),
-	m_jointMappingAnimRig( NULL )
+	m_jointMappingAnimRig( NULL ),
+	m_minLod( TR2_LOD_UNSPECIFIED )
 {
 }
 
@@ -175,4 +176,14 @@ void Tr2MeshArea::SetJointCount( unsigned int val )
 unsigned int* Tr2MeshArea::GetJointMappingAnimRig() const
 {
 	return m_jointMappingAnimRig;
+}
+
+Tr2Lod Tr2MeshArea::GetMinLod() const
+{
+	return m_minLod;
+}
+
+void Tr2MeshArea::SetMinLod( Tr2Lod lod )
+{
+	m_minLod = lod;
 }

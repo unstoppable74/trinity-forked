@@ -63,7 +63,6 @@ public:
 	};
 
 	void PickObject( Tr2RenderContext& renderContext, int x, int y, TriProjection* proj, TriView* view, TriViewport* viewport, PickResults& results );
-	std::set<IRoot*> MarqueePickObjects(int minX, int minY, int maxX, int maxY, TriProjection* proj, TriView* view, TriViewport* viewport);
 protected:
 	// -------------------------------------------------------------
 	// Description:
@@ -93,7 +92,7 @@ protected:
 	// Description:
 	//   Sets per-frame data before picking rendering begins.
 	// -------------------------------------------------------------
-	virtual void SetPerFrameDataForPicking( void ) = 0;
+	virtual void SetPerFrameDataForPicking( Tr2RenderContext& renderContext ) = 0;
 
 	// -------------------------------------------------------------
 	// Description:
@@ -188,8 +187,6 @@ protected:
 	//   Picking buffer to use for picking
 	// -------------------------------------------------------------
 	virtual Tr2PickBuffer& GetPickBuffer( void ) = 0;
-
-    bool RenderPickingBuffer( ITr2RenderableArray const& pickableObjects, PickComponents pass );
 
 	virtual bool RenderPicking( ITriRenderBatchAccumulator* pOpaquePickingBatches,
 						ITriRenderBatchAccumulator* pPickingBatches,
