@@ -102,6 +102,11 @@ const Be::ClassInfo* EvePlanet::ExposeToBlue()
 			"Curvesets for animating things",
 			Be::READ | Be::PERSIST )
 		MAP_ATTRIBUTE(
+			"emissiveColor",
+			m_emissiveColor,
+			"Color of the secondary light source",
+			Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE(
 			"secondaryLightingEmissiveColor",
 			m_secondaryLightingEmissiveColor,
 			"Color of the secondary light source",

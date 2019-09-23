@@ -21,6 +21,7 @@ EvePlanet::EvePlanet( IRoot* lockobj ) :
 	m_estimatedPixelDiameter( 0.f ),
 	m_estimatedMaxPixelDiameter( 0.f ),
 	m_albedoColor( 0, 0, 0, 0 ),
+	m_emissiveColor( 0.0, 0.0, 0.0, 0.0 ),
 	m_radius( 1 ),
 	m_minScreenSize( 2.0 )
 {
@@ -32,7 +33,7 @@ EvePlanet::~EvePlanet()
 
 void EvePlanet::RegisterSecondaryLightSource( Tr2ShLightingManager& manager )
 {
-	manager.RegisterSecondaryLightSource( &m_worldTransform.GetTranslation(), &m_radius, &m_albedoColor, &m_secondaryLightingEmissiveColor );
+	manager.RegisterSecondaryLightSource( &m_worldTransform.GetTranslation(), &m_radius, &m_albedoColor, &m_emissiveColor );
 }
 
 void EvePlanet::UnregisterSecondaryLightSource( Tr2ShLightingManager& manager )

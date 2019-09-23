@@ -80,6 +80,7 @@ private:
 	float m_radius;
 	float m_minScreenSize;
 	Color m_albedoColor;
+	Color m_emissiveColor;;
 	EveChildMeshPtr m_zOnlyModel;
 };
 
