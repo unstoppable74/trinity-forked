@@ -458,7 +458,10 @@ bool Tr2GrannyAnimation::GetDynamicBounds( Vector4& boundingSphere, Vector3 &aab
 			BoundingSphereUpdate( transformed[point], boundingSphere );
 		}
 	}
-	
+
+	//since the box calculation seems to be more accurate on the x-axis we use that for the sphere;
+	boundingSphere.x = aabbMin.x + aabbMax.x;
+
 	const granny_file_info* fi = GetFileInfo();
 	if( fi )
 	{
