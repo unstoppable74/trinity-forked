@@ -30,6 +30,7 @@ EveChildExplosion::EveChildExplosion( IRoot* lockobj )
 	m_nextLocalExplosion( 0 ),
 	m_isPlaying( false ),
 	m_globalExplosionScaling( 1.0f, 1.0f, 1.0f ),
+	m_localExplosionScaling( 1.0f, 1.0f, 1.0f ),
 	m_globalExplosionOffset( 0.0f, 0.0f, 0.0f )
 {
 }

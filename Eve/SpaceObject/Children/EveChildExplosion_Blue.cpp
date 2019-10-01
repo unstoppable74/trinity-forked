@@ -102,10 +102,13 @@ const Be::ClassInfo* EveChildExplosion::ExposeToBlue()
 			m_playTime, 
 			"Time since the start of playback", 
 			Be::READ )
+		MAP_ATTRIBUTE( "generatedLocalExplosions", m_objects, "", Be::READ )
+		MAP_ATTRIBUTE( "generatedGlobalExplosions", m_globalExplosionContainer, "", Be::READ )
 
 		MAP_ATTRIBUTE( "translation", m_translation, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "rotation", m_rotation, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "scaling", m_scaling, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "localScaling", m_localExplosionScaling, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "globalScaling", m_globalExplosionScaling,"", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "localTransform", m_localTransform, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "worldTransform", m_worldTransform, "", Be::READ )

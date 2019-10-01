@@ -94,9 +94,12 @@ private:
 	// Index into m_localExplosionTransforms for the next local explosion
 	size_t m_nextLocalExplosion;
 
-	// Local explosion scaling
+	// Global explosion scaling
 	Vector3 m_globalExplosionScaling;
 	Vector3 m_globalExplosionOffset;
+
+	// Local explosion scaling
+	Vector3 m_localExplosionScaling;
 	
 	// Is the effect playing
 	bool m_isPlaying;
