@@ -12,15 +12,45 @@
 #include "Controllers/Tr2ControllerFloatVariable.h"
 
 
+namespace
+{
+	Tr2ActionBindRTPC* s_action = nullptr;
+	float s_stateTime = 0;
+
+	float StateTime()
+	{
+		return s_stateTime;
+	}
+
+	float Curve( float time )
+	{
+		if( !s_action )
+		{
+			return 0;
+		}
+		return s_action->GetCurveValue( time );
+	}
+
+	void ModifyParser( mu::Parser& parser )
+	{
+		parser.DefineFun( "StateTime", StateTime );
+		parser.DefineFun( "Curve", Curve );
+	}
+}
+
+
 Tr2ActionBindRTPC::Tr2ActionBindRTPC( IRoot* ):
 	m_controller( nullptr ),
-	m_value( "" )
+	m_value( "" ),
+	m_startTime( 0 ),
+	m_lastSimTime( 0 )
 {
 }
 
 void Tr2ActionBindRTPC::Link( Tr2Controller& controller )
 {
 	m_controller = &controller;
+	m_evaluator.SetExpr( m_value.c_str(), controller, ModifyParser );
 }
 
 void Tr2ActionBindRTPC::Unlink()
@@ -31,6 +61,7 @@ void Tr2ActionBindRTPC::Unlink()
 
 void Tr2ActionBindRTPC::Start( Tr2Controller& controller )
 {
+	m_startTime = BeOS->GetCurrentFrameTime();
 	controller.RegisterUpdateable( *this );
 
 	if( ITr2SoundEmitterOwnerPtr emitters = BlueCastPtr( controller.GetOwner() ) )
@@ -54,6 +85,13 @@ void Tr2ActionBindRTPC::Update( Be::Time realTime, Be::Time simTime )
 		float value = std::get<1>( m_evaluator.Eval() );
 		m_emitter->SetRTPC( m_rtpcName.c_str(), value );
 	}
+
+	// Handle logic necessary in order to use simulated time in the expression.
+	m_lastSimTime = simTime;
+	s_stateTime = TimeAsFloat( simTime - m_startTime );
+	s_action = this;
+	s_stateTime = 0;
+	s_action = nullptr;
 }
 
 bool Tr2ActionBindRTPC::OnModified( Be::Var* value )
@@ -64,7 +102,7 @@ bool Tr2ActionBindRTPC::OnModified( Be::Var* value )
 	}
 	if( IsMatch( value, m_value ) )
 	{
-		m_evaluator.SetExpr( m_value.c_str(), *m_controller);
+		m_evaluator.SetExpr( m_value.c_str(), *m_controller, ModifyParser );
 	}
 	return true;
 }
@@ -102,11 +140,12 @@ BlueStdResult Tr2ActionBindRTPC::EvaluateExpression( const char* expression, flo
 		return BlueStdResult( BLUE_STD_RESULT_RUNTIME_ERROR, "controller needs to be running when evaluating expressions" );
 	}
 	Tr2ControllerExpression expr;
-	auto error = expr.SetExpr( expression, *m_controller);
+	auto error = expr.SetExpr( expression, *m_controller, ModifyParser);
 	if( !error.empty() )
 	{
 		return BlueStdResult( BLUE_STD_RESULT_VALUE_ERROR, error.c_str() );
 	}
+	s_stateTime = TimeAsFloat( m_lastSimTime - m_startTime );
 	auto result = expr.Eval();
 	if( !result.first )
 	{
@@ -114,4 +153,13 @@ BlueStdResult Tr2ActionBindRTPC::EvaluateExpression( const char* expression, flo
 	}
 	value = result.second;
 	return BlueStdResult();
+}
+
+float Tr2ActionBindRTPC::GetCurveValue( float time ) const
+{
+	if( !m_curve )
+	{
+		return 0;
+	}
+	return m_curve->GetValueAt( time );
 }

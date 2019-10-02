@@ -38,16 +38,21 @@ public:
 
 	std::vector<Tr2ExpressionTermInfoPtr> GetExpressionTermInfo() const;
 	BlueStdResult EvaluateExpression( const char* expression, float& value ) const;
+	float GetCurveValue( float time ) const;
 private:
 	bool IsAttrExpressionValid( const char* attributeName ) const;
 
 	std::string m_value;
 	std::string m_emitterName;
 	std::wstring m_rtpcName;
+	ITriScalarFunctionPtr m_curve;
 
 	Tr2ControllerExpression m_evaluator;
 	ITr2SoundEmitterPtr m_emitter;
 	const Tr2Controller* m_controller;
+
+	Be::Time m_startTime;
+	Be::Time m_lastSimTime;
 };
 
 TYPEDEF_BLUECLASS( Tr2ActionBindRTPC );

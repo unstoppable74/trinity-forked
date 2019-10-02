@@ -22,6 +22,7 @@ const Be::ClassInfo* Tr2ActionBindRTPC::ExposeToBlue()
 		MAP_ATTRIBUTE( "value", m_value, "Value expression\n:jessica-widget: expression", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( "emitter", m_emitterName, "The name of the audio emitter to send the RTPC to.\n:jessica-widget: observer-name", Be::READWRITE | Be::PERSIST );
 		MAP_ATTRIBUTE( "rtpcName", m_rtpcName, "The name of the RTPC to bind to in Wwise.", Be::READWRITE | Be::PERSIST );
+		MAP_ATTRIBUTE( "curve", m_curve, "A curve to get running time from.", Be::READWRITE | Be::PERSIST )
 
 		MAP_PROPERTY_READONLY( "isExpressionValid", IsExpressionValid, "Is value expression valid" )
 
