@@ -39,6 +39,11 @@ const Be::ClassInfo* EveChildExplosion::ExposeToBlue()
 			m_globalExplosion, 
 			"Child containing global explosion effect", 
 			Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE(
+			"globalExplosions",
+			m_globalExplosions,
+			"Children containing global explosion effects",
+			Be::READ | Be::PERSIST )
 		MAP_ATTRIBUTE( 
 			"localExplosionDelay", 
 			m_localExplosionDelay, 
@@ -119,11 +124,15 @@ const Be::ClassInfo* EveChildExplosion::ExposeToBlue()
 		MAP_METHOD_AND_WRAP( 
 			"Play", 
 			Play, 
-			"Starts effect playback." )
+			"Starts effect playback.\n"
+			":jessica-favorite:\n"
+			":jessica-icon: timeline/play.png" )
 		MAP_METHOD_AND_WRAP( 
 			"Stop", 
 			Stop, 
-			"Stops effect playback." )
+			"Stops effect playback.\n"
+			":jessica-favorite:\n"
+			":jessica-icon: timeline/stop.png" )
 		MAP_METHOD_AND_WRAP( 
 			"SetLocalExplosionTransforms", 
 			SetLocalExplosionTransforms, 

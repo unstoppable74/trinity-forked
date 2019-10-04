@@ -77,7 +77,8 @@ private:
 	IEveSpaceObjectChildPtr m_localExplosionShared;
 	// Child containing global explosion effect
 	IEveSpaceObjectChildPtr m_globalExplosion;
-	IEveSpaceObjectChildPtr m_globalExplosionInstance;
+	PIEveSpaceObjectChildVector m_globalExplosions;
+	PIEveSpaceObjectChildVector m_globalExplosionInstances;
 	EveChildContainerPtr m_globalExplosionContainer;
 
 	// Transforms for local explosions

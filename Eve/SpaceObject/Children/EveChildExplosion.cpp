@@ -12,6 +12,8 @@
 EveChildExplosion::EveChildExplosion( IRoot* lockobj )
 	:EveChildContainer( lockobj ),
 	PARENTLOCK( m_localExplosions ),
+	PARENTLOCK( m_globalExplosions ),
+	PARENTLOCK( m_globalExplosionInstances ),
 	m_localExplosionDelay( 0.f ),
 	m_localExplosionInterval( 1.f ),
 	m_localExplosionIntervalFactor( 1.f ),
@@ -46,7 +48,7 @@ EveChildExplosion::~EveChildExplosion()
 void EveChildExplosion::Play()
 {
 	Stop();
-	if( !m_localExplosion && !m_globalExplosion && m_localExplosions.empty() )
+	if( !m_localExplosion && !m_globalExplosion && m_localExplosions.empty() && m_globalExplosions.empty() )
 	{
 		return;
 	}
@@ -72,7 +74,7 @@ void EveChildExplosion::Stop()
 	m_objects.Clear();
 	m_isPlaying = false;
 	m_sharedObjects.clear();
-	m_globalExplosionInstance.Unlock();
+	m_globalExplosionInstances.Clear();
 	m_globalExplosionContainer.Unlock();
 }
 
@@ -193,20 +195,45 @@ void EveChildExplosion::UpdateSyncronous( EveUpdateContext& updateContext, const
 			m_countdownToGlobalExplosionStart -= dt;
 			if( m_countdownToGlobalExplosionStart < 0 )
 			{
-				if( !m_globalExplosionInstance )
+				if( m_globalExplosionInstances.empty() )
 				{
-					m_globalExplosionInstance.Unlock();
-					if( BeClasses->CopyTo( m_globalExplosion, (IRoot**)&m_globalExplosionInstance.p ) )
+					IEveSpaceObjectChildPtr instance;
+					if( BeClasses->CopyTo( m_globalExplosion, (IRoot**)&instance.p ) )
 					{	
 						Quaternion rotation = Quaternion( 0.0, 0.0 ,0.0, 1.0 );
 						
 						m_globalExplosionContainer.CreateInstance();
 						m_globalExplosionContainer->SetupWithStaticRotation(&m_globalExplosionScaling, &rotation, &m_globalExplosionOffset, TR2_LOD_LOW );
 
-						m_globalExplosionContainer->m_objects.Append( m_globalExplosionInstance );
+						m_globalExplosionContainer->m_objects.Append( instance );
 						
 						m_objects.Append( m_globalExplosionContainer->GetRawRoot() );
+						m_globalExplosionInstances.Append( instance );
 					}
+				}
+			}
+		}
+		if( !m_globalExplosions.empty() )
+		{
+			m_countdownToGlobalExplosionStart -= dt;
+			if( m_countdownToGlobalExplosionStart < 0 )
+			{
+				if( m_globalExplosionInstances.empty() )
+				{
+					m_globalExplosionContainer.CreateInstance();
+
+					for( auto it = m_globalExplosions.begin(); it != m_globalExplosions.end(); ++it )
+					{
+						auto globalExplosion = ( *it );
+						IEveSpaceObjectChildPtr instance;
+						if( BeClasses->CopyTo( globalExplosion, ( IRoot** )&instance.p ) )
+						{
+							m_globalExplosionContainer->m_objects.Append( instance );
+							m_globalExplosionInstances.Append( instance );
+						}
+					}					
+						
+					m_objects.Append( m_globalExplosionContainer->GetRawRoot() );
 				}
 			}
 		}
@@ -232,6 +259,10 @@ void EveChildExplosion::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer 
 	if( m_globalExplosion )
 	{
 		m_globalExplosion->RegisterWithQuadRenderer( quadRenderer );
+	}
+	for( auto it = m_globalExplosions.begin(); it != m_globalExplosions.end(); ++it )
+	{
+		( *it )->RegisterWithQuadRenderer( quadRenderer );
 	}
 }
 
