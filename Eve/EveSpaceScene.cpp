@@ -1657,29 +1657,8 @@ void EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext )
 
 	renderContext.AddGpuMarker( __FUNCTION__ );
 
-	if( !m_planets.empty() )
-	{
-		// Update planet LODs
-		TriFrustum frustum;
-		frustum.DeriveFrustum( &Tr2Renderer::GetViewTransform(), &Tr2Renderer::GetViewPosition(), &Tr2Renderer::GetProjectionTransform(), gTriDev->mViewport );
-
-		Matrix orgViewMatrix = SetupPlanetViewMatrix();
-
-		Tr2ParallelDo( m_planets.begin(), m_planets.end(), [&]( EvePlanet* obj )
-			{
-				obj->SetRenderScale( m_planetScale );
-				obj->UpdatePlanetVisibility( frustum, m_planetScale );
-			} );
-
-		for( auto it = m_planets.begin(); it != m_planets.end(); ++it )
-		{
-			EvePlanet* obj = *it;
-			obj->UpdateLOD( frustum );
-		}
-
-		Tr2Renderer::SetViewTransform( orgViewMatrix );
-	}
-
+	
+	
 	RenderBackgroundPassObjects( renderContext, BACKGROUND_RENDER_COLOR );
 
 	// Render background reflection cubemap
@@ -2795,6 +2774,25 @@ void EveSpaceScene::UpdatePlanets( EveUpdateContext& updateContext )
 
 void EveSpaceScene::RenderPlanets( Tr2RenderContext& renderContext )
 {
+	// Update planet LODs and render planets
+	TriFrustum frustum;
+	frustum.DeriveFrustum( &Tr2Renderer::GetViewTransform(), &Tr2Renderer::GetViewPosition(), &Tr2Renderer::GetProjectionTransform(), gTriDev->mViewport );
+
+	Matrix orgViewMatrix = SetupPlanetViewMatrix();
+
+	for ( auto it = m_planets.begin(); it != m_planets.end(); ++it )
+	{
+		EvePlanet* obj = *it;
+		obj->SetRenderScale( m_planetScale );
+		obj->UpdateLOD( frustum );
+	}
+
+	Tr2ParallelDo( m_planets.begin(), m_planets.end(), [&]( EvePlanet* obj )
+	{
+		obj->UpdatePlanetVisibility( frustum, m_planetScale );
+	} );
+
+	Tr2Renderer::SetViewTransform( orgViewMatrix );
 	
 	// Backup current state
 	Tr2Renderer::PushProjection();
