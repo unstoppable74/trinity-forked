@@ -15,7 +15,10 @@ BLUE_INTERFACE( ITr2ControllerOwner ) : public IRoot
 	virtual void HandleControllerEvent( const char* name ) {}
 	// Called when we want to start all the controllers
 	virtual void StartControllers() {}
-	virtual void GetBindingRoots( std::unordered_map<std::string, IRoot*>& variables ) {};
+	virtual void GetBindingRoots( std::unordered_map<std::string, IRoot*>& variables ) 
+	{
+		variables["Owner"] = this->GetRootObject();
+	};
 };
 
 BLUE_DECLARE_IVECTOR( ITr2ControllerOwner );

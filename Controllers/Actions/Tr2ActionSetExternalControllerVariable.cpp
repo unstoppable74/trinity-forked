@@ -30,6 +30,7 @@ void Tr2ActionSetExternalControllerVariable::Link( Tr2Controller& controller )
 
 void Tr2ActionSetExternalControllerVariable::Unlink()
 {
+	m_controller = nullptr;
 	m_destination = nullptr;
 }
 

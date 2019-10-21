@@ -180,6 +180,7 @@ void EveMultiEffect::StartControllers()
 
 void EveMultiEffect::GetBindingRoots( std::unordered_map<std::string, IRoot*>& variables )
 {
+	ITr2ControllerOwner::GetBindingRoots( variables );
 	for( auto param = begin( m_parameters ); param != end( m_parameters ); ++param )
 	{
 		variables[ ( *param )->GetName().c_str() ] = ( *param )->GetParameterObject();

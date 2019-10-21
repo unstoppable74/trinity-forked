@@ -925,7 +925,7 @@ bool TriStepRenderPostProcess::ProcessTaa(Tr2PPTaaEffect* taa)
 			m_velocityBuffer->m_name = "VelocityMap";
 			m_velocityBuffer->Create(source->GetWidth(), source->GetHeight(), 1, Tr2RenderContextEnum::PIXEL_FORMAT_R16G16_FLOAT, source->GetMsaaType(), 0);
 
-			if (source->GetMsaaQuality() > 1)
+			if (source->GetMsaaType() > 1)
 			{
 				m_taaEffect->SetParameter(BlueSharedString("VelocityMapMSAA"), m_velocityBuffer);
 				m_taaEffect->SetParameter(BlueSharedString("VelocityMap"), m_renderInfo->GetBlackBuffer());
