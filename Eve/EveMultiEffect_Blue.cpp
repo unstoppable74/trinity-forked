@@ -7,6 +7,8 @@
 #include "StdAfx.h"
 #include "EveMultiEffect.h"
 
+BLUE_DEFINE_INTERFACE( ITr2DynamicBindingOwner );
+
 BLUE_DEFINE( EveMultiEffect );
 
 const Be::ClassInfo* EveMultiEffect::ExposeToBlue()
@@ -15,6 +17,8 @@ const Be::ClassInfo* EveMultiEffect::ExposeToBlue()
 		MAP_INTERFACE( IEveSpaceObject2 )
 		MAP_INTERFACE( ITr2ControllerOwner )
 		MAP_INTERFACE( IInitialize )
+		MAP_INTERFACE( ITr2DynamicBindingOwner )
+		MAP_INTERFACE( ITr2CurveSetOwner )
 
 		MAP_ATTRIBUTE(
 			"name",

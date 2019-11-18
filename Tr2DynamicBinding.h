@@ -20,6 +20,8 @@ BLUE_CLASS( Tr2DynamicBinding ) :
 public:
 	EXPOSE_TO_BLUE();
 	Tr2DynamicBinding( IRoot* lockobj = NULL );
+	~Tr2DynamicBinding();
+
 	void Link();
 	void Unlink();
 	void SetOwner( ITr2DynamicBindingOwner* owner );

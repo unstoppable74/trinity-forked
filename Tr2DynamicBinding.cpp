@@ -184,11 +184,21 @@ Tr2DynamicBinding::Tr2DynamicBinding( IRoot* lockobj ) :
 	m_binding = nullptr;
 }
 
+Tr2DynamicBinding::~Tr2DynamicBinding()
+{
+	m_owner = nullptr;
+	Unlink();
+}
+
 bool Tr2DynamicBinding::OnModified( Be::Var* value )
 {
 	if( m_owner != nullptr )
 	{
 		Link();
+	}
+	else
+	{
+		Unlink();
 	}
 
 	return true;
@@ -214,13 +224,13 @@ void Tr2DynamicBinding::Update()
 
 void Tr2DynamicBinding::Link()
 {
+	Unlink();
 	if( m_owner == nullptr )
 	{
 		return;
 	}
 
 	auto parameters = m_owner->GetParameterMap();
-	Unlink();
 
 	m_destination = ResolveReference( m_destinationObjectPath.c_str(), parameters );
 	m_source = ResolveReference( m_sourceObjectPath.c_str(), parameters );
