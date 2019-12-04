@@ -24,6 +24,7 @@ const Be::ClassInfo* Tr2DynamicBinding::ExposeToBlue()
 		MAP_ATTRIBUTE( "sourceObjectAttribute", m_sourceObjectAttribute, "Path to the source object attribute", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( "source", m_source, "source object", Be::READ )
 		MAP_ATTRIBUTE( "scale", m_scale, "scale of the source value", Be::READWRITE| Be::PERSIST | Be::NOTIFY )
+		MAP_ATTRIBUTE( "bindingDelay", m_bindingDelay, "delay in ms until binding starts", Be::READWRITE | Be::PERSIST )
 		
 		MAP_PROPERTY_READONLY( "isSourceValid", IsSourceValid, "Is source parameter valid" )
 

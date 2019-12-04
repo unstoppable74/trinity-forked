@@ -15,7 +15,8 @@ BLUE_DECLARE( TriValueBinding );
 
 
 BLUE_CLASS( Tr2DynamicBinding ) :
-	public INotify
+	public INotify,
+	public ISimTimeRebaseNotify
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -25,7 +26,8 @@ public:
 	void Link();
 	void Unlink();
 	void SetOwner( ITr2DynamicBindingOwner* owner );
-	void Update();
+	void Update( Be::Time time );
+	virtual void OnSimClockRebase( Be::Time oldTime, Be::Time newTime );
 
 	bool IsDestinationValid() const;
 	bool IsSourceValid() const;
@@ -45,6 +47,9 @@ private:
 	BlueSharedString m_sourceObjectAttribute;
 	BlueWeakRef<IRoot> m_source;
 	float m_scale;
+	long m_bindingDelay;
+
+	Be::Time m_bindingTime;
 
 	TriValueBindingPtr m_binding;
 	ITr2DynamicBindingOwner* m_owner;

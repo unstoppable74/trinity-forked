@@ -269,7 +269,7 @@ void EveMultiEffect::UpdateSyncronous( EveUpdateContext& updateContext )
 
 	for( auto binding = m_bindings.begin(); binding != m_bindings.end(); ++binding )
 	{
-		( *binding )->Update();
+		( *binding )->Update( time );
 	}
 
 	// Update all space objects

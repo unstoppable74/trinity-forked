@@ -179,9 +179,12 @@ Tr2DynamicBinding::Tr2DynamicBinding( IRoot* lockobj ) :
 	m_destination( nullptr ),
 	m_source( nullptr ),
 	m_owner( nullptr ),
-	m_scale( 1.0f )
+	m_scale( 1.0f ),
+	m_bindingDelay( 0L ),
+	m_bindingTime( 0 )
 {
 	m_binding = nullptr;
+	BeOS->RegisterForSimTimeRebase( this );
 }
 
 Tr2DynamicBinding::~Tr2DynamicBinding()
@@ -204,6 +207,11 @@ bool Tr2DynamicBinding::OnModified( Be::Var* value )
 	return true;
 }
 
+void Tr2DynamicBinding::OnSimClockRebase( Be::Time oldTime, Be::Time newTime )
+{
+	m_bindingTime += ( newTime - oldTime );
+}
+
 bool Tr2DynamicBinding::IsSourceValid() const
 {
 	return m_source != nullptr;
@@ -214,9 +222,9 @@ bool Tr2DynamicBinding::IsDestinationValid() const
 	return m_destination != nullptr;
 }
 
-void Tr2DynamicBinding::Update()
+void Tr2DynamicBinding::Update( Be::Time time )
 {
-	if( m_binding != nullptr )
+	if( m_binding != nullptr && m_bindingTime <= time )
 	{
 		m_binding->CopyValue();
 	}
@@ -242,6 +250,7 @@ void Tr2DynamicBinding::Link()
 		m_binding->SetSource( m_sourceObjectAttribute.c_str(), static_cast<IRoot*>( m_source ) );
 		m_binding->SetScale( m_scale );
 		m_binding->Initialize();
+		m_bindingTime = BeOS->GetCurrentFrameTime() + TimeFromMS( m_bindingDelay );
 	}	
 }
 
