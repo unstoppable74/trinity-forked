@@ -617,6 +617,7 @@ EveBoosterSet2::EveBoosterSet2( IRoot* lockobj ) :
 	m_symHaloScale( 1.f ),
 	m_haloScaleX( 1.f ),
 	m_haloScaleY( 1.f ),
+	m_flareLodEnabled( true ),
 	m_trailsSmoothing( 10.f ),
 	m_lightOffset( 0.f ),
 	m_lightRadius( 0.f ),
@@ -1246,7 +1247,7 @@ void EveBoosterSet2::AddToQuadRenderer( Tr2QuadRenderer& quadRenderer, const Mat
 
 	for( auto it = m_boosterRenderables.begin(); it != m_boosterRenderables.end(); it++ )
 	{
-		if( (*it)->m_boosterLOD > g_eveSpaceSceneLowDetailThreshold )
+		if( (*it)->m_boosterLOD > g_eveSpaceSceneLowDetailThreshold || !m_flareLodEnabled )
 		{
 			m_glows->AddBoosterGlowToQuadRenderer( quadRenderer, (*it)->m_parentTransform, (*it)->m_overallIntensity, m_warpIntensity );
 		}

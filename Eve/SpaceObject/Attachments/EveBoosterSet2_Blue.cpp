@@ -150,6 +150,7 @@ const Be::ClassInfo* EveBoosterSet2::ExposeToBlue()
 		)	
 
 		MAP_ATTRIBUTE( "staticTrailLength", m_staticTrailLength, ":jessica-group: Fakery", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
+		MAP_ATTRIBUTE( "flareLodEnabled", m_flareLodEnabled, ":jessica-group: Fakery", Be::READWRITE | Be::NOTIFY )
 		MAP_ATTRIBUTE( "trailsStaticOffsets0", m_trailsStaticOffsets[0], ":jessica-group: Fakery", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "trailsStaticOffsets1", m_trailsStaticOffsets[1], ":jessica-group: Fakery", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "trailsStaticOffsets2", m_trailsStaticOffsets[2], ":jessica-group: Fakery", Be::READWRITE | Be::PERSIST )

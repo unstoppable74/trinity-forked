@@ -305,6 +305,7 @@ private:
 
 	// holds all the lensflares of this booster
 	EveSpriteSetPtr m_glows;
+	bool m_flareLodEnabled;
 
 	// holds all the trails of this booster
 	EveTrailsSetPtr m_trails;
