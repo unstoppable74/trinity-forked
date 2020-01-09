@@ -39,6 +39,7 @@ public:
 		CMD_VARIANT,
 		CMD_CLASS,
 		CMD_PATTERN,
+		CMD_EXPERIMENTAL,
 		CMD_MAX
 	}; 
 
@@ -134,6 +135,7 @@ public:
 	const char* GetImpactShieldShader() const;
 	unsigned int GetHighestMeshAreaIndex( TriBatchType areaType, size_t n = 0 ) const;
 
+	bool IsUsingExperimentalFeatures() const;
 
 private:
 	// special cusomt data setup
@@ -162,6 +164,8 @@ private:
 	std::string m_factionName;
 	std::string m_raceName;
 	std::map<std::string, std::vector<std::string>> m_commands;
+
+	bool m_experimental;
 };
 
 TYPEDEF_BLUECLASS( EveSOFDNA );

@@ -31,6 +31,7 @@ static std::string s_dnaCommands[] = {
 	"variant",				// CMD_VARIANT
 	"class",				// CMD_CLASS
 	"pattern",				// CMD_PATTERN
+	"experimental",			// CMD_EXPERIMENTAL
 };
 
 // build classes
@@ -52,7 +53,8 @@ EveSOFDNA::EveSOFDNA( IRoot* lockobj ) :
 	m_factionData( nullptr ),
 	m_raceData( nullptr ),
 	m_patternData( nullptr ),
-	m_genericData( nullptr )
+	m_genericData( nullptr ),
+	m_experimental( false )
 {
 }
 
@@ -303,6 +305,9 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 	{
 		SetupCustomData();
 	}
+
+	// some dna commands require a custom block data
+	m_experimental = HasDnaCommand( CMD_EXPERIMENTAL );
 }
 
 // --------------------------------------------------------------------------------
@@ -1321,6 +1326,14 @@ bool EveSOFDNA::GetDnaCommandArgs( DnaCommand cmd, std::vector<std::string>& arg
 }
 
 
+// --------------------------------------------------------------------------------
+// Description:
+//	Check if we are using experimental features
+// --------------------------------------------------------------------------------
+bool EveSOFDNA::IsUsingExperimentalFeatures() const
+{
+	return m_experimental;
+}
 
 
 
