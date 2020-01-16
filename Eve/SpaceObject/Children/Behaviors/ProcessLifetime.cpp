@@ -4,11 +4,12 @@
 
 ProcessLifetime::ProcessLifetime( IRoot* lockobj ) :
 	PARENTLOCK( m_splineTunnels ),
-	m_firstAgentLifetime( 0 ),
-	m_behaviorWeight( 15 ),
+	m_firstAgentLifetime( 0 ), // Debug
 	m_returningAge( -1 ),
+	m_behaviorWeight( 15 ),
 	m_shouldReassignTunnelIDs( true ),
-	m_respawnAgentsOnDeath( true )
+	m_respawnAgentsOnDeath( true ),
+	m_exit( false )
 {
 	m_splineTunnels.SetNotify( this );
 }
@@ -57,6 +58,10 @@ void ProcessLifetime::OnListModified( long event, ssize_t key, ssize_t key2, IRo
 	}
 }
 
+std::string ProcessLifetime::GetBehaviorName()
+{
+	return "ProcessLifetime";
+}
 
 size_t ProcessLifetime::GetScratchMemorySize() const
 {
@@ -89,7 +94,7 @@ std::vector<Vector3> ProcessLifetime::CalculateBehavior(std::vector<DroneAgent>&
 			FindASpawnPoint( *drone, data );
 		}
 
-		m_desiredVector = Vector3(0,0,0);
+		m_desiredVector = Vector3( 0, 0, 0 );
 
 		if( !data->hasUsedEntryTunnel )
 		{
@@ -112,9 +117,10 @@ std::vector<Vector3> ProcessLifetime::CalculateBehavior(std::vector<DroneAgent>&
 			}
 		}
 
-		if( m_returningAge != -1 && drone->lifetime > m_returningAge )
+		if( m_exit || (m_returningAge != -1 && drone->lifetime > m_returningAge) )
 		{
-			if( data->hasUsedExitTunnel || drone->lifetime > 1.5 * m_returningAge )
+			// If drone has exited then remove it
+			if( data->hasUsedExitTunnel )
 			{
 				dronesThatDie.push_back( index );
 			}

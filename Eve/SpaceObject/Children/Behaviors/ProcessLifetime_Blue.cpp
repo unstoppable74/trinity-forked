@@ -20,6 +20,7 @@ const Be::ClassInfo* ProcessLifetime::ExposeToBlue()
 		MAP_INTERFACE( IBehavior )
 		MAP_INTERFACE( INotify )
 
+		MAP_ATTRIBUTE( "exit", m_exit, "Trigger to have drones search for an exit tunnel", Be::READWRITE )
 		MAP_ATTRIBUTE( "firstAgentLifetime", m_firstAgentLifetime, "Current lifetime for first agent in the group", Be::READ )
 		MAP_ATTRIBUTE( "behaviorWeight", m_behaviorWeight, "pull force multiplier", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "returningAge", m_returningAge, "designate when agent should exit the scene", Be::READWRITE | Be::PERSIST )

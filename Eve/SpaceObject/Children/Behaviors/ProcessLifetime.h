@@ -39,11 +39,14 @@ public:
 	bool OnModified(Be::Var* value);
 	void OnListModified(long event, ssize_t key, ssize_t key2, IRoot* value, const IList* theList);
 
+	std::string GetBehaviorName();
 	virtual size_t GetScratchMemorySize() const;
 	virtual void InitializeScratch( const DroneAgent& drone, void* scratchMemory );
 	virtual std::vector<Vector3> CalculateBehavior(std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
 	                                               BehaviorGroup& sys, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius);
 	void RenderDebugInfo( ITr2DebugRenderer2& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation);
+
+	void UpdateState( bool state ) { m_exit = state; }
 	
 private:
 	void FindASpawnPoint( DroneAgent& agent, ProcessLifetimeData* data );
@@ -56,10 +59,11 @@ private:
 	PSplineTunnelGroupVector m_splineTunnels;
 	std::vector<SplineTunnel*> m_privateTunnels;
 
-	bool m_respawnAgentsOnDeath;
 	float m_behaviorWeight;
-	bool m_shouldReassignTunnelIDs;
 	float m_returningAge; // how old is the drone when it starts returning (-1 means it'll last forever)
+	bool m_respawnAgentsOnDeath;
+	bool m_shouldReassignTunnelIDs;
+	bool m_exit;
 	Vector3 m_desiredVector;
 };
 
