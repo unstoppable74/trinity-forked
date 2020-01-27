@@ -22,7 +22,6 @@ CCP_STATS_DECLARED_ELSEWHERE( primitiveCount );
 // constants
 // how many planes per booster tree structure?
 const unsigned int EVE_BOOSTER_PLANES_COUNT[EveBoosterSet2::SHAPE_COUNT] = { 4, 6 };
-static std::vector<EveBoosterSet2::BoosterVertex> s_shapeMesh[EveBoosterSet2::SHAPE_COUNT];
 
 // externs
 extern float g_eveSpaceSceneLowDetailThreshold;
@@ -291,7 +290,7 @@ void EveBoosterSet2Renderable::SubmitGeometry( Tr2RenderContext& renderContext )
 	renderContext.m_esm.ApplyVertexDeclaration( m_boosterSet->m_vertexDeclHandle );
 	renderContext.m_esm.ApplyIndexBuffer( *indexBuffer );
 	// stream0: "indexed", the star shape	
-	renderContext.m_esm.ApplyStreamSource( 0, m_boosterSet->m_vertexBuffer, 0, sizeof( EveBoosterSet2::BoosterVertex ) );
+	renderContext.m_esm.ApplyStreamSource( 0, m_boosterSet->m_vertexBuffer.GetSharedResource(), 0, sizeof( EveBoosterSet2::BoosterVertex ) );
 	// stream1: "instance", the star shape' position	
 	renderContext.m_esm.ApplyStreamSource( 1, m_boosterSet->m_instanceBuffer, 0, sizeof( EveBoosterSet2::InstanceVertex ) );
 	// draw	
@@ -591,6 +590,74 @@ void EveBoosterSet2Renderable::CalculateSplineData( float deltaT )
 }
 
 
+namespace
+{
+	ALResult GetBoxVB( Tr2BufferAL& vb, Tr2PrimaryRenderContext& renderContext )
+	{
+		const uint32_t vertexCount = 4 * 6;
+		EveBoosterSet2::BoosterVertex vertices[vertexCount];
+		auto p = &vertices[0];
+		( p++ )->position = Vector3( -1.0f, -1.0f, 0.0f );
+		( p++ )->position = Vector3( 1.0f, -1.0f, 0.0f );
+		( p++ )->position = Vector3( 1.0f, 1.0f, 0.0f );
+		( p++ )->position = Vector3( -1.0f, 1.0f, 0.0f );
+
+		( p++ )->position = Vector3( -1.0f, -1.0f, -1.0f );
+		( p++ )->position = Vector3( -1.0f, 1.0f, -1.0f );
+		( p++ )->position = Vector3( 1.0f, 1.0f, -1.0f );
+		( p++ )->position = Vector3( 1.0f, -1.0f, -1.0f );
+
+		( p++ )->position = Vector3( -1.0f, -1.0f, 0.0f );
+		( p++ )->position = Vector3( -1.0f, 1.0f, 0.0f );
+		( p++ )->position = Vector3( -1.0f, 1.0f, -1.0f );
+		( p++ )->position = Vector3( -1.0f, -1.0f, -1.0f );
+
+		( p++ )->position = Vector3( 1.0f, -1.0f, 0.0f );
+		( p++ )->position = Vector3( 1.0f, -1.0f, -1.0f );
+		( p++ )->position = Vector3( 1.0f, 1.0f, -1.0f );
+		( p++ )->position = Vector3( 1.0f, 1.0f, 0.0f );
+
+		( p++ )->position = Vector3( -1.0f, -1.0f, 0.0f );
+		( p++ )->position = Vector3( -1.0f, -1.0f, -1.0f );
+		( p++ )->position = Vector3( 1.0f, -1.0f, -1.0f );
+		( p++ )->position = Vector3( 1.0f, -1.0f, 0.0f );
+
+		( p++ )->position = Vector3( -1.0f, 1.0f, 0.0f );
+		( p++ )->position = Vector3( 1.0f, 1.0f, 0.0f );
+		( p++ )->position = Vector3( 1.0f, 1.0f, -1.0f );
+		( p++ )->position = Vector3( -1.0f, 1.0f, -1.0f );
+
+		return vb.Create( sizeof( EveBoosterSet2::BoosterVertex ), vertexCount, Tr2GpuUsage::VERTEX_BUFFER, Tr2CpuUsage::NONE, &vertices[0], renderContext );
+
+	}
+
+	ALResult GetStarVB( Tr2BufferAL& vb, Tr2PrimaryRenderContext& renderContext )
+	{
+		const uint32_t vertexCount = 4 * 4;
+		EveBoosterSet2::BoosterVertex vertices[vertexCount];
+		auto p = &vertices[0];
+		for( unsigned int i = 0; i < _countof( vertices ); i += 4 )
+		{
+			float t = (float)i * XM_PI / 4.f;
+			float x = cos( t ) * 0.5f;
+			float y = sin( t ) * 0.5f;
+			p->position = Vector3( -x, -y, 0.f );
+			p->texCoord = Vector2( 1.f, 1.f );
+			++p;
+			p->position = Vector3( -x, -y, -1.f );
+			p->texCoord = Vector2( 1.f, 0.f );
+			++p;
+			p->position = Vector3( x, y, -1.f );
+			p->texCoord = Vector2( 0.f, 0.f );
+			++p;
+			p->position = Vector3( x, y, 0.0f );
+			p->texCoord = Vector2( 0.f, 1.f );
+			++p;
+		}
+
+		return vb.Create( sizeof( EveBoosterSet2::BoosterVertex ), vertexCount, Tr2GpuUsage::VERTEX_BUFFER, Tr2CpuUsage::NONE, &vertices[0], renderContext );
+	}
+}
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -625,69 +692,10 @@ EveBoosterSet2::EveBoosterSet2( IRoot* lockobj ) :
 	m_lightFlickerAmplitude( 0.f ),
 	m_lightFlickerFrequency( 0.f ),
 	m_lightColor( 0.f, 0.f, 0.f, 0.f ),
-	m_lightWarpColor( 0.f, 0.f, 0.f, 0.f )
+	m_lightWarpColor( 0.f, 0.f, 0.f, 0.f ),
+	m_vertexBuffer( BlueSharedString( "BoosterBoxVB" ), GetBoxVB )
 {
-	// 0
 	BoundingSphereInitialize( m_boosterBoundingSphere );
-
-	// pre-build star-shape geometry
-	if( s_shapeMesh[BOX].empty() )
-	{
-		s_shapeMesh[BOX].resize( 4 * EVE_BOOSTER_PLANES_COUNT[BOX] );
-		auto p = &s_shapeMesh[BOX][0];
-		( p++ )->position = Vector3( -1.0f, -1.0f, 0.0f );
-		( p++ )->position = Vector3( 1.0f, -1.0f, 0.0f );
-		( p++ )->position = Vector3( 1.0f, 1.0f, 0.0f );
-		( p++ )->position = Vector3( -1.0f, 1.0f, 0.0f );
-
-		( p++ )->position = Vector3( -1.0f, -1.0f, -1.0f );
-		( p++ )->position = Vector3( -1.0f, 1.0f, -1.0f );
-		( p++ )->position = Vector3( 1.0f, 1.0f, -1.0f );
-		( p++ )->position = Vector3( 1.0f, -1.0f, -1.0f );
-
-		( p++ )->position = Vector3( -1.0f, -1.0f, 0.0f );
-		( p++ )->position = Vector3( -1.0f, 1.0f, 0.0f );
-		( p++ )->position = Vector3( -1.0f, 1.0f, -1.0f );
-		( p++ )->position = Vector3( -1.0f, -1.0f, -1.0f );
-
-		( p++ )->position = Vector3( 1.0f, -1.0f, 0.0f );
-		( p++ )->position = Vector3( 1.0f, -1.0f, -1.0f );
-		( p++ )->position = Vector3( 1.0f, 1.0f, -1.0f );
-		( p++ )->position = Vector3( 1.0f, 1.0f, 0.0f );
-
-		( p++ )->position = Vector3( -1.0f, -1.0f, 0.0f );
-		( p++ )->position = Vector3( -1.0f, -1.0f, -1.0f );
-		( p++ )->position = Vector3( 1.0f, -1.0f, -1.0f );
-		( p++ )->position = Vector3( 1.0f, -1.0f, 0.0f );
-
-		( p++ )->position = Vector3( -1.0f, 1.0f, 0.0f );
-		( p++ )->position = Vector3( 1.0f, 1.0f, 0.0f );
-		( p++ )->position = Vector3( 1.0f, 1.0f, -1.0f );
-		( p++ )->position = Vector3( -1.0f, 1.0f, -1.0f );
-	}
-	if( s_shapeMesh[STAR].empty() )
-	{
-		s_shapeMesh[STAR].resize( 4 * EVE_BOOSTER_PLANES_COUNT[STAR] );
-		auto p = &s_shapeMesh[STAR][0];
-		for( unsigned int i = 0; i < EVE_BOOSTER_PLANES_COUNT[STAR]; ++i )
-		{
-			float t = (float)i * XM_PI / (float)EVE_BOOSTER_PLANES_COUNT[STAR];
-			float x = cos( t ) * 0.5f;
-			float y = sin( t ) * 0.5f;
-			p->position = Vector3( -x, -y, 0.f );
-			p->texCoord = Vector2( 1.f, 1.f );
-			++p;							   
-			p->position = Vector3( -x, -y, -1.f );
-			p->texCoord = Vector2( 1.f, 0.f );
-			++p;							   
-			p->position = Vector3(  x,  y, -1.f );
-			p->texCoord = Vector2( 0.f, 0.f );
-			++p;							   
-			p->position = Vector3(  x,  y, 0.0f );
-			p->texCoord = Vector2( 0.f, 1.f );
-			++p;
-		}
-	}
 	
 	for( unsigned int i = 0; i < EVE_MAX_CONTROL_POINT_COUNT; ++i )
 	{
@@ -998,7 +1006,6 @@ void EveBoosterSet2::SetTrail( EveTrailsSetPtr trail )
 // --------------------------------------------------------------------------------
 void EveBoosterSet2::ReleaseResources( TriStorage s )
 {
-	m_vertexBuffer = Tr2BufferAL();
 	m_instanceBuffer = Tr2BufferAL();
 	m_vertexDeclHandle = Tr2EffectStateManager::UNINITIALIZED_DECLARATION;
 }
@@ -1036,15 +1043,15 @@ bool EveBoosterSet2::OnPrepareResources()
 	}
 
 	// create star-shape geometry as "indexed" geometry
-	auto shape = Tr2Renderer::GetShaderModel() >= TR2SM_3_0_HI ? BOX : STAR;
-	CR_RETURN_VAL( m_vertexBuffer.Create(	
-		sizeof( BoosterVertex ),
-		4 * EVE_BOOSTER_PLANES_COUNT[shape],
-		Tr2GpuUsage::VERTEX_BUFFER,
-		Tr2CpuUsage::NONE,
-		&s_shapeMesh[shape][0], 
-		renderContext )
-		, false );
+	if( Tr2Renderer::GetShaderModel() >= TR2SM_3_0_HI )
+	{
+		m_vertexBuffer = Tr2ProceduralBuffer( BlueSharedString( "BoosterBoxVB" ), GetBoxVB );
+	}
+	else
+	{
+		m_vertexBuffer = Tr2ProceduralBuffer( BlueSharedString( "BoosterStarVB" ), GetStarVB );
+	}
+
 	// now build the "instance" buffer, which depends on the actual number of booster, this set currently holds
 	RebuildInstanceData( renderContext );
 

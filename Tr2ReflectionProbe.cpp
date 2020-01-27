@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Created:		January 2019
-// Copyright:	CCP 2019
+// Created:   	January 2019
+// Copyright: 	CCP 2019
 //
 
 #include "StdAfx.h"
@@ -18,7 +18,7 @@ using namespace Tr2RenderContextEnum;
 
 const unsigned MIP_COUNT = 7;
 const unsigned FILTER_SIZE = 128;
-const unsigned FILTER_GROUP_DIM = 21844; // sum(2**(x+x) for x in range(1, MIP_COUNT + 1))
+const unsigned FILTER_GROUP_DIM = 342; // ceil(sum(2**(x+x) for x in range(1, MIP_COUNT + 1)) / GROUP_SIZE)
 
 Tr2ReflectionProbe::Tr2ReflectionProbe( IRoot* lockobj )
 	: m_initialized( false ),
@@ -27,7 +27,11 @@ Tr2ReflectionProbe::Tr2ReflectionProbe( IRoot* lockobj )
 	m_prevCullInversion( false ),
 	m_customSourceTexture()
 {
-	m_renderTarget.CreateInstance();
+	for( unsigned i = 0; i < 6; i++ )
+	{
+		m_renderTargets[i].CreateInstance();
+	}
+
 	m_renderTargetCube.CreateInstance();
 	m_preFilterEffect.CreateInstance();
 	m_filterEffect.CreateInstance();
@@ -51,8 +55,8 @@ void Tr2ReflectionProbe::InitRenderPass( Tr2RenderContext &renderContext )
 	renderContext.m_esm.PushViewport();
 	Tr2Renderer::PushViewTransform();
 	Tr2Renderer::PushProjection();
-	renderContext.m_esm.PushRenderTarget( *m_renderTarget );
-	renderContext.m_esm.PushDepthStencilBuffer( m_stencilMap );
+	renderContext.m_esm.PushRenderTarget();
+	renderContext.m_esm.PushDepthStencilBuffer();
 
 	renderContext.m_esm.SetViewport( m_intermediateSize, m_intermediateSize, 0, 0, 0, 1 );
 
@@ -69,11 +73,22 @@ void Tr2ReflectionProbe::InitRenderPass( Tr2RenderContext &renderContext )
 	// We need to invert cull-mode because of the left-handed coordinates of the cube rendertarget 
 	m_prevCullInversion = renderContext.m_esm.IsCullModeInverted();
 	renderContext.m_esm.SetInvertedCullMode( true );
+
+	{
+		GPU_REGION( renderContext, "Reflection Depth Clear" );
+
+		for( int i = 0; i < 6; i++ )
+		{
+			renderContext.m_esm.SetDepthStencilBuffer( m_stencilMaps[i] );
+			CR( renderContext.Clear( CLEARFLAGS_ZBUFFER, 0, 0, 0 ) );
+		}
+	}
 }
 
 void Tr2ReflectionProbe::StartRenderFace( unsigned face, Tr2RenderContext &renderContext )
 {
-	CR( renderContext.Clear( CLEARFLAGS_TARGET | CLEARFLAGS_ZBUFFER, 0, 0, 0 ) );
+	renderContext.m_esm.SetRenderTarget( 0, *m_renderTargets[face] );
+	renderContext.m_esm.SetDepthStencilBuffer( m_stencilMaps[face] );
 
 	static const Vector3 faceDirections[] =
 	{
@@ -99,13 +114,17 @@ void Tr2ReflectionProbe::StartRenderFace( unsigned face, Tr2RenderContext &rende
 	Tr2Renderer::SetViewTransform( LookAtMatrix( m_position, m_position + at, up ) * xInverter );
 }
 
-void Tr2ReflectionProbe::EndRenderFace( unsigned face, Tr2RenderContext &renderContext )
-{
-	CR( m_renderTargetCube->GetRenderTarget().CopySubresourceRegion( Tr2TextureSubresource( face, 0 ), *m_renderTarget, Tr2TextureSubresource( 0, 0 ), renderContext ) );
-}
-
 void Tr2ReflectionProbe::EndRenderPass( Tr2RenderContext &renderContext )
 {
+	{
+		GPU_REGION( renderContext, "Reflection RT Copy" );
+
+		for( int i = 0; i < 6; i++ )
+		{
+			CR( m_renderTargetCube->GetRenderTarget().CopySubresourceRegion( Tr2TextureSubresource( i, 0 ), *m_renderTargets[i], Tr2TextureSubresource( 0, 0 ), renderContext ) );
+		}
+	}
+
 	renderContext.m_esm.SetInvertedCullMode( m_prevCullInversion );
 
 	renderContext.m_esm.PopDepthStencilBuffer();
@@ -134,27 +153,30 @@ void Tr2ReflectionProbe::ReleaseResources( TriStorage s )
 
 bool Tr2ReflectionProbe::OnPrepareResources()
 {
-	if( !SHADER_TYPE_EXISTS(COMPUTE_SHADER) )
+	if( !SHADER_TYPE_EXISTS( COMPUTE_SHADER ) )
 	{
 		return false;
 	}
 
 	USE_MAIN_THREAD_RENDER_CONTEXT();
 
-	if( !m_renderTarget->IsValid() )
+	for( int i = 0; i < 6; i++ )
 	{
-		CR_RETURN_VAL( m_renderTarget->Create( m_intermediateSize, m_intermediateSize, 1, PIXEL_FORMAT_R8G8B8A8_UNORM, 0, 0, EX_BIND_UNORDERED_ACCESS ), false );
+		if( !m_renderTargets[i]->IsValid() )
+		{
+			CR_RETURN_VAL( m_renderTargets[i]->CreateManual( m_intermediateSize, m_intermediateSize, 1, PIXEL_FORMAT_R8G8B8A8_UNORM, 0, 0, EX_BIND_UNORDERED_ACCESS, TEX_TYPE_2D, Tr2CpuUsage::NONE, Tr2GpuUsage::RENDER_TARGET ), false );
+		}
+
+		if( !m_stencilMaps[i].IsValid() )
+		{
+			int stencilSize = ( m_customSourceTexture && m_customSourceTexture->IsValid() ) ? m_customSourceTexture->GetWidth() : m_intermediateSize;
+			CR_RETURN_VAL( m_stencilMaps[i].Create( Tr2BitmapDimensions( stencilSize, stencilSize, 1, PIXEL_FORMAT_D24_UNORM_S8_UINT ), Tr2GpuUsage::DEPTH_STENCIL, renderContext ), false );
+		}
 	}
 
 	if( !m_renderTargetCube->IsValid() )
 	{
 		CR_RETURN_VAL( m_renderTargetCube->Create( m_intermediateSize, m_intermediateSize, 1, PIXEL_FORMAT_R8G8B8A8_UNORM, 0, 0, EX_BIND_UNORDERED_ACCESS, TEX_TYPE_CUBE ), false );
-	}
-
-	if( !m_stencilMap.IsValid() )
-	{
-		int stencilSize = ( m_customSourceTexture && m_customSourceTexture->IsValid() ) ? m_customSourceTexture->GetWidth() : m_intermediateSize;
-		CR_RETURN_VAL( m_stencilMap.Create( Tr2BitmapDimensions( stencilSize, stencilSize, 1, PIXEL_FORMAT_D24_UNORM_S8_UINT ), Tr2GpuUsage::DEPTH_STENCIL, renderContext ), false );
 	}
 
 	if( !m_preFilterTarget->IsValid() )
@@ -194,9 +216,13 @@ bool Tr2ReflectionProbe::OnPrepareResources()
 
 bool Tr2ReflectionProbe::OnModified( Be::Var* value )
 {
-	m_renderTarget->Destroy();
+	for( unsigned i = 0; i < 6; i++ )
+	{
+		m_renderTargets[i]->Destroy();
+		m_stencilMaps[i] = Tr2TextureAL();
+	}
+
 	m_renderTargetCube->Destroy();
-	m_stencilMap = Tr2TextureAL();
 	m_initialized = false;
 
 	PrepareResources();
@@ -209,8 +235,17 @@ void Tr2ReflectionProbe::Filter( Tr2RenderContext &renderContext )
 	if( !IsValid() )
 		return;
 
-	Tr2Renderer::RunComputeShader( m_preFilterEffect, FILTER_SIZE, FILTER_SIZE, 6, renderContext );
-	m_preFilterTarget->GenerateMipMaps();
+	{
+		GPU_REGION( renderContext, "Reflection Pre Filter" );
+		Tr2Renderer::RunComputeShader( m_preFilterEffect, FILTER_SIZE / 8, FILTER_SIZE / 8, 6, renderContext );
+	}
+
+	{
+		GPU_REGION( renderContext, "Reflection Filter Mip Generation" );
+		m_preFilterTarget->GenerateMipMaps();
+	}
+
+	GPU_REGION( renderContext, "Reflection Main Filter" );
 	Tr2Renderer::RunComputeShader( m_filterEffect, FILTER_GROUP_DIM, 6, 1, renderContext );
 }
 

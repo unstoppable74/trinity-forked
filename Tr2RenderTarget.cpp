@@ -109,6 +109,53 @@ long Tr2RenderTarget::Create(
 		m_msaa = Tr2MsaaDesc( msaaType, msaaQuality );
 		m_flags = ExFlag( flags );
 		m_type = type;
+		m_cpuUsage = cpuUsage;
+		m_gpuUsage = gpuUsage;
+	}
+	else
+	{
+		Destroy();
+	}
+	return hr;
+}
+
+long Tr2RenderTarget::CreateManual(	
+	unsigned width, 
+	unsigned height, 
+	unsigned mipLevelCount, 
+	Tr2RenderContextEnum::PixelFormat format,
+	unsigned msaaType,
+	unsigned msaaQuality,
+	Tr2RenderContextEnum::ExFlag flags,
+	Tr2RenderContextEnum::TextureType type,
+	Tr2CpuUsage::Type cpuUsage,
+	Tr2GpuUsage::Type gpuUsage )
+{
+	CCP_STATS_ZONE( __FUNCTION__ );
+	USE_MAIN_THREAD_RENDER_CONTEXT();
+	if( IsAttached() )
+	{
+		return E_INVALIDARG;
+	}
+
+	auto hr = m_renderTarget.Create(
+		Tr2BitmapDimensions( type, format, width, height, 1, mipLevelCount ),
+		Tr2MsaaDesc( msaaType, msaaQuality ),
+		gpuUsage,
+		cpuUsage,
+		nullptr,
+		renderContext ).GetResult();
+	if( SUCCEEDED( hr ) )
+	{
+		m_width = width;
+		m_height = height;
+		m_mipCount = mipLevelCount;
+		m_format = format;
+		m_msaa = Tr2MsaaDesc( msaaType, msaaQuality );
+		m_flags = ExFlag( flags );
+		m_type = type;
+		m_cpuUsage = cpuUsage;
+		m_gpuUsage = gpuUsage;
 	}
 	else
 	{
@@ -204,6 +251,8 @@ void Tr2RenderTarget::Destroy()
 	m_msaa = Tr2MsaaDesc();
 	m_flags = EX_NONE;
 	m_type = TEX_TYPE_INVALID;
+	m_gpuUsage = Tr2GpuUsage::NONE;
+	m_cpuUsage = Tr2CpuUsage::NONE;
 }
 
 bool Tr2RenderTarget::IsReadable() const
@@ -343,11 +392,7 @@ bool Tr2RenderTarget::OnPrepareResources()
 	{
 		USE_MAIN_THREAD_RENDER_CONTEXT();
 
-		auto gpuUsage = Tr2GpuUsage::NONE;
-		auto cpuUsage = Tr2CpuUsage::NONE;
-		GetUsage( m_msaa.samples, m_flags, gpuUsage, cpuUsage );
-
-		m_renderTarget.Create( Tr2BitmapDimensions( m_type, m_format, m_width, m_height, 1, m_mipCount ), m_msaa, gpuUsage, cpuUsage, nullptr, renderContext );
+		m_renderTarget.Create( Tr2BitmapDimensions( m_type, m_format, m_width, m_height, 1, m_mipCount ), m_msaa, m_gpuUsage, m_cpuUsage, nullptr, renderContext );
 	}
 	return true;
 }

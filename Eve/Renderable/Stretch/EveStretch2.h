@@ -53,7 +53,6 @@ public:
 	virtual void SetIntensity( float intensity );
 
 	virtual void Update( EveUpdateContext& updateContext );
-	virtual void UpdateInactive( EveUpdateContext& updateContext );
 
 	virtual void UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform );
 	virtual void GetRenderables( std::vector<ITr2Renderable*>& renderables );

@@ -39,10 +39,6 @@ void EveFiringEffectElementContainer::UpdateSyncronous( EveUpdateContext& update
 		{
 			m_element->Update( updateContext );
 		}
-		else
-		{
-			m_element->UpdateInactive( updateContext );
-		}
 	}
 }
 

@@ -224,45 +224,6 @@ void EveStretch2::Update(EveUpdateContext& updateContext)
 	}
 }
 
-void EveStretch2::UpdateInactive( EveUpdateContext& updateContext )
-{
-	Be::Time time = updateContext.GetTime();
-	if( m_startTime == 0 )
-	{
-		m_startTime = time;
-	}
-	m_effectData[0].x = m_effectData[0].y = m_effectData[0].z = 0;
-	if( m_start )
-	{
-		m_start->Update( TimeAsDouble( time - m_startTime ) );
-		m_effectData[0].x = float( m_start->GetScaledTime() );
-	}
-	if( m_loop )
-	{
-		m_loop->Update( TimeAsDouble( time - m_startTime ) );
-		m_effectData[0].y = float( m_loop->GetScaledTime() );
-	}
-	if( m_end )
-	{
-		m_end->Update( TimeAsDouble( time - m_startTime ) );
-		m_effectData[0].z = float( m_end->GetScaledTime() );
-	}
-
-	if( m_sourceObserver || m_destinationObserver )
-	{
-		Matrix src, dest;
-		GetEndPointTransforms( src, dest );
-		if( m_sourceObserver )
-		{
-			m_sourceObserver->Update( src );
-		}
-		if( m_destinationObserver )
-		{
-			m_destinationObserver->Update( dest );
-		}
-	}
-}
-
 void EveStretch2::GetEndPointTransforms( Matrix& source, Matrix& destination ) const
 {
 	auto direction = m_destination - m_source;

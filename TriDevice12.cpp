@@ -25,7 +25,11 @@ void TriDevice::HandleRenderTick( Be::Time realTime, Be::Time simTime )
 
 	if( mDeviceLost )
 	{
-		ChangeDevice( mAdapter, mHwnd, nullptr );
+		if( !ChangeDevice( mAdapter, mHwnd, nullptr ) )
+		{
+			REPORTERROR( "Failed to create D3D device" );
+		}
+
 		return;
 	}
 

@@ -1416,6 +1416,7 @@ void EveSpaceScene::UpdateImpostors( Tr2RenderContext& renderContext )
 	}
 
 	CCP_STATS_ZONE( __FUNCTION__ );
+	GPU_REGION( renderContext, "Impostors Update" );
 
 	CTriViewport fakeViewport;
 	fakeViewport.width = 128;
@@ -1470,6 +1471,8 @@ void EveSpaceScene::UpdateImpostors( Tr2RenderContext& renderContext )
 
 	for( size_t i = 0; i < m_impostorManager->GetRenderQueueLength(); ++i )
 	{
+		GPU_REGION( renderContext, "Impostor Update" );
+
 		auto spaceObject = m_impostorManager->BeginImpostorUpdate( i, renderContext );
 		Matrix transform;
 		spaceObject->GetLocalToWorldTransform( transform );
@@ -1679,16 +1682,22 @@ void EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext )
 
 	Tr2Renderer::SetViewTransform( orgViewMatrix );
 	
-	RenderBackgroundPassObjects( renderContext, BACKGROUND_RENDER_COLOR );
+	{
+		GPU_REGION( renderContext, "Background" );
+		RenderBackgroundPassObjects( renderContext, BACKGROUND_RENDER_COLOR );
+	}
 
 	// Render background reflection cubemap
 	if( m_reflectionProbe && m_reflectionProbe->IsValid() )
 	{
+		GPU_REGION( renderContext, "Reflection" );
+
 		m_reflectionProbe->SetPosition( Tr2Renderer::GetViewPosition() );
 		m_reflectionProbe->InitRenderPass( renderContext );
 
 		for( unsigned i = 0; i < 6; i++ )
 		{
+			GPU_REGION( renderContext, "Reflection Face" );
 			m_reflectionProbe->StartRenderFace( i, renderContext );
 
 			PopulatePerFramePSData( m_perFramePS, renderContext );
@@ -1696,8 +1705,6 @@ void EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext )
 			ApplyPerFrameData( renderContext );
 
 			RenderBackgroundPassObjects( renderContext, BACKGROUND_RENDER_REFLECTION );
-
-			m_reflectionProbe->EndRenderFace( i, renderContext );
 		}
 
 		m_reflectionProbe->EndRenderPass( renderContext );
@@ -1718,8 +1725,6 @@ void EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext )
 void EveSpaceScene::RenderBackgroundPassObjects( Tr2RenderContext& renderContext, BackgroundRenderingReason reason )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
-
-	renderContext.AddGpuMarker( __FUNCTION__ );
 
 	TriFrustum& frustum = m_frameData.frustum;
 	std::vector<ITr2Renderable*> visible;
@@ -1788,13 +1793,12 @@ void EveSpaceScene::RenderBackgroundPassObjects( Tr2RenderContext& renderContext
 				(*it)->RunBackgroundOcclusionQueries( renderContext, frustum );
 			}
 		}
-
-		// now it's ok to clear z-buffer
-		renderContext.Clear( CLEARFLAGS_ZBUFFER, 0, 0, 0 );
 	}
 
 	if( m_warpTunnel )
 	{
+		renderContext.Clear( CLEARFLAGS_ZBUFFER, 0, 0, 0 );
+
 		m_warpTunnel->UpdateVisibility( frustum, IdentityMatrix() );
 		m_warpTunnel->GetRenderables( visible, nullptr );	
 		
@@ -1827,6 +1831,7 @@ void EveSpaceScene::RenderDepthPass( Tr2RenderContext& renderContext )
 	// Render to depth map
 	{
 		renderContext.AddGpuMarker( __FUNCTION__ );
+		GPU_REGION( renderContext, "Depth Pass" );
 
 #if TRINITY_PLATFORM_SUPPORTS_MSAA_SAMPLE
 		m_hasDepthPass = true;
@@ -1902,6 +1907,7 @@ void EveSpaceScene::RenderMainPass( Tr2RenderContext& renderContext )
 	
 	if( auto lightManager = Tr2LightManager::GetInstance() )
 	{
+		GPU_REGION( renderContext, "Lighting" );
 		CCP_STATS_SCOPED_TIME( updateDynamicLightLists );
 
 		uint32_t msaaType = 0;
@@ -1914,39 +1920,48 @@ void EveSpaceScene::RenderMainPass( Tr2RenderContext& renderContext )
 	
 	if( !m_hasDepthPass )
 	{
+		GPU_REGION( renderContext, "Depth Pass" );
 		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_DEPTH_ONLY );
 		renderContext.RenderBatches( m_primaryBatches[TRIBATCHTYPE_DEPTH], BlueSharedString( "Depth" ) );
 	}
 
-	// Draw the planets to the z-buffer to occlude any stations etc.
-	// that might be drawn behind moons.
-	for( EvePlanetVector::iterator it = m_planets.begin(); it != m_planets.end(); ++it )
-	{
-		EvePlanet* obj = *it;
-		obj->GetZOnlyRenderables( objectRenderables );
-	}
-	if( !objectRenderables.empty() )
-	{
-		RenderRenderables(	objectRenderables, 
-							m_secondaryBatches[TRIBATCHTYPE_OPAQUE], 
-							TRIBATCHTYPE_OPAQUE, 
-							Tr2EffectStateManager::RM_OPAQUE,
-							renderContext );
-		objectRenderables.clear();
-	}
+	GPU_REGION( renderContext, "Color Pass" );
 
 	{
-		if( m_velocityMap )
+		GPU_REGION( renderContext, "Opaque" );
+		// Draw the planets to the z-buffer to occlude any stations etc.
+		// that might be drawn behind moons.
+		for( EvePlanetVector::iterator it = m_planets.begin(); it != m_planets.end(); ++it )
 		{
-			Tr2PushPopRT rt( *m_velocityMap, renderContext, 1 );
-			RenderOpaqueBatches( m_primaryBatches, renderContext );
+			EvePlanet* obj = *it;
+			obj->GetZOnlyRenderables( objectRenderables );
 		}
-		else
+		if( !objectRenderables.empty() )
 		{
-			RenderOpaqueBatches( m_primaryBatches, renderContext );
+			RenderRenderables( objectRenderables,
+				m_secondaryBatches[TRIBATCHTYPE_OPAQUE],
+				TRIBATCHTYPE_OPAQUE,
+				Tr2EffectStateManager::RM_OPAQUE,
+				renderContext );
+			objectRenderables.clear();
+		}
+
+		{
+			if( m_velocityMap )
+			{
+				Tr2PushPopRT rt( *m_velocityMap, renderContext, 1 );
+				RenderOpaqueBatches( m_primaryBatches, renderContext );
+			}
+			else
+			{
+				RenderOpaqueBatches( m_primaryBatches, renderContext );
+			}
 		}
 	}
-	RenderObjectsReceivingShadows( m_frameData.objectsReceivingShadow, true, renderContext );
+	{
+		GPU_REGION( renderContext, "Shadow Receivers" );
+		RenderObjectsReceivingShadows( m_frameData.objectsReceivingShadow, true, renderContext );
+	}
 
 	SetNoShadow();
 	ApplyPerFrameData( renderContext );
@@ -1955,12 +1970,17 @@ void EveSpaceScene::RenderMainPass( Tr2RenderContext& renderContext )
 	{
 		renderContext.SetReadOnlyDepth( true );
 	}
-	RenderTransparentBatches( m_primaryBatches, renderContext );
-	m_hasForegroundDistortionBatches = RenderDistortionBatches( m_primaryBatches, renderContext );
+	{
+		GPU_REGION( renderContext, "Transparent" );
+
+		RenderTransparentBatches( m_primaryBatches, renderContext );
+		m_hasForegroundDistortionBatches = RenderDistortionBatches( m_primaryBatches, renderContext );
+	}
 
 	//GPU particles
 	if( GetGpuParticleSystem() )
 	{
+		GPU_REGION( renderContext, "Particles" );
 		GetGpuParticleSystem()->Update( m_updateTime, m_updateContext.GetOriginShift(), renderContext );
 		GetGpuParticleSystem()->Render( renderContext );
 	}
@@ -2024,6 +2044,8 @@ void EveSpaceScene::EndRender( Tr2RenderContext& renderContext )
 	// lensflares
 	if( !m_lensflares.empty() )
 	{
+		GPU_REGION( renderContext, "Lens Flares" );
+
 		// at first, do all the occlusion queries
 		for( auto it = m_lensflares.cbegin(); it != m_lensflares.cend(); ++it )
 		{
@@ -2830,9 +2852,7 @@ void EveSpaceScene::RenderPlanets( Tr2RenderContext& renderContext )
 	renderContext.RenderBatches( m_secondaryBatches[TRIBATCHTYPE_DEPTH], BlueSharedString( "Depth" ) );
 	RenderOpaqueBatches( m_secondaryBatches, renderContext );
 
-	renderContext.SetReadOnlyDepth( true );
 	RenderTransparentBatches( m_secondaryBatches, renderContext );
-	renderContext.SetReadOnlyDepth( false );
 	ClearBatches( m_secondaryBatches );
 
 	// Put view/projection back to normal

@@ -43,6 +43,18 @@ public:
 		Tr2RenderContextEnum::ExFlag flags = Tr2RenderContextEnum::EX_NONE,
 		Tr2RenderContextEnum::TextureType type = Tr2RenderContextEnum::TEX_TYPE_2D );
 
+	long CreateManual( 
+		unsigned width, 
+		unsigned height, 
+		unsigned mipLevelCount,
+		Tr2RenderContextEnum::PixelFormat format,
+		unsigned msaaType,
+		unsigned msaaQuality,
+		Tr2RenderContextEnum::ExFlag flags,
+		Tr2RenderContextEnum::TextureType type,
+		Tr2CpuUsage::Type cpuUsage,
+		Tr2GpuUsage::Type gpuUsage );
+
 	virtual Tr2TextureAL* GetTexture();
 
 	void Attach( const Tr2TextureAL& renderTarget, IRoot* owner );
@@ -87,6 +99,8 @@ private:
 	Tr2MsaaDesc m_msaa;
 	Tr2RenderContextEnum::ExFlag m_flags;
 	Tr2RenderContextEnum::TextureType m_type;
+	Tr2CpuUsage::Type m_cpuUsage;
+	Tr2GpuUsage::Type m_gpuUsage;
 
 	bool HasALObject( int type, size_t object );
 };

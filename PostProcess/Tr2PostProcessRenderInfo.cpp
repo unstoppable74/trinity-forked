@@ -21,7 +21,6 @@ Tr2PostProcessRenderInfo::Tr2PostProcessRenderInfo( IRoot* lockobj )
 
 	m_black.CreateInstance();
 	m_black->m_name = "Black";
-	m_black->Create( 4, 4, 1, Tr2RenderContextEnum::PIXEL_FORMAT_B8G8R8A8_UNORM );
 
 	m_fidelityInputRT.CreateInstance();
 	m_fidelityInputRT->m_name = "FidelityFX Input SRV RT";
@@ -70,25 +69,51 @@ bool Tr2PostProcessRenderInfo::OnModified( Be::Var* value )
 	return true;
 }
 
+void Tr2PostProcessRenderInfo::Setup()
+{
+	if( !m_black->IsValid() )
+	{
+		m_black->Create( 4, 4, 1, Tr2RenderContextEnum::PIXEL_FORMAT_B8G8R8A8_UNORM );
+	}
+
+	if( !m_sourceBufferCopy->IsValid() )
+	{
+		m_sourceBufferCopy->Create(
+			uint32_t( float( m_sourceBuffer->GetWidth() ) ),
+			uint32_t( float( m_sourceBuffer->GetHeight() ) ),
+			1,
+			m_sourceBuffer->GetFormat(),
+			1,
+			0 );
+	}
+
+	if( !m_rt1->IsValid() )
+	{
+		CopySourceTo( m_rt1, 0.5f );
+	}
+
+	if( !m_rt2->IsValid() )
+	{
+		CopySourceTo( m_rt2, 0.5f );
+	}
+}
+
 void Tr2PostProcessRenderInfo::SetSourceBuffer( Tr2RenderTarget* sourceBuffer )
 {
 	m_sourceBuffer = sourceBuffer;
-	CopySourceTo( m_rt1, 0.5f );
-	CopySourceTo( m_rt2, 0.5f );
 
+	if( m_rt1->IsValid() )
+	{
+		m_rt1->Destroy();
+	}
+	if( m_rt2->IsValid() )
+	{
+		m_rt2->Destroy();
+	}
 	if( m_sourceBufferCopy->IsValid() )
 	{
 		m_sourceBufferCopy->Destroy();
 	}
-
-	m_sourceBufferCopy->Create(
-		uint32_t( float( m_sourceBuffer->GetWidth() ) ),
-		uint32_t( float( m_sourceBuffer->GetHeight() ) ),
-		1,
-		m_sourceBuffer->GetFormat(),
-		1,
-		0 );
-
 	if( m_fidelityInputRT->IsValid() )
 	{
 		m_fidelityInputRT->Destroy();

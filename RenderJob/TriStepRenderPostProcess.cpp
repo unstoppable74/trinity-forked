@@ -117,6 +117,7 @@ void SetDirtyIfNotNull(Tr2PPEffect *effect)
 
 TriStepResult TriStepRenderPostProcess::Execute(Be::Time realTime, Be::Time simTime, Tr2RenderContext& renderContext)
 {
+	m_renderInfo->Setup();
 	auto sourceBuffer = m_renderInfo->GetSourceBuffer();
 
 	if (!sourceBuffer)
@@ -128,6 +129,8 @@ TriStepResult TriStepRenderPostProcess::Execute(Be::Time realTime, Be::Time simT
 	{
 		return RS_OK;
 	}
+
+	GPU_REGION( renderContext, "Post-processing" );
 
 	Tr2PostProcess2Ptr postProcess = m_scene->GetPostProcess();
 
@@ -349,6 +352,8 @@ void TriStepRenderPostProcess::RenderBloom(Tr2RenderContext& renderContext, Tr2P
 	{
 		return;
 	}
+	GPU_REGION( renderContext, "Bloom" );
+
 	auto rt1 = m_renderInfo->GetRt1Buffer();
 	auto rt2 = m_renderInfo->GetRt2Buffer();
 
@@ -426,6 +431,8 @@ bool TriStepRenderPostProcess::ProcessGodRays(Tr2PPGodRaysEffect* godrays)
 
 void TriStepRenderPostProcess::RenderGodRays(Tr2RenderContext& renderContext, Tr2PPGodRaysEffect* godrays)
 {
+	GPU_REGION( renderContext, "Godrays" );
+
 	auto rt1 = m_renderInfo->GetRt1Buffer();
 	auto rt2 = m_renderInfo->GetRt2Buffer();
 	auto backBufferRT = m_renderInfo->GetSourceBuffer();
@@ -487,6 +494,8 @@ bool TriStepRenderPostProcess::ProcessSignalLoss(Tr2PPSignalLossEffect* signalLo
 
 void TriStepRenderPostProcess::RenderSignalLoss(Tr2RenderContext& renderContext, Tr2PPSignalLossEffect* signalLoss)
 {
+	GPU_REGION( renderContext, "Signal Loss" );
+
 	renderContext.m_esm.PushRenderTarget();
 	Tr2Renderer::DrawScreenQuad( renderContext, m_signalLossEffect);
 	renderContext.m_esm.PopRenderTarget();
@@ -627,6 +636,8 @@ bool TriStepRenderPostProcess::ProcessDynamicExposure( Tr2RenderContext &renderC
 
 void TriStepRenderPostProcess::RenderDynamicExposure(Tr2RenderContext& renderContext, Tr2PPDynamicExposureEffect* dynamicExposure)
 {
+	GPU_REGION( renderContext, "Exposure" );
+
 	uint32_t m_uintValue[4] = { 0, 0, 0, 0 };
 	// Clear local histograms
 	auto lhbuffer = m_localHistograms->GetGpuBuffer(0);
@@ -955,6 +966,8 @@ bool TriStepRenderPostProcess::ProcessFog(Tr2PPFogEffect* fog)
 
 void TriStepRenderPostProcess::RenderFog(Tr2RenderContext& renderContext, Tr2PPFogEffect* fog)
 {
+	GPU_REGION( renderContext, "Fog" );
+
 	auto sourceBuffer = m_renderInfo->GetSourceBuffer();
 	if (sourceBuffer->GetMsaaType() > 1)
 	{
@@ -1047,6 +1060,8 @@ bool TriStepRenderPostProcess::ProcessTaa(Tr2PPTaaEffect* taa)
 
 void TriStepRenderPostProcess::RenderTaa(Tr2RenderContext& renderContext, Tr2PPTaaEffect* taa)
 {
+	GPU_REGION( renderContext, "TAA" );
+
 	auto source = m_renderInfo->GetSourceBuffer();
 
 	m_scene->GetPostProcessPSBuffer()->ApplyBuffer(renderContext);

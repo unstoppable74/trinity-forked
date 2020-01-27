@@ -70,7 +70,6 @@ public:
 	virtual void SetFiringTransform( const Matrix& source, const Vector3& dest );
 	virtual void SetFiringTransform( const Vector3& source, const Vector3& dest );
 	virtual void DisplayEndPoints( bool displaySource, bool displayDest );
-	virtual void UpdateInactive( EveUpdateContext& updateContext );
 
 	void SetSourceObjectScale( float scale ) { m_sourceObjectScale = scale; };
 private:

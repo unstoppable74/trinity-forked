@@ -456,12 +456,6 @@ bool EveTurretFiringFX::Update( EveUpdateContext& updateContext )
 
 				stretchEffect->Update( updateContext );
 			}
-			else
-			{
-				// ALWAYS update the stretcher, no matter if it fires ot not, there might be some
-				// curveset animation going on!
-				stretchEffect->UpdateInactive( updateContext );
-			}
 		}
 	}
 	if( m_isFiring )

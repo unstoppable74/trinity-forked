@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Tr2DeviceResource.h"
+#include <array>
 
 BLUE_DECLARE( Tr2Effect );
 BLUE_DECLARE( Tr2TextureReference );
@@ -29,7 +30,6 @@ public:
 	bool IsValid();
 	void InitRenderPass( Tr2RenderContext &renderContext );
 	void StartRenderFace( unsigned face, Tr2RenderContext &renderContext );
-	void EndRenderFace( unsigned face, Tr2RenderContext &renderContext );
 	void EndRenderPass( Tr2RenderContext &renderContext );
 
 	Tr2RenderTargetPtr GetReflection();
@@ -45,9 +45,9 @@ private:
 	Vector3 m_position;
 	int m_intermediateSize;
 
-	Tr2RenderTargetPtr m_renderTarget;
+	std::array<Tr2RenderTargetPtr, 6> m_renderTargets;
+	std::array<Tr2TextureAL, 6> m_stencilMaps;
 	Tr2RenderTargetPtr m_renderTargetCube;
-	Tr2TextureAL m_stencilMap;
 
 	Tr2EffectPtr m_preFilterEffect;
 	Tr2EffectPtr m_filterEffect;

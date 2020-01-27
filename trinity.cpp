@@ -121,6 +121,7 @@ const char* InitializeForPython()
 extern bool g_isR10G10B10FormatInverted;
 extern bool g_convertA8L8FormatToB8G8R8A8;
 extern bool g_requestDeviceDebugLayer;
+extern bool g_requestDebugMarkers;
 
 void InitializeTrinity()
 {
@@ -143,6 +144,12 @@ void InitializeTrinity()
 	if( !debugArg.empty() )
 	{
 		g_requestDeviceDebugLayer = debugArg == L"1";
+	}
+
+	auto markersArg = BeOS->GetStartupArgValue( L"gpuMarkers" );
+	if( !markersArg.empty() )
+	{
+		g_requestDebugMarkers = markersArg == L"1";
 	}
 
 	GrannySetAllocator( Tr2GrannyAllocate, Tr2GrannyDeallocate );

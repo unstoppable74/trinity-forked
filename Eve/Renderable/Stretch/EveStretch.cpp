@@ -465,11 +465,6 @@ void EveStretch::DisplayEndPoints( bool displaySource, bool displayDest )
 	SetDisplayDestObject( displayDest );
 }
 
-void EveStretch::UpdateInactive( EveUpdateContext& updateContext )
-{
-	UpdateCurves( updateContext );
-}
-
 void EveStretch::GetLights( Tr2LightManager& lightManager ) const
 {
 	if( !m_display )

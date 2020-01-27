@@ -10,6 +10,7 @@
 #include "Tr2PerObjectData.h"
 #include "include/TriColor.h"
 #include "Tr2DebugRenderer.h"
+#include "Tr2ProceduralResources.h"
 
 // forwards
 class ITriRenderBatchAccumulator;
@@ -300,7 +301,7 @@ private:
 	// need special vertex declaration for multi-stream rendering
 	unsigned int m_vertexDeclHandle;
 	// vertex buffers for multi-stream rendering
-	Tr2BufferAL m_vertexBuffer;
+	Tr2ProceduralBuffer m_vertexBuffer;
 	Tr2BufferAL m_instanceBuffer;
 
 	// holds all the lensflares of this booster

@@ -32,6 +32,7 @@ public:
 
 	bool OnModified( Be::Var* value );
 
+	void Setup();
 	void SetSourceBuffer( Tr2RenderTarget* sourceBuffer );
 	Tr2RenderTarget* GetSourceBuffer() { return m_sourceBuffer; };
 	Tr2RenderTarget* GetSourceBufferCopy() 
