@@ -1,45 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Resource Files" />
-    <Filter Include="Source Files" />
-    <Filter Include="Source Files\Controllers" />
-    <Filter Include="Source Files\Controllers\Actions" />
-    <Filter Include="Source Files\Controllers\Finalizers" />
-    <Filter Include="Source Files\Curves" />
-    <Filter Include="Source Files\Curves\Fader" />
-    <Filter Include="Source Files\Eve" />
-    <Filter Include="Source Files\Eve\Renderable" />
-    <Filter Include="Source Files\Eve\Renderable\Stretch" />
-    <Filter Include="Source Files\Eve\SpaceObject" />
-    <Filter Include="Source Files\Eve\SpaceObjectFactory" />
-    <Filter Include="Source Files\Eve\SpaceObject\Attachments" />
-    <Filter Include="Source Files\Eve\SpaceObject\Attachments\Sets" />
-    <Filter Include="Source Files\Eve\SpaceObject\Children" />
-    <Filter Include="Source Files\Eve\SpaceObject\Children\Behaviors" />
-    <Filter Include="Source Files\Eve\SpaceObject\Children\SocketParameters" />
-    <Filter Include="Source Files\Eve\SpaceObject\Children\TransformModifiers" />
-    <Filter Include="Source Files\Eve\SpaceObject\Utils" />
-    <Filter Include="Source Files\Eve\Turret" />
-    <Filter Include="Source Files\Eve\UI" />
-    <Filter Include="Source Files\Eve\Volume" />
-    <Filter Include="Source Files\Font" />
-    <Filter Include="Source Files\Include" />
-    <Filter Include="Source Files\Interior" />
-    <Filter Include="Source Files\Lights" />
-    <Filter Include="Source Files\Particle" />
-    <Filter Include="Source Files\PostProcess" />
-    <Filter Include="Source Files\PostProcess\Effects" />
-    <Filter Include="Source Files\RenderJob" />
-    <Filter Include="Source Files\Resources" />
-    <Filter Include="Source Files\Resources\TexturePipeline" />
-    <Filter Include="Source Files\Shader" />
-    <Filter Include="Source Files\Shader\Parameter" />
-    <Filter Include="Source Files\Shader\Utils" />
-    <Filter Include="Source Files\Sprite2d" />
-    <Filter Include="Source Files\UI" />
-    <Filter Include="Source Files\Utilities" />
-    <Filter Include="Source Files\Wod" />
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{0405d28d-2aab-5d79-9afe-bd29f4e28082}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{fb1c6db8-ce1c-5381-8e10-c7d6f5ab7ffb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Controllers">
+      <UniqueIdentifier>{f0eb3861-90a4-5652-89f7-f655099425a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Controllers\Actions">
+      <UniqueIdentifier>{d554f2cc-93c3-5987-9f26-97ee50e280c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Controllers\Finalizers">
+      <UniqueIdentifier>{803c9568-b97c-5ec2-8bdf-df89d35d1ff7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Curves">
+      <UniqueIdentifier>{8182f4d7-dbed-51c6-9565-9f67b2b6860e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Curves\Fader">
+      <UniqueIdentifier>{213ebce4-0769-5345-ac50-6b1e5735efc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve">
+      <UniqueIdentifier>{8b7941f6-23ea-54a1-a713-5e758099108f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve\Renderable">
+      <UniqueIdentifier>{cfef998f-8d2d-5926-82a6-21639e1e114d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve\Renderable\Stretch">
+      <UniqueIdentifier>{688408f2-a76e-5065-9928-7ae18f180160}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve\SpaceObject">
+      <UniqueIdentifier>{bf792b26-1345-5e78-9852-2ec381fc1ec2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve\SpaceObjectFactory">
+      <UniqueIdentifier>{bf1c4140-4f6b-5594-9384-a5b27eb55c3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve\SpaceObject\Attachments">
+      <UniqueIdentifier>{e83d080e-4ac3-57b1-a366-e7cffb274fcf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve\SpaceObject\Attachments\Sets">
+      <UniqueIdentifier>{ff617497-9a8c-5a10-9330-fe7fee2e84d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve\SpaceObject\Children">
+      <UniqueIdentifier>{bb70cafe-2b70-56bc-8e1c-e9b227833121}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve\SpaceObject\Children\Behaviors">
+      <UniqueIdentifier>{bf649dff-30c5-52f3-ac1a-414c98669657}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve\SpaceObject\Children\SocketParameters">
+      <UniqueIdentifier>{0a39aa37-0bec-5801-8859-fac34b1a3405}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve\SpaceObject\Children\TransformModifiers">
+      <UniqueIdentifier>{53dca34b-fd44-5380-bab4-b7224511dc0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve\SpaceObject\Utils">
+      <UniqueIdentifier>{d4569617-3d96-5547-8994-cab29062085a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve\Turret">
+      <UniqueIdentifier>{ef3e1a4c-3fec-5f1b-8f85-2505cc22b8e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve\UI">
+      <UniqueIdentifier>{9c115a64-606a-5bf4-a5dc-61e175351b58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Eve\Volume">
+      <UniqueIdentifier>{e1ed302b-cbbb-5837-b684-f97424c51e55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Font">
+      <UniqueIdentifier>{0fad688b-b94d-54d7-a925-472c65fd7f8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Include">
+      <UniqueIdentifier>{6eeead5c-e0af-54c5-96a8-9689c5d5e137}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Interior">
+      <UniqueIdentifier>{46bb4ba7-80e3-5f07-8498-4ba71e2a396b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Lights">
+      <UniqueIdentifier>{59ea1f2c-aa27-5122-bdfc-cc9a2519a8f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Particle">
+      <UniqueIdentifier>{f3f85efb-9720-5bff-a3cd-70642f592071}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PostProcess">
+      <UniqueIdentifier>{504e8078-0409-508d-92ef-4486ba00b6ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PostProcess\Effects">
+      <UniqueIdentifier>{64439693-8504-560b-86bf-582060a35b2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\RenderJob">
+      <UniqueIdentifier>{044083df-d09b-5f4c-bd57-0fb9af0fdaaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resources">
+      <UniqueIdentifier>{418898f4-e1f8-504c-a542-0b65cb5e2979}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Resources\TexturePipeline">
+      <UniqueIdentifier>{4c3bdd99-48e7-51fa-9b6f-423428f30184}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader">
+      <UniqueIdentifier>{8477185b-d5eb-51a9-901f-5916007a8c86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\Parameter">
+      <UniqueIdentifier>{4c4d3ab9-53e9-5cd5-9896-97c1746b7f76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader\Utils">
+      <UniqueIdentifier>{2fa0dda3-6684-5096-b1b5-6e4acdf8f8d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sprite2d">
+      <UniqueIdentifier>{58a7db05-0d67-5391-8d1f-7da88a629f2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{fe175212-be33-570b-bc6d-a6168072432d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utilities">
+      <UniqueIdentifier>{73339864-9c3b-55c5-b20f-1a4bcd1b6d9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Wod">
+      <UniqueIdentifier>{9b7dbf25-c064-5688-a6a7-29080b2817ed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ALResultBlue.h">
