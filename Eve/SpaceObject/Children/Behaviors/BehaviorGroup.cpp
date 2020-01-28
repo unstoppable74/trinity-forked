@@ -162,6 +162,7 @@ void BehaviorGroup::SortBehaviorIndexes()
 	for ( int i = 0; i < 5; i++ )
 	{
 		int p = 0;
+		// Add ++p in this loop?
 		for ( auto behavior = m_behaviors.begin(); behavior != m_behaviors.end(); ++behavior )
 		{
 			if ( ( *behavior )->GetProcessPriority() == i )
@@ -237,13 +238,14 @@ void BehaviorGroup::AddAgentPrivate()
 	agent.id = TriRandInt( 500 ); //TODO: look better into parameter, could the same ID be generate more than once?
 	m_agents.push_back( agent );
 
+	while( m_scratchData.size() < m_behaviors.size() )
+	{
+		m_scratchData.push_back( CcpMallocBuffer() );
+	}
+
 	for( size_t i = 0; i < m_behaviors.size(); ++i )
 	{
 		auto size = m_behaviors[ m_sortedBehaviorIndexes[i] ]->GetScratchMemorySize();
-		if( m_scratchData.size() <= i )
-		{
-			m_scratchData.push_back( CcpMallocBuffer() );
-		}
 		if( size > 0)
 		{
 			m_scratchData[ m_sortedBehaviorIndexes[i] ].resize( "BehaviorGroup::m_scratchData", m_agents.size() * size );
