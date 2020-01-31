@@ -16,6 +16,7 @@ const Be::ClassInfo* PlayFX::ExposeToBlue()
 		MAP_ATTRIBUTE( "high", m_high, "Higher value of a randomized timing for drones to play effect", Be::READWRITE )
 		MAP_ATTRIBUTE( "firingEffect", m_firingEffect, "A stretch effect for this firing effect", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "firingEffects", m_firingEffects, "A stretch effect for this firing effect", Be::READ )
+		MAP_ATTRIBUTE( "delay", m_delay, "delay for firing effect", Be::READWRITE )
 
 	EXPOSURE_END()
 }

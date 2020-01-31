@@ -97,8 +97,7 @@ std::vector<Vector3> PlayFX::CalculateBehavior( std::vector<DroneAgent>& agents,
 			{
 				data->display = false;
 
-				m_firingEffects[i]->SetDisplay( data->display );
-				m_firingEffects[i]->StartFiring( m_delay );
+				m_firingEffects[i]->StopFiring();
 
 				data->effectPlayed = data->display;
 				agent->playFX = data->display;
