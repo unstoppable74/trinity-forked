@@ -422,6 +422,7 @@ void BehaviorGroup::UpdateAgents(const float dt, EveChildBehaviorSystem& system 
 		TriVectorRotateQuaternion( &interestPoint, &zAxis, &agent->rotation );
 		Vector3 actualFacingDir = Lerp( interestPoint, facingDir, LengthSq(agent->velocity) / max(1.0f, m_maxVelocity * m_maxVelocity) );
 		TriQuaternionRotationArc( &agent->rotation, &zAxis, &actualFacingDir);
+		agent->targetDirection = actualFacingDir;
 
 		agent->velocity = ClampLength( agent->velocity, m_maxVelocity );
 		agent->position = agent->position + agent->velocity * dt;

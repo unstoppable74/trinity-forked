@@ -8,6 +8,7 @@ PlayFX::PlayFX( IRoot* lockobj ) :
 	m_count( 0 ),
 	m_behaviorWeight( 20.f ),
 	m_delay( 0.f ),
+	m_distanceFromCenter( 5.f ),
 	m_minSec( 10 ),
 	m_maxSec( 20 ),
 	m_stop( false )
@@ -84,16 +85,17 @@ std::vector<Vector3> PlayFX::CalculateBehavior( std::vector<DroneAgent>& agents,
 		// Set the agent's position to world space because if the parent object had an offset the effect would also offset
 		Matrix worldTransform = system.GetWorldTransform();
 		Vector3 agentPositionWS = XMVector3TransformCoord( agent->position, worldTransform );
+		Vector3 offsetEffect = agentPositionWS + Normalize( agent->targetDirection ) * m_distanceFromCenter;
 
-		// Without this drone will start shooting at the new target because of the cooldown of the effect
+		// Without this the drone will start shooting at the new target because of the cooldown of the effect
 		if( data->oldTarget != Vector3( 0, 0, 0 ) )
 		{
-			m_firingEffects[i]->SetFiringTransform( agentPositionWS, data->oldTarget );
+			m_firingEffects[i]->SetFiringTransform( offsetEffect, data->oldTarget );
 		}
 
 		if( data->effectPlaying )
 		{
-			m_firingEffects[i]->SetFiringTransform( agentPositionWS, agent->target );
+			m_firingEffects[i]->SetFiringTransform( offsetEffect, agent->target );
 
 			Be::Time diff = BeOS->GetActualTime() - agent->fxStartTime;
 

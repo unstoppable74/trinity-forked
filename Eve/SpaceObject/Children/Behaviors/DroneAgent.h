@@ -10,6 +10,7 @@ struct DroneAgent
 		acceleration( 0, 0, 0 ),
 		velocity( 0, 0, 0 ),		
 		target( 0, 0, 0 ),
+		targetDirection( 0, 0, 0 ),
 		lifetime( 0.f ),
 		id( 0 ),
 		playFX( false ),
@@ -26,6 +27,7 @@ struct DroneAgent
 	Vector3 acceleration;
 	Vector3 velocity;
 	Vector3 target;
+	Vector3 targetDirection;
 	int id;
 	float lifetime;
 	bool playFX;

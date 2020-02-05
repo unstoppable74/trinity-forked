@@ -53,6 +53,7 @@ private:
 	size_t m_count;
 	float m_behaviorWeight;
 	float m_delay;
+	float m_distanceFromCenter;
 	int m_minSec;
 	int m_maxSec;
 	bool m_stop;
