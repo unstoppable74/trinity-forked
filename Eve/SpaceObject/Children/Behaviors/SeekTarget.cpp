@@ -14,7 +14,6 @@ SeekTarget::SeekTarget( IRoot* lockobj ) :
 	m_tunnelBehavior( nullptr ),
 	m_fxBehavior( nullptr )
 {
-	m_takenLocatorIndices.clear();
 }
 
 SeekTarget::~SeekTarget()
@@ -54,21 +53,15 @@ std::vector<Vector3> SeekTarget::CalculateBehavior( std::vector<DroneAgent>& age
 		{
 			unsigned int count = m_target->GetDamageLocatorCount();
 			int rand = TriRandInt( count );
-			// If we've already picked that locator then pick a new one
-			while( std::find( m_takenLocatorIndices.begin(), m_takenLocatorIndices.end(), rand ) != m_takenLocatorIndices.end() )
-			{
-				rand = TriRandInt( count );
-			}
-
-			// Add that index to the vector
-			m_takenLocatorIndices.push_back( rand );
-
 			data->index = rand;
-			m_target->GetDamageLocatorPosition( &data->position, rand, true );
-			m_target->GetDamageLocatorDirection( &data->direction, rand, true );
-			agent->target = data->position;
+			m_target->GetDamageLocatorDirection( &data->direction, data->index, true );
 		}
 
+		// Want to keep this updated because the ship might be moving (upon dock)
+		m_target->GetDamageLocatorPosition( &data->position, data->index, true );
+
+		agent->target = data->position;
+		
 		// Set the target point on the radius sphere
 		Vector3 fakePoint = data->direction;
 		fakePoint = Normalize( fakePoint );
@@ -111,9 +104,6 @@ std::vector<Vector3> SeekTarget::CalculateBehavior( std::vector<DroneAgent>& age
 				{
 					agent->fxStartTime = BeOS->GetActualTime();
 					agent->playFX = true;
-
-					// Remove data position from the locatorList as it's no longer taken
-					m_takenLocatorIndices.erase( std::remove( m_takenLocatorIndices.begin(), m_takenLocatorIndices.end(), data->index ), m_takenLocatorIndices.end() );
 				}
 			}
 			// Trigger if: Repairing Ship && Player Undocks

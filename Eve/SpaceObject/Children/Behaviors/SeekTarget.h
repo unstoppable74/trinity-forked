@@ -50,7 +50,6 @@ private:
 	float m_seconds;
 	Vector3 m_arrivalPoint; // debug
 	ITriTargetable* m_target;
-	std::vector<int> m_takenLocatorIndices;
 
 	IBehavior* m_tunnelBehavior;
 	IBehavior* m_fxBehavior;
