@@ -310,3 +310,8 @@ void EveChildMesh::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 		m_mesh->RenderDebugInfo( m_worldTransform, renderer );
 	}
 }
+
+void EveChildMesh::AddTransformModifier( IEveChildTransformModifier* modifier )
+{
+	m_transformModifiers.Append( modifier );
+}

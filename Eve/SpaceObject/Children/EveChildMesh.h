@@ -53,6 +53,7 @@ public:
 	void SetShaderOption( const BlueSharedString& name, const BlueSharedString& value ) override;
 	void SetScale( const Vector3& scale );
 	void ForceCurrentScreenSize( float screenSize );
+	void AddTransformModifier( IEveChildTransformModifier* modifier ) override;
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2Renderable
 	virtual bool HasTransparentBatches();

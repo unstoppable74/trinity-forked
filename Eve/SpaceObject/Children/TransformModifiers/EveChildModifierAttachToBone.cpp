@@ -19,3 +19,8 @@ Matrix EveChildModifierAttachToBone::ApplyTransform( const Matrix& transform, si
 	TriMatrixCopyFrom3x4( &m, &bones[m_boneIndex] );
 	return m * transform;
 }
+
+void EveChildModifierAttachToBone::SetBoneIndex( int32_t index )
+{
+	m_boneIndex = index;
+}

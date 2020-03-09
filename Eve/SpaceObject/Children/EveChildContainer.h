@@ -58,6 +58,8 @@ public:
 	// IEveSpaceObjectChild
 	void SetShaderOption( const BlueSharedString& name, const BlueSharedString& value ) override;
 	bool IsAlwaysOn() const override;
+	void AddTransformModifier( IEveChildTransformModifier* modifier ) override;
+
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// IEveEffectChildrenOwner

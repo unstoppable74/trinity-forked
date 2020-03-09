@@ -316,3 +316,8 @@ void EveChildParticleSystem::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 		m_mesh->RenderDebugInfo( m_worldTransform, renderer );
 	}
 }
+
+void EveChildParticleSystem::AddTransformModifier( IEveChildTransformModifier* modifier )
+{
+	m_transformModifiers.Append( modifier );
+}

@@ -56,6 +56,7 @@ public:
 	float GetCurveSetDuration( const std::string& name ) const { return 0; } 
 	void GetLights( Tr2LightManager& lightManager ) const {};
 	virtual void Setup( const Vector3* scale, const Quaternion* rotation, const Vector3* translation, Tr2Lod lowestLodVisible );
+	void AddTransformModifier( IEveChildTransformModifier* modifier ) override;
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2Renderable

@@ -16,6 +16,8 @@ public:
 	EveChildModifierAttachToBone( IRoot* lockobj = nullptr );
 
 	Matrix ApplyTransform( const Matrix& transform, size_t boneCount, const granny_matrix_3x4* bones ) const;
+
+	void SetBoneIndex( int32_t index );
 private:
 	int32_t m_boneIndex;
 };

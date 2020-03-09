@@ -625,3 +625,8 @@ float EveChildContainer::GetOwnerMaxSpeed() const
 {
 	return m_ownerMaxSpeed;
 }
+
+void EveChildContainer::AddTransformModifier( IEveChildTransformModifier* modifier )
+{
+	m_transformModifiers.Append( modifier );
+}

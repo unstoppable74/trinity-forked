@@ -12,6 +12,7 @@
 #include "Eve/SpaceObject/EveSpaceObject2.h"
 #include "Eve/SpaceObject/EveShip2.h"
 #include "Eve/SpaceObject/Children/EveChildContainer.h"
+#include "Eve/SpaceObject/Children/EveChildInstanceContainer.h"
 #include "Tr2GrannyAnimation.h"
 #include "Tr2ExpressionTermInfo.h"
 #include "TriSettingsRegistrar.h"
@@ -139,6 +140,11 @@ namespace
 			return speed > 0 ? speed : 1;
 		}
 		else if( EveChildContainerPtr child = BlueCastPtr( s_owner ) )
+		{
+			auto speed = child->GetOwnerMaxSpeed();
+			return speed > 0 ? speed : 1;
+		}
+		else if( EveChildInstanceContainerPtr child = BlueCastPtr( s_owner ) )
 		{
 			auto speed = child->GetOwnerMaxSpeed();
 			return speed > 0 ? speed : 1;

@@ -10,6 +10,7 @@ class EveUpdateContext;
 class Tr2LightManager;
 
 BLUE_DECLARE_INTERFACE( IEveSpaceObjectChild );
+BLUE_DECLARE_INTERFACE( IEveChildTransformModifier );
 
 struct EveChildUpdateParams
 {
@@ -71,6 +72,8 @@ BLUE_INTERFACE( IEveSpaceObjectChild ) : public IRoot
 	virtual void SetShaderOption( const BlueSharedString& name, const BlueSharedString& value ) {};
 
 	virtual void SetOrigin( Origin origin ) {};
+
+	virtual void AddTransformModifier( IEveChildTransformModifier* modifier ) {};
 };
 
 BLUE_DECLARE_IVECTOR( IEveSpaceObjectChild );
