@@ -1089,6 +1089,9 @@
     <ClInclude Include="Eve\Volume\EveBoxVolume.h">
       <Filter>Source Files\Eve\Volume</Filter>
     </ClInclude>
+    <ClInclude Include="Eve\Volume\EveEllipsoidVolume.h">
+      <Filter>Source Files\Eve\Volume</Filter>
+    </ClInclude>
     <ClInclude Include="Eve\Volume\EveSphereVolume.h">
       <Filter>Source Files\Eve\Volume</Filter>
     </ClInclude>
@@ -3373,6 +3376,12 @@
       <Filter>Source Files\Eve\Volume</Filter>
     </ClCompile>
     <ClCompile Include="Eve\Volume\EveBoxVolume_Blue.cpp">
+      <Filter>Source Files\Eve\Volume</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Volume\EveEllipsoidVolume.cpp">
+      <Filter>Source Files\Eve\Volume</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Volume\EveEllipsoidVolume_Blue.cpp">
       <Filter>Source Files\Eve\Volume</Filter>
     </ClCompile>
     <ClCompile Include="Eve\Volume\EveSphereVolume.cpp">

@@ -2,121 +2,121 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{a8bed12d-d587-47b4-b693-0cb3692d069a}</UniqueIdentifier>
+      <UniqueIdentifier>{0405d28d-2aab-5d79-9afe-bd29f4e28082}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{cf401bb2-46c3-4193-b796-9f961a74091f}</UniqueIdentifier>
+      <UniqueIdentifier>{fb1c6db8-ce1c-5381-8e10-c7d6f5ab7ffb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Controllers">
-      <UniqueIdentifier>{ae52eef7-c473-4408-89b7-b6da88df2cd4}</UniqueIdentifier>
+      <UniqueIdentifier>{f0eb3861-90a4-5652-89f7-f655099425a7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Controllers\Actions">
-      <UniqueIdentifier>{de6f5f3a-4d15-4d92-b864-0da386c9e745}</UniqueIdentifier>
+      <UniqueIdentifier>{d554f2cc-93c3-5987-9f26-97ee50e280c9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Controllers\Finalizers">
-      <UniqueIdentifier>{39647ee6-b724-47b8-9ff9-59bef889ea8a}</UniqueIdentifier>
+      <UniqueIdentifier>{803c9568-b97c-5ec2-8bdf-df89d35d1ff7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Curves">
-      <UniqueIdentifier>{790945f9-9dd6-48a9-b07c-e4ae669c2324}</UniqueIdentifier>
+      <UniqueIdentifier>{8182f4d7-dbed-51c6-9565-9f67b2b6860e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Curves\Fader">
-      <UniqueIdentifier>{e941edd8-466b-48da-8de4-43495fffe82c}</UniqueIdentifier>
+      <UniqueIdentifier>{213ebce4-0769-5345-ac50-6b1e5735efc3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve">
-      <UniqueIdentifier>{96d23d0e-8349-4112-bce0-f098573b4e6b}</UniqueIdentifier>
+      <UniqueIdentifier>{8b7941f6-23ea-54a1-a713-5e758099108f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve\Renderable">
-      <UniqueIdentifier>{5d2bf048-aa29-4e71-9620-6f5439dace55}</UniqueIdentifier>
+      <UniqueIdentifier>{cfef998f-8d2d-5926-82a6-21639e1e114d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve\Renderable\Stretch">
-      <UniqueIdentifier>{76a62ceb-54bf-4173-ad6b-914345939eef}</UniqueIdentifier>
+      <UniqueIdentifier>{688408f2-a76e-5065-9928-7ae18f180160}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve\SpaceObject">
-      <UniqueIdentifier>{38a0ec16-14ee-4fe3-b913-ad1a3dad38e3}</UniqueIdentifier>
+      <UniqueIdentifier>{bf792b26-1345-5e78-9852-2ec381fc1ec2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve\SpaceObjectFactory">
-      <UniqueIdentifier>{c1549d74-122c-4bb5-9343-bdbfea8ca36d}</UniqueIdentifier>
+      <UniqueIdentifier>{bf1c4140-4f6b-5594-9384-a5b27eb55c3b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve\SpaceObject\Attachments">
-      <UniqueIdentifier>{cce3e77f-79b8-4609-9fa4-a04b45989590}</UniqueIdentifier>
+      <UniqueIdentifier>{e83d080e-4ac3-57b1-a366-e7cffb274fcf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve\SpaceObject\Attachments\Sets">
-      <UniqueIdentifier>{e1ae4507-f02a-4b41-b329-95678e458498}</UniqueIdentifier>
+      <UniqueIdentifier>{ff617497-9a8c-5a10-9330-fe7fee2e84d9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve\SpaceObject\Children">
-      <UniqueIdentifier>{5b77d8ff-957f-421b-9384-9538b52aae6c}</UniqueIdentifier>
+      <UniqueIdentifier>{bb70cafe-2b70-56bc-8e1c-e9b227833121}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve\SpaceObject\Children\Behaviors">
-      <UniqueIdentifier>{b26b0eca-a876-47b7-aa23-7381291cbabe}</UniqueIdentifier>
+      <UniqueIdentifier>{bf649dff-30c5-52f3-ac1a-414c98669657}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve\SpaceObject\Children\SocketParameters">
-      <UniqueIdentifier>{ddb33161-7a9d-4765-9f10-fd330327da33}</UniqueIdentifier>
+      <UniqueIdentifier>{0a39aa37-0bec-5801-8859-fac34b1a3405}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve\SpaceObject\Children\TransformModifiers">
-      <UniqueIdentifier>{033d6ba7-1450-4571-b579-c4de8bc0921f}</UniqueIdentifier>
+      <UniqueIdentifier>{53dca34b-fd44-5380-bab4-b7224511dc0c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve\SpaceObject\Utils">
-      <UniqueIdentifier>{c0e2f396-3183-4b1e-97af-e3c0c424091e}</UniqueIdentifier>
+      <UniqueIdentifier>{d4569617-3d96-5547-8994-cab29062085a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve\Turret">
-      <UniqueIdentifier>{2a24baf5-d8ec-4630-87af-39ef00f92986}</UniqueIdentifier>
+      <UniqueIdentifier>{ef3e1a4c-3fec-5f1b-8f85-2505cc22b8e5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve\UI">
-      <UniqueIdentifier>{89caef71-fe00-4c74-abc6-05bb8a010e8e}</UniqueIdentifier>
+      <UniqueIdentifier>{9c115a64-606a-5bf4-a5dc-61e175351b58}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Eve\Volume">
-      <UniqueIdentifier>{21069379-c566-402d-9c8a-66fdcd442df6}</UniqueIdentifier>
+      <UniqueIdentifier>{e1ed302b-cbbb-5837-b684-f97424c51e55}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Font">
-      <UniqueIdentifier>{73fb68f7-f7bd-408e-87f6-85a81bac93f8}</UniqueIdentifier>
+      <UniqueIdentifier>{0fad688b-b94d-54d7-a925-472c65fd7f8f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Include">
-      <UniqueIdentifier>{bff7ae8c-417c-4e8e-880c-8199dc584762}</UniqueIdentifier>
+      <UniqueIdentifier>{6eeead5c-e0af-54c5-96a8-9689c5d5e137}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Interior">
-      <UniqueIdentifier>{33fa1dfa-5b39-4830-89a6-13167f2a1faf}</UniqueIdentifier>
+      <UniqueIdentifier>{46bb4ba7-80e3-5f07-8498-4ba71e2a396b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Lights">
-      <UniqueIdentifier>{ed6f2f69-0846-4a61-9039-3d9c9416ea1b}</UniqueIdentifier>
+      <UniqueIdentifier>{59ea1f2c-aa27-5122-bdfc-cc9a2519a8f7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Particle">
-      <UniqueIdentifier>{fdca05d9-a420-4dd1-91f2-15d370353d9d}</UniqueIdentifier>
+      <UniqueIdentifier>{f3f85efb-9720-5bff-a3cd-70642f592071}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\PostProcess">
-      <UniqueIdentifier>{3d0beb56-34be-43c9-a52d-10125d8be7d4}</UniqueIdentifier>
+      <UniqueIdentifier>{504e8078-0409-508d-92ef-4486ba00b6ff}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\PostProcess\Effects">
-      <UniqueIdentifier>{3f886b2b-9751-46d5-a15e-37a4158a5057}</UniqueIdentifier>
+      <UniqueIdentifier>{64439693-8504-560b-86bf-582060a35b2e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\RenderJob">
-      <UniqueIdentifier>{25aeb721-9bb9-4e2c-9d7a-1ef6f49624be}</UniqueIdentifier>
+      <UniqueIdentifier>{044083df-d09b-5f4c-bd57-0fb9af0fdaaf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Resources">
-      <UniqueIdentifier>{de493986-d1c3-4410-b721-311c786d4c47}</UniqueIdentifier>
+      <UniqueIdentifier>{418898f4-e1f8-504c-a542-0b65cb5e2979}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Resources\TexturePipeline">
-      <UniqueIdentifier>{57f36a77-2e22-48f6-9b37-48c3dd8612d7}</UniqueIdentifier>
+      <UniqueIdentifier>{4c3bdd99-48e7-51fa-9b6f-423428f30184}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Shader">
-      <UniqueIdentifier>{735b0283-a541-4fce-9834-b18be194c24e}</UniqueIdentifier>
+      <UniqueIdentifier>{8477185b-d5eb-51a9-901f-5916007a8c86}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Shader\Parameter">
-      <UniqueIdentifier>{f5c533b2-3ae1-4f46-a56f-d851be0d7cfc}</UniqueIdentifier>
+      <UniqueIdentifier>{4c4d3ab9-53e9-5cd5-9896-97c1746b7f76}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Shader\Utils">
-      <UniqueIdentifier>{9b8603fc-fe1e-4a45-ba50-4165370b592f}</UniqueIdentifier>
+      <UniqueIdentifier>{2fa0dda3-6684-5096-b1b5-6e4acdf8f8d1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Sprite2d">
-      <UniqueIdentifier>{9e4e9ee2-37c9-4e7d-ae34-f7a1de27c339}</UniqueIdentifier>
+      <UniqueIdentifier>{58a7db05-0d67-5391-8d1f-7da88a629f2e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\UI">
-      <UniqueIdentifier>{33256a8d-6007-4e07-89be-3415fa92342b}</UniqueIdentifier>
+      <UniqueIdentifier>{fe175212-be33-570b-bc6d-a6168072432d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Utilities">
-      <UniqueIdentifier>{4d43c56b-15c6-425f-b600-4d0e6a276133}</UniqueIdentifier>
+      <UniqueIdentifier>{73339864-9c3b-55c5-b20f-1a4bcd1b6d9e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Wod">
-      <UniqueIdentifier>{f9993a0f-f0e1-41e5-ae78-26e575898616}</UniqueIdentifier>
+      <UniqueIdentifier>{9b7dbf25-c064-5688-a6a7-29080b2817ed}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -144,6 +144,9 @@
     <ClInclude Include="ITr2CurveSetOwner.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="ITr2DynamicBindingOwner.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="ITr2EffectValue.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -166,9 +169,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ITr2TextureProvider.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ITr2VisibilityQueryable.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ITr2VisualizationModeRenderer.h">
@@ -223,6 +223,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2DxtCompressor.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tr2DynamicBinding.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2DynamicRingBuffer.h">
@@ -337,6 +340,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2PrimitiveText.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tr2ProceduralResources.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2ProfileTimer.h">
@@ -525,6 +531,9 @@
     <ClInclude Include="Controllers\ITr2Controller.h">
       <Filter>Source Files\Controllers</Filter>
     </ClInclude>
+    <ClInclude Include="Controllers\ITr2ControllerOwner.h">
+      <Filter>Source Files\Controllers</Filter>
+    </ClInclude>
     <ClInclude Include="Controllers\Tr2BindingPoint.h">
       <Filter>Source Files\Controllers</Filter>
     </ClInclude>
@@ -561,6 +570,12 @@
     <ClInclude Include="Controllers\Actions\Tr2ActionAnimateValue.h">
       <Filter>Source Files\Controllers\Actions</Filter>
     </ClInclude>
+    <ClInclude Include="Controllers\Actions\Tr2ActionBindRTPC.h">
+      <Filter>Source Files\Controllers\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="Controllers\Actions\Tr2ActionCallback.h">
+      <Filter>Source Files\Controllers\Actions</Filter>
+    </ClInclude>
     <ClInclude Include="Controllers\Actions\Tr2ActionChildEffect.h">
       <Filter>Source Files\Controllers\Actions</Filter>
     </ClInclude>
@@ -580,6 +595,9 @@
       <Filter>Source Files\Controllers\Actions</Filter>
     </ClInclude>
     <ClInclude Include="Controllers\Actions\Tr2ActionSetAudioSwitch.h">
+      <Filter>Source Files\Controllers\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="Controllers\Actions\Tr2ActionSetExternalControllerVariable.h">
       <Filter>Source Files\Controllers\Actions</Filter>
     </ClInclude>
     <ClInclude Include="Controllers\Actions\Tr2ActionSetShaderOption.h">
@@ -633,7 +651,16 @@
     <ClInclude Include="Curves\Tr2CurveVector3Expression.h">
       <Filter>Source Files\Curves</Filter>
     </ClInclude>
+    <ClInclude Include="Curves\Tr2CurveVector3Lerp.h">
+      <Filter>Source Files\Curves</Filter>
+    </ClInclude>
     <ClInclude Include="Curves\Tr2DistanceTracker.h">
+      <Filter>Source Files\Curves</Filter>
+    </ClInclude>
+    <ClInclude Include="Curves\Tr2FollowCurve.h">
+      <Filter>Source Files\Curves</Filter>
+    </ClInclude>
+    <ClInclude Include="Curves\Tr2FollowCurveKey.h">
       <Filter>Source Files\Curves</Filter>
     </ClInclude>
     <ClInclude Include="Curves\Tr2GrannyEventTrack.h">
@@ -691,6 +718,12 @@
       <Filter>Source Files\Eve</Filter>
     </ClInclude>
     <ClInclude Include="Eve\EveLODHelper.h">
+      <Filter>Source Files\Eve</Filter>
+    </ClInclude>
+    <ClInclude Include="Eve\EveMultiEffect.h">
+      <Filter>Source Files\Eve</Filter>
+    </ClInclude>
+    <ClInclude Include="Eve\EveMultiEffectParameter.h">
       <Filter>Source Files\Eve</Filter>
     </ClInclude>
     <ClInclude Include="Eve\EveOccluder.h">
@@ -754,6 +787,9 @@
       <Filter>Source Files\Eve\Renderable\Stretch</Filter>
     </ClInclude>
     <ClInclude Include="Eve\Renderable\Stretch\EveStretch2.h">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClInclude>
+    <ClInclude Include="Eve\Renderable\Stretch\EveStretch3.h">
       <Filter>Source Files\Eve\Renderable\Stretch</Filter>
     </ClInclude>
     <ClInclude Include="Eve\SpaceObject\EveMissile.h">
@@ -849,6 +885,12 @@
     <ClInclude Include="Eve\SpaceObject\Children\EveChildInheritProperties.h">
       <Filter>Source Files\Eve\SpaceObject\Children</Filter>
     </ClInclude>
+    <ClInclude Include="Eve\SpaceObject\Children\EveChildInstanceContainer.h">
+      <Filter>Source Files\Eve\SpaceObject\Children</Filter>
+    </ClInclude>
+    <ClInclude Include="Eve\SpaceObject\Children\EveChildLineSet.h">
+      <Filter>Source Files\Eve\SpaceObject\Children</Filter>
+    </ClInclude>
     <ClInclude Include="Eve\SpaceObject\Children\EveChildLink.h">
       <Filter>Source Files\Eve\SpaceObject\Children</Filter>
     </ClInclude>
@@ -909,7 +951,13 @@
     <ClInclude Include="Eve\SpaceObject\Children\Behaviors\DroneAvoidance.h">
       <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
     </ClInclude>
+    <ClInclude Include="Eve\SpaceObject\Children\Behaviors\EveKDdroneManagementTree.h">
+      <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
+    </ClInclude>
     <ClInclude Include="Eve\SpaceObject\Children\Behaviors\FollowASpline.h">
+      <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
+    </ClInclude>
+    <ClInclude Include="Eve\SpaceObject\Children\Behaviors\Formation.h">
       <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
     </ClInclude>
     <ClInclude Include="Eve\SpaceObject\Children\Behaviors\IBehavior.h">
@@ -921,10 +969,13 @@
     <ClInclude Include="Eve\SpaceObject\Children\Behaviors\Inertia.h">
       <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
     </ClInclude>
-    <ClInclude Include="Eve\SpaceObject\Children\Behaviors\KDdroneManagementTree.h">
+    <ClInclude Include="Eve\SpaceObject\Children\Behaviors\PlayFX.h">
       <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
     </ClInclude>
     <ClInclude Include="Eve\SpaceObject\Children\Behaviors\ProcessLifetime.h">
+      <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
+    </ClInclude>
+    <ClInclude Include="Eve\SpaceObject\Children\Behaviors\SeekTarget.h">
       <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
     </ClInclude>
     <ClInclude Include="Eve\SpaceObject\Children\Behaviors\SplineTunnelGroup.h">
@@ -961,6 +1012,9 @@
       <Filter>Source Files\Eve\SpaceObject\Children\TransformModifiers</Filter>
     </ClInclude>
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierSRT.h">
+      <Filter>Source Files\Eve\SpaceObject\Children\TransformModifiers</Filter>
+    </ClInclude>
+    <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierStretch.h">
       <Filter>Source Files\Eve\SpaceObject\Children\TransformModifiers</Filter>
     </ClInclude>
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierTransformCommon.h">
@@ -1035,6 +1089,9 @@
     <ClInclude Include="Eve\Volume\EveBoxVolume.h">
       <Filter>Source Files\Eve\Volume</Filter>
     </ClInclude>
+    <ClInclude Include="Eve\Volume\EveEllipsoidVolume.h">
+      <Filter>Source Files\Eve\Volume</Filter>
+    </ClInclude>
     <ClInclude Include="Eve\Volume\EveSphereVolume.h">
       <Filter>Source Files\Eve\Volume</Filter>
     </ClInclude>
@@ -1069,6 +1126,9 @@
       <Filter>Source Files\Include</Filter>
     </ClInclude>
     <ClInclude Include="Include\ITr2DebugRenderer.h">
+      <Filter>Source Files\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ITr2DebugRenderer2.h">
       <Filter>Source Files\Include</Filter>
     </ClInclude>
     <ClInclude Include="Include\ITr2GpuBuffer.h">
@@ -1416,9 +1476,6 @@
     <ClInclude Include="RenderJob\TriStepRenderAtlas.h">
       <Filter>Source Files\RenderJob</Filter>
     </ClInclude>
-    <ClInclude Include="RenderJob\TriStepRenderCubeMap.h">
-      <Filter>Source Files\RenderJob</Filter>
-    </ClInclude>
     <ClInclude Include="RenderJob\TriStepRenderDebug.h">
       <Filter>Source Files\RenderJob</Filter>
     </ClInclude>
@@ -1426,9 +1483,6 @@
       <Filter>Source Files\RenderJob</Filter>
     </ClInclude>
     <ClInclude Include="RenderJob\TriStepRenderFps.h">
-      <Filter>Source Files\RenderJob</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderJob\TriStepRenderFullScreenShader.h">
       <Filter>Source Files\RenderJob</Filter>
     </ClInclude>
     <ClInclude Include="RenderJob\TriStepRenderLineGraph.h">
@@ -1488,9 +1542,6 @@
     <ClInclude Include="RenderJob\TriStepSetViewport.h">
       <Filter>Source Files\RenderJob</Filter>
     </ClInclude>
-    <ClInclude Include="RenderJob\TriStepSetVisibilityResults.h">
-      <Filter>Source Files\RenderJob</Filter>
-    </ClInclude>
     <ClInclude Include="RenderJob\TriStepSetVisualizationMode.h">
       <Filter>Source Files\RenderJob</Filter>
     </ClInclude>
@@ -1501,9 +1552,6 @@
       <Filter>Source Files\RenderJob</Filter>
     </ClInclude>
     <ClInclude Include="RenderJob\TriStepUpdate.h">
-      <Filter>Source Files\RenderJob</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderJob\TriStepVisibilityQuery.h">
       <Filter>Source Files\RenderJob</Filter>
     </ClInclude>
     <ClInclude Include="Resources\Tr2AsyncSave.h">
@@ -1818,6 +1866,12 @@
     <ClCompile Include="Tr2DxtCompressor_Blue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Tr2DynamicBinding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tr2DynamicBinding_Blue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Tr2DynamicRingBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -2002,6 +2056,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2PrimitiveText_Blue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tr2ProceduralResources.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2ProfileTimer.cpp">
@@ -2202,9 +2259,6 @@
     <ClCompile Include="TriDeviceGLES2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TriDeviceOrbis.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TriDeviceStub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -2388,6 +2442,18 @@
     <ClCompile Include="Controllers\Actions\Tr2ActionAnimateValue_Blue.cpp">
       <Filter>Source Files\Controllers\Actions</Filter>
     </ClCompile>
+    <ClCompile Include="Controllers\Actions\Tr2ActionBindRTPC.cpp">
+      <Filter>Source Files\Controllers\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="Controllers\Actions\Tr2ActionBindRTPC_Blue.cpp">
+      <Filter>Source Files\Controllers\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="Controllers\Actions\Tr2ActionCallback.cpp">
+      <Filter>Source Files\Controllers\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="Controllers\Actions\Tr2ActionCallback_Blue.cpp">
+      <Filter>Source Files\Controllers\Actions</Filter>
+    </ClCompile>
     <ClCompile Include="Controllers\Actions\Tr2ActionChildEffect.cpp">
       <Filter>Source Files\Controllers\Actions</Filter>
     </ClCompile>
@@ -2428,6 +2494,12 @@
       <Filter>Source Files\Controllers\Actions</Filter>
     </ClCompile>
     <ClCompile Include="Controllers\Actions\Tr2ActionSetAudioSwitch_Blue.cpp">
+      <Filter>Source Files\Controllers\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="Controllers\Actions\Tr2ActionSetExternalControllerVariable.cpp">
+      <Filter>Source Files\Controllers\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="Controllers\Actions\Tr2ActionSetExternalControllerVariable_Blue.cpp">
       <Filter>Source Files\Controllers\Actions</Filter>
     </ClCompile>
     <ClCompile Include="Controllers\Actions\Tr2ActionSetShaderOption.cpp">
@@ -2523,6 +2595,12 @@
     <ClCompile Include="Curves\Tr2CurveVector3Expression_Blue.cpp">
       <Filter>Source Files\Curves</Filter>
     </ClCompile>
+    <ClCompile Include="Curves\Tr2CurveVector3Lerp.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
+    <ClCompile Include="Curves\Tr2CurveVector3Lerp_Blue.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
     <ClCompile Include="Curves\Tr2CurveVector3_Blue.cpp">
       <Filter>Source Files\Curves</Filter>
     </ClCompile>
@@ -2530,6 +2608,18 @@
       <Filter>Source Files\Curves</Filter>
     </ClCompile>
     <ClCompile Include="Curves\Tr2DistanceTracker_Blue.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
+    <ClCompile Include="Curves\Tr2FollowCurve.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
+    <ClCompile Include="Curves\Tr2FollowCurveKey.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
+    <ClCompile Include="Curves\Tr2FollowCurveKey_Blue.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
+    <ClCompile Include="Curves\Tr2FollowCurve_Blue.cpp">
       <Filter>Source Files\Curves</Filter>
     </ClCompile>
     <ClCompile Include="Curves\Tr2GrannyEventTrack.cpp">
@@ -2637,6 +2727,18 @@
     <ClCompile Include="Eve\EveLODHelper.cpp">
       <Filter>Source Files\Eve</Filter>
     </ClCompile>
+    <ClCompile Include="Eve\EveMultiEffect.cpp">
+      <Filter>Source Files\Eve</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\EveMultiEffectParameter.cpp">
+      <Filter>Source Files\Eve</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\EveMultiEffectParameter_Blue.cpp">
+      <Filter>Source Files\Eve</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\EveMultiEffect_Blue.cpp">
+      <Filter>Source Files\Eve</Filter>
+    </ClCompile>
     <ClCompile Include="Eve\EveOccluder.cpp">
       <Filter>Source Files\Eve</Filter>
     </ClCompile>
@@ -2728,6 +2830,12 @@
       <Filter>Source Files\Eve\Renderable\Stretch</Filter>
     </ClCompile>
     <ClCompile Include="Eve\Renderable\Stretch\EveStretch2_Blue.cpp">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Renderable\Stretch\EveStretch3.cpp">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Renderable\Stretch\EveStretch3_Blue.cpp">
       <Filter>Source Files\Eve\Renderable\Stretch</Filter>
     </ClCompile>
     <ClCompile Include="Eve\Renderable\Stretch\EveStretch_Blue.cpp">
@@ -2913,6 +3021,18 @@
     <ClCompile Include="Eve\SpaceObject\Children\EveChildInheritProperties_Blue.cpp">
       <Filter>Source Files\Eve\SpaceObject\Children</Filter>
     </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildInstanceContainer.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildInstanceContainer_Blue.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildLineSet.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildLineSet_Blue.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children</Filter>
+    </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Children\EveChildLink.cpp">
       <Filter>Source Files\Eve\SpaceObject\Children</Filter>
     </ClCompile>
@@ -3012,10 +3132,22 @@
     <ClCompile Include="Eve\SpaceObject\Children\Behaviors\DroneAvoidance_Blue.cpp">
       <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
     </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\Behaviors\EveKDdroneManagementTree.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\Behaviors\EveKDdroneManagementTree_Blue.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
+    </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Children\Behaviors\FollowASpline.cpp">
       <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
     </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Children\Behaviors\FollowASpline_Blue.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\Behaviors\Formation.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\Behaviors\Formation_Blue.cpp">
       <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
     </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Children\Behaviors\InclusionVolume.cpp">
@@ -3030,16 +3162,22 @@
     <ClCompile Include="Eve\SpaceObject\Children\Behaviors\Inertia_Blue.cpp">
       <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
     </ClCompile>
-    <ClCompile Include="Eve\SpaceObject\Children\Behaviors\KDdroneManagementTree.cpp">
+    <ClCompile Include="Eve\SpaceObject\Children\Behaviors\PlayFX.cpp">
       <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
     </ClCompile>
-    <ClCompile Include="Eve\SpaceObject\Children\Behaviors\KDdroneManagementTree_Blue.cpp">
+    <ClCompile Include="Eve\SpaceObject\Children\Behaviors\PlayFX_Blue.cpp">
       <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
     </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Children\Behaviors\ProcessLifetime.cpp">
       <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
     </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Children\Behaviors\ProcessLifetime_Blue.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\Behaviors\SeekTarget.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\Behaviors\SeekTarget_Blue.cpp">
       <Filter>Source Files\Eve\SpaceObject\Children\Behaviors</Filter>
     </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Children\Behaviors\SplineTunnelGroup.cpp">
@@ -3106,6 +3244,12 @@
       <Filter>Source Files\Eve\SpaceObject\Children\TransformModifiers</Filter>
     </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierSRT_Blue.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children\TransformModifiers</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierStretch.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children\TransformModifiers</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierStretch_Blue.cpp">
       <Filter>Source Files\Eve\SpaceObject\Children\TransformModifiers</Filter>
     </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierTranslateWithCamera.cpp">
@@ -3232,6 +3376,12 @@
       <Filter>Source Files\Eve\Volume</Filter>
     </ClCompile>
     <ClCompile Include="Eve\Volume\EveBoxVolume_Blue.cpp">
+      <Filter>Source Files\Eve\Volume</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Volume\EveEllipsoidVolume.cpp">
+      <Filter>Source Files\Eve\Volume</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Volume\EveEllipsoidVolume_Blue.cpp">
       <Filter>Source Files\Eve\Volume</Filter>
     </ClCompile>
     <ClCompile Include="Eve\Volume\EveSphereVolume.cpp">
@@ -3696,12 +3846,6 @@
     <ClCompile Include="RenderJob\TriStepRenderAtlas_Blue.cpp">
       <Filter>Source Files\RenderJob</Filter>
     </ClCompile>
-    <ClCompile Include="RenderJob\TriStepRenderCubeMap.cpp">
-      <Filter>Source Files\RenderJob</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderJob\TriStepRenderCubeMap_Blue.cpp">
-      <Filter>Source Files\RenderJob</Filter>
-    </ClCompile>
     <ClCompile Include="RenderJob\TriStepRenderDebug.cpp">
       <Filter>Source Files\RenderJob</Filter>
     </ClCompile>
@@ -3718,12 +3862,6 @@
       <Filter>Source Files\RenderJob</Filter>
     </ClCompile>
     <ClCompile Include="RenderJob\TriStepRenderFps_Blue.cpp">
-      <Filter>Source Files\RenderJob</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderJob\TriStepRenderFullScreenShader.cpp">
-      <Filter>Source Files\RenderJob</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderJob\TriStepRenderFullScreenShader_Blue.cpp">
       <Filter>Source Files\RenderJob</Filter>
     </ClCompile>
     <ClCompile Include="RenderJob\TriStepRenderLineGraph.cpp">
@@ -3840,12 +3978,6 @@
     <ClCompile Include="RenderJob\TriStepSetView_Blue.cpp">
       <Filter>Source Files\RenderJob</Filter>
     </ClCompile>
-    <ClCompile Include="RenderJob\TriStepSetVisibilityResults.cpp">
-      <Filter>Source Files\RenderJob</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderJob\TriStepSetVisibilityResults_Blue.cpp">
-      <Filter>Source Files\RenderJob</Filter>
-    </ClCompile>
     <ClCompile Include="RenderJob\TriStepSetVisualizationMode.cpp">
       <Filter>Source Files\RenderJob</Filter>
     </ClCompile>
@@ -3868,12 +4000,6 @@
       <Filter>Source Files\RenderJob</Filter>
     </ClCompile>
     <ClCompile Include="RenderJob\TriStepUpdate_Blue.cpp">
-      <Filter>Source Files\RenderJob</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderJob\TriStepVisibilityQuery.cpp">
-      <Filter>Source Files\RenderJob</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderJob\TriStepVisibilityQuery_Blue.cpp">
       <Filter>Source Files\RenderJob</Filter>
     </ClCompile>
     <ClCompile Include="Resources\Tr2AsyncSave.cpp">

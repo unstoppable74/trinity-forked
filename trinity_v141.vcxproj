@@ -3173,6 +3173,7 @@
     <ClInclude Include="Eve\UI\EveTacticalOverlay.h" />
     <ClInclude Include="Eve\UI\EveUiObject.h" />
     <ClInclude Include="Eve\Volume\EveBoxVolume.h" />
+    <ClInclude Include="Eve\Volume\EveEllipsoidVolume.h" />
     <ClInclude Include="Eve\Volume\EveSphereVolume.h" />
     <ClInclude Include="Eve\Volume\IEveVolume.h" />
     <ClInclude Include="Font\Tr2FontManager.h" />
@@ -3939,6 +3940,8 @@
     <ClCompile Include="Eve\UI\EveUiObject_Blue.cpp" />
     <ClCompile Include="Eve\Volume\EveBoxVolume.cpp" />
     <ClCompile Include="Eve\Volume\EveBoxVolume_Blue.cpp" />
+    <ClCompile Include="Eve\Volume\EveEllipsoidVolume.cpp" />
+    <ClCompile Include="Eve\Volume\EveEllipsoidVolume_Blue.cpp" />
     <ClCompile Include="Eve\Volume\EveSphereVolume.cpp" />
     <ClCompile Include="Eve\Volume\EveSphereVolume_Blue.cpp" />
     <ClCompile Include="Font\Tr2FontManager.cpp" />

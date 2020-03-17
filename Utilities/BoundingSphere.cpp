@@ -145,6 +145,29 @@ bool IntersectEllipsoidRay( Vector3& out, float& t, const Vector3& ellipsoidCent
 	return true;
 }
 
+bool IntersectEllipsoidRayClosest( Vector3& out, const Vector3& ellipsoidCenter, const Vector3& ellipsoidRadii, const Vector3& rayOrigin, const Vector3& rayDir )
+{
+	Vector3 v = Vector3( rayDir.x / ellipsoidRadii.x, rayDir.y / ellipsoidRadii.y, rayDir.z / ellipsoidRadii.z );
+	Vector3 s = Vector3( ( rayOrigin.x - ellipsoidCenter.x ) / ellipsoidRadii.x, ( rayOrigin.y - ellipsoidCenter.y ) / ellipsoidRadii.y, ( rayOrigin.z - ellipsoidCenter.z ) / ellipsoidRadii.z );
+
+	float v_v = Dot( v, v );
+	float v_s = Dot( v, s );
+	float s_s = Dot( s, s );
+	float pq = ( v_s / v_v ) * ( v_s / v_v ) - ( s_s / v_v ) + 1.f / v_v;
+	if( pq < 0.f )
+	{
+		return false;
+	}
+	pq = sqrt( pq );
+	float t1 = -pq - ( v_s / v_v );
+	float t2 = pq - ( v_s / v_v );
+	
+	float minT = abs( t1 ) < abs( t2 ) ? t1 : t2;
+	out = minT * rayDir + rayOrigin;
+	return true;
+}
+
+
 bool IsPointInsideEllipsoid( const Vector3& ellipsoidCenter, const Vector3& ellipsoidRadii, const Vector3& point )
 {
 	Vector3 d = point - ellipsoidCenter;
