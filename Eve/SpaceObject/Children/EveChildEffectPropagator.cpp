@@ -16,7 +16,7 @@ EveChildEffectPropagator::EveChildEffectPropagator( IRoot* lockobj )
 	m_effectScaling( 1.0f, 1.0f, 1.0f ),
 	m_triggerSphereOffset( 0.0f, 0.0f, 0.0f ),
 	m_type( LOCAL_LOCATORS ),
-	m_triggerMethood( TRIGGER_SPHERE_CURVE ),
+	m_triggerMethod( TRIGGER_SPHERE_CURVE ),
 	m_isPlaying( false ),
 	m_playTime( 0 ),
 	m_currentTriggerIndex( 0 ),
@@ -62,10 +62,7 @@ bool EveChildEffectPropagator::OnModified( Be::Var* value )
 
 	if( IsMatch( value, m_frequency ) )
 	{
-		if( m_frequency <= 0 )
-		{
-			m_frequency = 1;
-		}
+		m_frequency = max( 0.00001f, m_frequency );
 	}
 	
 	m_trigger = true;
@@ -147,7 +144,7 @@ void EveChildEffectPropagator::UpdateSyncronous( EveUpdateContext& updateContext
 		ProcessLocators( params.spaceObjectParent );
 		Play();
 
-		if( m_triggerMethood == INTERVAL_TRIGGERS )
+		if( m_triggerMethod == INTERVAL_TRIGGERS )
 		{
 			int size = (int) max( floor( m_effectDuration * m_frequency ), 0.f );
 			std::vector<int> arr(size);
@@ -169,7 +166,7 @@ void EveChildEffectPropagator::UpdateSyncronous( EveUpdateContext& updateContext
 		return;
 	}
 
-	switch( m_triggerMethood )
+	switch( m_triggerMethod )
 	{
 	case TRIGGER_SPHERE_CURVE:
 		UpdateTriggerCurve( updateContext );
@@ -356,7 +353,7 @@ void EveChildEffectPropagator::GetRenderables( std::vector<ITr2Renderable*>& ren
 	}
 }
 
-void EveChildEffectPropagator::ProcessLocatorsLocalLocators()
+void EveChildEffectPropagator::ProcessLocalLocators()
 {
 	if( m_localLocators == nullptr )
 	{
@@ -374,7 +371,7 @@ void EveChildEffectPropagator::ProcessLocatorsLocalLocators()
 		}
 
 		Transform t;
-		t.position = (TranslationMatrix( it->position ) * m_worldTransform).GetTranslation();
+		t.position = it->position;
 		float l = LengthSq( t.position );
 		m_triggerSphereScalarMulti = m_triggerSphereScalarMulti > l ? m_triggerSphereScalarMulti : l;
 		t.rotation = it->direction;
@@ -386,7 +383,7 @@ void EveChildEffectPropagator::ProcessLocatorsLocalLocators()
 	m_triggerSphereScalarMulti = std::sqrt( m_triggerSphereScalarMulti ) * 2.f;
 }
 
-void EveChildEffectPropagator::ProcessLocatorsRefLocators( IEveSpaceObject2* parent )
+void EveChildEffectPropagator::ProcessRefLocators( IEveSpaceObject2* parent )
 {
 	if( m_locatorSetName.empty() )
 	{
@@ -427,7 +424,7 @@ void EveChildEffectPropagator::ProcessLocatorsRefLocators( IEveSpaceObject2* par
 
 }
 
-void EveChildEffectPropagator::ProcessLocatorsRandomSpread()
+void EveChildEffectPropagator::ProcessRandomSpreadLocators()
 {
 	for( int i = 0; i < m_numTriggers; i++ )
 	{
@@ -446,10 +443,8 @@ void EveChildEffectPropagator::ProcessLocatorsRandomSpread()
 
 		Transform t;
 
-		t.position = (TranslationMatrix( angle * dist ) * m_worldTransform).GetTranslation();
-
+		t.position = angle * dist;
 		TriQuaternionDirVector( &t.rotation, &angle );
-
 		float rand = m_randScaleMin + TriRand() * (m_randScaleMax - m_randScaleMin);
 		t.scale = m_effectScaling * rand;
 		m_processedTransforms.emplace_back( t );
@@ -470,13 +465,13 @@ void EveChildEffectPropagator::ProcessLocators( IEveSpaceObject2* parent )
 	switch( m_type )
 	{
 	case LOCAL_LOCATORS:
-		ProcessLocatorsLocalLocators();
+		ProcessLocalLocators();
 		break;
 	case LOCATOR_SET_BY_REF:
-		ProcessLocatorsRefLocators( parent );
+		ProcessRefLocators( parent );
 		break;
 	case RANDOM_SPREAD:
-		ProcessLocatorsRandomSpread();
+		ProcessRandomSpreadLocators();
 		break;
 	default:
 		break;
@@ -537,6 +532,7 @@ void EveChildEffectPropagator::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 	if( m_triggerSphereRadiusCurve != nullptr )
 	{
 		float currentRad = m_triggerSphereRadiusCurve->GetValueAt( m_playTime ) * m_triggerSphereScalarMulti;
+		if( m_type == LOCATOR_SET_BY_REF ) { currentRad *= 2; }
 		renderer.DrawSphere( this, TranslationMatrix( m_triggerSphereOffset * m_triggerSphereScalarMulti ) * m_worldTransform, currentRad, 12, Tr2DebugRenderer::Wireframe, 0xbbffbbff );
 	}
 

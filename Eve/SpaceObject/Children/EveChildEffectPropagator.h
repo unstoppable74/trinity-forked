@@ -5,7 +5,6 @@
 //
 
 #pragma once
-#define EveChildEffectPropagator_H
 
 #include "EveChildContainer.h"
 #include "EveChildInstanceContainer.h"
@@ -79,9 +78,9 @@ private:
 	};
 
 	void ProcessLocators( IEveSpaceObject2* parent );
-	void ProcessLocatorsRandomSpread();
-	void ProcessLocatorsLocalLocators();
-	void ProcessLocatorsRefLocators( IEveSpaceObject2* parent );
+	void ProcessRandomSpreadLocators();
+	void ProcessLocalLocators();
+	void ProcessRefLocators( IEveSpaceObject2* parent );
 
 	void UpdateTriggerCurve( EveUpdateContext& updateContext );
 	void UpdateTriggerInterval( EveUpdateContext& updateContext );
@@ -104,7 +103,7 @@ private:
 	EveLocatorSetsPtr m_localLocators;
 	std::vector<Transform> m_processedTransforms;
 	PropagationType m_type;
-	TriggerType m_triggerMethood;
+	TriggerType m_triggerMethod;
 
 	int m_currentTriggerIndex; // skip processing triggers until this point
 

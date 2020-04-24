@@ -37,7 +37,7 @@ const Be::ClassInfo* EveChildEffectPropagator::ExposeToBlue()
 		MAP_ATTRIBUTE( "localLocators", m_localLocators, "locators for a self-contained propagation", Be::READWRITE | Be::PERSIST )
 		
 		MAP_ATTRIBUTE_WITH_CHOOSER( "propagationType", m_type, "", Be::READWRITE | Be::PERSIST | Be::ENUM | Be::NOTIFY, PropagationChooser )
-		MAP_ATTRIBUTE_WITH_CHOOSER( "triggerMethood", m_triggerMethood, "", Be::READWRITE | Be::PERSIST | Be::ENUM | Be::NOTIFY, PropagationTriggerChooser )
+		MAP_ATTRIBUTE_WITH_CHOOSER( "triggerMethood", m_triggerMethod, "", Be::READWRITE | Be::PERSIST | Be::ENUM | Be::NOTIFY, PropagationTriggerChooser )
 
 		MAP_ATTRIBUTE( "trigger", m_trigger, "reset and start", Be::READWRITE )
 		MAP_ATTRIBUTE( "isPlaying", m_isPlaying, "Is the effect playing", Be::READ )
