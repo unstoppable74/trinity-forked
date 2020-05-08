@@ -1623,6 +1623,28 @@ void EveSpaceScene::UpdateQuadRenderer(
 }
 
 // --------------------------------------------------------------------------------------
+void EveSpaceScene::UpdateQuadRenderer(
+	const TriFrustum& frustum,
+	PEvePlanetVector& objects,
+	Tr2RenderContext& renderContext )
+{
+	CCP_STATS_ZONE( __FUNCTION__ );
+
+	auto& quadRenderer = *Tr2QuadRenderer::Instance();
+
+	Tr2ParallelFor( Tr2BlockedRange<size_t>( 0, objects.size(), 20 ), [&] ( Tr2BlockedRange<size_t> range )
+	{
+		for( auto i = range.begin(); i != range.end(); ++i )
+		{
+			auto obj = objects[i];
+			obj->AddQuadsToQuadRenderer( frustum, quadRenderer );
+		}
+	} );
+
+	quadRenderer.BeginRendering( renderContext );
+}
+
+// --------------------------------------------------------------------------------------
 // Description:
 //   Returns shared quad renderer pointer. Mostly for blue exposure.
 // --------------------------------------------------------------------------------------
@@ -2136,6 +2158,7 @@ void EveSpaceScene::Render3DUI( Tr2RenderContext& renderContext )
 	PrepareTransparentBatch( transparentObjects, m_secondaryBatches );
 	
 	UpdateQuadRenderer( frustum, m_uiObjects, renderContext );
+
 	Tr2QuadRenderer::Instance()->GetBatches( TRIBATCHTYPE_OPAQUE, m_secondaryBatches[TRIBATCHTYPE_OPAQUE] );
 	Tr2QuadRenderer::Instance()->GetBatches( TRIBATCHTYPE_ADDITIVE, m_secondaryBatches[TRIBATCHTYPE_ADDITIVE] );
 	
@@ -2411,6 +2434,11 @@ bool EveSpaceScene::Initialize()
 		Tr2ShLightingManagerPtr manager = m_shLightingManager;
 		m_shLightingManager = nullptr;
 		SetShLightingManager( manager );
+	}
+
+	for( auto it = begin( m_planets ); it != end( m_planets ); ++it )
+	{
+		(*it)->RegisterWithQuadRenderer( *Tr2QuadRenderer::Instance() );
 	}
 
 	for( auto it = begin( m_objects ); it != end( m_objects ); ++it )
@@ -2850,6 +2878,15 @@ void EveSpaceScene::RenderPlanets( Tr2RenderContext& renderContext )
 	Tr2RenderableSortList renderablesWithTransparencies;
 	GetAllBatchesFromRenderables( planetRenderables, renderablesWithTransparencies, m_secondaryBatches );
 	PrepareTransparentBatch( renderablesWithTransparencies, m_secondaryBatches );
+
+	TriFrustum& frustum = m_frameData.frustum;
+	frustum.DeriveFrustum( &Tr2Renderer::GetViewTransform(), &Tr2Renderer::GetViewPosition(), &Tr2Renderer::GetProjectionTransform(), renderContext.m_esm.GetViewport() );
+
+	UpdateQuadRenderer( frustum, m_planets, renderContext );
+	Tr2QuadRenderer::Instance()->GetBatches( TRIBATCHTYPE_OPAQUE, m_secondaryBatches[TRIBATCHTYPE_OPAQUE] );
+	Tr2QuadRenderer::Instance()->GetBatches( TRIBATCHTYPE_ADDITIVE, m_secondaryBatches[TRIBATCHTYPE_ADDITIVE] );
+	Tr2QuadRenderer::Instance()->DoneRendering( renderContext );
+
 	FinalizeBatches( m_secondaryBatches );
 
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_DEPTH_ONLY );
