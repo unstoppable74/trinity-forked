@@ -247,26 +247,17 @@ void EvePlanet::UpdateLOD()
 	// visible at all?
 	if ( m_estimatedPixelDiameter > m_minScreenSize )
 	{
-		if ( m_lodLevel != TR2_LOD_HIGH )
-		{
-			SetLod( TR2_LOD_HIGH );
-		}
+		SetLod( TR2_LOD_HIGH );
 	}
 	else
 	{
-		if ( m_lodLevel != TR2_LOD_LOW )
-		{
-			SetLod( TR2_LOD_LOW );
-		}
+		SetLod( TR2_LOD_LOW );
 	}
 }
 
 void EvePlanet::SetLod( Tr2Lod lod )
 {
-	if ( m_lodLevel == lod )
-	{
-		return;
-	}
+
 	m_lodLevel = lod;
 
 	for( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); ++it )
