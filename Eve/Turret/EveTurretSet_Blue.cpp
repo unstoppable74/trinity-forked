@@ -204,5 +204,26 @@ const Be::ClassInfo* EveTurretSet::ExposeToBlue()
 			"\n:param idx: index of the firing bone in the current model."
 			"\n:returns: The world transform matrix.")
 
+		MAP_METHOD_AND_WRAP(
+			"SetControllerVariable",
+			SetControllerVariable,
+			"Set variable for all applicable controllers\n"
+			":param name: variable name\n"
+			":param value: new variable value\n"
+		)
+
+		MAP_METHOD_AND_WRAP(
+			"HandleControllerEvent",
+			HandleControllerEvent,
+			"Pass an event to controllers\n"
+			":param name: event name"
+		)
+
+		MAP_METHOD_AND_WRAP(
+			"StartControllers",
+			StartControllers,
+			"Start all controllers"
+		)
+
 	EXPOSURE_END()
 }
