@@ -80,6 +80,14 @@ const Be::ClassInfo* EveStretch3::ExposeToBlue()
 			"",
 			Be::READ
 		)
+		
+		MAP_ATTRIBUTE
+		(
+			"length",
+			m_length,
+			"Distance between the source and the destination",
+			Be::READ | Be::PERSIST
+		)
 
 		MAP_ATTRIBUTE
 		(
@@ -167,14 +175,6 @@ const Be::ClassInfo* EveStretch3::ExposeToBlue()
 			"dynamicBindings",
 			m_dynamicBindings,
 			"Dynamic bindings",
-			Be::READ | Be::PERSIST
-		)
-
-		MAP_ATTRIBUTE
-		(
-			"length",
-			m_length,
-			"Distance between the source and the destination",
 			Be::READ | Be::PERSIST
 		)
 
