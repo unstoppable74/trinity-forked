@@ -19,6 +19,11 @@ BackAndForth::~BackAndForth()
 {
 }
 
+int BackAndForth::GetProcessPriority()
+{
+	return PROCESS_LATER;
+}
+
 size_t BackAndForth::GetScratchMemorySize() const
 {
 	return sizeof( BackAndForthData );
@@ -45,7 +50,7 @@ std::vector<Vector3> BackAndForth::CalculateBehavior(std::vector<DroneAgent>& ag
 		{
 			if( data->seek )
 			{
-				//Get all locators under the "seek" locatorSet
+				//Get count of locators under the "seek" locatorSet
 				auto seekLocators = GetLocatorsForSet( SEEK_LOCATOR_SET_NAME );
 				if (seekLocators != NULL && seekLocators[0].size() > 0)
 				{
@@ -56,7 +61,7 @@ std::vector<Vector3> BackAndForth::CalculateBehavior(std::vector<DroneAgent>& ag
 			//If the deliver behavior is active
 			else if (data->deliver)
 			{
-				//Get all locators under the "deliver" locatorSet
+				//Get count locators under the "deliver" locatorSet
 				auto deliverLocators = GetLocatorsForSet( DELIVER_LOCATOR_SET_NAME );
 				if (deliverLocators != NULL && deliverLocators[0].size() > 0 )
 				{
@@ -67,13 +72,15 @@ std::vector<Vector3> BackAndForth::CalculateBehavior(std::vector<DroneAgent>& ag
 			data->arrived = false;
 		}
 
+		agent->target = data->locatorTarget;
+
 		Matrix worldTransform = system.GetWorldTransform();
 		Vector3 agentPositionWS = XMVector3TransformCoord( agent->position, worldTransform );
 
 		Vector3 desiredVelocity = data->locatorTarget - agentPositionWS;
 		float distance = Length( desiredVelocity );
 		desiredVelocity = Normalize( desiredVelocity );
-		static const Vector3 zAxis( 0.f, 1.f, 0.f );
+		static const Vector3 zAxis( 0.f, 0.f, 1.f );
 
 		//If we are approaching the target
 		if( distance < m_slowDownRadius )
@@ -90,7 +97,6 @@ std::vector<Vector3> BackAndForth::CalculateBehavior(std::vector<DroneAgent>& ag
 			
 			if( !agent->playFX && m_fxBehavior != nullptr )
 			{
-				agent->target = data->locatorTarget;
 				agent->fxStartTime = BeOS->GetActualTime();
 				agent->playFX = true;
 			}
