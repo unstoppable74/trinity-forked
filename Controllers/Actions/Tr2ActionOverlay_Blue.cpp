@@ -23,5 +23,12 @@ const Be::ClassInfo* Tr2ActionOverlay::ExposeToBlue()
 			":jessica-widget: filepath\n"
 			":jessica-file-filter : redfile",
 			Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( 
+			"targetAnotherOwner", 
+			m_MultiEffectParameter,
+			"Designate a child or a MultiEffect parameter to "
+			"target for the load (defaults to controller's owner)"
+			, Be::READWRITE | Be::PERSIST )
+
 	EXPOSURE_END()
 }
