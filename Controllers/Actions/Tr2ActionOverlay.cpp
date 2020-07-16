@@ -37,6 +37,7 @@ void Tr2ActionOverlay::Start( Tr2Controller& controller )
 				{
 					owner = BlueCastPtr( cast );
 				}
+				effect->Rebind();
 			}
 		}
 		if( !owner )
