@@ -5,6 +5,10 @@
 #include "IBehavior.h"
 #include "PlayFX.h"
 #include "Utilities/BoundingBox.h"
+#include "Eve/SpaceObject/Utils/EveLocatorSets.h"
+
+BLUE_DECLARE( EveLocatorSets );
+BLUE_DECLARE_VECTOR( EveLocatorSets );
 
 struct SeekTargetData
 {
@@ -75,10 +79,12 @@ private:
 
 	std::vector<AxisAlignedBoundingBox> m_boundingBoxes;
 	std::vector<std::vector<LocatorData>> m_locatorBuckets;
-
 	std::vector<std::vector<int>> m_locatorBucketIndices;
 	BlueSharedString m_locatorSetName;
 
+	/////////////////////////////////////////////////////////////////////////////////////
+	// locator sets
+	PEveLocatorSetsVector m_locatorSets;
 };
 
 TYPEDEF_BLUECLASS( SeekTarget );

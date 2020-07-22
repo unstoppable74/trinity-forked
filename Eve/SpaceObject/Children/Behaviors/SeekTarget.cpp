@@ -3,6 +3,7 @@
 #include "SeekTarget.h"
 
 SeekTarget::SeekTarget( IRoot* lockobj ) :
+	PARENTLOCK( m_locatorSets ),
 	m_behaviorWeight( 20.f ),
 	m_arrivedRadius( 10.f ),
 	m_slowDownRadius( 33.f ),
