@@ -2657,7 +2657,7 @@ int EveSpaceObject2::CreateImpact( int damageLocatorIndex, const Vector3& direct
 {
 	if( m_impactOverlay )
 	{
-		return m_impactOverlay->CreateImpact( damageLocatorIndex, direction, lifeTime, size, 1.f, m_lodLevel );
+		return m_impactOverlay->CreateImpact( damageLocatorIndex, direction, lifeTime, size, 1.f, m_lodLevel, this );
 	}
 	return -1;
 }

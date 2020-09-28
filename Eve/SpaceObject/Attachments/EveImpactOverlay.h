@@ -111,7 +111,7 @@ public:
 	void Clear();
 
 	// control impacts
-	int CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size, float intensity, Tr2Lod lod );
+	int CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size, float intensity, Tr2Lod lod, EveSpaceObject2* parent );
 	bool UpdateImpact( Vector3& out, const Vector3& direction, int impactIndex );
 
 	// helper for checking activity
@@ -122,8 +122,10 @@ public:
 
 private:
 	// helper functions to create the different types of impacts
-	int CreateShieldImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size, float intensity );
+	int CreateShieldImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size, float intensity, EveSpaceObject2* parent );
 	int CreateArmorImpact( int damageLocatorIndex, float size, bool spawnEffects );
+
+	Vector3 GetShieldImpactPosition( Matrix parentInverseWorldTransform, Vector3 damageLocatorPosWS, Vector3 impactDirection, Vector3 shieldEllipsoidCenter, Vector3 shieldEllipsoidRadii );
 
 	// general data
 	BlueSharedString m_name;
