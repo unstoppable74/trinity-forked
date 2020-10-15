@@ -12,7 +12,6 @@ PlayFX::PlayFX( IRoot* lockobj ) :
 	m_stop( false ),
 	m_priority( LEAST_PRIORITY )
 {
-	m_firingEffect = nullptr;
 }
 
 PlayFX::~PlayFX()
@@ -39,10 +38,14 @@ void PlayFX::InitializeScratch( void* scratchMemory )
 	*static_cast<PlayFXData*>( scratchMemory ) = PlayFXData();
 }
 
-std::vector<Vector3> PlayFX::CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
-	BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius )
+std::vector<Vector3> PlayFX::CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime, BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius )
 {
 	if( m_behaviorWeight <= 0 )
+	{
+		return m_todo;
+	}
+
+	if( m_firingEffect == nullptr )
 	{
 		return m_todo;
 	}
@@ -77,7 +80,7 @@ std::vector<Vector3> PlayFX::CalculateBehavior( std::vector<DroneAgent>& agents,
 		{
 			( *firingEffect )->SetDisplay( false );
 		}
-	
+
 		// Drone has arrived to target so play effect
 		if( agent->playFX && !data->effectPlaying )
 		{
@@ -86,7 +89,7 @@ std::vector<Vector3> PlayFX::CalculateBehavior( std::vector<DroneAgent>& agents,
 				data->droneArrived = true;
 				( *firingEffect )->SetDisplay( true );
 			}
-			
+
 			( *firingEffect )->StartFiring( 0 );
 			data->effectPlaying = true;
 		}
@@ -161,19 +164,18 @@ void PlayFX::CheckCount( size_t agentSize )
 	}
 	else if( agentSize > m_count )
 	{
+		if( m_firingEffect == nullptr )
+		{
+			return;
+		}
+
+		auto firingEffect = m_firingEffect;
+
 		size_t diff = agentSize - m_count;
 
 		for( size_t i = 0; i < diff; ++i )
 		{
 			IEveFiringEffectElementPtr newFx;
-
-			auto firingEffect = m_firingEffect;
-	
-			// Special case for when we add drones THEN add the PlayFX behavior
-			if( firingEffect == NULL )
-			{
-				return;
-			}
 
 			// Copies data from 'source' into '*dest'
 			if( !BeClasses->CloneTo( firingEffect, (IRoot**)&newFx.p ) )
