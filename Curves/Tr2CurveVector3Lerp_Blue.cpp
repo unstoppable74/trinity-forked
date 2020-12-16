@@ -7,6 +7,19 @@
 #include "StdAfx.h"
 #include "Tr2CurveVector3Lerp.h"
 
+
+Be::VarChooser Tr2CurveVector3LerpKeyInterpolationChooser[] = {
+	{ "LINEAR",
+	  BeCast( Tr2CurveVector3LerpKeyInterpolation::LINEAR ),
+	  "Performs a linear interpolation" },
+	{ "HERMITE",
+	  BeCast( Tr2CurveVector3LerpKeyInterpolation::HERMITE ),
+	  "Performs a hermite interpolation" },
+	{ 0 }
+};
+
+BLUE_REGISTER_ENUM_EX( "Tr2CurveVector3LerpKeyInterpolation", Tr2CurveVector3LerpKeyInterpolation::Type, Tr2CurveVector3LerpKeyInterpolationChooser, ENUM_REG_ENUM_OBJECT_ON_MODULE );
+
 BLUE_DEFINE( Tr2CurveVector3Lerp );
 const Be::ClassInfo* Tr2CurveVector3Lerp::ExposeToBlue()
 {
@@ -26,6 +39,13 @@ const Be::ClassInfo* Tr2CurveVector3Lerp::ExposeToBlue()
 			m_initialValue,
 			"Initial value of the curve",
 			Be::READWRITE )
+
+		MAP_ATTRIBUTE_WITH_CHOOSER(
+			"startInterpolation",
+			m_startInterpolation,
+			"The interpolation from initial value to first key",
+			Be::ENUM | Be::READWRITE,
+			Tr2CurveVector3LerpKeyInterpolationChooser )		
 
 		MAP_ATTRIBUTE(
 			"curve",

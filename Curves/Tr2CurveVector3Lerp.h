@@ -10,6 +10,17 @@
 #include "Include/ITriCurveLength.h"
 #include "Tr2CurveScalar.h"
 
+namespace Tr2CurveVector3LerpKeyInterpolation
+{
+enum Type
+{
+	// Linear interpolation
+	LINEAR = 1,
+	// Hermite/cubic interpolation
+	HERMITE = 2,
+};
+}
+
 BLUE_CLASS( Tr2CurveVector3Lerp ) :
 	public ITriVectorFunction
 {
@@ -33,12 +44,17 @@ public:
 	virtual Vector3* GetValueDoubleDotAt( Vector3* in, double time );
 	virtual Vector3d* InterpolatedPosition( Vector3d* out, Be::Time time );
 private:
+	Vector3 LerpToFirstKey( double time ) const;
+	Vector3 Tr2CurveVector3Lerp::GetAutoTangent() const;
+
 	std::string m_name;
 
 	Vector3 m_initialValue;
 	Vector3 m_currentValue;
 
 	float m_curveStartTime;
+
+	Tr2CurveVector3LerpKeyInterpolation::Type m_startInterpolation;
 
 	ITriVectorFunctionPtr m_curve;
 

@@ -8,9 +8,11 @@
 #include "Tr2CurveVector3Lerp.h"
 #include "Tr2CurveScalar.h"
 
+
 Tr2CurveVector3Lerp::Tr2CurveVector3Lerp( IRoot* lockobj ):
 	m_curveStartTime( 1.0 ),
-	m_initialValue( 0, 0, 0 )
+	m_initialValue( 0, 0, 0 ),
+	m_startInterpolation( Tr2CurveVector3LerpKeyInterpolation::HERMITE )
 {
 	m_currentValue = m_initialValue;
 }
@@ -36,15 +38,43 @@ Vector3 Tr2CurveVector3Lerp::GetValue( double time ) const
 
 	if( time < m_curveStartTime && m_curveStartTime > 0.0 )
 	{
-		Vector3 curveStartValue;
-		m_curve->GetValueAt( &curveStartValue, 0.0 );
-		v = Lerp( m_initialValue, curveStartValue, (float) time / m_curveStartTime );
+		v = LerpToFirstKey( time );
 	}
 	else
-	{
+	{ 
 		m_curve->GetValueAt( &v, time - m_curveStartTime );
 	}
 	return v;
+}
+
+Vector3 Tr2CurveVector3Lerp::LerpToFirstKey( double time ) const
+{
+	Vector3 curveStartValue;
+	m_curve->GetValueAt( &curveStartValue, 0.0 );
+
+	if( m_curveStartTime <= 0.0 )
+	{
+		return curveStartValue;
+	}
+	else if( m_startInterpolation == Tr2CurveVector3LerpKeyInterpolation::LINEAR )
+	{
+		return Lerp( m_initialValue, curveStartValue, (float)time / m_curveStartTime );
+	}
+	else
+	{
+		Vector3 prev = m_initialValue;
+		Vector3 next = curveStartValue;
+
+		float s = (float)time / m_curveStartTime;
+
+		float c2 = -2.0f * s * s * s + 3.0f * s * s;
+		float c1 = 1.0f - c2;
+
+                // Hermite with 0 tangents
+		return prev * c1 + next * c2 ;
+	}
+
+	return Vector3( 0, 0, 0 );
 }
 
 Vector3* Tr2CurveVector3Lerp::Update( Vector3* in, Be::Time time )
