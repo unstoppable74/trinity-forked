@@ -3,7 +3,7 @@
 
 
 TriObserverLocal::TriObserverLocal( IRoot* lockobj ) :
-	m_front( 0.0f, 0.0f, 1.0f ),
+	m_direction( 0.0f, 0.0f, 1.0f ),
 	m_position( 0.0f, 0.0f, 0.0f )
 {}
 
@@ -16,7 +16,7 @@ void TriObserverLocal::Update( const Matrix& worldTransform )
 	{
 		Vector3 front, up, position;
 		position = TransformCoord( m_position, worldTransform );
-		front = TransformNormal( m_front, worldTransform );
+		front = TransformNormal( m_direction, worldTransform );
 		up = TransformNormal( Vector3( 0.0f, 1.0f, 0.0f ), worldTransform );
 		m_observer.p->UpdatePlacement( front, up, position );
 	}

@@ -30,7 +30,7 @@ public:
 
 	std::string m_name;
 private:
-	Vector3 m_front;
+	Vector3 m_direction;
 	Vector3 m_position;
 	IBluePlacementObserverPtr m_observer;
 };
