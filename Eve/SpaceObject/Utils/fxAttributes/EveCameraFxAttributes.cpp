@@ -18,8 +18,13 @@ EveCameraFxAttributes::~EveCameraFxAttributes()
 void EveCameraFxAttributes::UpdateAsyncronous( EveUpdateContext& updateContext, const EveChildUpdateParams& params )
 {
 	// gather attributes
-	Vector3 objPos;
-	params.spaceObjectParent->GetModelCenterWorldPosition( objPos );
+	Vector3 objPos(0.0, 0.0, 0.0);
+
+	if( nullptr != params.spaceObjectParent )
+	{
+		params.spaceObjectParent->GetModelCenterWorldPosition( objPos );
+	}
+
 	const Vector3 camPos = Tr2Renderer::GetViewPosition();
 	const Vector3 vec2obj = objPos - camPos;
 	const Matrix view = Tr2Renderer::GetViewTransform();
