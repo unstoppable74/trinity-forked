@@ -137,7 +137,7 @@ std::vector<Vector3> ProcessLifetime::CalculateBehavior( std::vector<DroneAgent>
 			}
 			else if( m_privateTunnels.size() > 0 )
 			{
-				if( ProcessTunnel( *drone, *m_privateTunnels[data->assignedLifeTimeTunnel], data->tunnelPoint, group.GetBoundingSphereRadius() ) )
+				if( data->assignedLifeTimeTunnel < m_privateTunnels.size() && ProcessTunnel( *drone, *m_privateTunnels[data->assignedLifeTimeTunnel], data->tunnelPoint, group.GetBoundingSphereRadius() ) )
 				{
 					data->tunnelPoint = 0;
 					data->hasUsedEntryTunnel = true;
@@ -166,7 +166,7 @@ std::vector<Vector3> ProcessLifetime::CalculateBehavior( std::vector<DroneAgent>
 				}
 				else
 				{
-					if( m_privateTunnels.size() > 0 && ProcessTunnel( *drone, *m_privateTunnels[data->assignedLifeTimeTunnel], data->tunnelPoint, group.GetBoundingSphereRadius() ) )
+					if( m_privateTunnels.size() > 0 && data->assignedLifeTimeTunnel < m_privateTunnels.size() && ProcessTunnel( *drone, *m_privateTunnels[data->assignedLifeTimeTunnel], data->tunnelPoint, group.GetBoundingSphereRadius() ) )
 					{
 						data->hasUsedExitTunnel = true; //redundant add might refactor, keeping it atm
 						dronesThatDie.push_back( index );
@@ -222,6 +222,11 @@ bool ProcessLifetime::ProcessTunnel( DroneAgent& agent, SplineTunnel& tunnel, in
 		return false;
 	}
 
+	// if we've reached the end of the tunnel
+	if( pointID == tunnel.splinePoints.size() )
+	{
+		return true;
+	}
 	Vector3 targetVector = tunnel.splinePoints[pointID].pos - agent.position;
 	Vector3 vectorBetween( 0, 0, 0 );
 
