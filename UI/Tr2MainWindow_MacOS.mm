@@ -837,9 +837,11 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
         KeyboardHelpers::PlatformKeyChanged( kVK_RightCommand, false );
         KeyboardHelpers::PlatformKeyChanged( kVK_CapsLock, false );
     }
-
-    KeyboardHelpers::PlatformKeyChanged( key, ( modifierFlags & KeyCodeToModifierFlag( key ) ) != 0 );
-    m_mainWindow->OnKey_MacOS( ( modifierFlags & KeyCodeToModifierFlag( key ) ) != 0, key );
+	if( key != kVK_Function )
+	{
+		KeyboardHelpers::PlatformKeyChanged( key, ( modifierFlags & KeyCodeToModifierFlag( key ) ) != 0 );
+		m_mainWindow->OnKey_MacOS( ( modifierFlags & KeyCodeToModifierFlag( key ) ) != 0, key );
+	}
 }
 
 // IME
