@@ -112,6 +112,7 @@ void Tr2ActionChildEffect::Start( Tr2Controller& controller )
 				m_child->SetName( m_childName.c_str() );
 			}
 			owner->AddToEffectChildrenList( m_child );
+			m_child->StartControllers();
 		}
 	}
 
