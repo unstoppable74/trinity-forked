@@ -51,7 +51,7 @@ bool Tr2ProfileTimer::OnPrepareResources()
 	if( m_captureGpuTime && !m_gpuTimer.IsValid() )
 	{
 		USE_MAIN_THREAD_RENDER_CONTEXT();
-		m_gpuTimer.Create( renderContext );
+		m_gpuTimer.Create( renderContext ).GetResult();
 	}
 	return true;
 }
