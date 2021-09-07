@@ -123,6 +123,7 @@ elseif(APPLE)
             "-framework CoreFoundation"
             "-framework Cocoa"
             "-framework Carbon"
+            "-framework GameController"
             "-framework Metal"
             "-framework IOKit"
     )

@@ -13,6 +13,7 @@
 #include "Tr2MouseCursor.h"
 #include "TouchBar.h"
 #import <Cocoa/Cocoa.h>
+#import <GameController/GameController.h>
 #import <QuartzCore/QuartzCore.h>
 
 
@@ -177,13 +178,26 @@ void InitializeApplication()
     {
         [NSApp run];
     }
-	
-	HandleThermalState();
-	[NSNotificationCenter.defaultCenter addObserverForName:@"NSProcessInfoThermalStateDidChangeNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-		HandleThermalState();
-	}];
 
-	s_applicationInitialized = true;
+    HandleThermalState();
+    [NSNotificationCenter.defaultCenter addObserverForName:@"NSProcessInfoThermalStateDidChangeNotification" object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        HandleThermalState();
+    }];
+
+    if (@available(macOS 10.15, *))
+    {
+        [NSNotificationCenter.defaultCenter addObserverForName:GCControllerDidConnectNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+            GCController* controller = note.object;
+            CCP_LOG("Game controller connected: %s", controller.vendorName.UTF8String);
+        }];
+
+        [NSNotificationCenter.defaultCenter addObserverForName:GCControllerDidDisconnectNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+            GCController* controller = note.object;
+            CCP_LOG("Game controller disconnected: %s", controller.vendorName.UTF8String);
+        }];
+    }
+
+    s_applicationInitialized = true;
 }
 
 NSScreen* GetAdapterScreen( uint32_t adapter )
@@ -1057,7 +1071,7 @@ void Tr2MainWindow::CreateOSWindow( Tr2MainWindowState::State& state )
         auto size = [window contentView].frame.size;
         state.width = uint32_t( size.width * factor );
         state.height = uint32_t( size.height * factor );
-		[window setDelegate:window];
+        [window setDelegate:window];
     }
 
     [NSApp activateIgnoringOtherApps:YES];
@@ -1570,7 +1584,7 @@ void Tr2MainWindow::SanitizeWindowPosition( Tr2MainWindowState::State& state ) c
         // fixed windows are always at the top left corner of the display
         auto screen = GetAdapterScreen( state.adapter );
         auto frame = screen.frame;
-		CCP_LOG( "Tr2MainWindow::SanitizeWindowPosition: screen frame position is (%f, %f), size (%f, %f), backing scale factor %f", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height, screen.backingScaleFactor );
+        CCP_LOG( "Tr2MainWindow::SanitizeWindowPosition: screen frame position is (%f, %f), size (%f, %f), backing scale factor %f", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height, screen.backingScaleFactor );
 
         state.left = int32_t( frame.origin.x );
         state.top = int32_t( frame.origin.y + frame.size.height - state.height / screen.backingScaleFactor );
