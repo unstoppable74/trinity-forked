@@ -798,6 +798,19 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
 
 - (void)keyDown:(NSEvent *)event
 {
+    auto modifierFlags = int32_t( [event modifierFlags] );
+    
+    KeyboardHelpers::PlatformKey modifiers[] = { kVK_Shift, kVK_Control, kVK_Option, kVK_Command };
+    for( auto m : modifiers )
+    {
+        auto down = ( modifierFlags & KeyCodeToModifierFlag( m ) ) != 0;
+        if( KeyboardHelpers::IsPlatformKeyPressed( m ) != down )
+        {
+            KeyboardHelpers::PlatformKeyChanged( m, down );
+            m_mainWindow->OnKey_MacOS( down, m );
+        }
+    }
+    
     int32_t keyCode = event.keyCode;
     if (![event isARepeat])
     {
