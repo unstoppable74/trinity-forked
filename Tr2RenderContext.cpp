@@ -489,20 +489,25 @@ void Tr2RenderContextBase::RenderBatchesSortedByEffect( ITriRenderBatchAccumulat
 		{
 			Tr2ParallelDo( encodingTasks.begin(), encodingTasks.end(), [&]( const std::pair<int, TriRenderBatch*>& task )
 			{
-				CCP_STATS_ZONE( "Parallel Encoding Task" );
-
-				Tr2RenderContext* ctx = primaryContext->Fork();
-				
-				TriRenderBatch* beginBatch = task.second;
-				TriRenderBatch* doneBatch = nullptr;
-				if( task.first < encodingTasks.size() - 1 )
+#if __APPLE__
+				@autoreleasepool
+#endif
 				{
-					doneBatch = encodingTasks[task.first + 1].second;
+					CCP_STATS_ZONE( "Parallel Encoding Task" );
+
+					Tr2RenderContext* ctx = primaryContext->Fork();
+					
+					TriRenderBatch* beginBatch = task.second;
+					TriRenderBatch* doneBatch = nullptr;
+					if( task.first < encodingTasks.size() - 1 )
+					{
+						doneBatch = encodingTasks[task.first + 1].second;
+					}
+					
+					ctx->RenderBatchesSortedByEffectHelper( beginBatch , doneBatch, techniqueName );
+					
+					primaryContext->Join( ctx );
 				}
-				
-				ctx->RenderBatchesSortedByEffectHelper( beginBatch , doneBatch, techniqueName );
-				
-				primaryContext->Join( ctx );
 			} );
 			primaryContext->EndParallelEncoding();
 		}
