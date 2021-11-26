@@ -272,6 +272,7 @@ private:
 	void InitializeAmbientEffect();
 	IEveSpaceObjectChild* GetAmbientEffect() const;
 	void SetAmbientEffectControllerVariableOnInstance( int index, const char* name, float value );
+	bool IsAmbientVisible() const;
 
 	// cleanup
 	void Cleanup();

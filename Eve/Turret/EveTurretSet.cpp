@@ -373,6 +373,12 @@ void EveTurretSet::InitializeAmbientEffect()
 	ambientEffect->StartControllers();
 }
 
+bool EveTurretSet::IsAmbientVisible() const
+{
+	return m_display && m_displayEffects && m_parentData.clipDataEx.w < 0.05;
+}
+
+
 IEveSpaceObjectChild* EveTurretSet::GetAmbientEffect() const
 {
 	if( m_ambientEffectEditingMode ) 
@@ -1646,7 +1652,7 @@ void EveTurretSet::GetRenderables( std::vector<ITr2Renderable*>& renderables, co
 	}
 	
 	auto ambientEffect = GetAmbientEffect();
-	if( ambientEffect )
+	if( ambientEffect && IsAmbientVisible() )
 	{
 		ambientEffect->GetRenderables( renderables );
 	}
@@ -2868,7 +2874,7 @@ void EveTurretSet::GetLights( Tr2LightManager& lightManager ) const
 	}
 
 	auto ambientEffect = GetAmbientEffect();
-	if( ambientEffect )
+	if( ambientEffect && IsAmbientVisible() )
 	{
 		ambientEffect->GetLights( lightManager );
 	}
@@ -2903,7 +2909,7 @@ void EveTurretSet::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRen
 	}
 
 	auto ambientEffect = GetAmbientEffect();
-	if( ambientEffect )
+	if( ambientEffect && IsAmbientVisible() )
 	{
 		ambientEffect->AddQuadsToQuadRenderer( frustum, quadRenderer );
 	}
