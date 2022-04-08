@@ -105,6 +105,8 @@ void Tr2Controller::OnListModified( long event, ssize_t key, ssize_t key2, IRoot
 
 void Tr2Controller::Link( IRoot& owner )
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	Unlink();
 
 	m_owner = &owner;
@@ -124,6 +126,9 @@ void Tr2Controller::Unlink()
 	{
 		return;
 	}
+
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	Stop();
 	m_owner = nullptr;
 	for( auto it = begin( m_stateMachines ); it != end( m_stateMachines ); ++it )
@@ -134,6 +139,11 @@ void Tr2Controller::Unlink()
 	{
 		( *it )->Unlink();
 	}
+}
+
+bool Tr2Controller::IsLinked() const
+{
+	return m_owner != nullptr;
 }
 
 void Tr2Controller::Start()

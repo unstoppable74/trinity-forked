@@ -54,9 +54,12 @@ bool EveStretch3::Initialize()
 		m_stretchModifier->SetDest( m_dest );
 	}
 
-	for( auto it = begin( m_controllers ); it != end( m_controllers ); ++it )
+	for( auto& controller : m_controllers )
 	{
-		( *it )->Link( *GetRawRoot() );
+		if( !controller->IsLinked() )
+		{
+			controller->Link( *GetRawRoot() );
+		}
 	}
 
 	for( auto binding = m_dynamicBindings.begin(); binding != m_dynamicBindings.end(); ++binding )

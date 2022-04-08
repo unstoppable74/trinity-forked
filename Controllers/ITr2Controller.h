@@ -15,6 +15,8 @@ BLUE_INTERFACE( ITr2Controller ) : public IRoot
 	// Called when a controller is detached from the owning object. The controller should clean up
 	// any references to the owner here.
 	virtual void Unlink() {}
+	// Returns if the controller already linked to its owner
+	virtual bool IsLinked() const = 0;
 
 	// Called when the controller needs to start controlling the owner.
 	virtual void Start() {}

@@ -42,10 +42,13 @@ EveMeshOverlayEffect::EveMeshOverlayEffect( IRoot* lockobj ):
 // --------------------------------------------------------------------------------------
 bool EveMeshOverlayEffect::Initialize()
 {
-    for( auto it = begin( m_controllers ); it != end( m_controllers ); ++it )
-    {
-        ( *it )->Link( *GetRawRoot() );
-    }
+	for( auto& controller : m_controllers )
+	{
+		if( !controller->IsLinked() )
+		{
+			controller->Link( *GetRawRoot() );
+		}
+	}
 
 	return true;
 }

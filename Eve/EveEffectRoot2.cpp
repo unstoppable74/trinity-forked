@@ -44,9 +44,12 @@ EveEffectRoot2::EveEffectRoot2( IRoot* lockobj ) :
 
 bool EveEffectRoot2::Initialize()
 {
-	for( auto it = begin( m_controllers ); it != end( m_controllers ); ++it )
+	for( auto& controller : m_controllers )
 	{
-		( *it )->Link( *GetRawRoot() );
+		if( !controller->IsLinked() )
+		{
+			controller->Link( *GetRawRoot() );
+		}
 	}
 	return true;
 }

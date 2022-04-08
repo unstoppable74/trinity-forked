@@ -48,9 +48,12 @@ EveChildContainer::~EveChildContainer()
 
 bool EveChildContainer::Initialize()
 {
-	for( auto it = begin( m_controllers ); it != end( m_controllers ); ++it )
+	for( auto& controller : m_controllers )
 	{
-		( *it )->Link( *GetRawRoot() );
+		if( !controller->IsLinked() )
+		{
+			controller->Link( *GetRawRoot() );
+		}
 	}
 	return true;
 }

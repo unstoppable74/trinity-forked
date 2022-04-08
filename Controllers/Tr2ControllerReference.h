@@ -24,6 +24,7 @@ public:
 
 	virtual void Link( IRoot& owner );
 	virtual void Unlink();
+	bool IsLinked() const override;
 	virtual void Start();
 	virtual void Stop();
 	virtual void Update();

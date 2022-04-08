@@ -51,6 +51,12 @@ void Tr2ControllerReference::Unlink()
 	}
 }
 
+bool Tr2ControllerReference::IsLinked() const
+{
+	return m_owner != nullptr;
+}
+
+
 void Tr2ControllerReference::Start()
 {
 	if( m_controller )

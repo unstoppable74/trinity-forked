@@ -51,9 +51,12 @@ EveLensflare::EveLensflare( IRoot* lockobj ) :
 
 bool EveLensflare::Initialize()
 {
-	for( auto it = m_controllers.begin(); it !=  m_controllers.end(); ++it )
+	for( auto& controller : m_controllers )
 	{
-		( *it )->Link( *GetRawRoot() );
+		if( !controller->IsLinked() )
+		{
+			controller->Link( *GetRawRoot() );
+		}
 	}
 	return true;
 }
