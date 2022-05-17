@@ -52,6 +52,7 @@ BLUE_INTERFACE( ITriEffectTextureParameter ) :
 	static const size_t UV_SET_MAX_COUNT = 8;
 	virtual void UsedWithScreenSize( float screenSize, const std::vector<float>& uvDensities ) = 0;
 	virtual void EnableTextureLoding( const std::array<float, UV_SET_MAX_COUNT>& uvDensityScale ) = 0;
+	virtual void DisableTextureLoding() = 0;
 };
 BLUE_DECLARE_IVECTOR( ITriEffectTextureParameter );
 

@@ -9,7 +9,8 @@
 TriTextureParameter::TriTextureParameter(IRoot* lockobj):
 	m_resourceType( Tr2EffectResource::TEXTURE_TYPELESS ),
 	m_uavMipLevel( 0 ),
-	m_isUsedByEffect( false )
+	m_isUsedByEffect( false ),
+	m_textureLodEnabled( false )
 {
 	std::fill( std::begin( m_uvDensityScale ), std::end( m_uvDensityScale ), 0.f );
 }
@@ -43,18 +44,25 @@ void TriTextureParameter::UsedWithScreenSize( float screenSize, const std::vecto
 {
 	if( m_textureRes )
 	{
-		size_t i = 0;
-		float resolution = 0;
-		for( auto uv : uvDensities )
+		if( m_textureLodEnabled )
 		{
-			auto scale = m_uvDensityScale[i++];
-			auto density = uv * scale;
-			if( density > 0 )
+			size_t i = 0;
+			float resolution = 0;
+			for( auto uv : uvDensities )
 			{
-				resolution = std::max( resolution, screenSize / density );
+				auto scale = m_uvDensityScale[i++];
+				auto density = uv * scale;
+				if( density > 0 )
+				{
+					resolution = std::max( resolution, screenSize / density );
+				}
 			}
+			m_textureRes->RequestResolution( resolution );
 		}
-		m_textureRes->RequestResolution( resolution );
+		else
+		{
+			m_textureRes->RequestResolution( std::numeric_limits<float>::max() );
+		}
 	}
 }
 
@@ -81,7 +89,13 @@ void TriTextureParameter::SetResourcePath( const char* resourcePath )
 
 void TriTextureParameter::EnableTextureLoding( const std::array<float, UV_SET_MAX_COUNT>& uvDensityScale )
 {
+	m_textureLodEnabled = true;
 	std::copy( begin( uvDensityScale ), end( uvDensityScale ), begin( m_uvDensityScale ) );
+}
+
+void TriTextureParameter::DisableTextureLoding()
+{
+	m_textureLodEnabled = false;
 }
 
 bool TriTextureParameter::OnModified(	Be::Var* val )

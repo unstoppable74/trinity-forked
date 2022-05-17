@@ -71,6 +71,7 @@ public:
 
 	void UsedWithScreenSize( float screenSize, const std::vector<float>& uvDensities ) override;
 	void EnableTextureLoding( const std::array<float, UV_SET_MAX_COUNT>& uvDensityScale ) override;
+	void DisableTextureLoding() override;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// INotify
@@ -114,6 +115,7 @@ private:
 	std::array<float, UV_SET_MAX_COUNT> m_uvDensityScale;
 
 	bool m_isUsedByEffect;
+	bool m_textureLodEnabled;
 
 protected:
 	std::string m_resourcePath;

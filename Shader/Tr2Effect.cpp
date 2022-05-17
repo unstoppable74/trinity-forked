@@ -1361,6 +1361,15 @@ void Tr2Effect::MapPassResources( const Tr2EffectResourceMap& resources, Tr2Effe
 						m_lodTextureParameters.push_back( loddable );
 					}
 				}
+				else
+				{
+					auto found = find( begin( m_lodTextureParameters ), end( m_lodTextureParameters ), loddable );
+					if( found == end( m_lodTextureParameters ) )
+					{
+						loddable->DisableTextureLoding();
+						m_lodTextureParameters.push_back( loddable );
+					}					
+				}
 			}
 		}
 		// Secondly search in effect parameter list
