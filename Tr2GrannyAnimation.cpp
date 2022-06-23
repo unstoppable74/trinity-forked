@@ -215,13 +215,6 @@ void Tr2GrannyAnimation::LoadSecondaryResPath( const std::string& val )
 
 void Tr2GrannyAnimation::ReleaseCachedData( BlueAsyncRes* p )
 {
-	if( p == m_geometryRes && IsInitialized() )
-	{
-		// We ignore notifications from the shared gemoetry res if we already loaded animation data for it.
-		// Otherwise we'd loose current animation state if the geometry res is reloaded for any reason
-		// (because of client settings change for example).
-		return;
-	}
 	Cleanup();
 }
 
