@@ -63,7 +63,7 @@ public:
 	static const uint16_t FLAG_AFFECTS_SURFACES = 1;
 	static const uint16_t FLAG_AFFECTS_PARTICLES = 1 << 1;
 
-	static const uint16_t FLAG_DEFAULT = FLAG_AFFECTS_SURFACES | FLAG_AFFECTS_PARTICLES;
+	static const uint16_t FLAG_DEFAULT = FLAG_AFFECTS_SURFACES;
 
 	void Clear( Tr2RenderContext& renderContext );
 	void SetFrustum( const TriFrustum& frustum );
