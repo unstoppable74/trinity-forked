@@ -43,12 +43,15 @@ std::vector<Vector3> PlayFX::CalculateBehavior( std::vector<DroneAgent>& agents,
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
-	if( m_enabled )
 
-		if( m_behaviorWeight <= 0 || !m_enabled )
+	if( m_behaviorWeight <= 0 || !m_enabled )
+	{
+		for( auto fx = m_firingEffects.begin(); fx != m_firingEffects.end(); ++fx )
 		{
-			return m_todo;
+			( *fx )->StopFiring();
 		}
+		return m_todo;
+	}
 
 	if( m_firingEffect == nullptr )
 	{
