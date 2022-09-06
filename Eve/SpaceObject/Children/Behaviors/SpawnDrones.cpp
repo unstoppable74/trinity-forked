@@ -38,7 +38,7 @@ std::vector<Vector3> SpawnDrones::CalculateBehavior( std::vector<DroneAgent>& ag
 		int yCount = int(m_gridInfo.y);
 		int zCount = int(m_gridInfo.z);
 		float distBetween = m_gridInfo.w;
-
+		float fullnessFactor = m_gridFullnessFactor;
 
 		for( int i = 0; i < zCount; ++i )
 		{
@@ -46,12 +46,13 @@ std::vector<Vector3> SpawnDrones::CalculateBehavior( std::vector<DroneAgent>& ag
 			{
 				for( int k = 0; k < xCount; ++k )
 				{
-					// the higher the gridRandomFactor the more full the grid should be
+					// sometimes we may want to randomize the fullness
 					if( m_gridFullnessFactor == -1 )
 					{
-						m_gridFullnessFactor = TriRand();
+						fullnessFactor = TriRand();
 					}
-					if( TriRand() <= m_gridFullnessFactor )
+					// the higher the gridRandomFactor the more full the grid should be
+					if( TriRand() <= fullnessFactor )
 					{
 						group.AddAgent();
 					}
