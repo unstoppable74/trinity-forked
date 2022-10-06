@@ -298,7 +298,7 @@ void Tr2SSAO::Filter( Tr2RenderContext& renderContext )
 {
 	if( !IsValid() )
 	{
-		if( !m_outputTarget->IsAttached() )
+		if( !m_outputTarget->IsAttached() && m_blankOutputTexture->GetTexture() )
 		{
 			m_outputTarget->Attach( *m_blankOutputTexture->GetTexture(), this );
 		}
