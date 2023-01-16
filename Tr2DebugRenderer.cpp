@@ -422,6 +422,33 @@ void Tr2DebugRenderer::DrawCone( Tr2DebugObjectReference owner, const Vector3& b
 	DrawCone( owner, transform, radius, XMVectorGetX( XMVector3Length( focal - base ) ), segments, effect, color );
 }
 
+void Tr2DebugRenderer::DrawCone( Tr2DebugObjectReference owner, const Matrix& transform, float height, float angle, uint32_t segments, uint32_t coneSegments, Effect effect, Tr2DebugColor color )
+{
+	coneSegments = std::max( coneSegments, (uint32_t)3 );
+	
+	std::vector<Vector2> vertices;
+	vertices.reserve( coneSegments + 1 );
+
+	std::vector<Vector2> normals;
+	normals.reserve( ( coneSegments * 2 - 1 ) * 2 );
+	auto tip = Vector2( 0, 0 );
+	vertices.push_back( tip );
+	normals.push_back( Vector2( -1, 0 ) );
+
+	for( uint32_t i = 0; i < coneSegments; ++i)
+	{
+		float alpha = (coneSegments - 1 - float( i )) / float( coneSegments - 1 ) * angle;
+		vertices.push_back( Vector2( -cos( alpha ) * height, sin( alpha ) * height ) + tip );
+		normals.push_back( Vector2( -cos( alpha ), sin( alpha ) ) );	
+		if( i != coneSegments-1 )
+		{
+			normals.push_back( Vector2( -cos( alpha ), sin( alpha ) ) );
+		}
+	}
+	
+	DrawExtrusionShape( owner, RotationXMatrix( -XM_PIDIV2 ) * transform, &vertices[0], &normals[0], uint32_t( vertices.size() ), segments, effect, color );
+}
+
 void Tr2DebugRenderer::DrawCapsule( Tr2DebugObjectReference owner, const Matrix& transform, float radius, float height, uint32_t segments, Effect effect, Tr2DebugColor color )
 {
 	if( segments < 3 )

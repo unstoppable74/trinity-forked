@@ -20,27 +20,19 @@ Tr2SpotLight::Tr2SpotLight( IRoot* lockobj ):
 void Tr2SpotLight::RenderDebugInfo( ITr2DebugRenderer2& renderer, const Matrix& worldMatrix, const granny_matrix_3x4* bones, size_t boneCount  )
 {
 	auto baseColor = m_lightData.color * m_lightData.brightness;
-	baseColor.a = 0.1;
-	auto selectedColor = baseColor + Color( 0.0, 0.0, 0.0, 0.1 );
-	
+	baseColor.a = 0.025f;
+	auto colorMod = Color( 0.0f, 0.0f, 0.0f, 0.025f );
+
 	Matrix boneMatrix = m_boneTransform;
 	if( m_lightData.boneIndex >= 0 && m_lightData.boneIndex < boneCount ) {
 		TriMatrixCopyFrom3x4( &boneMatrix, &bones[m_lightData.boneIndex] );
 	}
 
-	Matrix lightOffsetMatrix = boneMatrix * worldMatrix;	
-	Matrix lightMatrixWithRotation = RotationMatrix( Normalize( m_lightData.rotation ) ) * lightOffsetMatrix;
-	lightMatrixWithRotation.GetTranslation() = Vector3( 0, 0, 0 );
-	
-	float scaling = XMVectorGetX( XMVectorAdd( XMVector3LengthEst( lightOffsetMatrix.GetX() ),
-		XMVectorAdd( XMVector3LengthEst( lightOffsetMatrix.GetY() ), XMVector3LengthEst( lightOffsetMatrix.GetZ() ) ) ) ) / 3.f;
+	Matrix lightMatrix = RotationMatrix(m_lightData.rotation) * TranslationMatrix(m_lightData.position) * boneMatrix * worldMatrix;	
 
-	Vector3 start = TransformCoord( m_lightData.position, lightOffsetMatrix );
-	Vector3 outerEnd = start + TransformCoord( Vector3( 0.0, 0.0, m_lightData.radius * scaling ), lightMatrixWithRotation );
-	Vector3 innerEnd = start + TransformCoord( Vector3( 0.0, 0.0, m_lightData.innerRadius * scaling ), lightMatrixWithRotation );
+	float outerAngle = TRI_2PI * m_lightData.outerAngle / 360.f;
+	float innerAngle = TRI_2PI * m_lightData.innerAngle / 360.f;
 
-	float outerConeRadius = tan( TRI_2PI * m_lightData.outerAngle / 360.f ) * m_lightData.radius * scaling;
-	float innerConeRadius = tan( TRI_2PI * m_lightData.innerAngle / 360.f ) * m_lightData.innerRadius * scaling;
-	renderer.DrawCone( this, outerEnd, start, outerConeRadius, 10, Tr2DebugRenderer::Solid, Tr2DebugColor( selectedColor, baseColor ) );
-	renderer.DrawCone( this, innerEnd, start, innerConeRadius, 10, Tr2DebugRenderer::Solid, Tr2DebugColor( selectedColor, baseColor ) );
+	renderer.DrawCone( this, lightMatrix, m_lightData.radius, outerAngle, 15, 15, Tr2DebugRenderer::Solid, Tr2DebugColor( baseColor + colorMod * 2.0f, baseColor ) );
+	renderer.DrawCone( this, lightMatrix, m_lightData.innerRadius, innerAngle, 15, 15, Tr2DebugRenderer::Solid, Tr2DebugColor( baseColor + colorMod * 3.0f, baseColor + colorMod  ) );
 }

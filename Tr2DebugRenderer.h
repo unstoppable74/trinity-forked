@@ -63,6 +63,8 @@ public:
 	void DrawCone( Tr2DebugObjectReference owner, const Matrix& transform, float radius, float height, uint32_t segments, Effect effect, Tr2DebugColor color );
 	void DrawCone( Tr2DebugObjectReference owner, const Vector3& base, const Vector3& focal, float radius, uint32_t segments, Effect effect, Tr2DebugColor color );
 
+	void DrawCone( Tr2DebugObjectReference owner, const Matrix& transform, float height, float angle, uint32_t segments, uint32_t coneSegments, Effect effect, Tr2DebugColor color );
+
     void DrawCapsule( Tr2DebugObjectReference owner, const Matrix& transform, float radius, float height, uint32_t segments, Effect effect, Tr2DebugColor color );
 	void DrawCapsule( Tr2DebugObjectReference owner, const Vector3& cap0, const Vector3& cap1, float radius, uint32_t segments, Effect effect, Tr2DebugColor color );
 
