@@ -1647,7 +1647,7 @@ FIXME currently the _stub platform does not build on macOS due to "unknown type 
 There are probably more issues because we haven't build the stub project on macOS so far IIRC
 ]]
 if(WIN32)
-add_library(trinity_stub SHARED EXCLUDE_FROM_ALL)
+ccp_add_library(trinity_stub SHARED EXCLUDE_FROM_ALL)
 target_compile_definitions(trinity_stub
     PRIVATE
         TRINITY_PLATFORM=TRINITY_STUB
@@ -1660,7 +1660,7 @@ set_shared_trinity_properties(trinity_stub)
 endif()
 
 if(WIN32)
-    add_library(trinity_dx11 SHARED)
+    ccp_add_library(trinity_dx11 SHARED)
     target_compile_definitions(trinity_dx11
         PRIVATE
             TRINITY_PLATFORM=TRINITY_DIRECTX11
@@ -1671,7 +1671,7 @@ if(WIN32)
     target_link_libraries(trinity_dx11 PRIVATE TrinityAL_dx11)
     set_shared_trinity_properties(trinity_dx11)
 
-    add_library(trinity_dx12 SHARED EXCLUDE_FROM_ALL)
+    ccp_add_library(trinity_dx12 SHARED EXCLUDE_FROM_ALL)
     target_compile_definitions(trinity_dx12
         PRIVATE
             TRINITY_PLATFORM=TRINITY_DIRECTX12
@@ -1682,7 +1682,7 @@ if(WIN32)
     set_shared_trinity_properties(trinity_dx12)
 elseif(APPLE)
     enable_language(OBJCXX)
-    add_library(trinity_metal SHARED)
+    ccp_add_library(trinity_metal SHARED)
     target_compile_definitions(trinity_metal
         PRIVATE
             TRINITY_PLATFORM=TRINITY_METAL
