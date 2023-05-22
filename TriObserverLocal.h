@@ -2,7 +2,7 @@
 #ifndef TRIOBSERVERLOCAL_H
 #define TRIOBSERVERLOCAL_H
 
-#include "trinity/include/ITriObserverLocal.h"
+#include "include/ITriObserverLocal.h"
 #include "Tr2DebugRenderer.h"
 
 
