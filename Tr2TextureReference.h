@@ -20,6 +20,17 @@ public:
 	Tr2TextureReference( IRoot* lockobj = nullptr );
 
 	virtual Tr2TextureAL* GetTexture();
+
+	BeResultChoice<BlueStdResult, ImageIO::Result> Save( const std::wstring& path );
+
+	uint32_t GetWidth() const;
+	uint32_t GetHeight() const;
+	uint32_t GetDepth() const;
+	uint32_t GetType() const;
+	uint32_t GetMipCount() const;
+	uint32_t GetArraySize() const;
+	Tr2RenderContextEnum::PixelFormat GetFormat() const;
+
 private:
 	Tr2TextureAL m_texture;
 };

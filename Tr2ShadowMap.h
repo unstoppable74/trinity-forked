@@ -80,6 +80,7 @@ public:
 
 	Tr2DepthStencilPtr GetCascadedShadowMapDS() const;
 	Tr2RenderTargetPtr GetCascadedShadowMapRT() const;
+	ITr2TextureProvider* GetShadowMap() const;
 
 	const unsigned int GetShadowSplitCount() const;
 	const unsigned int GetShadowMapSize() const;

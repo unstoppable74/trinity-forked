@@ -567,6 +567,12 @@ const Be::ClassInfo* EveSpaceScene::ExposeToBlue()
 			"The virtual camera system",
 			Be::READWRITE | Be::PERSIST )
 
+		MAP_ATTRIBUTE(
+			"volumetricsRenderer",
+			m_volumetricsRenderer,
+			"Renderer for volumetric objects (clouds, etc.)",
+			Be::READ )
+
 		MAP_METHOD_AND_WRAP(
 			"ReregisterEntities",
 			ReregisterEntities,

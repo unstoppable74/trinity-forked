@@ -242,6 +242,16 @@ void EvePlanet::GetRenderables( std::vector<ITr2Renderable*>& renderables)
 	}
 }
 
+float EvePlanet::GetEstimatedPixelDiameter()
+{
+	return m_estimatedPixelDiameter;
+}
+
+ITriVectorFunctionPtr EvePlanet::GetTranslationCurve()
+{
+	return m_ballPosition;
+}
+
 void EvePlanet::UpdateLOD()
 {
 	if ( !m_display )

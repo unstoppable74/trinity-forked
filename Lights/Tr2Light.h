@@ -72,6 +72,9 @@ public:
 	// INotify
 	virtual bool OnModified( Be::Var* value );
 
+	const LightData& GetLightData() const;
+	float GetBrightnessMultiplier() const;
+
 protected:
 	LightData m_lightData;
 	LIGHT_TYPE m_type;

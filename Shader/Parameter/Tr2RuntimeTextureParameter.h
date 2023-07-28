@@ -34,6 +34,7 @@ public:
 	void Create( const BlueSharedString& name, ITr2TextureProvider* texture, uint32_t uavMipLevel = 0 );
 
 	void SetTextureProvider( ITr2TextureProvider* texture );
+	ITr2TextureProviderPtr GetTextureProvider() const;
 	void SetUavMipLevel( uint32_t mipLevel );
 private:
 	void OnAddedToMaterial( Tr2Material* material ) override;

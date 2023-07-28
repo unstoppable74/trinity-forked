@@ -80,6 +80,8 @@ BLUE_DECLARE_VECTOR( EvePlanet );
 BLUE_DECLARE( EveVirtualCameraSystem );
 BLUE_DECLARE( Tr2GpuBuffer );
 BLUE_DECLARE( Tr2GpuStructuredBuffer );
+BLUE_DECLARE( Tr2TextureReference );
+BLUE_DECLARE( Tr2VolumetricsRenderer );
 
 enum TAASampling
 {
@@ -139,7 +141,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// IListNotify
 	void OnListModified(
-		long event, // BLUELISTEVENT values
+		long event,		// BLUELISTEVENT values
 		ssize_t key,
 		ssize_t key2,
 		IRoot* value,
@@ -247,6 +249,8 @@ protected:
 		float FrameCounter;
 		float GammaBrightness;
 
+		float VolumetricSlices[4];
+
 		// Cascaded shadow maps
 		Vector4 ShadowMapValues[4]; // x = zFar value[0], y = zFar value[1], z = zFar value[2], w = zFar value[3]..etc
 		Matrix ShadowMatrixVal[SHADOW_FRUSTUM_COUNT];
@@ -272,7 +276,7 @@ protected:
 		// pass sun data to vertexshader, so certain lighting-calculations can be done per-vertex and not per-pixel
 		SunData Sun;
 		Vector3 FogFactors;
-		float pad;
+		float   pad;
 		// pass resolution to vertexshader, can be usefull in some crazy shaders
 		Vector2 TargetResolution;
 		// pass fov x and y
@@ -284,6 +288,20 @@ protected:
 		float _;
 		Vector2 ViewportSize;
 	};
+
+	struct EvePlanetPerObjData
+	{
+		// 2 largest planets in scene for shadow casting
+		Vector4 planetSphere[2];
+	};
+
+	struct PlanetInfo
+	{
+		Vector4 sphere = Vector4(0,0,0,0);
+		float pixelSize = 0.0;
+	};
+	EvePlanetPerObjData m_planetPerObjData;
+	Tr2ShaderBufferPtr m_planetPerObjBuffer;
 
 	struct PostProcessPSData
 	{
@@ -307,6 +325,7 @@ protected:
 	void RenderDistortion( Tr2RenderContext & renderContext );
 
 	Matrix SetupPlanetViewMatrix();
+	void SetupPlanetsAsShadowCaster( Tr2RenderContext & renderContext );
 
 	void GetPickingResults( Tr2PickBuffer & pickBuffer, Tr2RenderContext & renderContext, unsigned short& objId, unsigned short& areaId, float& depth );
 	void DecodeBufferPixel( const void* pBuffer, unsigned short& objId, unsigned short& areaId, float& depth ) const;
@@ -340,6 +359,8 @@ protected:
 	void ReregisterEntities();
 	void ClearComponentRegistry();
 
+	void RenderVolumetrics( Tr2RenderContext & renderContext );
+
 protected:
 	bool m_display;
 	bool m_update;
@@ -355,14 +376,14 @@ protected:
 	//cascaded shadow map
 	Tr2ShadowMapPtr m_cascadedShadowMap;
 
-	PIEveSpaceObject2Vector m_backgroundObjects;
-	PEvePlanetVector m_planets;
+	PIEveSpaceObject2Vector	m_backgroundObjects;
+	PEvePlanetVector		m_planets;
 	PIEveSpaceObject2Vector m_objects;
 	PIEveSpaceObject2Vector m_uiObjects;
-	IEveSpaceObject2Ptr m_warpTunnel;
-	PTriCurveSetVector m_curveSets;
-	PEveLensflareVector m_lensflares;
-	EveUpdateContext m_updateContext;
+	IEveSpaceObject2Ptr		m_warpTunnel;
+	PTriCurveSetVector		m_curveSets;
+	PEveLensflareVector		m_lensflares;
+	EveUpdateContext		m_updateContext;
 	PEveDistanceFieldVector m_distanceFields;
 
 	// Primary batches, gathered in BeginRender and
@@ -409,7 +430,7 @@ protected:
 	Tr2Variable m_envMapTransformVar;
 	Tr2Variable m_reflectionMapTransformVar;
 	Tr2Variable m_suncVecVar;
-	
+		
 	Tr2RenderTargetPtr m_colorMap;
 	Tr2RenderTargetPtr m_opaqueColorMap;
 	Tr2DepthStencilPtr m_depthMap;
@@ -475,17 +496,17 @@ private:
 	Be::Time m_updateTime;
 	EveSpaceObject2Ptr m_egoBall;
 
-	Tr2ConstantBufferAL m_perFrameVSBuffer;
-	Tr2ConstantBufferAL m_perFramePSBuffer;
-	Tr2ConstantBufferAL m_shadowPerFrameVSBuffer;
+	Tr2ConstantBufferAL	m_perFrameVSBuffer;
+	Tr2ConstantBufferAL	m_perFramePSBuffer;
+	Tr2ConstantBufferAL	m_shadowPerFrameVSBuffer;
 
 	// Cascaded shadows
-	void GetShadowCasters( std::vector<std::vector<ShadowCasterInfo>> & shadowCasters );
+	void GetShadowCasters();
 	void SetupCascadedShadows( Tr2RenderContext & renderContext );
 	void DisableShadows();
 
 	// Picking
-	void SetupTransformsForPicking( float fx, float fy, TriProjection* proj, TriView* view, TriViewport* viewport, Tr2RenderContext& renderContext );
+	void SetupTransformsForPicking( float fx, float fy, TriProjection* proj,  TriView* view, TriViewport* viewport, Tr2RenderContext& renderContext );
 	void GetPickingObjectsToRender( std::vector<ITr2Renderable*> & pickableRenderObjects );
 
 	Tr2PickBuffer m_pickBuffer;
@@ -578,6 +599,8 @@ private:
 
 	// Object to gather all components
 	EveComponentRegistryPtr m_componentRegistry;
+
+	Tr2VolumetricsRendererPtr m_volumetricsRenderer;
 
 	bool m_dynamicObjectReflectionEnabled;
 

@@ -450,6 +450,7 @@ private:
 	Quaternion m_lowLodFiringEffectRotation;
 
 	bool m_chooseRandomLocator;
+	bool m_randomizeExplosionRotation;
 
 	// ambient effects
 	IEveSpaceObjectChildPtr m_ambientEffect;

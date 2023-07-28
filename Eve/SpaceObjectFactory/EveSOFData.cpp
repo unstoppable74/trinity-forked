@@ -929,7 +929,8 @@ EveSOFDataHullBoosterItem::EveSOFDataHullBoosterItem( IRoot* lockobj ) :
 
 EveSOFDataHullSoundEmitter::EveSOFDataHullSoundEmitter( IRoot* ): 
 	m_position( Vector3(0.0, 0.0, 0.0) ),
-	m_rotation( Quaternion( 0.f, 0.f, 0.f, 1.f ) )
+	m_rotation( Quaternion( 0.f, 0.f, 0.f, 1.f ) ),
+	m_attenuationScalingFactor( 1.0f )
 {
 }
 
@@ -956,17 +957,15 @@ EveSOFDataHullExtensionPlacement::EveSOFDataHullExtensionPlacement( IRoot*  lock
 	m_descriptor.CreateInstance();
 }
 
+EveSOFDataHullExtensionBucket::EveSOFDataHullExtensionBucket( IRoot* lockobj ) :
+	PARENTLOCK( m_depletionCounters ),
+	PARENTLOCK( m_placements ),
+	m_name( "" )
+{
+}
+
 EveSOFDataHullExtensionPlacementDistributionParentMatch::EveSOFDataHullExtensionPlacementDistributionParentMatch( IRoot* ) :
-	m_name( "" ),
-	m_matchHull( true ),
-	m_matchFaction( false ),
-	m_matchRace( false ),
-	m_matchLayout( false ),
-	m_matchPattern( false ),
-	m_matchMaterial1( false ),
-	m_matchMaterial2( false ),
-	m_matchMaterial3( false ),
-	m_matchMaterial4( false )
+	m_name( "" )
 {
 	m_parentDescriptor.CreateInstance();
 }
@@ -999,7 +998,10 @@ EveSOFDataHullExtensionPlacementDistributionPlacement::EveSOFDataHullExtensionPl
 	m_placementBias( 0.f, 0.f, 0.f ),
 	m_centerBias( 0.0f ),
 	m_cap( 0 ),
-	m_rotationRandomness( 0.f, 0.f, 0.f, 0.f),
+	m_randomRotationStepSizeYPR( 0.f, 0.f ,0.f, 0.f ),
+	m_randomRotationMaxSteps( 0.f, 0.f, 0.f ), 
+	m_randomScaleMin( 1.f, 1.f, 1.f ),
+	m_randomScaleMax( 1.f, 1.f, 1.f ),
 	m_occupyLocators( true )
 {
 }

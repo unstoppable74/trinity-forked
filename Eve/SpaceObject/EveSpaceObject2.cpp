@@ -2663,14 +2663,6 @@ IEveSpaceObjectChildPtr EveSpaceObject2::GetEffectChildByName( const char* name 
 // --------------------------------------------------------------------------------
 void EveSpaceObject2::AddToEffectChildrenList( IEveSpaceObjectChild* child )
 {
-	if( IsInRegistry() && m_display )
-	{
-		if( EveEntityPtr entity = BlueCastPtr( child->GetRootObject() ) )
-		{
-			entity->Register( GetComponentRegistry() );
-		}
-	}
-
 	if( m_inheritProperties )
 	{
 		if( IEveInheritPropertiesOwnerPtr obj = BlueCastPtr( child ) )

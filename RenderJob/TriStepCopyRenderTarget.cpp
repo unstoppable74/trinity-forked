@@ -32,13 +32,13 @@ TriStepResult TriStepCopyRenderTarget::Execute( Be::Time realTime, Be::Time simT
 			{
 				if( m_destinationViewport->x < 0 )
 				{
-					dest.m_left = 0;
-					dest.m_right = uint32_t( int32_t( m_sourceRT->GetWidth() ) + int32_t( m_destinationViewport->x ) );
+					dest.m_box.left = 0;
+					dest.m_box.right = uint32_t( int32_t( m_sourceRT->GetWidth() ) + int32_t( m_destinationViewport->x ) );
 				}
 				if( m_destinationViewport->y < 0 )
 				{
-					dest.m_top = 0;
-					dest.m_bottom = uint32_t( int32_t( m_sourceRT->GetHeight() ) + int32_t( m_destinationViewport->y ) );
+					dest.m_box.top = 0;
+					dest.m_box.bottom = uint32_t( int32_t( m_sourceRT->GetHeight() ) + int32_t( m_destinationViewport->y ) );
 				}
 			}
 			hr = m_destinationRT->GetRenderTarget().CopySubresourceRegion( dest, *m_sourceRT, Tr2TextureSubresource( 0 ), renderContext );
@@ -54,17 +54,17 @@ TriStepResult TriStepCopyRenderTarget::Execute( Be::Time realTime, Be::Time simT
 				if( m_destinationViewport->x < 0 )
 				{
 					destX = 0;
-					src.m_right -= uint32_t( -m_destinationViewport->x );
+					src.m_box.right -= uint32_t( -m_destinationViewport->x );
 				}
 				if( m_destinationViewport->y < 0 )
 				{
 					destY = 0;
-					src.m_bottom -= uint32_t( -m_destinationViewport->y );
+					src.m_box.bottom -= uint32_t( -m_destinationViewport->y );
 				}
 			}
 
 			Tr2TextureSubresource dest( 0 );
-			dest.SetRect( destX, destY, destX + src.m_right - src.m_left, destY + src.m_bottom - src.m_top );
+			dest.SetRect( destX, destY, destX + src.m_box.right - src.m_box.left, destY + src.m_box.bottom - src.m_box.top );
 
 			hr = m_destinationRT->GetRenderTarget().CopySubresourceRegion( dest, *m_sourceRT, src, renderContext );
 		}
@@ -73,17 +73,17 @@ TriStepResult TriStepCopyRenderTarget::Execute( Be::Time realTime, Be::Time simT
 	if( m_destinationTexture && m_destinationTexture->GetTexture() )
 	{
 		Tr2TextureSubresource destView;
-		destView.m_left = destX;
-		destView.m_top  = destY;
+		destView.m_box.left = destX;
+		destView.m_box.top = destY;
 
 		Tr2TextureSubresource sourceView;
 		if( m_sourceViewport )
 		{
 			const auto& vp = *m_sourceViewport;
-			sourceView.m_left		= vp.x;
-			sourceView.m_top		= vp.y;
-			sourceView.m_right		= vp.x + vp.width;
-			sourceView.m_bottom		= vp.y + vp.height;			
+			sourceView.m_box.left = vp.x;
+			sourceView.m_box.top = vp.y;
+			sourceView.m_box.right = vp.x + vp.width;
+			sourceView.m_box.bottom = vp.y + vp.height;			
 		}
 
 		hr = m_destinationTexture->GetTexture()->CopySubresourceRegion( destView, *m_sourceRT, sourceView, renderContext );

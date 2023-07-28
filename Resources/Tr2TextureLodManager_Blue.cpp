@@ -20,6 +20,7 @@ const Be::ClassInfo* Tr2TextureLodManager::ExposeToBlue()
 
 
 		MAP_METHOD_AND_WRAP( "GetManagedTextures", GetManagedTextures, "Returns all textures managed by this manager" )
+		MAP_PROPERTY( "useLowResVtaFiles", GetUseLowResVtaFilesSetting, SetUseLowResVtaFilesSetting, "Use _lowdetail file versions for VTA textures" )
 	EXPOSURE_END();
 }
 

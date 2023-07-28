@@ -850,6 +850,11 @@ const Be::ClassInfo* EveSOFDataHullSoundEmitter::ExposeToBlue()
 		MAP_ATTRIBUTE( "prefix", m_prefix, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "position", m_position, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "rotation", m_rotation, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( 
+			"attenuationScalingFactor", 
+			m_attenuationScalingFactor, 
+			"The attenuation scaling factor when this audio emitter is initially spawned.", 
+			Be::READWRITE | Be::PERSIST )
 	EXPOSURE_END()
 }
 

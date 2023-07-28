@@ -278,6 +278,19 @@ const Be::ClassInfo* EveSOFDataLayout::ExposeToBlue(){
 	EXPOSURE_END()
 }
 
+
+BLUE_DEFINE( EveSOFDataHullExtensionBucket );
+const Be::ClassInfo* EveSOFDataHullExtensionBucket::ExposeToBlue(){
+	EXPOSURE_BEGIN( EveSOFDataHullExtensionBucket, "" )
+		MAP_INTERFACE( EveSOFDataHullExtensionBucket )
+		MAP_ATTRIBUTE( "name", m_name, "The name of the layout", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "depletionCounters", m_depletionCounters, "", Be::READ | Be::PERSIST )
+		MAP_ATTRIBUTE( "placements", m_placements, "The placements of the layout", Be::READ | Be::PERSIST )
+	EXPOSURE_END()
+}
+
+
+
 BLUE_DEFINE( EveSOFDataDistributionDepletionCounter );
 const Be::ClassInfo* EveSOFDataDistributionDepletionCounter::ExposeToBlue(){
 	EXPOSURE_BEGIN( EveSOFDataDistributionDepletionCounter, "" )
@@ -295,15 +308,6 @@ const Be::ClassInfo* EveSOFDataHullExtensionPlacementDistributionParentMatch::Ex
 		MAP_INTERFACE( EveSOFDataHullExtensionPlacementDistributionParentMatch )
 		MAP_INTERFACE( IEveSOFDataHullExtensionPlacementDistribution )
 		MAP_ATTRIBUTE( "name", m_name, "The name of the layout", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "matchHull", m_matchHull, "The name of the layout", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "matchFaction", m_matchFaction, "The name of the layout", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "matchRace", m_matchRace, "The name of the layout", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "matchLayout", m_matchLayout, "The name of the layout", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "matchPattern", m_matchPattern, "The name of the layout", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "matchMaterial1", m_matchMaterial1, "The name of the layout", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "matchMaterial2", m_matchMaterial2, "The name of the layout", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "matchMaterial3", m_matchMaterial3, "The name of the layout", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "matchMaterial4", m_matchMaterial4, "The name of the layout", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "parentDescriptor", m_parentDescriptor, "", Be::READWRITE | Be::PERSIST )
 	EXPOSURE_END()
 }
@@ -344,7 +348,10 @@ const Be::ClassInfo* EveSOFDataHullExtensionPlacementDistributionPlacement::Expo
 		MAP_ATTRIBUTE( "placementBias", m_placementBias, "Vector to direct the spread of placements towards a direction", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "centerBias", m_centerBias, "0=doesn't care, -1=prioritizes edges, 1=starts from center", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "cap", m_cap, "cap on how many locators this distribution can utilize (0=uncapped)", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "rotationRandomness", m_rotationRandomness, "object gets rotated  and placed randomly from [0-value]", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "randomRotationStepSizeYPR", m_randomRotationStepSizeYPR, "step size for randomizing rotations, (yaw, pitch, roll) [-1:1] ", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "randomRotationMaxSteps", m_randomRotationMaxSteps, "max number of times the above stepSize can be added per locator", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "randomScaleMin", m_randomScaleMin, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "randomScaleMax", m_randomScaleMax, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "occupyLocators", m_occupyLocators, "when toggled the placement will reserve locator from other layouts", Be::READWRITE | Be::PERSIST )
 
 	EXPOSURE_END()

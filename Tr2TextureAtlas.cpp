@@ -1042,8 +1042,8 @@ bool Tr2TextureAtlas::CopyTextureIntoAtlas( Tr2AtlasTexture* tex )
 	if( !m_margin )
 	{
 		Tr2TextureSubresource dest( 0, 0 );
-		dest.m_left   = r.left;
-		dest.m_top    = r.top;
+		dest.m_box.left = r.left;
+		dest.m_box.top = r.top;
 		return SUCCEEDED( m_texture.CopySubresourceRegion( dest, *tex->GetTexture(), Tr2TextureSubresource( 0, 0 ), renderContext ) );
 	}
 
@@ -1308,10 +1308,10 @@ bool Tr2TextureAtlas::EjectTextureHelper( Tr2AtlasTexture *tex )
 
 	Tr2TextureSubresource subrect;
 	subrect.m_endMipLevel = 1;
-	subrect.m_left = copyRect.left;
-	subrect.m_right = copyRect.right;
-	subrect.m_top = copyRect.top;
-	subrect.m_bottom = copyRect.bottom;
+	subrect.m_box.left = copyRect.left;
+	subrect.m_box.right = copyRect.right;
+	subrect.m_box.top = copyRect.top;
+	subrect.m_box.bottom = copyRect.bottom;
 	if( SUCCEEDED( tex->m_texture.CopySubresourceRegion( Tr2TextureSubresource(), m_texture, subrect, renderContext ) ) )
 	{
 		tex->m_x = 0;

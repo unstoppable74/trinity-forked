@@ -164,9 +164,10 @@ private:
 	void RenderTaa( Tr2RenderTarget* dest, Tr2RenderContext& renderContext, Tr2PPTaaEffect* taa );
 	Tr2RenderTargetPtr m_velocityBuffer;
 	Tr2EffectPtr m_taaEffect, m_taaCopyEffect;
-	Tr2RenderTargetPtr m_accumulationBuffer0, m_accumulationBuffer1 ;
+	Tr2RenderTargetPtr m_accumulationBuffer0, m_accumulationBuffer1;
+	Tr2RenderTargetPtr m_cooldownBuffer;
 	Tr2RenderTargetPtr m_opaqueColorBuffer;
-	int m_taaFrameCounter;
+	uint32_t m_taaFrameCounter;
 
 	// film grain
 	bool ProcessFilmGrain( Tr2PPFilmGrainEffect* filmGrain );

@@ -133,7 +133,7 @@ public:
 	void PushRenderTarget( unsigned slot = 0 );	// does not set any RT, just stores the current one so it can be safely changed later
 	void PushRenderTarget( const Tr2TextureAL& rt, unsigned slot = 0 );
 	void PopRenderTarget( unsigned slot = 0 );
-	bool SetRenderTarget( unsigned int index, const Tr2TextureAL& rt, bool updateViewport = true );
+	bool SetRenderTarget( unsigned int index, const Tr2TextureAL& rt, bool updateViewport = true, uint32_t slice = 0 );
 
 	bool PushDepthStencilBuffer();	// does not set a DS, just stores it so it can be safely changed later
 	bool PushDepthStencilBuffer( const Tr2TextureAL& ds );

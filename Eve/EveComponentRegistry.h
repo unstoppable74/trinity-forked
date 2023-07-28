@@ -8,17 +8,20 @@
 BLUE_DECLARE_INTERFACE( ITr2Renderable );
 BLUE_DECLARE_INTERFACE( IEveSpaceObjectChild );
 BLUE_DECLARE_INTERFACE( ITr2LightOwner );
+BLUE_DECLARE_INTERFACE( ITr2VolumetricRenderable );
 BLUE_DECLARE( EveEntity );
 
 struct RegistrationState
 {
 	bool reflectionRenderable;
+	bool volumetricRenderable;
 	bool lightOwner;
 };
 
 enum ComponentType
 {
 	REFLECTION_RENDERABLE,
+	VOLUMETRIC_RENDERABLE,
 	COUNT
 };
 
@@ -50,6 +53,11 @@ public:
 		return m_reflectionRenderables;
 	}
 
+	const std::vector<ITr2VolumetricRenderable*>& GetVolumetricRenderables() const
+	{
+		return m_volumetricRenderables;
+	}
+
 	size_t GetLightOwnerCount() const;
 	size_t GetReflectionRenderableCount() const;
 
@@ -57,6 +65,7 @@ public:
 
 private:
 	std::vector<ITr2Renderable*> m_reflectionRenderables;
+	std::vector<ITr2VolumetricRenderable*> m_volumetricRenderables;
 	std::vector<ITr2LightOwner*> m_lightOwners;
 
 	CcpMutex* m_entityReregisterMutex;

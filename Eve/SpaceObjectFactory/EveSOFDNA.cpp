@@ -1573,8 +1573,9 @@ const EveSOFDataMgr::PatternApplicationData* EveSOFDNA::GetHullPatternApplicatio
 // Description:
 //   Return pattern application data for the provided hull or faction! (if available)
 // --------------------------------------------------------------------------------
-const EveSOFDataMgr::PatternApplicationData* EveSOFDNA::GetPatternApplicationData( ) const
+const EveSOFDataMgr::PatternApplicationData* EveSOFDNA::GetPatternApplicationData( bool& theCallerNeedsToDeleteTheResultBecauseIAmBroken ) const
 {
+    theCallerNeedsToDeleteTheResultBecauseIAmBroken = false;
 	if( !HasDnaCommand( CMD_PATTERN ) )
 	{
 		if( IsUsingExperimentalFeatures() )
@@ -1588,6 +1589,7 @@ const EveSOFDataMgr::PatternApplicationData* EveSOFDNA::GetPatternApplicationDat
 
 			EveSOFDataMgr::PatternApplicationData* application = new EveSOFDataMgr::PatternApplicationData();
 			application->layerAndProjection.push_back( std::make_pair( *patternLayer, *patternTransform ) );
+            theCallerNeedsToDeleteTheResultBecauseIAmBroken = true;
 			return application;
 		}
 	}

@@ -130,22 +130,11 @@ public:
 		Vector3 placementBias;
 		float centerBias;
 		int32_t cap;
-		Quaternion rotationRandomness;
+		Quaternion randomRotationStepSizeYPR;
+		Vector3 randomRotationMaxSteps; 
+		Vector3 randomScaleMin; 
+		Vector3 randomScaleMax; 
 		bool occupyLocators;
-	};
-
-	struct ExtensionPlacementParentMatchAttributes
-	{
-		bool matchHull;
-		bool matchFaction;
-		bool matchRace;
-		bool matchLayout;
-		bool matchSeed;
-		bool matchPattern;
-		bool matchMaterial1;
-		bool matchMaterial2;
-		bool matchMaterial3;
-		bool matchMaterial4;
 	};
 
 	struct ExtensionPlacementDepletionCounter
@@ -161,7 +150,6 @@ public:
 
 		// ParentMatch
 		DNADescriptorData spaceObjectParentDescriptor;
-		ExtensionPlacementParentMatchAttributes parentMatchMap;
 
 		// DepletionCounters
 		std::vector<ExtensionPlacementDepletionCounter> depletionCounters;
@@ -188,7 +176,7 @@ public:
 	struct LayoutData
 	{
 		BlueSharedString name;
-		int32_t seed;
+		uint32_t seed;
 		std::vector<ExtensionPlacementData> placements;
 		std::vector<ExtensionPlacementDepletionCounter> depletionCounters;
 	};
@@ -446,6 +434,7 @@ public:
 
 	struct HullSoundEmitter
 	{
+		float attenuationScalingFactor;
 		std::string name;
 		std::wstring prefix;
 		Vector3 position;

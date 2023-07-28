@@ -364,6 +364,18 @@ Tr2RenderTargetPtr Tr2ShadowMap::GetCascadedShadowMapRT() const
 	return m_shadowMapResultRT;
 }
 
+ITr2TextureProvider* Tr2ShadowMap::GetShadowMap() const
+{
+	if( m_denoiser )
+	{
+		return m_denoiser->GetTexture();
+	}
+	else
+	{
+		return m_shadowMapResultRT;
+	}
+}
+
 const unsigned int Tr2ShadowMap::GetShadowSplitCount() const
 {
 	return m_splitCount;

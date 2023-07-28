@@ -494,11 +494,21 @@ void BehaviorGroup::UpdateAgents( const float dt, EveChildBehaviorSystem& system
 
 	if( m_updatedOnce )
 	{
-		if( m_agents.empty() || !m_display || !m_update )
+		if( !m_display || !m_update )
 		{
 			if( m_tree != nullptr )
 			{
 				m_tree = nullptr;
+			}
+			return;
+		}
+		if( m_agents.empty() )
+		{
+			auto scratch = m_scratchData.begin();
+			std::vector<std::vector<DroneAgent*>> fakeTree;
+			for( int i = 0; i < static_cast<int>( m_behaviors.size() ); ++i )
+			{
+				m_behaviors[m_sortedBehaviorIndexes[i]]->CalculateBehavior( m_agents, ( scratch + m_sortedBehaviorIndexes[i] )->get(), deltaTime, *this, system, fakeTree );
 			}
 			return;
 		}
@@ -525,7 +535,7 @@ void BehaviorGroup::UpdateAgents( const float dt, EveChildBehaviorSystem& system
 
 	auto bs = m_boundingSphereRadius * m_scale;
 
-	const std::vector<std::vector<std::vector<DroneAgent*>>>* dronesInRange = m_tree->FindDronesInRange( m_agents, ranges, bs );
+	const std::vector<std::vector<std::vector<DroneAgent*>>>* dronesInRange	= m_tree->FindDronesInRange( m_agents, ranges, bs );
 
 	//Calculate the behaviors
 	if( m_collectForces )

@@ -55,6 +55,9 @@ public:
 
 	std::vector<TriTextureRes*> GetManagedTextures() const;
 
+	void SetUseLowResVtaFilesSetting( bool setting );
+	bool GetUseLowResVtaFilesSetting() const;
+
 protected:
 	Tr2TextureLodManager();
 
@@ -66,5 +69,6 @@ private:
 
 	std::vector<std::pair<TriTextureRes*, Tr2TextureLodUpdateRequest>> m_textures;
 	Stats m_currentStats;
+	bool m_lowDetailVtaFiles;
 };
 TYPEDEF_BLUECLASS( Tr2TextureLodManager );

@@ -158,6 +158,16 @@ bool Tr2Light::OnModified( Be::Var* value )
 	return true;
 }
 
+const LightData& Tr2Light::GetLightData() const
+{
+	return m_lightData;
+}
+
+float Tr2Light::GetBrightnessMultiplier() const
+{
+	return m_brightnessMultiplier;
+}
+
 void Tr2Light::Update()
 {
 

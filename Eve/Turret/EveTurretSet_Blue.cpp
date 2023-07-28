@@ -132,6 +132,7 @@ const Be::ClassInfo* EveTurretSet::ExposeToBlue()
 		MAP_ATTRIBUTE_WITH_CHOOSER( "impactBehaviour", m_impactBehaviour, "What do we want to hit? ", Be::READWRITE | Be::NOTIFY | Be::PERSIST | Be::ENUM, ImpactBehaviourChooser )
 
 		MAP_ATTRIBUTE( "chooseRandomLocator", m_chooseRandomLocator, "Allow choosing a random locator instead of the closest one", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "randomizeExplosionRotation", m_randomizeExplosionRotation, "Can be unchecked to have the explosion use the damage-locator rotation instead", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "ambientEffect", m_ambientEffect, "The ambient effect around the turret", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( "generatedDistributedAmbientEffect", m_generatedDistributedAmbientEffect, "The generated and distributed ambient effect across all turret locations", Be::READ )

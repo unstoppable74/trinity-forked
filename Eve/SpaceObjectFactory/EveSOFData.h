@@ -1277,6 +1277,7 @@ public:
 	EveSOFDataHullSoundEmitter( IRoot* lockobj = NULL );
 	~EveSOFDataHullSoundEmitter() {}
 
+	float m_attenuationScalingFactor;
 	std::string m_name;
 	std::wstring m_prefix;
 	Vector3 m_position;
@@ -1696,15 +1697,6 @@ public:
 	{
 	}
 	std::string m_name;
-	bool m_matchHull;
-	bool m_matchFaction;
-	bool m_matchRace;
-	bool m_matchLayout;
-	bool m_matchPattern;
-	bool m_matchMaterial1;
-	bool m_matchMaterial2;
-	bool m_matchMaterial3;
-	bool m_matchMaterial4;
 	EveSOFDNADescriptorPtr m_parentDescriptor;
 };
 
@@ -1792,7 +1784,10 @@ public:
 	Vector3 m_placementBias;
 	float m_centerBias;
 	int32_t m_cap;
-	Quaternion m_rotationRandomness;
+	Quaternion m_randomRotationStepSizeYPR;
+	Vector3 m_randomRotationMaxSteps;
+	Vector3 m_randomScaleMin;
+	Vector3 m_randomScaleMax;
 	bool m_occupyLocators;
 };
 TYPEDEF_BLUECLASS( EveSOFDataHullExtensionPlacementDistributionPlacement );
@@ -1836,6 +1831,25 @@ public:
 };
 TYPEDEF_BLUECLASS( EveSOFDataLayout );
 BLUE_DECLARE_VECTOR( EveSOFDataLayout );
+
+
+BLUE_CLASS( EveSOFDataHullExtensionBucket ) :
+	public EveSOFDataHullExtensionPlacement
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataHullExtensionBucket( IRoot* lockobj = NULL );
+	~EveSOFDataHullExtensionBucket()
+	{
+	}
+
+	// layout name
+	std::string m_name;
+	PEveSOFDataDistributionDepletionCounterVector m_depletionCounters;
+	PEveSOFDataHullExtensionPlacementVector m_placements;
+};
+TYPEDEF_BLUECLASS( EveSOFDataHullExtensionBucket );
+BLUE_DECLARE_VECTOR( EveSOFDataHullExtensionBucket );
 
 
 // --------------------------------------------------------------------------------

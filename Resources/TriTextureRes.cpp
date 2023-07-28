@@ -47,12 +47,25 @@ BLUE_REGISTER_RESOURCE_EXTENSION( L"jpeg", CreateTextureResource );
 BLUE_REGISTER_RESOURCE_EXTENSION( L"bmp", CreateTextureResource );
 BLUE_REGISTER_RESOURCE_EXTENSION( L"ecs", CreateTextureResource );
 BLUE_REGISTER_RESOURCE_EXTENSION( L"ctr", CreateTextureResource );
+BLUE_REGISTER_RESOURCE_EXTENSION( L"vta", CreateTextureResource );
 
 
 bool IsCtrPath( const wchar_t* name )
 {
 	auto length = wcslen( name );
 	return length > 4 && wcscmp( name + length - 4, L".ctr" ) == 0;
+}
+
+bool IsVtaPath( const wchar_t* name )
+{
+	auto length = wcslen( name );
+	return length > 4 && wcscmp( name + length - 4, L".vta" ) == 0;
+}
+
+bool IsLowDetailVtaPath( const wchar_t* name )
+{
+	auto length = wcslen( name );
+	return length > 14 && wcscmp( name + length - 14, L"_lowdetail.vta" ) == 0;
 }
 
 const uint32_t INVALID_LOD = std::numeric_limits<uint32_t>::max();
@@ -198,6 +211,31 @@ void TriTextureRes::Initialize( const wchar_t* name, const wchar_t* ext )
 	m_isTextureResizable = Tr2Renderer::IsTextureToResize( CW2A( name ) );
 
 	m_isTextureLoadDisabled = Tr2Renderer::IsTextureLoadDisabled();
+
+	if( IsVtaPath( name ) )
+	{
+		auto length = wcslen( name );
+		if( Tr2TextureLodManager::Instance().GetUseLowResVtaFilesSetting() )
+		{
+			if( !IsLowDetailVtaPath( name ) )
+			{
+				std::wstring lowDetailName = name;
+				lowDetailName = lowDetailName.substr( 0, lowDetailName.length() - 4 ) + L"_lowdetail.vta";
+				BlueAsyncRes::Initialize( lowDetailName.c_str(), ext );
+				return;
+			}
+		}
+		else
+		{
+			if( IsLowDetailVtaPath( name ) )
+			{
+				std::wstring lowDetailName = name;
+				lowDetailName = lowDetailName.substr( 0, lowDetailName.length() - 14 ) + L".vta";
+				BlueAsyncRes::Initialize( lowDetailName.c_str(), ext );
+				return;
+			}
+		}
+	}
 
 	BlueAsyncRes::Initialize( name, ext );
 }

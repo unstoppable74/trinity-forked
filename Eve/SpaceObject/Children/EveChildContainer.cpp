@@ -856,13 +856,6 @@ IEveSpaceObjectChildPtr EveChildContainer::GetEffectChildByName( const char* nam
 
 void EveChildContainer::AddToEffectChildrenList( IEveSpaceObjectChild* child )
 {
-	if( IsInRegistry() && m_display )
-	{
-		if( EveEntityPtr entity = BlueCastPtr( child ) )
-		{
-			entity->Register( GetComponentRegistry() );
-		}
-	}
 	m_objects.Append( child->GetRootObject() );
 }
 

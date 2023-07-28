@@ -23,6 +23,7 @@ find_package(FidelityFX REQUIRED)
 find_package(FidelityFX_FSR REQUIRED)
 find_package(CACAO REQUIRED)
 find_package(IntelTBB REQUIRED)
+find_package(NanoVDB REQUIRED)
 
 set(PUBLIC_HEADER_FILES
     Include/IEveBallpark.h
@@ -459,6 +460,9 @@ set(_SOURCES
     Eve/SpaceObject/Children/EveChildCloud.cpp
     Eve/SpaceObject/Children/EveChildCloud.h
     Eve/SpaceObject/Children/EveChildCloud_Blue.cpp
+	Eve/SpaceObject/Children/EveChildCloud2.cpp
+    Eve/SpaceObject/Children/EveChildCloud2.h
+    Eve/SpaceObject/Children/EveChildCloud2_Blue.cpp
     Eve/SpaceObject/Children/EveChildContainer.cpp
     Eve/SpaceObject/Children/EveChildContainer.h
     Eve/SpaceObject/Children/EveChildContainer_Blue.cpp
@@ -1105,6 +1109,9 @@ set(_SOURCES
     Shader/Parameter/Tr2RuntimeTextureParameter.cpp
     Shader/Parameter/Tr2RuntimeTextureParameter.h
     Shader/Parameter/Tr2RuntimeTextureParameter_Blue.cpp
+	Shader/Parameter/Tr2TextureAnimationParameter.cpp
+    Shader/Parameter/Tr2TextureAnimationParameter.h
+    Shader/Parameter/Tr2TextureAnimationParameter_Blue.cpp
     Shader/Parameter/Tr2Vector2Parameter.cpp
     Shader/Parameter/Tr2Vector2Parameter.h
     Shader/Parameter/Tr2Vector2Parameter_Blue.cpp
@@ -1274,6 +1281,7 @@ set(_SOURCES
     ITr2SoundEmitterOwner.h
     ITr2TextureProvider.h
     ITr2VisualizationModeRenderer.h
+	ITr2VolumetricRenderable.h
     ITr2WorldTransformUpdater.h
     ITriReroutable.h
     IWorldPosition.h
@@ -1479,6 +1487,9 @@ set(_SOURCES
     Tr2SwapChain.cpp
     Tr2SwapChain.h
     Tr2SwapChain_Blue.cpp
+	Tr2TextureAnimation.cpp
+    Tr2TextureAnimation.h
+    Tr2TextureAnimation_Blue.cpp
     Tr2TextureArray.cpp
     Tr2TextureArray.h
     Tr2TextureArray_Blue.cpp
@@ -1509,6 +1520,9 @@ set(_SOURCES
     Tr2VisibilityResults.cpp
     Tr2VisibilityResults.h
     Tr2VisibilityResults_Blue.cpp
+	Tr2VolumetricsRenderer.cpp
+    Tr2VolumetricsRenderer.h
+    Tr2VolumetricsRenderer_Blue.cpp
     TriColor.cpp
     TriColor_Blue.cpp
     TriConstants.cpp

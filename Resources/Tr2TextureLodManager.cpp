@@ -53,7 +53,8 @@ Tr2TextureLodManager::Stats::Stats() :
 
 Tr2TextureLodManager::Tr2TextureLodManager() :
 	m_gpuMemorySize( 0 ),
-	m_cpuMemorySize( 0 )
+	m_cpuMemorySize( 0 ),
+	m_lowDetailVtaFiles( false )
 {
 	BeOS->RegisterForTicks( this, nullptr );
 }
@@ -195,4 +196,26 @@ std::vector<TriTextureRes*> Tr2TextureLodManager::GetManagedTextures() const
 		textures.push_back( t.first );
 	}
 	return textures;
+}
+
+void Tr2TextureLodManager::SetUseLowResVtaFilesSetting( bool setting )
+{
+	if( setting != m_lowDetailVtaFiles )
+	{
+		m_lowDetailVtaFiles = setting;
+		for( auto& t : m_textures )
+		{
+			auto path = t.first->GetPath();
+			auto length = wcslen( path );
+			if( length > 4 && wcscmp( path + length - 4, L".vta" ) == 0 )
+			{
+				t.first->Reload();
+			}
+		}
+	}
+}
+
+bool Tr2TextureLodManager::GetUseLowResVtaFilesSetting() const
+{
+	return m_lowDetailVtaFiles;
 }

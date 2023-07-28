@@ -1450,6 +1450,10 @@ unsigned Tr2Effect::GetHashValue() const
 	{
 		hash = CcpHashFNV1( m_effectResource->GetPath(), wcslen( m_effectResource->GetPath() ) * sizeof( wchar_t ) );
 	}
+	for( auto& option : m_options )
+	{
+		hash = CcpHashFNV1( &option, sizeof( option ), hash );
+	}
 	for( auto it = m_constParameters.begin(); it != m_constParameters.end(); ++it )
 	{
 		auto name = it->name.c_str();

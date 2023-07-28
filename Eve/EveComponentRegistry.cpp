@@ -6,6 +6,7 @@
 #include "StdAfx.h"
 #include "EveComponentRegistry.h"
 #include "EveEntity.h"
+#include "../ITr2VolumetricRenderable.h"
 
 EveComponentRegistry::EveComponentRegistry(IRoot* lockobj)
 {
@@ -64,6 +65,16 @@ void EveComponentRegistry::RegisterComponent( ComponentType type, EveEntity* ent
 		CCP_LOGERR( "EveComponentRegistry: RegisterComponent(%d) entity is not ITr2Renderable", type );
 
 		break;
+	case VOLUMETRIC_RENDERABLE:
+		if( ITr2VolumetricRenderablePtr component = BlueCastPtr( entity ) )
+		{
+			state.volumetricRenderable = true;
+			m_volumetricRenderables.push_back( component );
+			break;
+		}
+		CCP_LOGERR( "EveComponentRegistry: RegisterComponent(%d) entity is not ITr2Renderable", type );
+
+		break;
 	default:
 		break;
 	}
@@ -95,6 +106,17 @@ void EveComponentRegistry::UnRegisterComponent( ComponentType type, EveEntity* e
 			}
 		}
 		break;
+	case VOLUMETRIC_RENDERABLE:
+		if( ITr2VolumetricRenderablePtr component = BlueCastPtr( entity ) )
+		{
+			state.volumetricRenderable = false;
+			auto it = std::find( m_volumetricRenderables.begin(), m_volumetricRenderables.end(), component );
+			if( it != m_volumetricRenderables.end() )
+			{
+				m_volumetricRenderables.erase( it );
+			}
+		}
+		break;
 	default:
 		break;
 	}
@@ -107,6 +129,8 @@ bool EveComponentRegistry::HasComponent( ComponentType type, RegistrationState& 
 	{
 	case REFLECTION_RENDERABLE:
 		return state.reflectionRenderable;
+	case VOLUMETRIC_RENDERABLE:
+		return state.volumetricRenderable;
 	default:
 		return false;
 	}

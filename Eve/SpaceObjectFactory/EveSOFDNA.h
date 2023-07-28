@@ -133,7 +133,7 @@ public:
 
 	// get pattern data
 	size_t GetPatternLayerCount() const;
-	const EveSOFDataMgr::PatternApplicationData* GetPatternApplicationData() const;
+	const EveSOFDataMgr::PatternApplicationData* GetPatternApplicationData( bool& theCallerNeedsToDeleteTheResultBecauseIAmBroken ) const;
 	const EveSOFDataMgr::PatternProjectionData* GetPatternProjectionData( const EveSOFDataMgr::PatternApplicationData* patternApplicationData, size_t layer ) const;
 	const EveSOFDataMgr::PatternLayerData* GetPatternLayerData( const EveSOFDataMgr::PatternApplicationData* patternApplicationData, size_t layer ) const;
 	const Vector4 GetMaterialTargets( const EveSOFDataMgr::PatternLayerData* ) const;

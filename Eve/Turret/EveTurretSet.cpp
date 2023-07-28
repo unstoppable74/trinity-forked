@@ -117,6 +117,7 @@ EveTurretSet::EveTurretSet( IRoot* lockobj ) :
 	m_parentShLighting( nullptr ),
 	m_possibleTurretDisplayAmount( 0 ),
 	m_chooseRandomLocator( true ),
+	m_randomizeExplosionRotation( true ),
 	m_ambientEffectEditingMode( false ),
 	m_ambientOffsetMatrix( IdentityMatrix() ),
 	m_lowLodFiringEffectTranslation( 0, 0, 0 ),

@@ -53,7 +53,6 @@ void EveEntity::Register( EveComponentRegistry* registry )
 {
 	if( m_registry == registry )
 	{
-		// we are already registered...
 		return;
 	}
 

@@ -35,9 +35,12 @@ public:
 	void UpdateZOnlyVisibility( const TriFrustum& frustum );
 	void GetRenderables( std::vector<ITr2Renderable*>& renderables);
 	void GetZOnlyRenderables( std::vector<ITr2Renderable*>& renderables );
-
+	
 	void UpdateLOD();
 	void SetRenderScale( float value );
+
+	float GetEstimatedPixelDiameter();
+	ITriVectorFunctionPtr GetTranslationCurve();
 	
 	static const float SCALE;
 
@@ -86,7 +89,7 @@ private:
 	float m_radius;
 	float m_minScreenSize;
 	Color m_albedoColor;
-	Color m_emissiveColor;;
+	Color m_emissiveColor;
 	EveChildMeshPtr m_zOnlyModel;
 	
 	using EveEffectRoot2::GetRenderables; // Silence warning about this hidden function

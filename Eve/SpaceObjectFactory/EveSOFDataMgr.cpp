@@ -1065,6 +1065,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 	for( auto cit = begin( srcData->m_soundEmitters ); cit != end( srcData->m_soundEmitters ); ++cit )
 	{
 		HullSoundEmitter emitter;
+		emitter.attenuationScalingFactor = ( *cit )->m_attenuationScalingFactor;
 		emitter.name = ( *cit )->m_name;
 		emitter.prefix = ( *cit )->m_prefix;
 		emitter.position = ( *cit )->m_position;
@@ -1477,6 +1478,7 @@ void EveSOFDataMgr::GeneratePatternData( PatternData& pd, EveSOFDataPatternPtr s
 void EveSOFDataMgr::GenerateLayoutData( LayoutData& ld, EveSOFDataLayoutPtr srcData ) const
 {
 	ld.name = BlueSharedString( srcData->m_name );
+	ld.seed = srcData->m_seed;
 
 	for( auto placement : srcData->m_placements )
 	{
@@ -1533,7 +1535,10 @@ EveSOFDataMgr::ExtensionPlacementDistribution EveSOFDataMgr::generateDistributio
 	placementDistribution.placementBias = distributionObj->m_placementBias;
 	placementDistribution.centerBias = distributionObj->m_centerBias;
 	placementDistribution.cap = distributionObj->m_cap;
-	placementDistribution.rotationRandomness = distributionObj->m_rotationRandomness;
+	placementDistribution.randomRotationStepSizeYPR = distributionObj->m_randomRotationStepSizeYPR;
+	placementDistribution.randomRotationMaxSteps = distributionObj->m_randomRotationMaxSteps;
+	placementDistribution.randomScaleMin = distributionObj->m_randomScaleMin;
+	placementDistribution.randomScaleMax = distributionObj->m_randomScaleMax; 
 	placementDistribution.occupyLocators = distributionObj->m_occupyLocators;
 
 	return placementDistribution;
@@ -1546,19 +1551,6 @@ EveSOFDataMgr::ExtensionPlacementDistributionCondition EveSOFDataMgr::generateDi
 
 	if( EveSOFDataHullExtensionPlacementDistributionParentMatchPtr parentMatch = BlueCastPtr( distributionObj ) )
 	{
-		auto pmm = ExtensionPlacementParentMatchAttributes();
-
-		pmm.matchHull = parentMatch->m_matchHull;
-		pmm.matchFaction = parentMatch->m_matchFaction;
-		pmm.matchRace = parentMatch->m_matchRace;
-		pmm.matchPattern = parentMatch->m_matchPattern;
-		pmm.matchMaterial1 = parentMatch->m_matchMaterial1;
-		pmm.matchMaterial2 = parentMatch->m_matchMaterial2;
-		pmm.matchMaterial3 = parentMatch->m_matchMaterial3;
-		pmm.matchMaterial4 = parentMatch->m_matchMaterial4;
-		pmm.matchLayout = parentMatch->m_matchLayout;
-		placementCondition.parentMatchMap = pmm;
-
 		if( parentMatch->m_parentDescriptor != nullptr )
 		{
 			placementCondition.distributionType = PARENT_MATCH;

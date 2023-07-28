@@ -1283,7 +1283,7 @@ bool TriStepRenderPostProcess::ProcessTaa(Tr2PPTaaEffect* taa)
 	if (taa && taa->IsActive())
 	{
 		if( 
-				m_velocityBuffer == nullptr || m_taaEffect == nullptr || m_taaCopyEffect == nullptr || m_accumulationBuffer0 == nullptr || m_accumulationBuffer1 == nullptr
+				m_velocityBuffer == nullptr || m_taaEffect == nullptr || m_taaCopyEffect == nullptr || m_accumulationBuffer0 == nullptr || m_accumulationBuffer1 == nullptr || m_cooldownBuffer == nullptr
 		)
 		{
 
@@ -1300,6 +1300,10 @@ bool TriStepRenderPostProcess::ProcessTaa(Tr2PPTaaEffect* taa)
 			m_accumulationBuffer1.CreateInstance();
 			m_accumulationBuffer1->Create( source->GetWidth(), source->GetHeight(), 1, Tr2RenderContextEnum::PIXEL_FORMAT_R16G16B16A16_UNORM );
 			m_accumulationBuffer1->SetName( "m_accumulationBuffer1" );
+
+			m_cooldownBuffer.CreateInstance();
+			m_cooldownBuffer->Create( source->GetWidth(), source->GetHeight(), 1, Tr2RenderContextEnum::PIXEL_FORMAT_R32_UINT, 1, 0, Tr2RenderContextEnum::EX_BIND_UNORDERED_ACCESS );
+			m_cooldownBuffer->SetName( "m_cooldownBuffer" );
 
 			m_taaEffect.CreateInstance();
 			m_taaEffect->StartUpdate();
@@ -1370,7 +1374,7 @@ bool TriStepRenderPostProcess::ProcessTaa(Tr2PPTaaEffect* taa)
 	}
 	else
 	{
-		if( m_velocityBuffer != nullptr || m_taaEffect != nullptr || m_taaCopyEffect != nullptr || m_accumulationBuffer0 != nullptr || m_accumulationBuffer1 != nullptr )
+		if( m_velocityBuffer != nullptr || m_taaEffect != nullptr || m_taaCopyEffect != nullptr || m_accumulationBuffer0 != nullptr || m_accumulationBuffer1 != nullptr || m_cooldownBuffer != nullptr )
 		{
 
 			m_velocityBuffer = nullptr;
@@ -1379,6 +1383,7 @@ bool TriStepRenderPostProcess::ProcessTaa(Tr2PPTaaEffect* taa)
 			m_taaCopyEffect = nullptr;
 			m_accumulationBuffer0 = nullptr;
 			m_accumulationBuffer1 = nullptr;
+			m_cooldownBuffer = nullptr;
 		}
 
 		m_scene->SetupTAA( m_velocityBuffer, 0, TAA_NONE );
@@ -1400,7 +1405,7 @@ void TriStepRenderPostProcess::RenderTaa( Tr2RenderTarget* dest, Tr2RenderContex
 	Tr2RenderTarget* output;
 	bool inputValid = true;
 
-	int frame_count = m_taaFrameCounter++;
+	uint32_t frame_count = m_taaFrameCounter++;
 	if( ( frame_count & 1 ) == 0 )
 	{
 		input = m_accumulationBuffer0;
@@ -1412,11 +1417,14 @@ void TriStepRenderPostProcess::RenderTaa( Tr2RenderTarget* dest, Tr2RenderContex
 		output = m_accumulationBuffer0;
 	}
 
+	m_taaEffect->SetParameter( BlueSharedString( "FrameIndex" ), frame_count );
+
 	m_taaEffect->SetParameter( BlueSharedString( "CurrentFrame" ), dest );
 	m_taaEffect->SetParameter( BlueSharedString( "CurrentFrameOpaque" ), m_opaqueColorBuffer );
 	m_taaEffect->SetParameter( BlueSharedString( "AccumulationBuffer" ), input );
+	m_taaEffect->SetParameter( BlueSharedString( "CooldownMap" ), m_cooldownBuffer );
 
-	float max_weight = 0.97f;
+	float max_weight = 0.96f;
 	float weight = min( (float)frame_count / ( (float)frame_count + 1.0f ), max_weight );
 	m_taaEffect->SetParameter( BlueSharedString( "BlendWeight" ), weight );
 

@@ -115,6 +115,11 @@ void Tr2RuntimeTextureParameter::SetTextureProvider( ITr2TextureProvider* textur
 	}
 }
 
+ITr2TextureProviderPtr Tr2RuntimeTextureParameter::GetTextureProvider() const
+{
+	return m_texture;
+}
+
 void Tr2RuntimeTextureParameter::SetUavMipLevel( uint32_t mipLevel )
 {
 	m_uavMipLevel = mipLevel;

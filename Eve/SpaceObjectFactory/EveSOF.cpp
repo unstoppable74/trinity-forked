@@ -54,7 +54,7 @@
 #include "Lights/Tr2SpotLight.h"
 #include "Lights/ITr2LightOwner.h"
 #include "Utilities/BoundingSphere.h"
-#include <BlueObjectMetadata.h>
+#include "BlueObjectMetadata.h"
 
 namespace
 {
@@ -572,12 +572,13 @@ size_t EveSOF::FillMeshAreaVector( Tr2MeshAreaVector* meshAreaVector, TriBatchTy
 			newShader->AddResourceTexture2D( it->first, highResPath.c_str() );
 		}
 
-		auto pattern = dna->GetPatternApplicationData();
 		size_t patternLayerCount = dna->GetPatternLayerCount();
 
 		// pattern textures
 		if( patternLayerCount > 0 )
 		{
+            bool deletePatterData = false;
+            auto pattern = dna->GetPatternApplicationData( deletePatterData );
 			newShader->SetOption( BlueSharedString( "SPACE_OBJECT_PPT_ENABLED" ), BlueSharedString( "SOPPT_ENABLED" ) );
 			
 			for( size_t i = 0; i < patternLayerCount; ++i )
@@ -592,6 +593,10 @@ size_t EveSOF::FillMeshAreaVector( Tr2MeshAreaVector* meshAreaVector, TriBatchTy
 					newShader->AddSamplerOverride( BlueSharedString( std::string( patternLayerData->textureName.c_str() ) + "Sampler" ), patternLayerData->projectionAddressModeU, patternLayerData->projectionAddressModeV );
 				}
 			}
+            if( deletePatterData )
+            {
+                delete pattern;
+            }
 		}
 		else 
 		{
@@ -1845,6 +1850,7 @@ void EveSOF::SetupAudio( ITr2SoundEmitterOwnerPtr newObj, const EveSOFDNAPtr dna
 		if( emitter->QueryInterface( BlueInterfaceIID<ITr2AudEmitter>(), reinterpret_cast<void**>( &theRealEmitter.p ), BEQI_SILENT ) && theRealEmitter )
 		{
 			theRealEmitter->Initialize( cit->name.c_str(), cit->prefix.c_str(), XMVector3TransformCoord( cit->position, parentOffset ) );
+			theRealEmitter->SetAttenuationScalingFactor( cit->attenuationScalingFactor );
 		}
 	}
 }
@@ -2068,7 +2074,8 @@ void EveSOF::SetupInstancedMeshes( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr
 // --------------------------------------------------------------------------------
 void EveSOF::SetupCustomMask( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
 {
-	const EveSOFDataMgr::PatternApplicationData* data = dna->GetPatternApplicationData();
+    bool deletePatterData = false;
+	const EveSOFDataMgr::PatternApplicationData* data = dna->GetPatternApplicationData( deletePatterData );
 
 	if( data )
 	{
@@ -2100,6 +2107,10 @@ void EveSOF::SetupCustomMask( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) c
 				}
 			}
 		}
+        if( deletePatterData )
+        {
+            delete data;
+        }
 	}
 }
 
@@ -2791,7 +2802,7 @@ void EveSOF::SetupLayout( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna, const 
 	{
 		auto layout = dna->GetLayoutData( layoutIdx );
 		size_t placementIdx = 0;
-		srand( layout->seed );
+		TriRandomSeed( layout->seed );
 
 		// Go over all the placements (each layout can have multiple mesh attachments)
 		for( auto placement : layout->placements )
@@ -2899,19 +2910,19 @@ bool EveSOF::ProcessLayoutDistributionConditions( EveSOFDataMgr::ExtensionPlacem
 		switch( condition.distributionType )
 		{
 		case EveSOFDataMgr::RANDOM_INCLUCION: {
-			distributionSuccessful = distributionSuccessful && condition.triggerChance > TriRand();
+			distributionSuccessful = distributionSuccessful && condition.triggerChance > TriFloatRandom01();
 			break;
 		}
 		case EveSOFDataMgr::PARENT_MATCH: {
-			bool hull = condition.parentMatchMap.matchHull ? condition.spaceObjectParentDescriptor.hull == placement.descriptor.hull : true;
-			bool faction = condition.parentMatchMap.matchFaction ? condition.spaceObjectParentDescriptor.faction == placement.descriptor.faction : true;
-			bool race = condition.parentMatchMap.matchRace ? condition.spaceObjectParentDescriptor.race == placement.descriptor.race : true;
-			bool pattern = condition.parentMatchMap.matchPattern ? condition.spaceObjectParentDescriptor.pattern == placement.descriptor.pattern : true;
-			bool material1 = condition.parentMatchMap.matchMaterial1 ? condition.spaceObjectParentDescriptor.material1 == placement.descriptor.material1 : true;
-			bool material2 = condition.parentMatchMap.matchMaterial2 ? condition.spaceObjectParentDescriptor.material2 == placement.descriptor.material2 : true;
-			bool material3 = condition.parentMatchMap.matchMaterial3 ? condition.spaceObjectParentDescriptor.material3 == placement.descriptor.material3 : true;
-			bool material4 = condition.parentMatchMap.matchMaterial4 ? condition.spaceObjectParentDescriptor.material4 == placement.descriptor.material4 : true;
-			bool layout = condition.parentMatchMap.matchLayout ? condition.spaceObjectParentDescriptor.layout == placement.descriptor.layout : true;
+			bool hull = condition.spaceObjectParentDescriptor.hull.empty() ? true : true; // TODO condition.spaceObjectParentDescriptor.hull == dna->;
+			bool faction = condition.spaceObjectParentDescriptor.faction.empty() ? true : condition.spaceObjectParentDescriptor.faction == dna->GetFactionName();
+			bool race = condition.spaceObjectParentDescriptor.race.empty() ? true : condition.spaceObjectParentDescriptor.race == dna->GetRaceName();
+			bool pattern = condition.spaceObjectParentDescriptor.pattern.empty() ? true : true; // TODO condition.spaceObjectParentDescriptor.pattern == dna->patter;
+			bool material1 = condition.spaceObjectParentDescriptor.material1.empty() ? true : true; // TODO condition.spaceObjectParentDescriptor.material1 == placement.descriptor.material1;
+			bool material2 = condition.spaceObjectParentDescriptor.material2.empty() ? true : true; // TODO  condition.spaceObjectParentDescriptor.material2 == placement.descriptor.material2;
+			bool material3 = condition.spaceObjectParentDescriptor.material3.empty() ? true : true; // TODO condition.spaceObjectParentDescriptor.material3 == placement.descriptor.material3;
+			bool material4 = condition.spaceObjectParentDescriptor.material4.empty() ? true : true; // TODO condition.spaceObjectParentDescriptor.material4 == placement.descriptor.material4;
+			bool layout = condition.spaceObjectParentDescriptor.layout.empty() ? true : true; // TODO condition.spaceObjectParentDescriptor.layout == placement.descriptor.layout;
 			distributionSuccessful = distributionSuccessful && hull && faction && race && pattern && material1 && material2 && material3 && material4 && layout;
 			break;
 		}
@@ -3021,14 +3032,13 @@ void EveSOF::ProcessLayoutDistributionDistribute( EveSOFDataMgr::ExtensionPlacem
 	float biasAmmount = Length(distributionData.placementBias) + abs(distributionData.centerBias);
 	float randomFactor = max(1.f - biasAmmount, 0.f); // BiasAmmount -> [0-2]
 
-	for( auto locator : placementSet )
+	for( auto& locator : placementSet )
 	{
 		uint32_t uID = locator.uniqueID;
 		float powerRank = rankedLocators[uID].x * distributionData.placementBias.x;
 		powerRank += rankedLocators[uID].y * distributionData.placementBias.y + rankedLocators[uID].z * distributionData.placementBias.z;
-		powerRank /= 1.73f*Length(distributionData.placementBias);
 		powerRank *= -1;
-		powerRank += float(placementSet.size())*TriRand()*randomFactor*4.f;
+		powerRank += float( placementSet.size() ) * TriFloatRandom01() * randomFactor * 4.f;
 		float cb = distributionData.centerBias;
 		cb = cb < 0 ?  ( float(placementSet.size()) - rankedLocators[uID].w ) * abs(cb) : rankedLocators[uID].w * cb;
 		powerRank += cb;
@@ -3052,6 +3062,25 @@ void EveSOF::ProcessLayoutDistributionDistribute( EveSOFDataMgr::ExtensionPlacem
 	{
 		placementSet.pop_back();
 		count--;
+	}
+
+
+	if( LengthSq(distributionData.randomRotationMaxSteps) > 0.f )
+	{
+		// handle rotation randomness
+		float yaw, pitch, roll, stepYaw, stepPitch, stepRoll;
+		TriQuaternionToYawPitchRoll( &stepYaw, &stepPitch, &stepRoll, &distributionData.randomRotationStepSizeYPR );
+
+		for( auto& locator : placementSet )
+		{
+			yaw = stepYaw * floor( distributionData.randomRotationMaxSteps[0] * TriFloatRandom01() + 0.5f );
+			pitch = stepPitch * floor( distributionData.randomRotationMaxSteps[1] * TriFloatRandom01() + 0.5f );
+			roll = stepRoll * floor( distributionData.randomRotationMaxSteps[2] * TriFloatRandom01() + 0.5f );
+			
+			Quaternion randomRotation = RotationQuaternion( yaw, pitch, roll );
+
+			locator.rotation *= randomRotation;
+		}
 	}
 
 	if( !distributionData.occupyLocators )
@@ -3111,7 +3140,12 @@ EveChildContainerPtr EveSOF::CreatePlacement( EveSpaceObject2Ptr parent, EveSOFD
 	{
 		for( auto loc = locators.begin(); loc != locators.end(); ++loc )
 		{
-			Matrix transform = placementOffset * TransformationMatrix( Vector3( 1.0, 1.0, 1.0 ), Normalize( loc->rotation ), loc->position ) * offset;
+			Vector3 randomScale( 1.f, 1.f, 1.f );
+			if( placement.hasDistribution )
+			{
+				randomScale = Lerp( placement.distribution.randomScaleMin, placement.distribution.randomScaleMax, TriFloatRandom01() );
+			}
+			Matrix transform = placementOffset * TransformationMatrix( randomScale, Normalize( loc->rotation ), loc->position ) * offset;
 			placementOffsets.push_back( transform );
 
 			Matrix transposed( XMMatrixTranspose( transform ) );

@@ -37,6 +37,7 @@
 #include "Tr2SSAO.h"
 #include "Lights/ITr2LightOwner.h"
 #include <ScopedBlockTrap.h>
+#include "../Tr2VolumetricsRenderer.h"
 
 
 using namespace Tr2RenderContextEnum;
@@ -226,6 +227,7 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 
 	m_dataTextureMgr.CreateInstance();
 	m_postProcessPSBuffer.CreateInstance();
+	m_planetPerObjBuffer.CreateInstance();
 	// 2x sampling pattern
 	m_taaSamplingPatterns[0] = Vector2( .5f, -.5f );
 	m_taaSamplingPatterns[1] = Vector2( -.5f, .5f );
@@ -248,6 +250,7 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	m_componentRegistry.CreateInstance();
 	m_ssao.CreateInstance();
 
+	m_volumetricsRenderer.CreateInstance();
 }
 
 IRoot* EveSpaceScene::GetCameraAttachments() const
@@ -266,6 +269,7 @@ EveSpaceScene::~EveSpaceScene()
 	{
 		CCP_DELETE( it->second );
 	}
+    CCP_DELETE( m_pickingBatches );
 
 	ClearComponentRegistry();
 }
@@ -454,7 +458,7 @@ void EveSpaceScene::SetupCascadedShadows( Tr2RenderContext& renderContext )
 	}
 
 	// set up frustums
-	for( unsigned int splitIndex = 0; splitIndex < SHADOW_FRUSTUM_COUNT; ++splitIndex)
+	for( unsigned int splitIndex = 0; splitIndex < SHADOW_FRUSTUM_COUNT; ++splitIndex )
 	{
 		ShadowMap::SplitSetup splitSetupInfo = m_cascadedShadowMap->SetupShadowSplit( splitIndex, m_shadowView, m_sunData.DirWorld, m_frameData.frustum.m_zNear );
 
@@ -484,7 +488,7 @@ void EveSpaceScene::SetupCascadedShadows( Tr2RenderContext& renderContext )
 		m_splitSetup[splitIndex] = splitSetupInfo;
 	}
 
-	GetShadowCasters( m_shadowCasters );
+	GetShadowCasters();
 
 	// if the shadow map DS isn't set then skip everything
 	if( !m_cascadedShadowMap->PrepareShadowRendering( renderContext ) )
@@ -530,7 +534,7 @@ void EveSpaceScene::SetupCascadedShadows( Tr2RenderContext& renderContext )
 				++objectData;
 			}
 			m_shadowBatches[index]->Finalize();
-		} );	
+		} );
 	}
 
 
@@ -542,21 +546,21 @@ void EveSpaceScene::SetupCascadedShadows( Tr2RenderContext& renderContext )
 		{
 			continue;
 		}
-		
+
 		m_cascadedShadowMap->BeginShadowRendering( renderContext, i );
 
 		// column_major for shaders
 		ShadowPerFrameVSData data;
 		data.ViewProjectionMat = Transpose( m_splitSetup[i].lightViewProjection );
-		
+
 		static const unsigned perFrameVsMask =
 			( 1 << VERTEX_SHADER ) |
 			SHADER_TYPE_EXISTS( COMPUTE_SHADER ) |
 			SHADER_TYPE_EXISTS( GEOMETRY_SHADER ) |
 			SHADER_TYPE_EXISTS( HULL_SHADER ) |
 			SHADER_TYPE_EXISTS( DOMAIN_SHADER );
-		FillAndSetConstants( m_shadowPerFrameVSBuffer, &data, sizeof( data ), perFrameVsMask, Tr2Renderer::GetPerFrameVSStartRegister(), renderContext );	
-	
+		FillAndSetConstants( m_shadowPerFrameVSBuffer, &data, sizeof( data ), perFrameVsMask, Tr2Renderer::GetPerFrameVSStartRegister(), renderContext );
+
 		//***** Do the actual shadow rendering to the atlas (cascaded shadow depth map)
 		{
 			CCP_STATS_ZONE( "ShadowRendering" );
@@ -564,7 +568,7 @@ void EveSpaceScene::SetupCascadedShadows( Tr2RenderContext& renderContext )
 			renderContext.m_esm.SetInvertedDepthTest( false );
 			ON_BLOCK_EXIT( [&] { renderContext.m_esm.SetInvertedDepthTest( true ); } );
 			renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
-			renderContext.RenderBatches( m_shadowBatches[i].get());
+			renderContext.RenderBatches( m_shadowBatches[i].get() );
 		}
 
 		m_shadowBatches[i]->Clear();
@@ -575,7 +579,13 @@ void EveSpaceScene::SetupCascadedShadows( Tr2RenderContext& renderContext )
 
 	PopulatePerFramePSData( m_perFramePS, renderContext );
 	ApplyPerFrameData( renderContext );
+	SetupPlanetsAsShadowCaster( renderContext );
 	m_cascadedShadowMap->DrawToShadowMapResult( renderContext, m_depthMap );
+
+	if( m_componentRegistry && m_volumetricsRenderer )
+	{
+		m_volumetricsRenderer->RenderShadows( m_componentRegistry->GetVolumetricRenderables(), m_cascadedShadowMap->GetShadowMap(), renderContext );
+	}
 }
 
 void EveSpaceScene::DisableShadows()
@@ -592,7 +602,7 @@ void EveSpaceScene::DisableShadows()
 // Arguments:
 //   sortedShadowCasters - (out) list of all shadow casters in the scene
 // --------------------------------------------------------------------------------------
-void EveSpaceScene::GetShadowCasters( std::vector<std::vector<ShadowCasterInfo>>& shadowCasters )
+void EveSpaceScene::GetShadowCasters()
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 	unsigned int shadowMapSize = m_cascadedShadowMap->GetShadowMapSize();
@@ -601,7 +611,7 @@ void EveSpaceScene::GetShadowCasters( std::vector<std::vector<ShadowCasterInfo>>
 	{
 		if( IEveShadowCasterPtr caster = BlueCastPtr( *it ) )
 		{
-			caster->GatherShadowRenderables( shadowCasters, m_cameraFrustums, m_shadowFrustums, SHADOW_FRUSTUM_COUNT, shadowMapSize, m_sunData.DirWorld );
+			caster->GatherShadowRenderables( m_shadowCasters, m_cameraFrustums, m_shadowFrustums, SHADOW_FRUSTUM_COUNT, shadowMapSize, m_sunData.DirWorld );
 		}
 	}
 }
@@ -1885,6 +1895,17 @@ void EveSpaceScene::RenderDepthPass( Tr2RenderContext& renderContext )
 	}
 }
 
+void EveSpaceScene::RenderVolumetrics( Tr2RenderContext& renderContext )
+{
+	if( !m_componentRegistry || !m_volumetricsRenderer || !m_depthMap )
+	{
+		return;
+	}
+
+	m_volumetricsRenderer->RenderVolumetrics( m_componentRegistry->GetVolumetricRenderables(), m_frameData.frustum, *m_depthMap, m_sunData.DirWorld, m_perFramePS.VolumetricSlices, renderContext );
+}
+
+
 // --------------------------------------------------------------------------------------
 // Description:
 //   Main rendering of foreground objects.
@@ -1972,6 +1993,8 @@ void EveSpaceScene::RenderMainPass( Tr2RenderContext& renderContext, CullMode cu
 	
 	PopulateAndApplyPerFrameData( renderContext );
 	//ApplyPerFrameData( renderContext );
+
+	RenderVolumetrics( renderContext );
 
 	{
 		GPU_REGION( renderContext, "Transparent" );
@@ -2125,8 +2148,6 @@ void EveSpaceScene::Render3DUI( Tr2RenderContext& renderContext )
 {
 	renderContext.AddGpuMarker( __FUNCTION__ );
 
-	RenderDebugInfo( renderContext );
-
 	Matrix identity = IdentityMatrix();
 	std::vector<ITr2Renderable*> renderables;
 	Tr2RenderableSortList transparentObjects;
@@ -2168,6 +2189,8 @@ void EveSpaceScene::Render3DUI( Tr2RenderContext& renderContext )
 	renderContext.SetReadOnlyDepth( false );
 
 	Tr2QuadRenderer::Instance()->DoneRendering( renderContext );
+
+	RenderDebugInfo( renderContext );
 
 	renderContext.m_esm.EndManagedRendering();
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
@@ -2274,6 +2297,10 @@ void EveSpaceScene::UpdateVariableStore()
 	if( m_ssao )
 	{
 		m_ssaoMapHandle->SetValue( m_ssao->GetOutput() );
+	}
+	if( m_volumetricsRenderer )
+	{
+		m_volumetricsRenderer->UpdateVariableStore();
 	}
 }
 
@@ -2389,7 +2416,7 @@ void EveSpaceScene::PopulatePerFramePSData( PerFramePSData& data, Tr2RenderConte
 	data.ShadowLightness = 0;
 	data.DepthMapSampleCount = 1.0f; //legacy
 
-	const Matrix& projection = Tr2Renderer::GetReversedDepthProjectionTransform();
+	Matrix projection = Tr2Renderer::GetReversedDepthProjectionTransform();
 	data.ProjectionToView.x = projection._43;
 	data.ProjectionToView.y = projection._33;
 
@@ -2410,13 +2437,16 @@ void EveSpaceScene::PopulatePerFramePSData( PerFramePSData& data, Tr2RenderConte
 		{
 			data.ShadowMatrixVal[i] = m_cascadedShadowMap->m_perSplitData.ShadowMatrixVal[i];
 		}
-
 		data.SplitInfo = m_cascadedShadowMap->m_perSplitData.SplitInfo;
 	}
 	// m_perFrameVS.ProjectionMat is already transposed
 	data.ProjectionInverseMat = Inverse( m_perFrameVS.ProjectionMat );
 	data.Debug = m_perFrameDebug;
-	
+
+	data.VolumetricSlices[0] = 1000;
+	data.VolumetricSlices[1] = 10000;
+	data.VolumetricSlices[2] = 100000;
+	data.VolumetricSlices[3] = 1000000;
 }
 
 bool EveSpaceScene::Initialize()
@@ -2964,6 +2994,41 @@ Matrix EveSpaceScene::SetupPlanetViewMatrix()
 	return orgViewMatrix;
 }
 
+void EveSpaceScene::SetupPlanetsAsShadowCaster( Tr2RenderContext& renderContext )
+{
+	// list of planet's sphere and the corresponding pixelSize
+	std::vector<PlanetInfo> visiblePlanets;
+	for( EvePlanet* obj : m_planets )
+	{
+		float pixelSize = obj->GetEstimatedPixelDiameter();
+		if( pixelSize > 50.0f )
+		{
+			// we don't want the sun to be a shadow caster
+			if( obj->GetTranslationCurve() != nullptr && obj->GetTranslationCurve() == m_sunBall )
+			{
+				continue;
+			}
+			Vector3 planetWorldPos = obj->GetWorldPosition();
+			float radius = obj->GetRadius();
+			PlanetInfo p = { { Vector4( planetWorldPos, radius ) }, pixelSize };
+			visiblePlanets.emplace_back( p );
+		}
+	}
+	
+	// sort the visiblePlanet list by the pixelSize so we get the 2 largest ones
+	std::sort(visiblePlanets.begin(), visiblePlanets.end(),
+		[](const PlanetInfo& a, const PlanetInfo& b) {
+			return a.pixelSize > b.pixelSize;
+	});
+	
+	// cut unnecessary objects from the list, or if we only have 1 planet the other index is just filled with 0 values
+	visiblePlanets.resize(2);
+
+	m_planetPerObjData.planetSphere[0] = visiblePlanets[0].sphere;
+	m_planetPerObjData.planetSphere[1] = visiblePlanets[1].sphere;
+	m_planetPerObjBuffer->SetData( (void*)&m_planetPerObjData, sizeof( m_planetPerObjData ) );
+	m_planetPerObjBuffer->ApplyBuffer( renderContext );
+}
 
 void EveSpaceScene::GetPickingResults( Tr2PickBuffer& pickBuffer, Tr2RenderContext& renderContext, unsigned short& objId, unsigned short& areaId, float& depth )
 {

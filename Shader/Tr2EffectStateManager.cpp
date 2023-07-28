@@ -904,9 +904,9 @@ const Tr2Viewport& Tr2EffectStateManager::GetDeviceViewport()
 	return m_viewportOnDevice;
 }
 
-bool Tr2EffectStateManager::SetRenderTarget( unsigned int index, const Tr2TextureAL& rt, bool updateViewport )
+bool Tr2EffectStateManager::SetRenderTarget( unsigned int index, const Tr2TextureAL& rt, bool updateViewport, uint32_t slice )
 {
-	if( FAILED( m_renderContext.SetRenderTarget( rt, index ) ) )
+	if( FAILED( m_renderContext.SetRenderTarget( rt, index, slice ) ) )
 	{
 		CCP_LOGERR( "Failed to set renderTarget to slot %d", index );
 		return false;
