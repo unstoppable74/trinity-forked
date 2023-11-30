@@ -153,7 +153,7 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	m_display( true ),
 	m_update( true ),
 	m_enableShadow( true ),
-	m_allowLodSelection( false ),
+	m_allowLodSelection( true ),
 	m_isPickable( true ),
 	m_activationStrength( 1.0f ),
 	m_maxSpeed( 0 ),
