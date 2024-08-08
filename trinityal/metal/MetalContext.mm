@@ -73,6 +73,8 @@ namespace TrinityALImpl
 
 	MetalContext::~MetalContext()
 	{
+        m_pendingRelease.clear();
+        
 		delete m_utils;
 
 		DestroyMetalBuffer( m_dummyBuffer );
@@ -446,6 +448,8 @@ namespace TrinityALImpl
             {
                 m_resourceHeap.SetFrameIndices( m_recordingFrameNumber, m_renderedFrameNumber );
             }
+            
+            FlushPendingRelease( m_renderedFrameNumber );
 		}
 		if( !m_gpuTimerRateMeasured )
 		{
@@ -582,6 +586,16 @@ namespace TrinityALImpl
 ConstantBufferAllocator& MetalContext::GetConstantBufferAllocator()
 {
     return m_cbAllocator[GetRecordingFrameNumber() % 3];
+}
+
+void MetalContext::ReleaseLater( id<NSObject> obj )
+{
+    m_pendingRelease.push_back( { obj, GetRecordingFrameNumber() } );
+}
+
+void MetalContext::FlushPendingRelease( uint64_t renderedFrame )
+{
+    m_pendingRelease.erase( std::remove_if( begin( m_pendingRelease ), end( m_pendingRelease ), [&]( auto& item ) { return item.frame <= renderedFrame; } ), end( m_pendingRelease ) );
 }
 
 } // namespace TrinityALImpl
