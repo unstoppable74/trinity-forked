@@ -31,7 +31,7 @@ Tr2Controller::Tr2Controller( IRoot* lockobj )
 	m_owner( nullptr ),
 	m_isActive( false ),
 	m_isShared( false ),
-	m_minUpdateFrequency( 1 ),
+	m_minUpdateFrequency( 2 ),
 	m_maxUpdateFrequency( 20 ),
 	m_currentUpdateFrequency( 10.f ),
 	m_nextUpdateTS( 0 ),
