@@ -153,6 +153,11 @@ void EveEffectRoot2::UpdateSyncronous( const EveUpdateContext& updateContext )
 		(*it)->Update( m_lastUpdateMatrix );
 	}
 
+	if( m_audioObject)
+	{
+		m_audioObject->UpdateSyncronous( updateContext );
+	}
+
 	if( !m_effectChildren.empty() )
 	{
 		Matrix worldTransform;
@@ -747,6 +752,11 @@ void EveEffectRoot2::GetDebugOptions( Tr2DebugRendererOptions& options )
 			renderable->GetDebugOptions( options );
 		}
 	}
+
+	if( m_audioObject )
+	{
+		m_audioObject->GetDebugOptions( options );
+	}
 }
 
 // -----------------------------------------------------------------------------
@@ -776,6 +786,11 @@ void EveEffectRoot2::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 	for ( auto it = m_observers.begin(); it != m_observers.end(); ++it )
 	{
 		( *it )->RenderDebugInfo( renderer );
+	}
+
+	if (m_audioObject)
+	{
+		m_audioObject->RenderDebugInfo( renderer );
 	}
 }
 
@@ -919,6 +934,10 @@ void EveEffectRoot2::SetMute( bool isMute )
 	for( auto it : m_observers )
 	{
 		it->SetMute( m_mute );
+	}
+	if( m_audioObject )
+	{
+		m_audioObject->SetMute( m_mute );
 	}
 }
 

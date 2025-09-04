@@ -472,6 +472,11 @@ void EveSpaceObject2::UpdateSyncronous( const EveUpdateContext& updateContext )
 		( *it )->Update( observerTransform );
 	}
 
+	if (m_audioObject)
+	{
+		m_audioObject->UpdateSyncronous( updateContext );
+	}
+
 	// trigger syncronous update of attachements here
 	if( !m_effectChildren.empty() )
 	{
@@ -689,6 +694,11 @@ void EveSpaceObject2::GetDebugOptions( Tr2DebugRendererOptions& options )
 		( *it )->GetDebugOptions( options );
 	}
 
+	if( m_audioObject )
+	{
+		m_audioObject->GetDebugOptions( options );
+	}
+
 	for( auto it = m_locatorSets.begin(); it != m_locatorSets.end(); ++it )
 	{
 		std::string name = "Locators ";
@@ -725,6 +735,11 @@ void EveSpaceObject2::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 	for( auto it = m_observers.begin(); it != m_observers.end(); ++it )
 	{
 		( *it )->RenderDebugInfo( renderer );
+	}
+
+	if (m_audioObject)
+	{
+		m_audioObject->RenderDebugInfo( renderer );
 	}
 
 	if( renderer.HasOption( GetRawRoot(), "Local Bounding Box" ) )
@@ -1545,6 +1560,11 @@ void EveSpaceObject2::UpdateVisibility( const EveUpdateContext& updateContext, c
 		{
 			emitter->SetVisibility( m_isVisible );
 		}
+	}
+
+	if( m_audioObject )
+	{
+		m_audioObject->UpdateVisibility( updateContext, m_worldTransform );
 	}
 
 	for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt )
@@ -3627,6 +3647,7 @@ ITr2AudEmitterPtr EveSpaceObject2::FindSoundEmitter( const char* name )
 			}
 		}
 	}
+	
 	return nullptr;
 }
 
@@ -3702,6 +3723,11 @@ void EveSpaceObject2::SetMute( bool isMute )
 	for( auto it : m_observers )
 	{
 		it->SetMute( m_mute );
+	}
+
+	if (m_audioObject)
+	{
+		m_audioObject->SetMute( m_mute );
 	}
 }
 

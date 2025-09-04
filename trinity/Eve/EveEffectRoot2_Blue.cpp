@@ -127,6 +127,14 @@ const Be::ClassInfo* EveEffectRoot2::ExposeToBlue()
 			Be::READ | Be::PERSIST
 		)
 
+		MAP_ATTRIBUTE
+		(
+			"audioObject",
+			m_audioObject,
+			"A standalone audio object.",
+			Be::READWRITE | Be::PERSIST
+		)
+
 		MAP_METHOD_AND_WRAP( "GetBoundingSphereRadius", GetBoundingSphereRadius, "Returns the bounding sphere radius." )
 
 		MAP_ATTRIBUTE( "lights", m_lights, "List of dynamic lights", Be::READ | Be::PERSIST );

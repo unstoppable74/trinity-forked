@@ -37,6 +37,7 @@
 #include "Tr2GrannyAnimation.h"
 #include "Raytracing/Tr2RaytracingManager.h"
 #include "Tr2BoneTransformBuffer.h"
+#include "Eve\EveAudioObject.h"
 
 
 // consts
@@ -83,6 +84,8 @@ BLUE_DECLARE_IVECTOR( IEveSpaceObjectAttachment );
 
 BLUE_DECLARE_INTERFACE( IEveSpaceObjectAttachmentOwner );
 BLUE_DECLARE_INTERFACE( ITr2LightOwner );
+
+BLUE_DECLARE( EveAudioObject );
 
 struct granny_skeleton;
 
@@ -692,6 +695,8 @@ protected:
 	mutable Tr2ConstantBufferAL m_rtPerObjectData;
 
 	Tr2BoneTransformOffsets m_boneOffsets;
+
+	EveAudioObjectPtr m_audioObject;
 
 };
 

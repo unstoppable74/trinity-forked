@@ -315,6 +315,12 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 			"Observers for pushing data between modules every frame. Currently used to push locator data out to the audio2 module.",
 			Be::READ | Be::PERSIST
 		)
+		MAP_ATTRIBUTE(
+			"audioObject",
+			m_audioObject,
+			"A standalone audio object.",
+			Be::READWRITE | Be::PERSIST
+		)
 
 		MAP_ATTRIBUTE( "impactOverlay", m_impactOverlay, "object for rendering damage/impact fx on this space object.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "decals", m_decals, "list of all decals on this space object.", Be::READ | Be::PERSIST )

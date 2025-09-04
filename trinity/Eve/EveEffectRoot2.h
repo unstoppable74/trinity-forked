@@ -19,6 +19,7 @@
 #include "Controllers/ITr2ControllerOwner.h"
 #include "Lights/ITr2LightOwner.h"
 #include "EveEntity.h"
+#include "Eve/EveAudioObject.h"
 
 BLUE_DECLARE( Tr2Light );
 BLUE_DECLARE_VECTOR( Tr2Light );
@@ -30,6 +31,8 @@ BLUE_DECLARE( Tr2ExternalParameter );
 BLUE_DECLARE_VECTOR( Tr2ExternalParameter );
 
 BLUE_DECLARE( EveEffectRoot2 );
+
+BLUE_DECLARE( EveAudioObject );
 
 BLUE_CLASS( EveEffectRoot2 ):
 	public IWorldPosition,
@@ -218,6 +221,8 @@ protected:
 
 	// Current LOD level
 	Tr2Lod m_lodLevel;
+
+	EveAudioObjectPtr m_audioObject;
 
 };
 
