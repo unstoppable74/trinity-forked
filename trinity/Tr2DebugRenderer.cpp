@@ -970,3 +970,96 @@ std::vector<Tr2DebugRendererOption> Tr2DebugRenderer::GetDefaultOptions() const
 	result.insert( result.end(), m_defaultOptions.begin(), m_defaultOptions.end() );
 	return result;
 }
+
+void Tr2DebugRenderer::DrawAudioIcon( Tr2DebugObjectReference owner, const Vector3& center, float size, uint32_t segments, Effect effect, Tr2DebugColor color, const Vector3& orientation )
+{
+	DrawAudioIcon( owner, IdentityMatrix(), center, size, segments, effect, color, orientation );
+}
+
+void Tr2DebugRenderer::DrawAudioIcon( Tr2DebugObjectReference owner, const Matrix& transform, float size, uint32_t segments, Effect effect, Tr2DebugColor color, const Vector3& orientation )
+{
+	DrawAudioIcon( owner, transform, Vector3( 0.0f, 0.0f, 0.0f ), size, segments, effect, color, orientation );
+}
+
+void Tr2DebugRenderer::DrawAudioIcon( Tr2DebugObjectReference owner, const Matrix& transform, const Vector3& center, float size, uint32_t segments, Effect effect, Tr2DebugColor color, const Vector3& orientation )
+{
+	if( segments < 3 )
+	{
+		segments = 3;
+	}
+
+	// Normalize the orientation vector
+	Vector3 forward = XMVector3Normalize( orientation );
+	
+	// Create a proper orientation matrix from the forward vector
+	Vector3 up( 0, 1, 0 );
+	// If forward is too close to up, use a different up vector
+	if( std::abs( XMVectorGetX( XMVector3Dot( forward, up ) ) ) > 0.9f )
+	{
+		up = Vector3( 0, 0, 1 );
+	}
+	Vector3 right = XMVector3Normalize( XMVector3Cross( up, forward ) );
+	up = XMVector3Cross( forward, right );
+	
+	// Create orientation matrix
+	Matrix orientationMatrix = IdentityMatrix();
+	orientationMatrix.GetX() = right;
+	orientationMatrix.GetY() = up;
+	orientationMatrix.GetZ() = forward;
+
+	// Speaker cone (main body)
+	float coneWidth = size * 0.3f;
+	float coneHeight = size * 0.5f;
+	
+	// Draw the main speaker cone using a truncated cone
+	const Vector2 coneVertices[] = { 
+		Vector2( -coneHeight / 2, coneWidth * 0.3f ),  // Back narrow end
+		Vector2( -coneHeight / 2, coneWidth * 0.3f ), 
+		Vector2( coneHeight / 2, coneWidth ),           // Front wide end
+		Vector2( coneHeight / 2, coneWidth ) 
+	};
+	const Vector2 coneNormals[] = { 
+		Vector2( -1, 0 ), Vector2( -1, 0 ), 
+		Vector2( 0, 1 ), Vector2( 0, 1 ) 
+	};
+	
+	// Apply orientation to the cone transform
+	Matrix coneTransform = orientationMatrix * transform * TranslationMatrix(center);
+	
+	DrawExtrusionShape( owner, coneTransform, coneVertices, coneNormals, 
+						sizeof( coneVertices ) / sizeof( coneVertices[0] ), segments, effect, color );
+
+	// Sound waves (3 arcs extending from the speaker)
+	float waveOffset = size * 0.6f;
+	float waveSpacing = size * 0.2f;
+	uint32_t waveSegments = std::max( segments / 2, 8u );
+
+	for( int wave = 0; wave < 3; ++wave )
+	{
+		float waveRadius = waveOffset + wave * waveSpacing;
+		float arcAngle = XM_PI * 0.6f; // 108 degrees total arc
+		
+		// Create arc vertices for the sound wave
+		std::vector<Vector3> arcPoints;
+		arcPoints.reserve( waveSegments + 1 );
+		
+		for( uint32_t i = 0; i <= waveSegments; ++i )
+		{
+			float angle = -arcAngle / 2 + ( float( i ) / float( waveSegments ) ) * arcAngle;
+			// Create point in local space, then apply orientation
+			Vector3 localPoint(
+				coneHeight / 2,
+				cos( angle ) * waveRadius,
+				sin( angle ) * waveRadius
+			);
+			Vector3 worldPoint = Vector3( XMVector3TransformCoord( localPoint, orientationMatrix * transform * TranslationMatrix( center ) ) );
+			arcPoints.push_back( worldPoint );
+		}
+		
+		// Draw the arc as connected line segments
+		for( uint32_t i = 0; i < waveSegments; ++i )
+		{
+			DrawLine( owner, arcPoints[i], arcPoints[i + 1], color );
+		}
+	}
+}

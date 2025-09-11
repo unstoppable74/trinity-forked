@@ -51,6 +51,17 @@ void EveAudioObject::UpdateSyncronous( const EveUpdateContext& updateContext )
 	}
 }
 
+void EveAudioObject::Update( const Matrix& worldTransform )
+{
+	m_worldTransform = worldTransform;
+
+	if( m_audioEmitter )
+	{
+		Vector3 front( 0, 1, 0 ), top( 0, 0, 1 );
+		m_audioEmitter->SetPosition( front, top, worldTransform.GetTranslation() );
+	}
+}
+
 void EveAudioObject::UpdateAsyncronous( const EveUpdateContext& updateContext )
 {
 }
@@ -173,7 +184,7 @@ void EveAudioObject::UpdateWorldTransform( Be::Time time )
 
 void EveAudioObject::GetDebugOptions( Tr2DebugRendererOptions& options )
 {
-	options.insert( "Bounding Sphere" );
+	options.insert( "Audio Object" );
 
 	if( auto tmp = dynamic_cast<ITr2DebugRenderable*>( m_audioEmitter.p ) )
 	{
@@ -183,13 +194,12 @@ void EveAudioObject::GetDebugOptions( Tr2DebugRendererOptions& options )
 
 void EveAudioObject::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 {
-	if( renderer.HasOption( GetRawRoot(), "Bounding Sphere" ) )
+	if( renderer.HasOption( GetRawRoot(), "Audio Object" ) )
 	{
-		Vector4 boundingSphere;
-		if( GetBoundingSphere( boundingSphere ) )
-		{
-			renderer.DrawSphere( this, boundingSphere.GetXYZ(), boundingSphere.w, 8, Tr2DebugRenderer::Wireframe, 0xffff00ff );
-		}
+		// Convert quaternion to forward direction vector
+		Matrix rotationMatrix = RotationMatrix( m_rotation );
+		Vector3 orientation = rotationMatrix.GetZ(); // Z-axis is typically the forward direction
+		renderer.DrawAudioIcon( this, m_worldTransform, 30, 5, Tr2DebugRenderer::Wireframe, 0xffff00ff, orientation );
 	}
 
 	auto tmp = dynamic_cast<ITr2DebugRenderable*>( m_audioEmitter.p );

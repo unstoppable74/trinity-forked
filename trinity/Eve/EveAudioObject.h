@@ -67,6 +67,8 @@ public:
 	virtual void GetDebugOptions( Tr2DebugRendererOptions& options );
 	virtual void RenderDebugInfo( ITr2DebugRenderer2& renderer );
 	
+	virtual void Update( const Matrix& worldTransform );
+
 	/**
 	 * @brief Gets the audio emitter for this object.
 	 * @return Smart pointer to the emitter, or null if not initialized

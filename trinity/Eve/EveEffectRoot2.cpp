@@ -155,7 +155,7 @@ void EveEffectRoot2::UpdateSyncronous( const EveUpdateContext& updateContext )
 
 	if( m_audioObject)
 	{
-		m_audioObject->UpdateSyncronous( updateContext );
+		m_audioObject->Update( m_lastUpdateMatrix );
 	}
 
 	if( !m_effectChildren.empty() )

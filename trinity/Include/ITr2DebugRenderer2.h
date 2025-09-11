@@ -180,6 +180,10 @@ BLUE_INTERFACE( ITr2DebugRenderer2 ) : public IRoot
 	virtual bool GetColorForOption( Color & color, const Tr2DebugRendererOption& option ) const = 0;
 	virtual void SetColorForOption( const Tr2DebugRendererOption& option, const Color& color ) = 0;
 
+	virtual void DrawAudioIcon( Tr2DebugObjectReference owner, const Vector3& center, float size, uint32_t segments, Effect effect, Tr2DebugColor color, const Vector3& orientation );
+	virtual void DrawAudioIcon( Tr2DebugObjectReference owner, const Matrix& transform, float size, uint32_t segments, Effect effect, Tr2DebugColor color, const Vector3& orientation );
+	virtual void DrawAudioIcon( Tr2DebugObjectReference owner, const Matrix& transform, const Vector3& center, float size, uint32_t segments, Effect effect, Tr2DebugColor color, const Vector3& orientation );
+
 };
 
 BLUE_INTERFACE( ITr2DebugRenderable ) : public IRoot

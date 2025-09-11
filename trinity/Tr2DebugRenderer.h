@@ -76,6 +76,10 @@ public:
 	void DrawAxis( Tr2DebugObjectReference owner, const Matrix& transform, Effect effect );
 
 	void DrawExtrusionShape( Tr2DebugObjectReference owner, const Matrix& transform, const Vector2* vertices, const Vector2* normals, uint32_t vertexCount, uint32_t segments, Effect effect, Tr2DebugColor color );
+
+	void DrawAudioIcon( Tr2DebugObjectReference owner, const Vector3& center, float size, uint32_t segments, Effect effect, Tr2DebugColor color, const Vector3& orientation );
+	void DrawAudioIcon( Tr2DebugObjectReference owner, const Matrix& transform, float size, uint32_t segments, Effect effect, Tr2DebugColor color, const Vector3& orientation );
+	void DrawAudioIcon( Tr2DebugObjectReference owner, const Matrix& transform, const Vector3& center, float size, uint32_t segments, Effect effect, Tr2DebugColor color, const Vector3& orientation );
     
 	void DrawText( TriDebugFont font, const Vector3& pos, const Color& color, const char* msg, ... );
     
