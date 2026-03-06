@@ -411,6 +411,11 @@ void Tr2AtlasTexture::UnlockBuffer()
 	}
 
 	texture->UnmapForWriting( renderContext );
+	
+	//potential fix for icon corruption.
+#if TRINITY_PLATFORM == TRINITY_DIRECTX12
+	renderContext.FlushBarriersDx12();
+#endif
 
 	m_isLocked = false;
 	SetGood( true );

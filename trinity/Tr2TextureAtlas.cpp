@@ -158,6 +158,11 @@ bool Tr2TextureAtlas::DoPrepare( Tr2AtlasTexture* tex )
 	tex->m_textureHeight = m_height;
 
 	Tr2ImageIOHelpers::CopyToTexture( *tex->m_loadedBitmap, m_texture, area->rect.left, area->rect.top, m_margin, renderContext );
+	
+	//potential fix for icon corruption.
+#if TRINITY_PLATFORM == TRINITY_DIRECTX12
+	renderContext.FlushBarriersDx12();
+#endif
 
 	if( m_hasMipMaps ) 
 	{
@@ -1037,7 +1042,14 @@ bool Tr2TextureAtlas::CopyTextureIntoAtlas( Tr2AtlasTexture* tex )
 		Tr2TextureSubresource dest( 0, 0 );
 		dest.m_box.left = r.left;
 		dest.m_box.top = r.top;
-		return SUCCEEDED( m_texture.CopySubresourceRegion( dest, *tex->GetTexture(), Tr2TextureSubresource( 0, 0 ), renderContext ) );
+		bool success = SUCCEEDED( m_texture.CopySubresourceRegion( dest, *tex->GetTexture(), Tr2TextureSubresource( 0, 0 ), renderContext ) );
+		
+		//potential fix for icon corruption.
+#if TRINITY_PLATFORM == TRINITY_DIRECTX12
+		renderContext.FlushBarriersDx12();
+#endif
+
+		return success;
 	}
 
 	if( m_hasMipMaps )
@@ -1057,7 +1069,14 @@ bool Tr2TextureAtlas::CopyTextureIntoAtlas( Tr2AtlasTexture* tex )
 	// Area may be larger than texture due to alignment
 	uint32_t right = r.left + tex->GetWidth() + 2*m_margin;
 	uint32_t bottom = r.top + tex->GetHeight() + 2*m_margin;
-	return SUCCEEDED( m_texture.UpdateSubresource( Tr2TextureSubresource( 0 ).SetRect( r.left, r.top, right, bottom ), &pixels[0], pitch, 0, renderContext ) );
+	bool success = SUCCEEDED( m_texture.UpdateSubresource( Tr2TextureSubresource( 0 ).SetRect( r.left, r.top, right, bottom ), &pixels[0], pitch, 0, renderContext ) );
+
+	//potential fix for icon corruption.
+#if TRINITY_PLATFORM == TRINITY_DIRECTX12
+	renderContext.FlushBarriersDx12();
+#endif
+
+	return success;
 }
 
 ALResult Tr2TextureAtlas::CreateTexture( unsigned int width, unsigned int height, AtlasTextureType type, Tr2AtlasTexture** result )
@@ -1499,6 +1518,11 @@ void Tr2TextureAtlas::UpdateMipMaps( Tr2RenderContext& renderContext )
 		destPitch >>= 1;
 		std::swap( prevMip, nextMip );
 	}
+
+		//potential fix for icon corruption.
+#if TRINITY_PLATFORM == TRINITY_DIRECTX12
+	renderContext.FlushBarriersDx12();
+#endif
 
 	m_dirtyMipRegions.clear();
 }
