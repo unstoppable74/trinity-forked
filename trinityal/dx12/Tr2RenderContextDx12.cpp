@@ -633,10 +633,13 @@ ALResult Tr2RenderContextAL::ResetResourceBindings() throw()
 	m_pendingUAVs.clear();
 	m_pendingSamplers.clear();
 
-
 	std::fill( std::begin( m_sortedSRVs ), std::end( m_sortedSRVs ), Resource{} );
 	std::fill( std::begin( m_sortedUAVs ), std::end( m_sortedUAVs ), Resource{} );
 	std::fill( std::begin( m_sortedSamplers ), std::end( m_sortedSamplers ), Sampler{} );
+
+	m_inTransitions = {};
+	m_outTransitions = {};
+	m_usedResources = {};
 
 	return S_OK;
 }
