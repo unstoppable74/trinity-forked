@@ -863,6 +863,7 @@ ALResult Tr2RenderContextAL::DispatchRays( Tr2RtPipelineStateAL& pipeline, Tr2Rt
 
 	m_commandList->SetComputeRootSignature( p->GetGlobalRootSignature().m_rootSignature );
 	uint32_t bufferIndex = m_ownerDevice->GetCurrentBackBufferIndex();
+	UseResourceBindings( p->GetGlobalRootSignature() );
 	m_descriptorCache[bufferIndex]->Commit( m_commandList, GetPrimaryRenderContextPointer()->GetGlobalSrvUavHeap(), GetPrimaryRenderContextPointer()->GetGlobalSamplerHeap(), &pipeline.TrinityALImpl_GetObject()->GetGlobalRootSignature() );
 	FlushComputeBarriersDx12();
 
@@ -878,9 +879,15 @@ ALResult Tr2RenderContextAL::DispatchRays( Tr2RtPipelineStateAL& pipeline, Tr2Rt
 
 ALResult Tr2RenderContextAL::UseResourceBindings() throw()
 {
-	Tr2PrimaryRenderContextAL& renderContext = GetPrimaryRenderContext();
+	auto& rootSignature = m_psoDescription.m_shaderProgram.m_program->m_rootSignature;
+	return UseResourceBindings( rootSignature );
+}
 
-	auto& registerMap = m_psoDescription.m_shaderProgram.GetRegisterMap();
+ALResult Tr2RenderContextAL::UseResourceBindings( const TrinityALImpl::Tr2RootSignatureAL& rootSignature ) throw()
+{
+	Tr2PrimaryRenderContextAL& renderContext = GetPrimaryRenderContext();
+	
+	auto& registerMap = rootSignature.m_registerMap;
 
 	uint32_t samplerCount = 0;
 	uint32_t resourceCount = 0;
@@ -950,7 +957,6 @@ ALResult Tr2RenderContextAL::UseResourceBindings() throw()
 		ResourceBarrierDx12( m_outTransitions.size(), m_outTransitions.data() );
 	}
 
-	auto& rootSignature = m_psoDescription.m_shaderProgram.m_program->m_rootSignature;
 	uint32_t bufferIndex = GetPrimaryRenderContextPointer()->GetCurrentBackBufferIndex();
 
 	std::vector<ID3D12Resource*> transitioned;
@@ -1911,7 +1917,6 @@ void Tr2RenderContextAL::ResetDx12()
 	m_indexBuffer = Tr2BufferAL();
 	m_dynamicIB = false;
 
-	//m_resourceSet = Tr2ResourceSetAL();
 	ResetResourceBindings();
 
 	m_psoDescription = TrinityALImpl::PSODescription();

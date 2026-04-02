@@ -248,6 +248,7 @@ public:
 
 protected:
 	ALResult UseResourceBindings() throw();
+	ALResult UseResourceBindings( const TrinityALImpl::Tr2RootSignatureAL& globalRootSignature ) throw();
 	ID3D12PipelineState* GetPipelineState();
 
 	/** Forcibly reset and dirty all descriptor caches (used for explicit synchronization) */
@@ -274,9 +275,6 @@ protected:
 
 	std::pair<uint32_t, uint32_t> m_primitiveToVertexCount;
 
-	//Tr2ResourceSetAL m_resourceSet;
-
-	// Tr2ResourceSetAL data
 	struct Resource
 	{
 		enum Type

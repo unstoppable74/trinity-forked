@@ -95,6 +95,7 @@ Tr2GpuResourcePool::Texture Tr2RaytracingManager::RenderShadows(
 	m_shadowEffect->SetParameter( RtShadowMapTechniqueName, destination );
 	m_shadowEffect->SetParameter( NormalBufferTechniqueName, normal );
 	ON_BLOCK_EXIT( [&] { m_shadowEffect->SetParameter( RtShadowMapTechniqueName, Tr2TextureAL() ); } );
+	//ON_BLOCK_EXIT( [&] { m_shadowEffect->SetParameter( NormalBufferTechniqueName, Tr2TextureAL() ); } );
 
 	// scene srv
 	m_shadowEffect->SetParameter( RtSceneTechniqueName, m_geometry );

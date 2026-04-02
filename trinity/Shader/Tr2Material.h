@@ -142,7 +142,6 @@ public:
 
 	std::vector<ITriReroutable*> m_reroutedParameters;
 	Tr2ResourceSetDescriptionAL m_resourceSetDesc;
-	//Tr2ResourceSetAL m_resourceSet;
 	std::vector<ITr2EffectValuePtr> m_usedResources;
 	Tr2BindlessResourcesAL m_usedTextures;
 	uint32_t m_resourceSetHash;
@@ -162,7 +161,6 @@ struct Tr2EffectLibraryParameters : public PassParametersOwner
 
 	Tr2MaterialStageInput m_globalInput;
 	Tr2ResourceSetDescriptionAL m_globalResourceSetDesc;
-	Tr2ResourceSetAL m_globalResourceSet;
 	std::vector<ITriReroutable*> m_reroutedParameters;
 	std::vector<ITr2EffectValuePtr> m_usedResources;
 	Tr2BindlessResourcesAL m_usedTextures;

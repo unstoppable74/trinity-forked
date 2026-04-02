@@ -459,8 +459,6 @@ void Tr2Material::InvalidateResourceSets()
 		for( auto pit = begin( tit->passes ); pit != end( tit->passes ); ++pit )
 		{
 			auto params = pit->get();
-			//params->m_resourceSet = Tr2ResourceSetAL();
-			//params->m_resourceSetDesc.ClearResources();
 			params->m_resourceSetHash = 0;
 			params->m_resourceSetDirty = true;
 
@@ -651,6 +649,12 @@ void Tr2Material::ApplyMaterialDataForRtState( uint32_t techniqueIndex, const Tr
 
 	bool descChanged = pp.m_globalResourceSetDirty;
 	descChanged |= SetResources( Tr2RenderContextEnum::COMPUTE_SHADER, pp.m_globalInput, renderContext );
+
+	if( descChanged )
+	{
+		USE_MAIN_THREAD_RENDER_CONTEXT();
+		pp.m_globalResourceSetDirty = false;
+	}
 }
 
 void Tr2Material::ApplyMaterialDataForRtMaterial( uint32_t techniqueIndex, Tr2RtLocalMaterialDescriptionAL& localMaterial, Tr2RenderContext& renderContext ) const
