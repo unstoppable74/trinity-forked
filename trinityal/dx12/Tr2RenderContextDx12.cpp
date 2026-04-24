@@ -637,7 +637,11 @@ ALResult Tr2RenderContextAL::ResetResourceBindings() throw()
 	std::fill( std::begin( m_sortedUAVs ), std::end( m_sortedUAVs ), Resource{} );
 	std::fill( std::begin( m_sortedSamplers ), std::end( m_sortedSamplers ), Sampler{} );
 
-	m_inTransitions = {};
+	if( !m_outTransitions.empty() )
+	{
+		ResourceBarrierDx12( m_outTransitions.size(), m_outTransitions.data() );
+	}
+
 	m_outTransitions = {};
 	m_usedResources = {};
 
@@ -961,13 +965,13 @@ ALResult Tr2RenderContextAL::UseResourceBindings( const TrinityALImpl::Tr2RootSi
 	{
 		ResourceBarrierDx12( m_outTransitions.size(), m_outTransitions.data() );
 	}
+	m_outTransitions.clear();
 
 	uint32_t bufferIndex = GetPrimaryRenderContextPointer()->GetCurrentBackBufferIndex();
 
 	std::vector<ID3D12Resource*> transitioned;
 
-	m_inTransitions.clear();
-	m_outTransitions.clear();
+	std::vector<D3D12_RESOURCE_BARRIER> inTransitions;
 
 	auto AddTransition = [&]( ID3D12Resource* res, D3D12_RESOURCE_STATES defaultState, D3D12_RESOURCE_STATES expectedState ) {
 		// TODO: verify state
@@ -976,7 +980,7 @@ ALResult Tr2RenderContextAL::UseResourceBindings( const TrinityALImpl::Tr2RootSi
 			auto found = std::find( begin( transitioned ), end( transitioned ), res );
 			if( found == transitioned.end() )
 			{
-				m_inTransitions.push_back( TrinityALImpl::Transition( res, defaultState, expectedState ) );
+				inTransitions.push_back( TrinityALImpl::Transition( res, defaultState, expectedState ) );
 				m_outTransitions.push_back( TrinityALImpl::Transition( res, expectedState, defaultState ) );
 				transitioned.push_back( res );
 			}
@@ -1111,9 +1115,9 @@ ALResult Tr2RenderContextAL::UseResourceBindings( const TrinityALImpl::Tr2RootSi
 		samplerCount = std::max( reg.parameter + 1, samplerCount );
 	}
 
-	if( !m_inTransitions.empty() )
+	if( !inTransitions.empty() )
 	{
-		ResourceBarrierDx12( m_inTransitions.size(), m_inTransitions.data() );
+		ResourceBarrierDx12( inTransitions.size(), inTransitions.data() );
 	}
 
 	m_descriptorCache[bufferIndex]->SetSamplers( 0, samplerCount, samplers );
@@ -1909,11 +1913,6 @@ bool Tr2RenderContextAL::IsBoundDx12( const TrinityALImpl::Tr2TextureAL& texture
 
 void Tr2RenderContextAL::ResetDx12()
 {
-	if( !m_outTransitions.empty() )
-	{
-		ResourceBarrierDx12( m_outTransitions.size(), m_outTransitions.data() );
-	}
-
 	for( uint32_t i = 0; i < 4; ++i )
 	{
 		m_vertexBuffers[i].buffer = Tr2BufferAL();

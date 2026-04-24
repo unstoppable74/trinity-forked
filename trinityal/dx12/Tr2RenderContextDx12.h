@@ -334,7 +334,6 @@ protected:
 	Resource m_sortedUAVs[Tr2ResourceSetDescriptionAL::MAX_RESOURCES_IN_STAGE];
 	Sampler m_sortedSamplers[Tr2ResourceSetDescriptionAL::MAX_RESOURCES_IN_STAGE];
 
-	std::vector<D3D12_RESOURCE_BARRIER> m_inTransitions;
 	std::vector<D3D12_RESOURCE_BARRIER> m_outTransitions;
 	std::vector<ID3D12Resource*> m_usedResources;
 

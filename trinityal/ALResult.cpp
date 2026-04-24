@@ -9,10 +9,11 @@
 #include "ALLog.h"
 
 #if( TRINITYDEV == 1 )
-bool g_requestDeviceDebugLayer = true;
+//bool g_requestDeviceDebugLayer = true;
 #else
-bool g_requestDeviceDebugLayer = false;
+//bool g_requestDeviceDebugLayer = false;
 #endif
+bool g_requestDeviceDebugLayer = true;
 ICrashReporter* TrinityALCrashes = nullptr;
 
 
