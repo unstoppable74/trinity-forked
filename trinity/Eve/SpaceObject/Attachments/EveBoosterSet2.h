@@ -290,9 +290,9 @@ public:
 	// ITr2LightOwner
 	void GetLights( Tr2LightManager& lightManager ) const override;
 
-private:
-	std::vector<BoosterItem> m_singleBoosters;
+	std::vector<SingleBoosterData> m_singleBoosters;
 
+private:
 	// re-alloc and init the instance vertex buffers
 	void RebuildInstanceData( Tr2RenderContext& renderContext );
 
