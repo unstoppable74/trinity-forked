@@ -13,6 +13,7 @@
 #include "Eve/EveUpdateContext.h"
 #include "Eve/EveEntity.h"
 #include "Lights/ITr2LightOwner.h"
+#include "EveBoosterSetItem.h"
 
 // forwards
 class ITriRenderBatchAccumulator;
@@ -237,26 +238,24 @@ public:
 	void RebuildPreservingSettings();
 	void FinalizeRebuild();
 
-	// Per-booster data. The first six fields are the source data persisted to .red
-	// files so boosters survive save/load cycles. The remaining three are derived
-	// at runtime inside Add() and are never persisted.
+	// Runtime per-booster data used for rendering, lighting, and debug.
+	// transform, functionality, atlasIndex0, and atlasIndex1 mirror the
+	// corresponding fields in EveBoosterSetItem (m_persistedItems), which
+	// is the Blue-serialized source of truth for save/load cycles.
+	// lightPosition, lightRadius, and lightPhase are derived in Add() and
+	// are never persisted.
 	struct SingleBoosterData
 	{
-		// --- persisted ---
-		Matrix transform;
-		Vector4 functionality;
-		uint32_t atlasIndex0;
-		uint32_t atlasIndex1;
-		bool hasTrail;
-		float lightScale;
-		// --- runtime derived, not persisted ---
-		Vector3 lightPosition;
-		float lightRadius;
-		float lightPhase;
+		Matrix      transform;
+		Vector4     functionality;
+		uint32_t    atlasIndex0;
+		uint32_t    atlasIndex1;
+		Vector3     lightPosition;
+		float       lightRadius;
+		float       lightPhase;
 	};
 
 	void Add( const Matrix* localMatrix, const Vector4* functionality, bool hasTrail, uint32_t atlasIndex0, uint32_t atlasIndex1, float lightScale = 1 );
-	const std::vector<SingleBoosterData>& GetSingleBoosters() const { return m_singleBoosters; }
 	// set internal visual data
 	void SetData( 
 		float glowScale, 
@@ -290,9 +289,11 @@ public:
 	// ITr2LightOwner
 	void GetLights( Tr2LightManager& lightManager ) const override;
 
-	std::vector<SingleBoosterData> m_singleBoosters;
+	const PEveBoosterSetItemVector& GetPersistedItems() const { return m_persistedItems; }
 
 private:
+	std::vector<SingleBoosterData> m_singleBoosters;
+	PEveBoosterSetItemVector m_persistedItems;
 	// re-alloc and init the instance vertex buffers
 	void RebuildInstanceData( Tr2RenderContext& renderContext );
 
@@ -365,3 +366,4 @@ private:
 TYPEDEF_BLUECLASS( EveBoosterSet2 );
 
 #endif // EveBoosterSet2_H
+

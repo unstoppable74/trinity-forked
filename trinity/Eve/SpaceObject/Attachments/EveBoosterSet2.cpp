@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "EveBoosterSet2.h"
+#include "EveBoosterSetItem.h"
 
 #include "Utilities/BoundingSphere.h"
 #include "Utilities/BoundingBox.h"
@@ -742,13 +743,13 @@ EveBoosterSet2::~EveBoosterSet2()
 // --------------------------------------------------------------------------------
 bool EveBoosterSet2::Initialize()
 {
-	if( !m_singleBoosters.empty() )
+	if( !m_persistedItems.empty() )
 	{
-		std::vector<SingleBoosterData> loaded = m_singleBoosters;
 		m_singleBoosters.clear();
-		for( const auto& item : loaded )
+		for( unsigned int i = 0; i < m_persistedItems.size(); ++i )
 		{
-			Add( &item.transform, &item.functionality, item.hasTrail, item.atlasIndex0, item.atlasIndex1, item.lightScale );
+			const EveBoosterSetItem* item = m_persistedItems[i];
+			Add( &item->transform, &item->functionality, item->hasTrail, item->atlasIndex0, item->atlasIndex1, item->lightScale );
 		}
 		FinalizeRebuild();
 	}
@@ -869,6 +870,7 @@ void EveBoosterSet2::RebuildPreservingSettings()
 {
 	// Clear only the booster items, not the effects/glows/trails
 	m_singleBoosters.clear();
+	m_persistedItems.Clear();
 	if( m_glows )
 	{
 		m_glows->Clear();
@@ -911,9 +913,17 @@ void EveBoosterSet2::Add( const Matrix* localMatrix, const Vector4* functionalit
 	sbd.lightPhase = float( g_lightNoiseSize ) * float( rand() ) / float( RAND_MAX );
 	sbd.atlasIndex0 = atlasIndex0;
 	sbd.atlasIndex1 = atlasIndex1;
-	sbd.hasTrail = hasTrail;
-	sbd.lightScale = lightScale;
 	m_singleBoosters.push_back( sbd );
+
+	EveBoosterSetItemPtr item;
+	item.CreateInstance();
+	item->transform     = *localMatrix;
+	item->functionality = *functionality;
+	item->atlasIndex0   = atlasIndex0;
+	item->atlasIndex1   = atlasIndex1;
+	item->hasTrail      = hasTrail;
+	item->lightScale    = lightScale;
+	m_persistedItems.Append( item->GetRawRoot() );
 
 	Vector3 pos( localMatrix->_41, localMatrix->_42, localMatrix->_43 );
 	float scale = std::max( Length( localMatrix->GetX() ), Length( localMatrix->GetY() ) );

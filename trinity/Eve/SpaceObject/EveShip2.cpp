@@ -237,7 +237,7 @@ void EveShip2::RebuildBoosterSet()
 	}
 
 	// Snapshot the currently persisted booster data before clearing
-	std::vector<EveBoosterSet2::SingleBoosterData> snapshot = m_boosters->GetSingleBoosters();
+	PEveBoosterSetItemVector snapshot = m_boosters->GetPersistedItems();
 
 	// Clear only the booster items while preserving effects, glows, trails, and visual settings
 	m_boosters->RebuildPreservingSettings();
