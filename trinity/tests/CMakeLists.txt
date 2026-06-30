@@ -58,6 +58,7 @@ set(_SOURCES
 set(_INTEGRATION_SOURCES
     TrinityEngineIntegrationTest.cpp
     ContinueOnMainThreadTest.cpp
+    TestExceptionMacros.h          # header — listed only so it shows up in the IDE project
     ../ContinueOnMainThread.cpp
 )
 
@@ -65,6 +66,7 @@ set(_INTEGRATION_SOURCES
 # (VS reflects a target's full source list). Group them under a clearly-labeled filter so it's
 # obvious they're borrowed engine code, not test-owned files.
 source_group("Engine sources (compiled-in)" FILES ${_ENGINE_SOURCES_UNDER_TEST})
+source_group("Test support" FILES TestExceptionMacros.h)
 
 find_package(GTest REQUIRED)
 include(GoogleTest)   # provides gtest_discover_tests()
