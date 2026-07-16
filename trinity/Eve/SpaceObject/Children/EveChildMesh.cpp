@@ -686,23 +686,7 @@ void EveChildMesh::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType
 
 void EveChildMesh::RebuildOverlayAreaBlocks()
 {
-	for( int i = 0; i < EveMeshOverlayEffect::TYPE_COUNT; ++i )
-	{
-		m_overlayMeshAreaBlocks[i].clear();
-	}
-
-	if( m_mesh )
-	{
-		m_mesh->CollectAreaBlocks( m_overlayMeshAreaBlocks[EveMeshOverlayEffect::TYPE_ALL], TRIBATCHTYPE_OPAQUE );
-		m_mesh->CollectAreaBlocks( m_overlayMeshAreaBlocks[EveMeshOverlayEffect::TYPE_ALL], TRIBATCHTYPE_TRANSPARENT );
-		m_mesh->CollectAreaBlocks( m_overlayMeshAreaBlocks[EveMeshOverlayEffect::TYPE_ALL], TRIBATCHTYPE_DECAL );
-		m_mesh->CollectAreaBlocks( m_overlayMeshAreaBlocks[EveMeshOverlayEffect::TYPE_OPAQUEONLY], TRIBATCHTYPE_OPAQUE );
-		for( int i = 0; i < EveMeshOverlayEffect::TYPE_COUNT; ++i )
-		{
-			TriRenderBatchAreaBlock::Optimize( m_overlayMeshAreaBlocks[i] );
-		}
-	}
-
+	CollectOverlayAreaBlocks( m_mesh, m_overlayMeshAreaBlocks );
 	m_overlayAreaBlocksBuilt = true;
 }
 
@@ -731,40 +715,7 @@ void EveChildMesh::GetBatchesFromOverlayVector( ITriRenderBatchAccumulator* batc
 		return;
 	}
 
-	for( auto it = m_parentOverlayEffects->begin(); it != m_parentOverlayEffects->end(); ++it )
-	{
-		EveMeshOverlayEffectPtr overlay = *it;
-		bool success = false;
-		const PTr2EffectVector& effects = overlay->GetEffects( batchType, success );
-		if( !success )
-		{
-			continue;
-		}
-
-		EveMeshOverlayEffect::OverlayType overlayType = overlay->GetType( batchType );
-		for( auto eff = effects.begin(); eff != effects.end(); ++eff )
-		{
-			Tr2EffectPtr effect = *eff;
-
-			for( auto& areaBlock : m_overlayMeshAreaBlocks[overlayType] )
-			{
-				if( auto primCount = GetPrimitiveCount( *lod, areaBlock.m_startIndex, areaBlock.m_count ) )
-				{
-					Tr2RenderBatch batch;
-					batch.SetMaterial( effect );
-					batch.SetGeometry( lod->m_mesh->m_vertexDeclarationHandle, lod->m_vertexAllocation, lod->m_indexAllocation );
-					batch.SetPerObjectData( perObjectData );
-					batch.SetDrawIndexedInstanced(
-						primCount * 3,
-						1,
-						lod->m_indexAllocation.GetStartIndex() + lod->m_areas[areaBlock.m_startIndex].m_firstIndex,
-						lod->m_vertexAllocation.GetOffset() / lod->m_vertexAllocation.GetStride(),
-						0 );
-					batches->Commit( batch );
-				}
-			}
-		}
-	}
+	EmitOverlayBatches( batches, perObjectData, batchType, *m_parentOverlayEffects, m_overlayMeshAreaBlocks, *lod );
 }
 
 void EveChildMesh::GetShadowBatches( ITriRenderBatchAccumulator* batches, const Tr2PerObjectData* perObjectData, float shadowPixelSize )
@@ -1033,9 +984,10 @@ void EveChildMesh::UpdateAsyncronous( const EveUpdateContext& updateContext, con
 		params.spaceObjectParent->GetPerObjectStructs( m_vsData, m_psData );
 		params.spaceObjectParent->GetParentData( &m_parentData );
 
-		// Borrow the parent's overlay effects so we can draw them over our own geometry.
-		// spaceObjectParent is always an EveSpaceObject2 (set to `this` in the parent's update).
-		m_parentOverlayEffects = &static_cast<EveSpaceObject2*>( params.spaceObjectParent )->GetOverlayEffects();
+		if( EveSpaceObject2Ptr spaceObject2Parent = BlueCastPtr( params.spaceObjectParent ) )
+		{
+			m_parentOverlayEffects = &spaceObject2Parent->GetOverlayEffects();
+		}
 
 		// need to move the clipdata inversely of the translation of the childmesh
 		m_vsData.clipData = Vector4( m_vsData.clipData.GetXYZ() - m_translation, m_vsData.clipData.w );
