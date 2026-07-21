@@ -1,0 +1,98 @@
+name: Build patched Win x64  
+  
+on:  
+  push:  
+    branches: [main]  
+  pull_request:  
+    branches: [main]  
+  workflow_dispatch:  
+  
+env:  
+  CMAKE_BUILD_FOLDER: .cmake-build-release  
+  CMAKE_BUILD_PARALLEL_LEVEL: 4  
+  CMAKE_GENERATOR: Ninja Multi-Config  
+  
+jobs:  
+  build-windows:  
+    runs-on: windows-2022  
+  
+    steps:  
+      - name: Checkout repository  
+        uses: actions/checkout@v4  
+  
+      - name: Configure git global SSH-to-HTTPS URL rewrite  
+        shell: pwsh  
+        run: git config --global url."https://github.com/".insteadOf "git@github.com:"  
+  
+      - name: Clone and bootstrap vcpkg  
+        shell: pwsh  
+        run: |  
+          New-Item -ItemType Directory -Force -Path "vendor/github.com/microsoft"  
+          git clone https://github.com/microsoft/vcpkg.git vendor/github.com/microsoft/vcpkg  
+          git -C vendor/github.com/microsoft/vcpkg checkout 242ac6932a9cd2607332969129e9572516f28d65  
+          vendor\github.com\microsoft\vcpkg\bootstrap-vcpkg.bat -disableMetrics  
+  
+      - name: Clone carbonengine/vcpkg-registry  
+        shell: pwsh  
+        run: |  
+          New-Item -ItemType Directory -Force -Path "vendor/github.com/carbonengine"  
+          git clone https://github.com/carbonengine/vcpkg-registry.git vendor/github.com/carbonengine/vcpkg-registry  
+  
+      - name: Patch triplet - toolset v141 to v143 and add C++17 compat flags  
+        shell: pwsh  
+        run: |  
+          (Get-Content vendor/github.com/carbonengine/vcpkg-registry/triplets/x64-windows-release.cmake) -replace 'set\(VCPKG_PLATFORM_TOOLSET v141\)', 'set(VCPKG_PLATFORM_TOOLSET v143)' | Set-Content vendor/github.com/carbonengine/vcpkg-registry/triplets/x64-windows-release.cmake  
+          Add-Content -Path "vendor/github.com/carbonengine/vcpkg-registry/triplets/x64-windows-release.cmake" -Value 'set(VCPKG_CXX_FLAGS "${VCPKG_CXX_FLAGS} /D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS /D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS")'  
+          Add-Content -Path "vendor/github.com/carbonengine/vcpkg-registry/triplets/x64-windows-release.cmake" -Value 'set(VCPKG_C_FLAGS "${VCPKG_C_FLAGS} /D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS /D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS")'  
+  
+      - name: Patch vcpkg-configuration.json SSH URL to HTTPS  
+        shell: pwsh  
+        run: (Get-Content vcpkg-configuration.json) -replace 'git@github\.com:carbonengine/vcpkg-registry\.git', 'https://github.com/carbonengine/vcpkg-registry.git' | Set-Content vcpkg-configuration.json  
+  
+      - name: Cache vcpkg binary packages  
+        uses: actions/cache@v4  
+        with:  
+          path: ${{ github.workspace }}/vcpkg-binary-cache  
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}  
+          restore-keys: vcpkg-${{ runner.os }}-  
+  
+      - name: Set up MSVC x64 environment  
+        uses: ilammy/msvc-dev-cmd@v1  
+        with:  
+          arch: x64  
+  
+      - name: Configure CMake  
+        shell: pwsh  
+        env:  
+          VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/vcpkg-binary-cache,readwrite  
+          X_VCPKG_REGISTRIES_CACHE: ${{ github.workspace }}\regcache  
+        run: |  
+          New-Item -ItemType Directory -Force -Path "${{ github.workspace }}\regcache"  
+          New-Item -ItemType Directory -Force -Path "${{ github.workspace }}\vcpkg-binary-cache"  
+          cmake --preset x64-windows-release -S . -B ${{ env.CMAKE_BUILD_FOLDER }} `  
+            -DCMAKE_MAKE_PROGRAM=ninja `  
+            -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}\.build-artifact" `  
+            -DVCPKG_INSTALL_OPTIONS="--x-buildtrees-root=${{ github.workspace }}\buildtrees" `  
+            -DVCPKG_OVERLAY_PORTS="${{ github.workspace }}/ports" `  
+            -DBUILD_DX11=ON -DBUILD_DX12=ON -DBUILD_SHADER_COMPILER=ON  
+  
+      - name: Print vcpkg build logs on failure  
+        if: failure()  
+        shell: pwsh  
+        run: Get-ChildItem "${{ github.workspace }}\buildtrees" -Filter "*-out.log" -Recurse | ForEach-Object { Write-Host "=== $($_.FullName) ==="; Get-Content $_.FullName | Select-Object -Last 100 }  
+  
+      - name: Build  
+        shell: pwsh  
+        env:  
+          VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/vcpkg-binary-cache,readwrite  
+        run: cmake --build ${{ env.CMAKE_BUILD_FOLDER }} --config Release  
+  
+      - name: Install  
+        shell: pwsh  
+        run: cmake --install ${{ env.CMAKE_BUILD_FOLDER }} --config Release  
+  
+      - name: Upload artifact  
+        uses: actions/upload-artifact@v4  
+        with:  
+          name: trinity-windows-x64-release  
+          path: ${{ github.workspace }}\.build-artifact
